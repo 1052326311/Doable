@@ -34,6 +34,7 @@ import { projectSessions, activeRequests } from "./session-state.js";
 import { buildSystemPrompt } from "./system-prompts.js";
 import { createRecordAssistantToolCall, createToolProgressCallbacks } from "./tool-callbacks.js";
 import { createProcessEvent } from "./event-processor.js";
+import { finalizeLeadingResponse } from "./final-response.js";
 import { popArtifacts } from "./artifact-stash.js";
 import { scaffoldAndStartDev, emitConfigTraces, logToolManifest, handleToolEndEvent } from "./send-helpers.js";
 import { checkAndEvictOnModeChange, checkAndEvictOnProviderChange, resolveSession, persistSessionToDb, filterToolsForMode, recreateSession } from "./session-manager.js";
@@ -736,38 +737,14 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
               }
             }
 
-            // ── Finalize leading-text buffer at stream end ──
-            // Post-tool text stays as thinking — tool results (file changes,
-            // build cards, MCP UI resources) provide all the visible UI the
-            // user needs. Converting the buffer to content leaks internal
-            // reasoning (BUG-119: MiniMax emits untagged reasoning as text).
-            // However, if no tool calls occurred AND no content was emitted,
-            // the buffer is the actual response (e.g. simple chat greeting).
-            if (state.leadingTextBuffer) {
-              const bufLen = state.leadingTextBuffer.length;
-              if (!state.hadToolCalls && state.assistantContent.length === 0) {
-                // No tool calls, no content — this IS the response, not reasoning
-                const buffered = state.leadingTextBuffer;
-                state.leadingTextBuffer = "";
-                state.leadingTextFlushed = true;
-                // Strip any <think>...</think> blocks that the channel router
-                // didn't catch during streaming (token boundary issue)
-                const visibleContent = buffered.replace(/<think>[\s\S]*?<\/think>\s*/gi, "").trim();
-                if (visibleContent) {
-                  // Move buffer from thinking to content (only the visible portion)
-                  state.assistantThinking = state.assistantThinking.slice(0, state.assistantThinking.length - buffered.length);
-                  state.assistantContent += visibleContent;
-                  console.log(`[Chat][${projectId.slice(0, 8)}] Flushing ${visibleContent.length} chars as content (stripped from ${bufLen} buffer, no tools)`);
-                  broadcastToRoom(projectId, { type: "ai:stream-chunk", chunk: visibleContent, messageId, isThinking: false }, userId).catch(() => {});
-                  await stream.writeSSE({ data: JSON.stringify({ type: "thinking_to_text", data: visibleContent }) });
-                } else {
-                  console.log(`[Chat][${projectId.slice(0, 8)}] Keeping ${bufLen} chars as thinking (all thinking, no visible content)`);
-                }
-              } else {
-                state.leadingTextBuffer = "";
-                state.leadingTextFlushed = true;
-                console.log(`[Chat][${projectId.slice(0, 8)}] Keeping ${bufLen} chars as thinking (stream end, hadTools=${state.hadToolCalls})`);
-              }
+            // A tool call confirms preceding text as intermediate reasoning.
+            // The remaining ordinary-text segment at successful stream end is
+            // the final answer, regardless of tools in earlier turns.
+            const finalResponse = finalizeLeadingResponse(state);
+            if (finalResponse) {
+              state.traceCollector?.onTextDelta(finalResponse);
+              broadcastToRoom(projectId, { type: "ai:stream-chunk", chunk: finalResponse, messageId, isThinking: false }, userId).catch(() => {});
+              await stream.writeSSE({ data: JSON.stringify({ type: "thinking_to_text", data: finalResponse }) });
             }
 
             console.log(`[Chat][${projectId.slice(0, 8)}] stream done — content: ${state.assistantContent.length}, thinking: ${state.assistantThinking.length}, tools: ${state.hadToolCalls}`);
