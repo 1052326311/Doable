@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect } from "react";
 import type { Workspace } from "@doable/shared";
@@ -68,6 +70,8 @@ export function WorkspaceSwitcher({
   onSelect,
   onCreate,
 }: WorkspaceSwitcherProps) {
+  const ui = useUiText();
+
   const [createOpen, setCreateOpen] = useState(false);
   const [name, setName] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -106,7 +110,7 @@ export function WorkspaceSwitcher({
       setCreateOpen(false);
       setWizardOpen(true);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create workspace");
+      setError(err instanceof Error ? err.message : ui("Failed to create workspace"));
     } finally {
       setSubmitting(false);
     }
@@ -120,12 +124,12 @@ export function WorkspaceSwitcher({
             {activeWorkspace?.name.charAt(0).toUpperCase() ?? "?"}
           </div>
           <span className="max-w-[120px] truncate">
-            {activeWorkspace?.name ?? "Select workspace"}
+            {activeWorkspace?.name ?? ui("Select workspace")}
           </span>
           <ChevronsUpDown className="h-4 w-4 text-muted-foreground" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="w-56">
-          <DropdownMenuLabel>Workspaces</DropdownMenuLabel>
+          <DropdownMenuLabel>{ui("Workspaces")}</DropdownMenuLabel>
           {workspaces.map((ws) => (
             <DropdownMenuItem
               key={ws.id}
@@ -142,9 +146,7 @@ export function WorkspaceSwitcher({
           ))}
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={() => setCreateOpen(true)}>
-            <Plus className="mr-2 h-4 w-4" />
-            Create workspace
-          </DropdownMenuItem>
+            <Plus className="mr-2 h-4 w-4" /> {ui("Create workspace")} </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
@@ -152,13 +154,13 @@ export function WorkspaceSwitcher({
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Create workspace</DialogTitle>
+            <DialogTitle>{ui("Create workspace")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="mb-1 block text-sm font-medium text-foreground">Name</label>
+              <label className="mb-1 block text-sm font-medium text-foreground">{ui("Name")}</label>
               <Input
-                placeholder="My Team"
+                placeholder={ui("My Team")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 autoFocus
@@ -169,19 +171,15 @@ export function WorkspaceSwitcher({
             {/* Environment Selector */}
             <div>
               <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-foreground">
-                <Boxes className="h-4 w-4 text-muted-foreground" />
-                Start from environment
-                <span className="text-xs text-muted-foreground">(optional)</span>
+                <Boxes className="h-4 w-4 text-muted-foreground" /> {ui("Start from environment")} <span className="text-xs text-muted-foreground">{ui("(optional)")}</span>
               </label>
               {loadingEnvs ? (
                 <div className="flex items-center gap-2 rounded-md border border-border p-3">
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  <span className="text-xs text-muted-foreground">Loading environments...</span>
+                  <span className="text-xs text-muted-foreground">{ui("Loading environments...")}</span>
                 </div>
               ) : environments.length === 0 ? (
-                <p className="text-xs text-muted-foreground italic">
-                  No environments available. Create one from the editor.
-                </p>
+                <p className="text-xs text-muted-foreground italic"> {ui("No environments available. Create one from the editor.")} </p>
               ) : (
                 <div className="space-y-1.5 max-h-48 overflow-y-auto rounded-md border border-border bg-muted p-2">
                   <button
@@ -190,7 +188,7 @@ export function WorkspaceSwitcher({
                       selectedEnvId === null ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent"
                     }`}
                   >
-                    <span className="text-muted-foreground">None — start fresh</span>
+                    <span className="text-muted-foreground">{ui("None — start fresh")}</span>
                   </button>
                   {environments.map((env) => (
                     <button
@@ -216,16 +214,12 @@ export function WorkspaceSwitcher({
               )}
             </div>
 
-            {error && <p className="text-sm text-destructive">{error}</p>}
+            {error && <p className="text-sm text-destructive">{ui(error)}</p>}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setCreateOpen(false)}>
-              Cancel
-            </Button>
+            <Button variant="outline" onClick={() => setCreateOpen(false)}> {ui("Cancel")} </Button>
             <Button onClick={handleCreate} disabled={submitting || !name.trim()} className="bg-brand-600 text-white hover:bg-brand-500">
-              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Create
-            </Button>
+              {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {ui("Create")} </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

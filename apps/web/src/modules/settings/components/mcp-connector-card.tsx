@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback } from "react";
 import {
@@ -75,6 +77,8 @@ export function ConnectorCard({
   /** Re-run OAuth in place (only meaningful for oauth2 connectors). */
   onReconnect?: () => void;
 }) {
+  const ui = useUiText();
+
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{ ok: boolean; message: string; tools?: McpTool[] } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -178,29 +182,29 @@ export function ConnectorCard({
 
           <div className="px-4 py-3 border-b space-y-2">
             <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
-              <span className="text-muted-foreground font-medium">Transport</span>
+              <span className="text-muted-foreground font-medium">{ui("Transport")}</span>
               <span>{TRANSPORT_LABELS[connector.transport_type].label}</span>
               {connector.server_url && (
                 <>
-                  <span className="text-muted-foreground font-medium">URL</span>
+                  <span className="text-muted-foreground font-medium">{ui("URL")}</span>
                   <span className="font-mono truncate">{connector.server_url}</span>
                 </>
               )}
               {connector.server_command && (
                 <>
-                  <span className="text-muted-foreground font-medium">Command</span>
+                  <span className="text-muted-foreground font-medium">{ui("Command")}</span>
                   <span className="font-mono truncate">{connector.server_command}</span>
                 </>
               )}
               {!isBuiltin && Array.isArray(connector.server_args) && connector.server_args.length > 0 && (
                 <>
-                  <span className="text-muted-foreground font-medium">Args</span>
+                  <span className="text-muted-foreground font-medium">{ui("Args")}</span>
                   <span className="font-mono truncate">{connector.server_args.join(", ")}</span>
                 </>
               )}
-              <span className="text-muted-foreground font-medium">Auth</span>
+              <span className="text-muted-foreground font-medium">{ui("Auth")}</span>
               <span className="capitalize">{connector.auth_type.replace("_", " ")}</span>
-              <span className="text-muted-foreground font-medium">Scope</span>
+              <span className="text-muted-foreground font-medium">{ui("Scope")}</span>
               <span className="capitalize">{connector.scope}</span>
             </div>
           </div>
@@ -209,8 +213,7 @@ export function ConnectorCard({
             <div className="px-4 py-3 border-b">
               <div className="flex items-center gap-1.5 mb-2">
                 <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground">
-                  Tools ({toolCount})
+                <span className="text-xs font-medium text-muted-foreground"> {ui("Tools (")}{toolCount})
                 </span>
               </div>
               <div className="grid gap-1">
@@ -268,11 +271,9 @@ export function ConnectorCard({
                 <button
                   onClick={() => onReconnect()}
                   className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  title="Re-run the OAuth login to refresh this connection (keeps the same server and name)"
+                  title={ui("Re-run the OAuth login to refresh this connection (keeps the same server and name)")}
                 >
-                  <RefreshCw className="h-3.5 w-3.5" />
-                  Reconnect
-                </button>
+                  <RefreshCw className="h-3.5 w-3.5" /> {ui("Reconnect")} </button>
               )}
               <button
                 onClick={() => void handleTest()}
@@ -283,9 +284,7 @@ export function ConnectorCard({
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <Zap className="h-3.5 w-3.5" />
-                )}
-                Test Connection
-              </button>
+                )} {ui("Test Connection")} </button>
               <button
                 onClick={() => void handleToggleActive()}
                 disabled={toggling}
@@ -293,14 +292,10 @@ export function ConnectorCard({
               >
                 {connector.status === "active" || connector.status === "connecting" ? (
                   <>
-                    <PowerOff className="h-3.5 w-3.5" />
-                    Deactivate
-                  </>
+                    <PowerOff className="h-3.5 w-3.5" /> {ui("Deactivate")} </>
                 ) : (
                   <>
-                    <Power className="h-3.5 w-3.5" />
-                    Activate
-                  </>
+                    <Power className="h-3.5 w-3.5" /> {ui("Activate")} </>
                 )}
               </button>
             </div>
@@ -317,14 +312,10 @@ export function ConnectorCard({
               >
                 {confirmDelete ? (
                   <>
-                    <AlertCircle className="h-3.5 w-3.5" />
-                    Confirm Delete
-                  </>
+                    <AlertCircle className="h-3.5 w-3.5" /> {ui("Confirm Delete")} </>
                 ) : (
                   <>
-                    <Trash2 className="h-3.5 w-3.5" />
-                    Delete
-                  </>
+                    <Trash2 className="h-3.5 w-3.5" /> {ui("Delete")} </>
                 )}
               </button>
             )}

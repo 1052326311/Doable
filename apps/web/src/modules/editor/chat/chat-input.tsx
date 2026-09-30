@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Send, Paperclip, Square, Plus, ArrowUp, ChevronDown, Sparkles, FileIcon, FolderIcon, X } from "lucide-react";
@@ -21,12 +23,13 @@ const PLACEHOLDER_SUGGESTIONS = [
 ];
 
 function useRotatingPlaceholder(): string {
+  const ui = useUiText();
   const [index, setIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isTyping, setIsTyping] = useState(true);
 
   useEffect(() => {
-    const target = PLACEHOLDER_SUGGESTIONS[index]!;
+    const target = ui(PLACEHOLDER_SUGGESTIONS[index]!);
     let charIndex = 0;
     let timeout: ReturnType<typeof setTimeout>;
 
@@ -61,9 +64,9 @@ function useRotatingPlaceholder(): string {
     }
 
     return () => clearTimeout(timeout);
-  }, [index, isTyping]);
+  }, [index, isTyping, ui]);
 
-  return displayText || "Describe what you want to build...";
+  return displayText || ui("Describe what you want to build...");
 }
 
 interface ChatInputProps {
@@ -81,6 +84,8 @@ export function ChatInput({
   disabled,
   fileTree,
 }: ChatInputProps) {
+  const ui = useUiText();
+
   const [value, setValue] = useState("");
   const [isDragging, setIsDragging] = useState(false);
   const [showFilePicker, setShowFilePicker] = useState(false);
@@ -236,7 +241,7 @@ export function ChatInput({
              <button
                onClick={openFilePicker}
                className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white/5 text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 border border-white/5"
-               title="Upload files from your device"
+               title={ui("Upload files from your device")}
              >
                <Plus className="h-4 w-4" />
                {attachments.length > 0 && (
@@ -252,10 +257,10 @@ export function ChatInput({
                  <button
                    onClick={() => setShowFilePicker(!showFilePicker)}
                    className="relative flex h-8 items-center gap-1 rounded-full bg-white/5 text-muted-foreground hover:bg-muted hover:text-foreground transition-all duration-200 border border-white/5 px-2"
-                   title="Attach project files"
+                   title={ui("Attach project files")}
                  >
                    <FileIcon className="h-3.5 w-3.5" />
-                   <span className="text-[10px] font-medium">Files</span>
+                   <span className="text-[10px] font-medium">{ui("Files")}</span>
                    {selectedProjectFiles.length > 0 && (
                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-brand-500 text-[10px] font-medium text-white shadow-sm">
                        {selectedProjectFiles.length}
@@ -290,19 +295,19 @@ export function ChatInput({
               <button
                 onClick={onStop}
                 className="flex h-8 items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/20 px-3 text-red-500 hover:bg-red-500/20 transition-colors"
-                title="Stop generating"
+                title={ui("Stop generating")}
               >
                 <Square className="h-3 w-3 fill-current" />
-                <span className="text-[11px] font-medium">Stop</span>
+                <span className="text-[11px] font-medium">{ui("Stop")}</span>
               </button>
             ) : (
               <button
                 onClick={handleSend}
                 disabled={!hasContent || disabled}
                 className="group flex h-8 items-center gap-1.5 rounded-full bg-brand-500 border border-brand-500/20 px-3 text-white shadow-sm hover:bg-brand-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
-                title="Send message"
+                title={ui("Send message")}
               >
-                <span className="text-[11px] font-medium tracking-wide">Send</span>
+                <span className="text-[11px] font-medium tracking-wide">{ui("Send")}</span>
                 <ArrowUp className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5" />
               </button>
             )}
@@ -310,9 +315,7 @@ export function ChatInput({
         </div>
       </div>
       
-      <div className="mt-2 text-center text-[10px] text-muted-foreground/40 font-medium tracking-wide">
-        Shift + Enter for new line
-      </div>
+      <div className="mt-2 text-center text-[10px] text-muted-foreground/40 font-medium tracking-wide"> {ui("Shift + Enter for new line")} </div>
     </div>
   );
 }
@@ -330,6 +333,8 @@ function ProjectFilePicker({
   onToggle: (path: string) => void;
   onClose: () => void;
 }) {
+  const ui = useUiText();
+
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
 
@@ -358,7 +363,7 @@ function ProjectFilePicker({
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search project files..."
+          placeholder={ui("Search project files...")}
           className="w-full rounded-md bg-muted/50 px-2.5 py-1.5 text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:ring-1 focus:ring-brand-500/50"
           autoFocus
         />
@@ -369,7 +374,7 @@ function ProjectFilePicker({
         {filtered ? (
           // Search results (flat list)
           filtered.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">No files found</p>
+            <p className="text-center text-muted-foreground py-4">{ui("No files found")}</p>
           ) : (
             filtered.map((f) => (
               <FilePickerItem
@@ -409,9 +414,7 @@ function ProjectFilePicker({
         <button
           onClick={onClose}
           className="text-[10px] text-brand-400 hover:text-brand-300 font-medium"
-        >
-          Done
-        </button>
+        > {ui("Done")} </button>
       </div>
     </div>
   );

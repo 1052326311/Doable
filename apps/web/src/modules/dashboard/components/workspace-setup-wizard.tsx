@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -82,6 +85,9 @@ export function WorkspaceSetupWizard({
   workspaceName,
   onComplete,
 }: WorkspaceSetupWizardProps) {
+  const ui = useUiText();
+  const i18n_POPULAR_INTEGRATIONS = useUiData(POPULAR_INTEGRATIONS);
+
   const [step, setStep] = useState<Step>("environment");
 
   // Step 1 — Environment
@@ -120,7 +126,7 @@ export function WorkspaceSetupWizard({
       setCreatedEnvId(env.id);
       setStep("knowledge");
     } catch (err) {
-      setEnvError(err instanceof Error ? err.message : "Failed to create environment");
+      setEnvError(err instanceof Error ? err.message : ui("Failed to create environment"));
     } finally {
       setEnvSubmitting(false);
     }
@@ -174,15 +180,13 @@ export function WorkspaceSetupWizard({
         {step === "environment" && (
           <>
             <DialogHeader>
-              <DialogTitle>Set up your workspace</DialogTitle>
-              <DialogDescription>
-                Every workspace needs an environment — it defines what your AI assistant knows and can do.
-              </DialogDescription>
+              <DialogTitle>{ui("Set up your workspace")}</DialogTitle>
+              <DialogDescription> {ui("Every workspace needs an environment — it defines what your AI assistant knows and can do.")} </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 mt-4">
               <div className="flex gap-3">
                 <div className="flex flex-col items-center gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">Icon</label>
+                  <label className="text-xs font-medium text-muted-foreground">{ui("Icon")}</label>
                   <div className="grid grid-cols-4 gap-1 rounded-md border p-1.5">
                     {ICON_OPTIONS.map((icon) => (
                       <button
@@ -202,21 +206,17 @@ export function WorkspaceSetupWizard({
                 </div>
                 <div className="flex-1 space-y-3">
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
-                      Name
-                    </label>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground"> {ui("Name")} </label>
                     <Input
                       value={envName}
                       onChange={(e) => setEnvName(e.target.value)}
-                      placeholder="My Environment"
+                      placeholder={ui("My Environment")}
                       autoFocus
                       onKeyDown={(e) => e.key === "Enter" && handleCreateEnvironment()}
                     />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                      Color
-                    </label>
+                    <label className="mb-1.5 block text-xs font-medium text-muted-foreground"> {ui("Color")} </label>
                     <div className="flex gap-2">
                       {COLOR_OPTIONS.map((c) => (
                         <button
@@ -238,16 +238,12 @@ export function WorkspaceSetupWizard({
               {envError && <p className="text-sm text-destructive">{envError}</p>}
             </div>
             <DialogFooter className="mt-6">
-              <Button variant="ghost" onClick={handleClose}>
-                Skip setup
-              </Button>
+              <Button variant="ghost" onClick={handleClose}> {ui("Skip setup")} </Button>
               <Button
                 onClick={handleCreateEnvironment}
                 disabled={envSubmitting || !envName.trim()}
               >
-                {envSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Create & Continue
-                <ArrowRight className="ml-2 h-4 w-4" />
+                {envSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {ui("Create & Continue")} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </DialogFooter>
           </>
@@ -257,10 +253,8 @@ export function WorkspaceSetupWizard({
         {step === "knowledge" && (
           <>
             <DialogHeader>
-              <DialogTitle>Add knowledge</DialogTitle>
-              <DialogDescription>
-                Tell your AI what it should know about your projects. You can always add more later.
-              </DialogDescription>
+              <DialogTitle>{ui("Add knowledge")}</DialogTitle>
+              <DialogDescription> {ui("Tell your AI what it should know about your projects. You can always add more later.")} </DialogDescription>
             </DialogHeader>
             <div className="mt-4">
               <textarea
@@ -271,21 +265,15 @@ export function WorkspaceSetupWizard({
                 autoFocus
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground resize-none"
               />
-              <p className="mt-1.5 text-xs text-muted-foreground">
-                These instructions guide your AI assistant across all projects in this workspace.
-              </p>
+              <p className="mt-1.5 text-xs text-muted-foreground"> {ui("These instructions guide your AI assistant across all projects in this workspace.")} </p>
             </div>
             <DialogFooter className="mt-6">
-              <Button variant="ghost" onClick={() => setStep("integrations")}>
-                Skip
-              </Button>
+              <Button variant="ghost" onClick={() => setStep("integrations")}> {ui("Skip")} </Button>
               <Button
                 onClick={handleSaveKnowledge}
                 disabled={knowledgeSubmitting || !instructions.trim()}
               >
-                {knowledgeSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Save & Continue
-                <ArrowRight className="ml-2 h-4 w-4" />
+                {knowledgeSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {ui("Save & Continue")} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </DialogFooter>
           </>
@@ -295,13 +283,11 @@ export function WorkspaceSetupWizard({
         {step === "integrations" && (
           <>
             <DialogHeader>
-              <DialogTitle>Connect tools</DialogTitle>
-              <DialogDescription>
-                Connect external tools to supercharge your workflow. You can set these up anytime from Settings.
-              </DialogDescription>
+              <DialogTitle>{ui("Connect tools")}</DialogTitle>
+              <DialogDescription> {ui("Connect external tools to supercharge your workflow. You can set these up anytime from Settings.")} </DialogDescription>
             </DialogHeader>
             <div className="mt-4 grid grid-cols-2 gap-2">
-              {POPULAR_INTEGRATIONS.map((integration) => (
+              {i18n_POPULAR_INTEGRATIONS.map((integration) => (
                 <button
                   key={integration.name}
                   className="flex items-center gap-2.5 rounded-lg border px-3 py-2.5 text-left transition-colors hover:bg-muted"
@@ -319,13 +305,9 @@ export function WorkspaceSetupWizard({
                 </button>
               ))}
             </div>
-            <p className="mt-3 text-center text-xs text-muted-foreground">
-              Integrations can be connected from workspace settings at any time.
-            </p>
+            <p className="mt-3 text-center text-xs text-muted-foreground"> {ui("Integrations can be connected from workspace settings at any time.")} </p>
             <DialogFooter className="mt-4">
-              <Button onClick={() => setStep("done")}>
-                Continue
-                <ArrowRight className="ml-2 h-4 w-4" />
+              <Button onClick={() => setStep("done")}> {ui("Continue")} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </DialogFooter>
           </>
@@ -337,14 +319,11 @@ export function WorkspaceSetupWizard({
             <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
               <Sparkles className="h-7 w-7 text-primary" />
             </div>
-            <DialogTitle className="mb-2">You&apos;re all set!</DialogTitle>
+            <DialogTitle className="mb-2">{ui("You're all set!")}</DialogTitle>
             <p className="text-sm text-muted-foreground mb-6">
-              <strong>{workspaceName}</strong> is ready to go. Start creating projects and let AI help you build.
-            </p>
+              <strong>{workspaceName}</strong> {ui("is ready to go. Start creating projects and let AI help you build.")} </p>
             <Button onClick={handleClose} className="w-full max-w-[200px]">
-              <Check className="mr-2 h-4 w-4" />
-              Go to workspace
-            </Button>
+              <Check className="mr-2 h-4 w-4" /> {ui("Go to workspace")} </Button>
           </div>
         )}
       </DialogContent>

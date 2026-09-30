@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
@@ -47,6 +49,8 @@ import {
 // ─── Main Panel ─────────────────────────────────────────────
 
 export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
+  const ui = useUiText();
+
   const [dateRange, setDateRange] = useState<DateRange>("30d");
 
   const [loading, setLoading] = useState(true);
@@ -99,11 +103,11 @@ export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
       );
       setSettings({ enabled: newEnabled });
     } catch (err) {
-      console.error("Failed to toggle analytics:", err);
+      console.error(ui("Failed to toggle analytics:"), err);
     } finally {
       setTogglingEnabled(false);
     }
-  }, [projectId, settings, togglingEnabled]);
+  }, [ui, projectId, settings, togglingEnabled]);
 
   // Fetch helper
   const fetchAllData = useCallback(async () => {
@@ -128,11 +132,11 @@ export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
       setBrowsers(browsersRes.data);
       setOsData(osRes.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load analytics");
+      setError(err instanceof Error ? err.message : ui("Failed to load analytics"));
     } finally {
       setLoading(false);
     }
-  }, [projectId, dateRange]);
+  }, [ui, projectId, dateRange]);
 
   // Fetch data when enabled and date range changes
   useEffect(() => {
@@ -190,19 +194,16 @@ export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-brand-500" />
-          <h2 className="text-sm font-semibold text-foreground">Analytics</h2>
+          <h2 className="text-sm font-semibold text-foreground">{ui("Analytics")}</h2>
           <span className="inline-flex items-center gap-1 rounded-full bg-brand-500/10 px-2 py-0.5 text-[10px] font-medium text-brand-400">
-            <Zap className="h-2.5 w-2.5" />
-            Built-in analytics
-          </span>
+            <Zap className="h-2.5 w-2.5" /> {ui("Built-in analytics")} </span>
           {settings?.enabled && realtime && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
               </span>
-              {realtime.activeVisitors} live
-            </span>
+              {realtime.activeVisitors} {ui("live")} </span>
           )}
         </div>
         <div className="flex items-center gap-2">
@@ -229,7 +230,7 @@ export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
           <button
             onClick={onClose}
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            title="Close analytics"
+            title={ui("Close analytics")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -242,8 +243,8 @@ export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
           {/* Enable Analytics Toggle */}
           <div className="flex items-center justify-between rounded-lg border border-border bg-card px-4 py-3">
             <div>
-              <p className="text-sm font-medium text-foreground">Enable analytics for this project</p>
-              <p className="text-xs text-muted-foreground">Track visitors, page views, and engagement — privacy-friendly, no cookie banner needed.</p>
+              <p className="text-sm font-medium text-foreground">{ui("Enable analytics for this project")}</p>
+              <p className="text-xs text-muted-foreground">{ui("Track visitors, page views, and engagement — privacy-friendly, no cookie banner needed.")}</p>
             </div>
             <button
               onClick={handleToggleEnabled}
@@ -264,10 +265,8 @@ export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
           {!settingsLoading && !settings?.enabled && (
             <div className="rounded-lg border border-border bg-card p-8 text-center">
               <BarChart3 className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
-              <h3 className="text-sm font-semibold text-foreground mb-1">Analytics is disabled</h3>
-              <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                Enable analytics to track visitor counts, page views, session duration, traffic sources, device breakdown, and more. All data is collected in a privacy-friendly way — no cookies or consent banners required.
-              </p>
+              <h3 className="text-sm font-semibold text-foreground mb-1">{ui("Analytics is disabled")}</h3>
+              <p className="text-xs text-muted-foreground max-w-md mx-auto"> {ui("Enable analytics to track visitor counts, page views, session duration, traffic sources, device breakdown, and more. All data is collected in a privacy-friendly way — no cookies or consent banners required.")} </p>
             </div>
           )}
 
@@ -277,14 +276,13 @@ export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
               {error && (
                 <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4 text-center">
                   <AlertCircle className="mx-auto h-6 w-6 text-red-400 mb-2" />
-                  <p className="text-sm font-medium text-red-400 mb-1">Failed to load analytics</p>
-                  <p className="text-xs text-muted-foreground mb-3">{error}</p>
+                  <p className="text-sm font-medium text-red-400 mb-1">{ui("Failed to load analytics")}</p>
+                  <p className="text-xs text-muted-foreground mb-3">{ui(error)}</p>
                   <button
                     onClick={handleRetry}
                     className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-600 transition-colors"
                   >
-                    <RefreshCw className="h-3 w-3" /> Retry
-                  </button>
+                    <RefreshCw className="h-3 w-3" /> {ui("Retry")} </button>
                 </div>
               )}
 
@@ -304,20 +302,18 @@ export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
               {!loading && !error && !hasData && (
                 <div className="rounded-lg border border-border bg-card p-8 text-center">
                   <Eye className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
-                  <h3 className="text-sm font-semibold text-foreground mb-1">No data yet</h3>
-                  <p className="text-xs text-muted-foreground max-w-md mx-auto">
-                    Analytics will appear once your published site receives visitors. Make sure your project is published and accessible.
-                  </p>
+                  <h3 className="text-sm font-semibold text-foreground mb-1">{ui("No data yet")}</h3>
+                  <p className="text-xs text-muted-foreground max-w-md mx-auto"> {ui("Analytics will appear once your published site receives visitors. Make sure your project is published and accessible.")} </p>
                 </div>
               )}
 
               {!loading && !error && hasData && overview && (
                 <>
                   <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-                    <OverviewCard label="Total Visitors" value={formatNumber(overview.visitors)} change={overview.changes.visitors} icon={Users} />
-                    <OverviewCard label="Page Views" value={formatNumber(overview.pageViews)} change={overview.changes.pageViews} icon={Eye} />
-                    <OverviewCard label="Avg. Session" value={formatDuration(overview.avgDuration)} change={overview.changes.avgDuration} icon={Clock} />
-                    <OverviewCard label="Bounce Rate" value={`${overview.bounceRate.toFixed(1)}%`} change={overview.changes.bounceRate} icon={ArrowUpRight} />
+                    <OverviewCard label={ui("Total Visitors")} value={formatNumber(overview.visitors)} change={overview.changes.visitors} icon={Users} />
+                    <OverviewCard label={ui("Page Views")} value={formatNumber(overview.pageViews)} change={overview.changes.pageViews} icon={Eye} />
+                    <OverviewCard label={ui("Avg. Session")} value={formatDuration(overview.avgDuration)} change={overview.changes.avgDuration} icon={Clock} />
+                    <OverviewCard label={ui("Bounce Rate")} value={`${overview.bounceRate.toFixed(1)}%`} change={overview.changes.bounceRate} icon={ArrowUpRight} />
                   </div>
 
                   <TrafficChart data={timeseries} />
@@ -331,8 +327,8 @@ export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
                   </div>
 
                   <div className="grid gap-4 lg:grid-cols-2">
-                    <HorizontalBarSection title="Browser Distribution" items={browsers.map((b) => ({ name: b.browser, count: b.count, percent: b.percent }))} />
-                    <HorizontalBarSection title="Operating System" items={osData.map((o) => ({ name: o.os, count: o.count, percent: o.percent }))} />
+                    <HorizontalBarSection title={ui("Browser Distribution")} items={browsers.map((b) => ({ name: b.browser, count: b.count, percent: b.percent }))} />
+                    <HorizontalBarSection title={ui("Operating System")} items={osData.map((o) => ({ name: o.os, count: o.count, percent: o.percent }))} />
                   </div>
 
                   <RealtimeSection realtime={realtime} loading={realtimeLoading} />

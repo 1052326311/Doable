@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback } from "react";
 import { Loader2, RefreshCw, Pencil, Trash2, Check, X, Download, Plus } from "lucide-react";
@@ -50,6 +52,8 @@ function toCsv(columns: string[], rows: Record<string, unknown>[]): string {
 }
 
 export function RowsPane({ tokenState }: RowsPaneProps) {
+  const ui = useUiText();
+
   const { client, loading: tokenLoading, error: tokenError } = tokenState;
   const [schema, setSchema] = useState<SchemaResult | null>(null);
   const [selectedTable, setSelectedTable] = useState<string>("");
@@ -211,7 +215,7 @@ export function RowsPane({ tokenState }: RowsPaneProps) {
       valExprs.push(`$${p++}`);
       params.push(raw);
     }
-    if (cols.length === 0) { setError("Fill at least one field before adding the row."); return; }
+    if (cols.length === 0) { setError(ui("Fill at least one field before adding the row.")); return; }
     setBusy(true);
     setError(null);
     try {
@@ -235,14 +239,14 @@ export function RowsPane({ tokenState }: RowsPaneProps) {
   }
   if (tokenError) {
     return (
-      <SectionCard title="Rows">
+      <SectionCard title={ui("Rows")}>
         <p className="text-sm text-destructive">{tokenError}</p>
       </SectionCard>
     );
   }
 
   return (
-    <SectionCard title="Rows" description="Browse, edit, delete, and export table data.">
+    <SectionCard title={ui("Rows")} description={ui("Browse, edit, delete, and export table data.")}>
       <div className="space-y-4">
         {/* Controls */}
         <div className="flex flex-wrap items-center gap-3">
@@ -252,7 +256,7 @@ export function RowsPane({ tokenState }: RowsPaneProps) {
             className="rounded-md border bg-background px-3 py-1.5 text-sm"
           >
             {tables.map((t) => (
-              <option key={t.name} value={t.name}>{t.name} ({t.rowCount} rows)</option>
+              <option key={t.name} value={t.name}>{t.name} ({t.rowCount} {ui("rows)")}</option>
             ))}
           </select>
           <button
@@ -260,58 +264,50 @@ export function RowsPane({ tokenState }: RowsPaneProps) {
             disabled={loadingRows}
             className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted disabled:opacity-50"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${loadingRows ? "animate-spin" : ""}`} /> Refresh
-          </button>
+            <RefreshCw className={`h-3.5 w-3.5 ${loadingRows ? "animate-spin" : ""}`} /> {ui("Refresh")} </button>
           <button
             onClick={() => void exportData("csv")}
             disabled={busy || !selectedTable}
             className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted disabled:opacity-50"
           >
-            <Download className="h-3.5 w-3.5" /> CSV
-          </button>
+            <Download className="h-3.5 w-3.5" /> {ui("CSV")} </button>
           <button
             onClick={() => void exportData("json")}
             disabled={busy || !selectedTable}
             className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted disabled:opacity-50"
           >
-            <Download className="h-3.5 w-3.5" /> JSON
-          </button>
+            <Download className="h-3.5 w-3.5" /> {ui("JSON")} </button>
           <button
             onClick={openAdd}
             disabled={busy || adding || !selectedTable || columns.length === 0}
             className="inline-flex items-center gap-1.5 rounded-md border border-primary/40 px-3 py-1.5 text-sm font-medium text-primary transition-colors hover:bg-primary/10 disabled:opacity-50"
           >
-            <Plus className="h-3.5 w-3.5" /> Add row
-          </button>
+            <Plus className="h-3.5 w-3.5" /> {ui("Add row")} </button>
           {totalRows > 0 && (
-            <span className="ml-auto text-xs text-muted-foreground">
-              Page {page + 1} of {totalPages} &middot; {totalRows.toLocaleString()} rows total
-            </span>
+            <span className="ml-auto text-xs text-muted-foreground"> {ui("Page")} {page + 1} {ui("of")} {totalPages} &middot; {totalRows.toLocaleString(ui.locale)} {ui("rows total")} </span>
           )}
         </div>
 
         {!canMutate && columns.length > 0 && (
-          <p className="text-xs text-muted-foreground">
-            Editing and deleting are disabled — this table has no single-column primary key to target rows by.
-          </p>
+          <p className="text-xs text-muted-foreground"> {ui("Editing and deleting are disabled — this table has no single-column primary key to target rows by.")} </p>
         )}
-        {error && <p className="text-sm text-destructive whitespace-pre-wrap">{error}</p>}
+        {error && <p className="text-sm text-destructive whitespace-pre-wrap">{ui(error)}</p>}
 
         {/* Add-row form */}
         {adding && currentTable && (
           <div className="space-y-2 rounded-md border border-primary/30 bg-muted/20 p-3">
-            <p className="text-xs font-medium text-muted-foreground">New row in <span className="font-mono text-foreground">{selectedTable}</span></p>
+            <p className="text-xs font-medium text-muted-foreground">{ui("New row in")} <span className="font-mono text-foreground">{selectedTable}</span></p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {currentTable.columns.map((col) => (
                 <label key={col.name} className="flex flex-col gap-0.5 text-xs">
                   <span className="font-mono text-muted-foreground">
                     {col.name}
-                    {isOptionalCol(col) && <span className="ml-1 text-[10px] opacity-60">(optional)</span>}
+                    {isOptionalCol(col) && <span className="ml-1 text-[10px] opacity-60">{ui("(optional)")}</span>}
                   </span>
                   <input
                     value={addDraft[col.name] ?? ""}
                     onChange={(e) => setAddDraft((d) => ({ ...d, [col.name]: e.target.value }))}
-                    placeholder={col.name === pk ? "auto" : IDENTITY_COLS.has(col.name) ? "you (auto)" : col.type}
+                    placeholder={col.name === pk ? ui("auto") : IDENTITY_COLS.has(col.name) ? ui("you (auto)") : col.type}
                     className="rounded border bg-background px-2 py-1 font-mono text-xs"
                   />
                 </label>
@@ -323,9 +319,8 @@ export function RowsPane({ tokenState }: RowsPaneProps) {
                 disabled={busy}
                 className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
               >
-                {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />} Add
-              </button>
-              <button onClick={() => { setAdding(false); setAddDraft({}); }} className="rounded-md border px-3 py-1 text-xs hover:bg-muted">Cancel</button>
+                {busy && <Loader2 className="h-3.5 w-3.5 animate-spin" />} {ui("Add")} </button>
+              <button onClick={() => { setAdding(false); setAddDraft({}); }} className="rounded-md border px-3 py-1 text-xs hover:bg-muted">{ui("Cancel")}</button>
             </div>
           </div>
         )}
@@ -336,7 +331,7 @@ export function RowsPane({ tokenState }: RowsPaneProps) {
             <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
           </div>
         ) : columns.length === 0 ? (
-          <p className="py-4 text-sm text-muted-foreground">No data.</p>
+          <p className="py-4 text-sm text-muted-foreground">{ui("No data.")}</p>
         ) : (
           <div className="overflow-x-auto rounded-md border">
             <table className="w-full text-xs">
@@ -345,7 +340,7 @@ export function RowsPane({ tokenState }: RowsPaneProps) {
                   {columns.map((col) => (
                     <th key={col} className="border-b px-3 py-2 text-left font-medium text-muted-foreground">{col}</th>
                   ))}
-                  {canMutate && <th className="border-b px-3 py-2 text-right font-medium text-muted-foreground">Actions</th>}
+                  {canMutate && <th className="border-b px-3 py-2 text-right font-medium text-muted-foreground">{ui("Actions")}</th>}
                 </tr>
               </thead>
               <tbody>
@@ -364,7 +359,7 @@ export function RowsPane({ tokenState }: RowsPaneProps) {
                               className="w-full rounded border bg-background px-1 py-0.5 font-mono text-xs"
                             />
                           ) : row[col] === null ? (
-                            <span className="italic text-muted-foreground">null</span>
+                            <span className="italic text-muted-foreground">{ui("null")}</span>
                           ) : (
                             String(row[col])
                           )}
@@ -374,24 +369,24 @@ export function RowsPane({ tokenState }: RowsPaneProps) {
                         <td className="whitespace-nowrap px-3 py-1.5 text-right">
                           {isEditing ? (
                             <span className="inline-flex gap-1">
-                              <button onClick={() => void saveEdit()} disabled={busy} title="Save"
+                              <button onClick={() => void saveEdit()} disabled={busy} title={ui("Save")}
                                 className="rounded p-1 text-green-600 hover:bg-muted disabled:opacity-50"><Check className="h-3.5 w-3.5" /></button>
-                              <button onClick={() => setEditingPk(null)} title="Cancel"
+                              <button onClick={() => setEditingPk(null)} title={ui("Cancel")}
                                 className="rounded p-1 text-muted-foreground hover:bg-muted"><X className="h-3.5 w-3.5" /></button>
                             </span>
                           ) : isConfirming ? (
                             <span className="inline-flex items-center gap-1">
-                              <span className="text-[11px] text-muted-foreground">Delete?</span>
-                              <button onClick={() => void deleteRow(row[pk!])} disabled={busy} title="Confirm delete"
+                              <span className="text-[11px] text-muted-foreground">{ui("Delete?")}</span>
+                              <button onClick={() => void deleteRow(row[pk!])} disabled={busy} title={ui("Confirm delete")}
                                 className="rounded p-1 text-destructive hover:bg-destructive/10 disabled:opacity-50"><Check className="h-3.5 w-3.5" /></button>
-                              <button onClick={() => setConfirmDeletePk(null)} title="Cancel"
+                              <button onClick={() => setConfirmDeletePk(null)} title={ui("Cancel")}
                                 className="rounded p-1 text-muted-foreground hover:bg-muted"><X className="h-3.5 w-3.5" /></button>
                             </span>
                           ) : (
                             <span className="inline-flex gap-1">
-                              <button onClick={() => startEdit(row)} title="Edit"
+                              <button onClick={() => startEdit(row)} title={ui("Edit")}
                                 className="rounded p-1 text-muted-foreground hover:bg-muted hover:text-foreground"><Pencil className="h-3.5 w-3.5" /></button>
-                              <button onClick={() => setConfirmDeletePk(row[pk!])} title="Delete"
+                              <button onClick={() => setConfirmDeletePk(row[pk!])} title={ui("Delete")}
                                 className="rounded p-1 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-3.5 w-3.5" /></button>
                             </span>
                           )}
@@ -409,9 +404,9 @@ export function RowsPane({ tokenState }: RowsPaneProps) {
         {totalPages > 1 && (
           <div className="flex items-center gap-2">
             <button onClick={() => void fetchRows(selectedTable, page - 1)} disabled={page === 0 || loadingRows}
-              className="rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted disabled:opacity-50">Prev</button>
+              className="rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted disabled:opacity-50">{ui("Prev")}</button>
             <button onClick={() => void fetchRows(selectedTable, page + 1)} disabled={page >= totalPages - 1 || loadingRows}
-              className="rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted disabled:opacity-50">Next</button>
+              className="rounded-md border px-3 py-1.5 text-sm transition-colors hover:bg-muted disabled:opacity-50">{ui("Next")}</button>
           </div>
         )}
       </div>

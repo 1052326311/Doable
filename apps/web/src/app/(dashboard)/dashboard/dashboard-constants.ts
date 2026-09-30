@@ -12,11 +12,11 @@ export type SortDir = "asc" | "desc";
 export const VIEW_MODE_KEY = "doable_dashboard_view";
 
 export const GREETINGS = [
-  "Let's make it Doable",
-  "What's Doable today",
-  "Ready to get it done",
-  "Dream it. Do it",
-  "What will you ship",
+  "Bring frontier AI to the enterprise, {name}",
+  "What business challenge will you solve today, {name}?",
+  "Turn an idea into a working app, {name}",
+  "Build for real-world impact, {name}",
+  "Take your next idea from demo to delivery, {name}"
 ];
 
 export const PROJECT_GRADIENTS = [
@@ -97,26 +97,19 @@ export function getTemplateCategoryColors(category: string) {
   return TEMPLATE_CATEGORY_COLORS[category] ?? { bg: "bg-gray-50", accent: "bg-gray-100", highlight: "bg-gray-200" };
 }
 
-export function formatRelativeTime(dateStr: string): string {
+export function formatRelativeTime(dateStr: string, locale = "zh-CN"): string {
   const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = now.getTime() - date.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHours = Math.floor(diffMin / 60);
-  const diffDays = Math.floor(diffHours / 24);
-  const diffWeeks = Math.floor(diffDays / 7);
-
-  if (diffSec < 60) return "Just now";
-  if (diffMin < 60) return `${diffMin}m ago`;
-  if (diffHours < 24) return `${diffHours}h ago`;
-  if (diffDays < 7) return `${diffDays}d ago`;
-  if (diffWeeks < 5) return `${diffWeeks}w ago`;
-  return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  const seconds = Math.floor((date.getTime() - Date.now()) / 1000);
+  const format = new Intl.RelativeTimeFormat(locale, {numeric:"auto"});
+  if (Math.abs(seconds) < 60) return format.format(0, "second");
+  if (Math.abs(seconds) < 3600) return format.format(Math.trunc(seconds / 60), "minute");
+  if (Math.abs(seconds) < 86400) return format.format(Math.trunc(seconds / 3600), "hour");
+  if (Math.abs(seconds) < 604800) return format.format(Math.trunc(seconds / 86400), "day");
+  return date.toLocaleDateString(locale, {month:"short", day:"numeric"});
 }
 
-export function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", {
+export function formatDate(dateStr: string, locale = "zh-CN"): string {
+  return new Date(dateStr).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",

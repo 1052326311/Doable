@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -64,6 +66,8 @@ export function ShareDialog({
   initialCategory,
   onChanged,
 }: ShareDialogProps) {
+  const ui = useUiText();
+
   const { user } = useAuth();
   const isAdmin = user?.isPlatformAdmin === true;
 
@@ -132,7 +136,7 @@ export function ShareDialog({
   ]);
 
   const handleUnshare = useCallback(async () => {
-    if (!confirm("Remove this project from Discover? Existing remixes are unaffected.")) {
+    if (!confirm(ui("Remove this project from Discover? Existing remixes are unaffected."))) {
       return;
     }
     setState({ kind: "submitting" });
@@ -147,7 +151,7 @@ export function ShareDialog({
         message: err instanceof Error ? err.message : "Unshare failed",
       });
     }
-  }, [projectId, onChanged, onOpenChange]);
+  }, [ui, projectId, onChanged, onOpenChange]);
 
   const submitting = state.kind === "submitting";
 
@@ -157,29 +161,26 @@ export function ShareDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Compass className="h-5 w-5 text-emerald-400" />
-            {alreadyShared ? "Update Discover listing" : "Share to Discover"}
+            {alreadyShared ? ui("Update Discover listing") : ui("Share to Discover")}
           </DialogTitle>
-          <DialogDescription>
-            Lists your project in the community feed. Other users can browse it
-            and remix it into their own workspace.
-          </DialogDescription>
+          <DialogDescription> {ui("Lists your project in the community feed. Other users can browse it and remix it into their own workspace.")} </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label htmlFor="share-title">Title</Label>
+            <Label htmlFor="share-title">{ui("Title")}</Label>
             <Input
               id="share-title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               maxLength={200}
               disabled={submitting}
-              placeholder="A clear, searchable title"
+              placeholder={ui("A clear, searchable title")}
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="share-description">Description</Label>
+            <Label htmlFor="share-description">{ui("Description")}</Label>
             <Textarea
               id="share-description"
               value={description}
@@ -187,7 +188,7 @@ export function ShareDialog({
               maxLength={1000}
               rows={3}
               disabled={submitting}
-              placeholder="What does this project do? Who's it for?"
+              placeholder={ui("What does this project do? Who's it for?")}
             />
             <p className="text-xs text-muted-foreground">
               {description.length}/1000
@@ -195,7 +196,7 @@ export function ShareDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="share-category">Category (optional)</Label>
+            <Label htmlFor="share-category">{ui("Category (optional)")}</Label>
             <div className="flex flex-wrap gap-1.5">
               {categories.length > 0 ? (
                 <>
@@ -218,7 +219,7 @@ export function ShareDialog({
                     id="share-category"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    placeholder="Or type one..."
+                    placeholder={ui("Or type one...")}
                     maxLength={50}
                     disabled={submitting}
                     className="h-7 text-xs flex-1 min-w-[120px]"
@@ -229,7 +230,7 @@ export function ShareDialog({
                   id="share-category"
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  placeholder="dashboard, marketing, ecommerce..."
+                  placeholder={ui("dashboard, marketing, ecommerce...")}
                   maxLength={50}
                   disabled={submitting}
                 />
@@ -246,7 +247,7 @@ export function ShareDialog({
                     htmlFor="share-featured"
                     className="flex items-center justify-between cursor-pointer"
                   >
-                    <span className="text-sm font-medium">Featured (admin)</span>
+                    <span className="text-sm font-medium">{ui("Featured (admin)")}</span>
                     <input
                       id="share-featured"
                       type="checkbox"
@@ -256,9 +257,7 @@ export function ShareDialog({
                       className="h-4 w-4 accent-amber-400"
                     />
                   </Label>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Surfaces this project at the top of Discover.
-                  </p>
+                  <p className="text-xs text-muted-foreground mt-1"> {ui("Surfaces this project at the top of Discover.")} </p>
                 </div>
               </div>
             </div>
@@ -286,8 +285,7 @@ export function ShareDialog({
               disabled={submitting}
               className="text-destructive hover:text-destructive"
             >
-              <X className="h-3.5 w-3.5 mr-1.5" /> Unshare
-            </Button>
+              <X className="h-3.5 w-3.5 mr-1.5" /> {ui("Unshare")} </Button>
           ) : (
             <span />
           )}
@@ -296,17 +294,15 @@ export function ShareDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={submitting}
-            >
-              Cancel
-            </Button>
+            > {ui("Cancel")} </Button>
             <Button onClick={handleShare} disabled={submitting || !title.trim()}>
               {submitting ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
-                  {alreadyShared ? "Updating..." : "Sharing..."}
+                  {alreadyShared ? ui("Updating...") : ui("Sharing...")}
                 </>
               ) : (
-                <>{alreadyShared ? "Save changes" : "Share to Discover"}</>
+                <>{alreadyShared ? ui("Save changes") : ui("Share to Discover")}</>
               )}
             </Button>
           </div>

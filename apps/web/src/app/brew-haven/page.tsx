@@ -1,3 +1,7 @@
+import {getUiText} from "@/i18n/server";
+
+import {useUiText} from "@/i18n/use-ui-text";
+import {translateUiData} from "@/i18n/text";
 import type { Metadata } from "next";
 import {
   Coffee,
@@ -13,11 +17,14 @@ import {
   Droplets,
 } from "lucide-react";
 
-export const metadata: Metadata = {
+export async function generateMetadata() {
+ const ui = await getUiText();
+ return translateUiData({
   title: "Brew Haven – A Coffee Shop Worth Finding",
   description:
     "Handcrafted coffee, cozy atmosphere, and community at the heart of every cup. Visit Brew Haven today.",
-};
+}, ui);
+}
 
 const menuItems = [
   {
@@ -86,6 +93,9 @@ const testimonials = [
 ];
 
 export default function BrewHavenPage() {
+  const ui = useUiText();
+  const i18n_values = translateUiData(values, ui);
+
   return (
     <div className="min-h-screen bg-[#fdf6ee] text-[#2c1810]" style={{ fontFamily: "Georgia, 'Times New Roman', serif" }}>
 
@@ -96,7 +106,7 @@ export default function BrewHavenPage() {
             <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#5c3d2e]">
               <Coffee className="h-5 w-5 text-[#f5d9a8]" />
             </div>
-            <span className="text-xl font-bold tracking-tight text-[#2c1810]">Brew Haven</span>
+            <span className="text-xl font-bold tracking-tight text-[#2c1810]">{ui("Brew Haven")}</span>
           </div>
 
           <div className="hidden items-center gap-8 md:flex">
@@ -116,9 +126,7 @@ export default function BrewHavenPage() {
             href="#visit-us"
             className="rounded-full bg-[#5c3d2e] px-5 py-2 text-sm font-medium text-[#f5d9a8] transition-colors hover:bg-[#3d2419]"
             style={{ fontFamily: "system-ui, sans-serif" }}
-          >
-            Find Us
-          </a>
+          > {ui("Find Us")} </a>
         </div>
       </nav>
 
@@ -129,32 +137,22 @@ export default function BrewHavenPage() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wMyI+PHBhdGggZD0iTTM2IDM0djZoNnYtNmgtNnptMCAwdi02aC02djZoNnptNiAwaDZ2LTZoLTZ2NnoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-30" />
 
         <div className="relative mx-auto max-w-6xl px-4 py-32 text-center sm:px-6 sm:py-40 lg:px-8">
-          <p className="mb-4 text-sm uppercase tracking-[0.25em] text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}>
-            Est. 2019 · Handcrafted Coffee
-          </p>
-          <h1 className="mb-6 text-5xl font-bold leading-tight text-[#fdf6ee] sm:text-6xl lg:text-7xl">
-            Your perfect cup<br />
-            <span className="italic text-[#f5d9a8]">awaits you.</span>
+          <p className="mb-4 text-sm uppercase tracking-[0.25em] text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}> {ui("Est. 2019 · Handcrafted Coffee")} </p>
+          <h1 className="mb-6 text-5xl font-bold leading-tight text-[#fdf6ee] sm:text-6xl lg:text-7xl"> {ui("Your perfect cup")}<br />
+            <span className="italic text-[#f5d9a8]">{ui("awaits you.")}</span>
           </h1>
-          <p className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-[#f5d9a8]/80" style={{ fontFamily: "system-ui, sans-serif" }}>
-            Slow mornings, bold espresso, and a corner that feels like yours.
-            Brew Haven is the neighborhood coffee shop you've been looking for.
-          </p>
+          <p className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-[#f5d9a8]/80" style={{ fontFamily: "system-ui, sans-serif" }}> {ui("Slow mornings, bold espresso, and a corner that feels like yours. Brew Haven is the neighborhood coffee shop you've been looking for.")} </p>
           <div className="flex flex-col items-center justify-center gap-3 sm:flex-row">
             <a
               href="#menu"
               className="rounded-full bg-[#f5d9a8] px-8 py-3.5 text-sm font-semibold text-[#2c1810] transition-colors hover:bg-[#fdf6ee]"
               style={{ fontFamily: "system-ui, sans-serif" }}
-            >
-              See Our Menu
-            </a>
+            > {ui("See Our Menu")} </a>
             <a
               href="#our-story"
               className="rounded-full border border-[#f5d9a8]/40 px-8 py-3.5 text-sm font-medium text-[#f5d9a8] transition-colors hover:border-[#f5d9a8]/80"
               style={{ fontFamily: "system-ui, sans-serif" }}
-            >
-              Our Story
-            </a>
+            > {ui("Our Story")} </a>
           </div>
         </div>
 
@@ -171,20 +169,14 @@ export default function BrewHavenPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-16 lg:grid-cols-2 lg:items-center">
             <div>
-              <p className="mb-3 text-sm uppercase tracking-widest text-[#a0754d]" style={{ fontFamily: "system-ui, sans-serif" }}>Our Story</p>
-              <h2 className="mb-6 text-4xl font-bold leading-snug text-[#2c1810]">
-                A place to slow<br />down and savor.
-              </h2>
-              <p className="mb-4 text-[#5a3f31] leading-relaxed" style={{ fontFamily: "system-ui, sans-serif" }}>
-                Brew Haven started as a dream sketched on a napkin in 2019 — a neighborhood coffee shop that treated its beans, its baristas, and its guests with equal care. Today, we're proud to be a gathering place for writers, remote workers, first dates, and old friends.
-              </p>
-              <p className="text-[#5a3f31] leading-relaxed" style={{ fontFamily: "system-ui, sans-serif" }}>
-                We partner directly with family-owned farms across Ethiopia, Colombia, and Guatemala. Every roast is dialed in weekly, so what's in your cup is always at peak flavor.
-              </p>
+              <p className="mb-3 text-sm uppercase tracking-widest text-[#a0754d]" style={{ fontFamily: "system-ui, sans-serif" }}>{ui("Our Story")}</p>
+              <h2 className="mb-6 text-4xl font-bold leading-snug text-[#2c1810]"> {ui("A place to slow")}<br />{ui("down and savor.")} </h2>
+              <p className="mb-4 text-[#5a3f31] leading-relaxed" style={{ fontFamily: "system-ui, sans-serif" }}> {ui("Brew Haven started as a dream sketched on a napkin in 2019 — a neighborhood coffee shop that treated its beans, its baristas, and its guests with equal care. Today, we're proud to be a gathering place for writers, remote workers, first dates, and old friends.")} </p>
+              <p className="text-[#5a3f31] leading-relaxed" style={{ fontFamily: "system-ui, sans-serif" }}> {ui("We partner directly with family-owned farms across Ethiopia, Colombia, and Guatemala. Every roast is dialed in weekly, so what's in your cup is always at peak flavor.")} </p>
             </div>
 
             <div className="grid grid-cols-1 gap-6">
-              {values.map(({ icon: Icon, title, desc }) => (
+              {i18n_values.map(({ icon: Icon, title, desc }) => (
                 <div key={title} className="flex gap-4 rounded-2xl border border-[#e8d5b7] bg-white/60 p-5">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#5c3d2e]">
                     <Icon className="h-5 w-5 text-[#f5d9a8]" />
@@ -204,11 +196,9 @@ export default function BrewHavenPage() {
       <section id="menu" className="border-t border-[#e8d5b7] bg-[#f7ede0] py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="mb-14 text-center">
-            <p className="mb-3 text-sm uppercase tracking-widest text-[#a0754d]" style={{ fontFamily: "system-ui, sans-serif" }}>What We Serve</p>
-            <h2 className="text-4xl font-bold text-[#2c1810]">Our Menu</h2>
-            <p className="mx-auto mt-3 max-w-md text-[#7a5c4a]" style={{ fontFamily: "system-ui, sans-serif" }}>
-              Seasonal. Fresh. Always made to order.
-            </p>
+            <p className="mb-3 text-sm uppercase tracking-widest text-[#a0754d]" style={{ fontFamily: "system-ui, sans-serif" }}>{ui("What We Serve")}</p>
+            <h2 className="text-4xl font-bold text-[#2c1810]">{ui("Our Menu")}</h2>
+            <p className="mx-auto mt-3 max-w-md text-[#7a5c4a]" style={{ fontFamily: "system-ui, sans-serif" }}> {ui("Seasonal. Fresh. Always made to order.")} </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-3">
@@ -238,8 +228,8 @@ export default function BrewHavenPage() {
       <section id="reviews" className="py-24">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="mb-14 text-center">
-            <p className="mb-3 text-sm uppercase tracking-widest text-[#a0754d]" style={{ fontFamily: "system-ui, sans-serif" }}>Kind Words</p>
-            <h2 className="text-4xl font-bold text-[#2c1810]">What Guests Say</h2>
+            <p className="mb-3 text-sm uppercase tracking-widest text-[#a0754d]" style={{ fontFamily: "system-ui, sans-serif" }}>{ui("Kind Words")}</p>
+            <h2 className="text-4xl font-bold text-[#2c1810]">{ui("What Guests Say")}</h2>
           </div>
 
           <div className="grid gap-6 md:grid-cols-3">
@@ -265,34 +255,32 @@ export default function BrewHavenPage() {
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
             <div>
-              <p className="mb-3 text-sm uppercase tracking-widest text-[#f5d9a8]/60" style={{ fontFamily: "system-ui, sans-serif" }}>Come See Us</p>
-              <h2 className="mb-6 text-4xl font-bold text-[#fdf6ee]">Find Your Haven</h2>
-              <p className="mb-10 text-[#f5d9a8]/80 leading-relaxed" style={{ fontFamily: "system-ui, sans-serif" }}>
-                We're nestled right in the heart of the neighborhood. Bring your laptop, your journal, or just yourself — there's always a warm seat and a perfect cup waiting.
-              </p>
+              <p className="mb-3 text-sm uppercase tracking-widest text-[#f5d9a8]/60" style={{ fontFamily: "system-ui, sans-serif" }}>{ui("Come See Us")}</p>
+              <h2 className="mb-6 text-4xl font-bold text-[#fdf6ee]">{ui("Find Your Haven")}</h2>
+              <p className="mb-10 text-[#f5d9a8]/80 leading-relaxed" style={{ fontFamily: "system-ui, sans-serif" }}> {ui("We're nestled right in the heart of the neighborhood. Bring your laptop, your journal, or just yourself — there's always a warm seat and a perfect cup waiting.")} </p>
 
               <div className="space-y-5">
                 <div className="flex items-start gap-3">
                   <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-[#f5d9a8]/70" />
                   <div>
-                    <p className="font-semibold text-[#fdf6ee]">Address</p>
-                    <p className="text-sm text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}>142 Maple Street, Brooklyn, NY 11201</p>
+                    <p className="font-semibold text-[#fdf6ee]">{ui("Address")}</p>
+                    <p className="text-sm text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}>{ui("142 Maple Street, Brooklyn, NY 11201")}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <Clock className="mt-0.5 h-5 w-5 shrink-0 text-[#f5d9a8]/70" />
                   <div>
-                    <p className="font-semibold text-[#fdf6ee]">Hours</p>
-                    <p className="text-sm text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}>Mon – Fri: 7am – 7pm</p>
-                    <p className="text-sm text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}>Sat – Sun: 8am – 6pm</p>
+                    <p className="font-semibold text-[#fdf6ee]">{ui("Hours")}</p>
+                    <p className="text-sm text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}>{ui("Mon – Fri: 7am – 7pm")}</p>
+                    <p className="text-sm text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}>{ui("Sat – Sun: 8am – 6pm")}</p>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-3">
                   <Phone className="mt-0.5 h-5 w-5 shrink-0 text-[#f5d9a8]/70" />
                   <div>
-                    <p className="font-semibold text-[#fdf6ee]">Phone</p>
+                    <p className="font-semibold text-[#fdf6ee]">{ui("Phone")}</p>
                     <p className="text-sm text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}>(718) 555-0192</p>
                   </div>
                 </div>
@@ -300,8 +288,8 @@ export default function BrewHavenPage() {
                 <div className="flex items-start gap-3">
                   <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#f5d9a8]/70" />
                   <div>
-                    <p className="font-semibold text-[#fdf6ee]">Email</p>
-                    <p className="text-sm text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}>hello@brewhaven.coffee</p>
+                    <p className="font-semibold text-[#fdf6ee]">{ui("Email")}</p>
+                    <p className="text-sm text-[#f5d9a8]/70" style={{ fontFamily: "system-ui, sans-serif" }}>{ui("hello@brewhaven.coffee")}</p>
                   </div>
                 </div>
               </div>
@@ -312,16 +300,14 @@ export default function BrewHavenPage() {
               <div className="flex h-72 items-center justify-center bg-[#2c1810] lg:h-full lg:min-h-[340px]">
                 <div className="text-center">
                   <MapPin className="mx-auto mb-3 h-10 w-10 text-[#f5d9a8]/40" />
-                  <p className="text-sm text-[#f5d9a8]/50" style={{ fontFamily: "system-ui, sans-serif" }}>142 Maple Street, Brooklyn</p>
+                  <p className="text-sm text-[#f5d9a8]/50" style={{ fontFamily: "system-ui, sans-serif" }}>{ui("142 Maple Street, Brooklyn")}</p>
                   <a
                     href="https://maps.google.com"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="mt-3 inline-block rounded-full border border-[#f5d9a8]/30 px-4 py-1.5 text-xs text-[#f5d9a8]/70 transition-colors hover:border-[#f5d9a8]/60 hover:text-[#f5d9a8]"
                     style={{ fontFamily: "system-ui, sans-serif" }}
-                  >
-                    Open in Maps ↗
-                  </a>
+                  > {ui("Open in Maps ↗")} </a>
                 </div>
               </div>
             </div>
@@ -337,17 +323,16 @@ export default function BrewHavenPage() {
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-[#f5d9a8]/10">
                 <Coffee className="h-4 w-4 text-[#f5d9a8]" />
               </div>
-              <span className="text-sm font-semibold text-[#f5d9a8]">Brew Haven</span>
+              <span className="text-sm font-semibold text-[#f5d9a8]">{ui("Brew Haven")}</span>
             </div>
 
             <p className="text-xs" style={{ fontFamily: "system-ui, sans-serif" }}>
-              © {new Date().getFullYear()} Brew Haven. All rights reserved.
-            </p>
+              © {new Date().getFullYear()} {ui("Brew Haven. All rights reserved.")} </p>
 
             <div className="flex gap-4">
               {[
-                { Icon: Instagram, label: "Instagram" },
-                { Icon: Facebook, label: "Facebook" },
+                { Icon: Instagram, label: ui("Instagram") },
+                { Icon: Facebook, label: ui("Facebook") },
               ].map(({ Icon, label }) => (
                 <a
                   key={label}

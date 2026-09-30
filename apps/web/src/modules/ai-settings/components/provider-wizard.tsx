@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useMemo, useCallback, useRef, useEffect } from "react";
 import {
@@ -26,6 +28,8 @@ export function ProviderWizard({
   scope: initialScope,
   isWorkspaceAdmin = false,
 }: ProviderWizardProps) {
+  const ui = useUiText();
+
   // Default scope: admins almost always configure AI for the team, so when no
   // explicit scope is requested we default them to 'workspace'. Non-admins are
   // always locked to 'user'. An explicit initialScope (from the Add Personal /
@@ -222,9 +226,9 @@ export function ProviderWizard({
         <DialogHeader>
           <div className="flex items-start justify-between">
             <div>
-              <DialogTitle>Add Provider</DialogTitle>
+              <DialogTitle>{ui("Add Provider")}</DialogTitle>
               <DialogDescription>
-                {STEP_LABELS[step]}
+                {ui(STEP_LABELS[step])}
                 {selectedPreset && step !== "choose" && (
                   <> — {selectedPreset.name}</>
                 )}
@@ -233,7 +237,7 @@ export function ProviderWizard({
             <button
               onClick={() => handleOpenChange(false)}
               className="rounded-md p-1 text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-              aria-label="Close"
+              aria-label={ui("Close")}
             >
               <X className="h-5 w-5" />
             </button>
@@ -248,7 +252,7 @@ export function ProviderWizard({
               re-target an in-flight provider creation. */}
         {isWorkspaceAdmin ? (
           <div className="flex items-center gap-2 px-1 pt-1 text-xs">
-            <span className="text-muted-foreground">Add as:</span>
+            <span className="text-muted-foreground">{ui("Add as:")}</span>
             <div className="flex rounded-md border border-border overflow-hidden">
               <button
                 type="button"
@@ -259,11 +263,9 @@ export function ProviderWizard({
                     ? "bg-brand-600 text-white"
                     : "bg-background text-muted-foreground hover:bg-accent disabled:opacity-50"
                 }`}
-                title={step === "choose" ? "Visible only to you" : "Pick at the start of the wizard"}
+                title={step === "choose" ? ui("Visible only to you") : ui("Pick at the start of the wizard")}
               >
-                <UserIcon className="h-3 w-3" />
-                Personal
-              </button>
+                <UserIcon className="h-3 w-3" /> {ui("Personal")} </button>
               <button
                 type="button"
                 onClick={() => step === "choose" && setScope("workspace")}
@@ -273,20 +275,18 @@ export function ProviderWizard({
                     ? "bg-brand-600 text-white"
                     : "bg-background text-muted-foreground hover:bg-accent disabled:opacity-50"
                 }`}
-                title={step === "choose" ? "Shared with all workspace members" : "Pick at the start of the wizard"}
+                title={step === "choose" ? ui("Shared with all workspace members") : ui("Pick at the start of the wizard")}
               >
-                <UsersIcon className="h-3 w-3" />
-                Workspace
-              </button>
+                <UsersIcon className="h-3 w-3" /> {ui("Workspace")} </button>
             </div>
             {step !== "choose" && (
-              <span className="text-[10px] text-muted-foreground">locked for this run</span>
+              <span className="text-[10px] text-muted-foreground">{ui("locked for this run")}</span>
             )}
           </div>
         ) : (
           <div className="flex items-center gap-1.5 px-1 pt-1 text-xs text-muted-foreground">
             <Lock className="h-3 w-3" />
-            <span>Adding as personal — visible only to you.</span>
+            <span>{ui("Adding as personal — visible only to you.")}</span>
           </div>
         )}
 
@@ -357,18 +357,14 @@ export function ProviderWizard({
               onClick={goBack}
               className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
             >
-              <ChevronLeft className="h-4 w-4" />
-              Back
-            </button>
+              <ChevronLeft className="h-4 w-4" /> {ui("Back")} </button>
             <div className="flex items-center gap-2">
               {step === "configure" && (
                 <button
                   onClick={goNext}
                   disabled={!canProceedToConfigure}
                   className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50 transition-colors"
-                >
-                  Test Connection
-                  <ChevronRight className="h-4 w-4" />
+                > {ui("Test Connection")} <ChevronRight className="h-4 w-4" />
                 </button>
               )}
               {step === "validate" && (
@@ -376,9 +372,7 @@ export function ProviderWizard({
                   onClick={() => setStep("models")}
                   disabled={!testResult?.ok}
                   className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50 transition-colors"
-                >
-                  Select Models
-                  <ChevronRight className="h-4 w-4" />
+                > {ui("Select Models")} <ChevronRight className="h-4 w-4" />
                 </button>
               )}
               {step === "models" && (
@@ -387,9 +381,7 @@ export function ProviderWizard({
                   disabled={saving || selectedModelCount === 0}
                   className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50 transition-colors"
                 >
-                  {saving && <Loader2 className="h-4 w-4 animate-spin" />}
-                  Save Provider
-                </button>
+                  {saving && <Loader2 className="h-4 w-4 animate-spin" />} {ui("Save Provider")} </button>
               )}
             </div>
           </div>

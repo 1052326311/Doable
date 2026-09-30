@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useCallback, useState } from "react";
 import { Copy, Check, Wrench } from "lucide-react";
@@ -70,6 +72,8 @@ export function renderMarkdown(text: string): string {
 
 // ─── Code Block with Copy ───────────────────────────────────
 export function CodeBlockCopyButton({ content }: { content: string }) {
+  const ui = useUiText();
+
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
@@ -82,7 +86,7 @@ export function CodeBlockCopyButton({ content }: { content: string }) {
     <button
       onClick={handleCopy}
       className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-md bg-background/80 text-muted-foreground hover:text-foreground transition-colors opacity-0 group-hover:opacity-100"
-      title="Copy code"
+      title={ui("Copy code")}
     >
       {copied ? (
         <Check className="h-3.5 w-3.5 text-green-500" />
@@ -95,6 +99,7 @@ export function CodeBlockCopyButton({ content }: { content: string }) {
 
 // ─── Tool Activity Summary (shown for history messages) ─────
 export function ToolActivitySummary({ toolCalls }: { toolCalls: Array<{ name: string; arguments?: unknown }> }) {
+  const ui = useUiText();
   const counts: Record<string, number> = {};
   for (const tc of toolCalls) {
     const name = tc.name ?? "unknown";
@@ -103,16 +108,16 @@ export function ToolActivitySummary({ toolCalls }: { toolCalls: Array<{ name: st
 
   const friendlyName = (name: string, count: number): string => {
     switch (name) {
-      case "create_file": return `Created ${count} file${count > 1 ? "s" : ""}`;
-      case "edit_file": return `Edited ${count} file${count > 1 ? "s" : ""}`;
-      case "read_file": return `Read ${count} file${count > 1 ? "s" : ""}`;
-      case "list_files": return "Explored project structure";
-      case "install_package": return `Installed ${count} package${count > 1 ? "s" : ""}`;
-      case "search_files": return `Searched ${count} time${count > 1 ? "s" : ""}`;
-      case "run_terminal_command": return `Ran ${count} command${count > 1 ? "s" : ""}`;
-      case "report_intent": return "Planning";
-      case "create_plan": return "Creating plan";
-      case "mark_step_complete": return "Tracking progress";
+      case "create_file": return ui("Created {count, plural, one {# file} other {# files}}", {count});
+      case "edit_file": return ui("Edited {count, plural, one {# file} other {# files}}", {count});
+      case "read_file": return ui("Read {count, plural, one {# file} other {# files}}", {count});
+      case "list_files": return ui("Explored project structure");
+      case "install_package": return ui("Installed {count, plural, one {# package} other {# packages}}", {count});
+      case "search_files": return ui("Searched {count, plural, one {# time} other {# times}}", {count});
+      case "run_terminal_command": return ui("Ran {count, plural, one {# command} other {# commands}}", {count});
+      case "report_intent": return ui("Planning");
+      case "create_plan": return ui("Creating plan");
+      case "mark_step_complete": return ui("Tracking progress");
       default: {
         // MCP tools: strip prefix, humanize the tool name
         if (name.startsWith("mcp_")) {

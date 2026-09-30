@@ -1,4 +1,8 @@
 "use client";
+import {translateUiData} from "@/i18n/text";
+
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback, useRef } from "react";
 import {
@@ -35,6 +39,8 @@ interface Props {
 
 // ─── Component ──────────────────────────────────────────────
 export function SecurityPanel({ projectId, onClose }: Props) {
+  const ui = useUiText();
+
   const [hasScanned, setHasScanned] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [scanPhase, setScanPhase] = useState<ScanPhase | null>(null);
@@ -51,7 +57,7 @@ export function SecurityPanel({ projectId, onClose }: Props) {
 
   const activeFindings = findings.filter((f) => !f.dismissed);
   const score = hasScanned ? computeScore(findings) : 0;
-  const categories = hasScanned ? buildCategories(findings) : [];
+  const categories = hasScanned ? translateUiData(buildCategories(findings), ui) : [];
 
   const scoreColor =
     score >= 80
@@ -173,9 +179,7 @@ export function SecurityPanel({ projectId, onClose }: Props) {
       <div className="flex h-10 flex-none items-center justify-between border-b border-border px-3">
         <div className="flex items-center gap-2">
           <Shield className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-xs font-semibold text-foreground">
-            Security
-          </span>
+          <span className="text-xs font-semibold text-foreground"> {ui("Security")} </span>
         </div>
         <div className="flex items-center gap-1">
           <button
@@ -189,7 +193,7 @@ export function SecurityPanel({ projectId, onClose }: Props) {
             )}
           >
             <Play className="h-3 w-3" />
-            {isScanning ? "Scanning..." : "Run scan"}
+            {isScanning ? ui("Scanning...") : ui("Run scan")}
           </button>
           <button
             onClick={onClose}
@@ -214,13 +218,11 @@ export function SecurityPanel({ projectId, onClose }: Props) {
           <div className="p-4">
             <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-4 text-center">
               <ShieldAlert className="mx-auto h-6 w-6 text-red-400" />
-              <p className="mt-2 text-sm text-red-400">{error}</p>
+              <p className="mt-2 text-sm text-red-400">{ui(error)}</p>
               <button
                 onClick={runScan}
                 className="mt-3 text-xs text-primary hover:underline"
-              >
-                Try again
-              </button>
+              > {ui("Try again")} </button>
             </div>
           </div>
         )}
@@ -238,9 +240,7 @@ export function SecurityPanel({ projectId, onClose }: Props) {
 
             {/* Category cards */}
             <div className="border-b border-border px-4 py-4">
-              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Scan Results
-              </h4>
+              <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"> {ui("Scan Results")} </h4>
               <div className="grid grid-cols-2 gap-2">
                 {categories.map((cat) => (
                   <CategoryCard key={cat.id} category={cat} />
@@ -252,9 +252,7 @@ export function SecurityPanel({ projectId, onClose }: Props) {
             {depFindings.length > 0 && (
               <div className="border-b border-border px-4 py-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                    Vulnerabilities
-                  </h4>
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground"> {ui("Vulnerabilities")} </h4>
                   <div className="flex items-center gap-1.5">
                     <SeverityPill severity="critical" count={getSeverityCount(findings, "critical")} />
                     <SeverityPill severity="high" count={getSeverityCount(findings, "high")} />
@@ -280,9 +278,7 @@ export function SecurityPanel({ projectId, onClose }: Props) {
             {/* Secret findings */}
             {secretFindings.length > 0 && (
               <div className="border-b border-border px-4 py-4">
-                <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Secrets Detected
-                </h4>
+                <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"> {ui("Secrets Detected")} </h4>
                 <div className="space-y-1.5">
                   {secretFindings.map((finding) => (
                     <SecretFindingRow
@@ -299,9 +295,7 @@ export function SecurityPanel({ projectId, onClose }: Props) {
             {/* Code quality findings */}
             {codeFindings.length > 0 && (
               <div className="border-b border-border px-4 py-4">
-                <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                  Code Quality Issues
-                </h4>
+                <h4 className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground"> {ui("Code Quality Issues")} </h4>
                 <div className="space-y-1.5">
                   {codeFindings.map((finding) => (
                     <FindingRow
@@ -321,10 +315,8 @@ export function SecurityPanel({ projectId, onClose }: Props) {
             {activeFindings.length === 0 && (
               <div className="px-4 py-8 text-center">
                 <ShieldCheck className="mx-auto h-8 w-8 text-emerald-400" />
-                <p className="mt-2 text-sm font-medium text-foreground">All clear!</p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  No security issues found in your project.
-                </p>
+                <p className="mt-2 text-sm font-medium text-foreground">{ui("All clear!")}</p>
+                <p className="mt-1 text-xs text-muted-foreground"> {ui("No security issues found in your project.")} </p>
               </div>
             )}
 
@@ -334,9 +326,8 @@ export function SecurityPanel({ projectId, onClose }: Props) {
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
                   <div className="flex items-center gap-1.5">
                     <Clock className="h-3 w-3" />
-                    <span>
-                      Last scan:{" "}
-                      {lastScanTime.toLocaleTimeString([], {
+                    <span> {ui("Last scan:")}{" "}
+                      {lastScanTime.toLocaleTimeString(ui.locale, {
                         hour: "2-digit",
                         minute: "2-digit",
                       })}
@@ -344,11 +335,11 @@ export function SecurityPanel({ projectId, onClose }: Props) {
                   </div>
                   <div className="flex items-center gap-1.5">
                     <Sparkles className="h-3 w-3" />
-                    <span>Duration: {scanDuration}s</span>
+                    <span>{ui("Duration:")} {scanDuration}{ui("s")}</span>
                   </div>
                   <div className="flex items-center gap-1.5">
                     <FileSearch className="h-3 w-3" />
-                    <span>{filesScanned} files scanned</span>
+                    <span>{filesScanned} {ui("files scanned")}</span>
                   </div>
                 </div>
               </div>

@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import {
   LayoutGrid,
@@ -52,6 +55,10 @@ export function LayoutEditor({
   onJustifyContentChange,
   onGapChange,
 }: LayoutEditorProps) {
+  const ui = useUiText();
+  const i18n_DIRECTION_OPTIONS = useUiData(DIRECTION_OPTIONS);
+  const i18n_ALIGN_OPTIONS = useUiData(ALIGN_OPTIONS);
+
   // Only show full controls for flex/grid display modes
   const isFlexOrGrid =
     display === "flex" ||
@@ -65,16 +72,13 @@ export function LayoutEditor({
         {/* Section Header */}
         <div className="flex items-center gap-2 px-3 py-2">
           <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-xs font-medium text-foreground">Layout</span>
+          <span className="text-xs font-medium text-foreground">{ui("Layout")}</span>
         </div>
 
         <div className="px-3 pb-3">
-          <p className="text-[11px] text-muted-foreground">
-            Display: <span className="font-mono text-muted-foreground">{display}</span>
+          <p className="text-[11px] text-muted-foreground"> {ui("Display:")} <span className="font-mono text-muted-foreground">{display}</span>
           </p>
-          <p className="mt-1 text-[10px] text-muted-foreground">
-            Layout controls are available for flex and grid elements.
-          </p>
+          <p className="mt-1 text-[10px] text-muted-foreground"> {ui("Layout controls are available for flex and grid elements.")} </p>
         </div>
       </div>
     );
@@ -85,7 +89,7 @@ export function LayoutEditor({
       {/* Section Header */}
       <div className="flex items-center gap-2 px-3 py-2">
         <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="flex-1 text-xs font-medium text-foreground">Layout</span>
+        <span className="flex-1 text-xs font-medium text-foreground">{ui("Layout")}</span>
         <span className="rounded bg-secondary px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
           {display}
         </span>
@@ -95,9 +99,9 @@ export function LayoutEditor({
       <div className="space-y-2.5 px-3 pb-3">
         {/* Direction */}
         <div className="flex items-center gap-2">
-          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">Direction</label>
+          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">{ui("Direction")}</label>
           <div className="flex gap-0.5 rounded-md border border-input bg-background p-0.5">
-            {DIRECTION_OPTIONS.map(({ value, icon: Icon, label }) => (
+            {i18n_DIRECTION_OPTIONS.map(({ value, icon: Icon, label }) => (
               <button
                 key={value}
                 onClick={() => onFlexDirectionChange(value)}
@@ -118,9 +122,9 @@ export function LayoutEditor({
 
         {/* Align Items */}
         <div className="flex items-center gap-2">
-          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">Align</label>
+          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">{ui("Align")}</label>
           <div className="flex gap-0.5 rounded-md border border-input bg-background p-0.5">
-            {ALIGN_OPTIONS.map(({ value, icon: Icon, label }) => (
+            {i18n_ALIGN_OPTIONS.map(({ value, icon: Icon, label }) => (
               <button
                 key={value}
                 onClick={() => onAlignItemsChange(value)}
@@ -140,13 +144,13 @@ export function LayoutEditor({
 
         {/* Gap */}
         <div className="flex items-center gap-2">
-          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">Gap</label>
+          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">{ui("Gap")}</label>
           <input
             type="text"
             value={gap}
             onChange={(e) => onGapChange(e.target.value)}
             className="flex-1 rounded-md border border-input bg-background px-2 py-1 text-[11px] text-foreground outline-none font-mono focus:border-brand-500/50 focus:ring-1 focus:ring-brand-500/20 transition-colors"
-            placeholder="0px"
+            placeholder={ui("0px")}
           />
         </div>
       </div>

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback } from "react";
 import {
@@ -20,6 +22,8 @@ import { VersionItem } from "./version-history-item";
 
 // ─── Main Component ─────────────────────────────────────────
 export function VersionHistory() {
+  const ui = useUiText();
+
   const { projectId } = useEditorStore();
 
   const {
@@ -88,9 +92,7 @@ export function VersionHistory() {
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Version History
-          </h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"> {ui("Version History")} </h3>
           {total > 0 && (
             <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
               {total}
@@ -101,7 +103,7 @@ export function VersionHistory() {
           <button
             onClick={() => fetchVersions(1)}
             className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-accent transition-colors"
-            title="Refresh"
+            title={ui("Refresh")}
             disabled={loading}
           >
             <RefreshCw
@@ -116,9 +118,7 @@ export function VersionHistory() {
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
-            >
-              All
-            </button>
+            > {ui("All")} </button>
             <button
               onClick={() => setFilter("bookmarked")}
               className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${
@@ -127,9 +127,7 @@ export function VersionHistory() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Star className="h-3 w-3 inline-block mr-0.5 -mt-px" />
-              Saved
-            </button>
+              <Star className="h-3 w-3 inline-block mr-0.5 -mt-px" /> {ui("Saved")} </button>
           </div>
         </div>
       </div>
@@ -140,7 +138,7 @@ export function VersionHistory() {
         {loading && versions.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
             <Loader2 className="h-5 w-5 animate-spin mb-2" />
-            <p className="text-xs">Loading versions...</p>
+            <p className="text-xs">{ui("Loading versions...")}</p>
           </div>
         )}
 
@@ -148,13 +146,11 @@ export function VersionHistory() {
         {error && versions.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <AlertCircle className="h-5 w-5 text-red-500 mb-2" />
-            <p className="text-xs text-red-600 mb-2">{error}</p>
+            <p className="text-xs text-red-600 mb-2">{ui(error)}</p>
             <button
               onClick={() => fetchVersions(1)}
               className="text-xs text-primary hover:text-primary/80 underline"
-            >
-              Try again
-            </button>
+            > {ui("Try again")} </button>
           </div>
         )}
 
@@ -162,12 +158,8 @@ export function VersionHistory() {
         {!loading && !error && versions.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <Clock className="h-6 w-6 text-muted-foreground/50 mb-2" />
-            <p className="text-sm font-medium text-muted-foreground">
-              No versions yet
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground/70">
-              Versions are created automatically as the AI makes changes.
-            </p>
+            <p className="text-sm font-medium text-muted-foreground"> {ui("No versions yet")} </p>
+            <p className="mt-1 text-xs text-muted-foreground/70"> {ui("Versions are created automatically as the AI makes changes.")} </p>
           </div>
         )}
 
@@ -179,12 +171,8 @@ export function VersionHistory() {
           filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
               <Bookmark className="h-6 w-6 text-muted-foreground/50 mb-2" />
-              <p className="text-sm font-medium text-muted-foreground">
-                No bookmarked versions
-              </p>
-              <p className="mt-1 text-xs text-muted-foreground/70">
-                Click the bookmark icon on any version to save it.
-              </p>
+              <p className="text-sm font-medium text-muted-foreground"> {ui("No bookmarked versions")} </p>
+              <p className="mt-1 text-xs text-muted-foreground/70"> {ui("Click the bookmark icon on any version to save it.")} </p>
             </div>
           )}
 
@@ -235,15 +223,10 @@ export function VersionHistory() {
                 >
                   {loadingMore ? (
                     <>
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Loading...
-                    </>
+                      <Loader2 className="h-3 w-3 animate-spin" /> {ui("Loading...")} </>
                   ) : (
-                    <>
-                      Load older versions
-                      <span className="text-muted-foreground/50">
-                        ({total - versions.length} remaining)
-                      </span>
+                    <> {ui("Load older versions")} <span className="text-muted-foreground/50">
+                        ({total - versions.length} {ui("remaining)")} </span>
                     </>
                   )}
                 </button>

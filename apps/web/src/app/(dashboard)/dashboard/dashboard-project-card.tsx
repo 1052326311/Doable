@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState } from "react";
 import {
@@ -55,6 +57,8 @@ export function ProjectCard({
   isShared?: boolean;
   onSharedChanged?: () => void;
 }) {
+  const ui = useUiText();
+
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const statusStyle = STATUS_STYLES[project.status] ?? STATUS_STYLES.draft!;
   const [imgFailed, setImgFailed] = useState(false);
@@ -104,7 +108,7 @@ export function ProjectCard({
               </div>
             </div>
             <div className="absolute bottom-2 right-3 text-4xl font-bold text-white/[0.08] leading-none select-none">
-              {project.name?.charAt(0)?.toUpperCase() ?? "P"}
+              {project.name?.charAt(0)?.toUpperCase() ?? ui("P")}
             </div>
           </>
         )}
@@ -144,25 +148,21 @@ export function ProjectCard({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
               <DropdownMenuItem onClick={onClick}>
-                <ExternalLink className="mr-2 h-3.5 w-3.5" /> Open in editor
-              </DropdownMenuItem>
+                <ExternalLink className="mr-2 h-3.5 w-3.5" /> {ui("Open in editor")} </DropdownMenuItem>
               <DropdownMenuItem onClick={onRename}>
-                <Pencil className="mr-2 h-3.5 w-3.5" /> Rename
-              </DropdownMenuItem>
+                <Pencil className="mr-2 h-3.5 w-3.5" /> {ui("Rename")} </DropdownMenuItem>
               <DropdownMenuItem onClick={onDuplicate}>
-                <Copy className="mr-2 h-3.5 w-3.5" /> Duplicate
-              </DropdownMenuItem>
+                <Copy className="mr-2 h-3.5 w-3.5" /> {ui("Duplicate")} </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onStar()}>
-                <Star className="mr-2 h-3.5 w-3.5" /> {project.starred ? "Unstar" : "Star"}
+                <Star className="mr-2 h-3.5 w-3.5" /> {project.starred ? ui("Unstar") : ui("Star")}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setShareDialogOpen(true)}>
                 <Compass className="mr-2 h-3.5 w-3.5" />
-                {isShared ? "Update Discover listing" : "Share to Discover"}
+                {isShared ? ui("Update Discover listing") : ui("Share to Discover")}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400" onClick={onDelete}>
-                <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
-              </DropdownMenuItem>
+                <Trash2 className="mr-2 h-3.5 w-3.5" /> {ui("Delete")} </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -171,23 +171,21 @@ export function ProjectCard({
       {/* Info */}
       <div className="flex items-center gap-2.5 p-3">
         <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-600 text-[10px] font-semibold text-white">
-          {project.name?.charAt(0)?.toUpperCase() ?? "U"}
+          {project.name?.charAt(0)?.toUpperCase() ?? ui("U")}
         </div>
         <div className="flex flex-col gap-0.5 min-w-0 flex-1">
           <h3 className="text-sm font-medium text-foreground leading-tight line-clamp-1">{project.name}</h3>
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-[11px] text-muted-foreground">{formatRelativeTime(project.updated_at)}</span>
+            <span className="text-[11px] text-muted-foreground">{formatRelativeTime(project.updated_at, ui.locale)}</span>
             <span className={`inline-flex items-center rounded-full border px-1.5 py-0 text-[10px] font-medium ${statusStyle.className}`}>
-              {statusStyle.label}
+              {ui(statusStyle.label)}
             </span>
             {isShared && (
               <span
                 className="inline-flex items-center gap-0.5 rounded-full border border-emerald-500/40 px-1.5 py-0 text-[10px] font-medium text-emerald-400"
-                title="Shared to Discover"
+                title={ui("Shared to Discover")}
               >
-                <Compass className="h-2.5 w-2.5" />
-                Discover
-              </span>
+                <Compass className="h-2.5 w-2.5" /> {ui("Discover")} </span>
             )}
           </div>
         </div>

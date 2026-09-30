@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import {
   ShieldCheck,
@@ -21,25 +23,20 @@ import { SEVERITY_CONFIG, SCAN_PHASES } from "./security-panel-types";
 // ─── EmptyState ─────────────────────────────────────────────
 
 export function EmptyState({ onRunScan }: { onRunScan: () => void }) {
+  const ui = useUiText();
+
   return (
     <div className="flex h-full flex-col items-center justify-center px-6 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-500/10 to-cyan-500/10">
         <ShieldCheck className="h-7 w-7 text-blue-500" />
       </div>
-      <h3 className="mt-4 text-sm font-semibold text-foreground">
-        Security Scanner
-      </h3>
-      <p className="mt-1.5 max-w-[260px] text-xs leading-relaxed text-muted-foreground">
-        Scan your project for dependency vulnerabilities, hardcoded secrets, code
-        quality issues, and HTTPS configuration.
-      </p>
+      <h3 className="mt-4 text-sm font-semibold text-foreground"> {ui("Security Scanner")} </h3>
+      <p className="mt-1.5 max-w-[260px] text-xs leading-relaxed text-muted-foreground"> {ui("Scan your project for dependency vulnerabilities, hardcoded secrets, code quality issues, and HTTPS configuration.")} </p>
       <button
         onClick={onRunScan}
         className="mt-5 flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
       >
-        <Play className="h-3.5 w-3.5" />
-        Run Security Scan
-      </button>
+        <Play className="h-3.5 w-3.5" /> {ui("Run Security Scan")} </button>
     </div>
   );
 }
@@ -124,6 +121,8 @@ export function SecurityScore({
   scoreColor: string;
   trackColor: string;
 }) {
+  const ui = useUiText();
+
   const circumference = 2 * Math.PI * 54;
   const strokeDashoffset = circumference - (score / 100) * circumference;
 
@@ -151,9 +150,7 @@ export function SecurityScore({
           <span className="text-[10px] text-muted-foreground">/ 100</span>
         </div>
       </div>
-      <p className="mt-3 text-xs text-muted-foreground">
-        Your project security score
-      </p>
+      <p className="mt-3 text-xs text-muted-foreground"> {ui("Your project security score")} </p>
     </div>
   );
 }
@@ -232,6 +229,8 @@ export function FindingRow({
   onFix: () => void;
   onDismiss: () => void;
 }) {
+  const ui = useUiText();
+
   const config = SEVERITY_CONFIG[finding.severity];
   const Chevron = expanded ? ChevronDown : ChevronRight;
 
@@ -249,14 +248,12 @@ export function FindingRow({
               onClick={(e: React.MouseEvent) => { e.stopPropagation(); onFix(); }}
               className="flex items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-[10px] font-medium text-primary hover:bg-primary/20 transition-colors"
             >
-              <Sparkles className="h-2.5 w-2.5" />
-              Fix
-            </button>
+              <Sparkles className="h-2.5 w-2.5" /> {ui("Fix")} </button>
           )}
           <button
             onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDismiss(); }}
             className="flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] text-muted-foreground hover:bg-muted transition-colors"
-            title="Dismiss"
+            title={ui("Dismiss")}
           >
             <EyeOff className="h-2.5 w-2.5" />
           </button>
@@ -304,6 +301,8 @@ export function SecretFindingRow({
   onMoveToEnv: () => void;
   onDismiss: () => void;
 }) {
+  const ui = useUiText();
+
   return (
     <div className="rounded-lg border border-red-500/20 bg-red-500/5 p-3">
       <div className="flex items-start justify-between gap-2">
@@ -318,13 +317,11 @@ export function SecretFindingRow({
             onClick={onMoveToEnv}
             className="flex shrink-0 items-center gap-1 rounded-md bg-primary/10 px-2 py-1 text-[10px] font-medium text-primary hover:bg-primary/20 transition-colors"
           >
-            <ExternalLink className="h-2.5 w-2.5" />
-            Move to .env
-          </button>
+            <ExternalLink className="h-2.5 w-2.5" /> {ui("Move to .env")} </button>
           <button
             onClick={onDismiss}
             className="flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] text-muted-foreground hover:bg-muted transition-colors"
-            title="Dismiss"
+            title={ui("Dismiss")}
           >
             <EyeOff className="h-2.5 w-2.5" />
           </button>

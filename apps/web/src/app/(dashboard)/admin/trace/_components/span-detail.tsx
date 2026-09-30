@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 /**
  * Side panel for the selected span. Tabs:
@@ -26,14 +28,16 @@ interface Props {
 type Tab = "attrs" | "events" | "exception" | "logs";
 
 export function SpanDetail({ span, logs }: Props) {
+  const ui = useUiText();
+
   const [tab, setTab] = useState<Tab>("attrs");
 
   const spanLogs = logs.filter((l) => l.span_id === span.span_id);
   const tabs: { id: Tab; label: string; badge?: number | null }[] = [
-    { id: "attrs", label: "Attributes" },
-    { id: "events", label: "Events", badge: Array.isArray(span.events) ? span.events.length : 0 },
-    { id: "exception", label: "Exception", badge: span.exception ? 1 : 0 },
-    { id: "logs", label: "Logs", badge: spanLogs.length },
+    { id: "attrs", label: ui("Attributes") },
+    { id: "events", label: ui("Events"), badge: Array.isArray(span.events) ? span.events.length : 0 },
+    { id: "exception", label: ui("Exception"), badge: span.exception ? 1 : 0 },
+    { id: "logs", label: ui("Logs"), badge: spanLogs.length },
   ];
 
   return (
@@ -43,14 +47,13 @@ export function SpanDetail({ span, logs }: Props) {
         <h3 className="mt-1 break-all font-mono text-sm font-semibold text-foreground">{span.name}</h3>
         <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span>span_id: <code className="text-foreground">{span.span_id.slice(0, 16)}</code></span>
-          <span>kind: <code className="text-foreground">{span.kind ?? "—"}</code></span>
-          <span>
-            status:{" "}
+          <span>{ui("kind:")} <code className="text-foreground">{span.kind ?? "—"}</code></span>
+          <span> {ui("status:")}{" "}
             <code className={span.status_code === "ERROR" ? "text-red-400" : "text-foreground"}>
               {span.status_code}
             </code>
           </span>
-          <span>duration: <code className="text-foreground">{span.duration_ms ?? "?"}ms</code></span>
+          <span>{ui("duration:")} <code className="text-foreground">{span.duration_ms ?? "?"}ms</code></span>
         </div>
         {span.status_message && (
           <p className="mt-2 text-xs text-red-400">{span.status_message}</p>
@@ -77,12 +80,12 @@ export function SpanDetail({ span, logs }: Props) {
       </div>
 
       <div className="max-h-[60vh] overflow-y-auto p-4">
-        {tab === "attrs" && <JsonBlock value={span.attributes} empty="No attributes" />}
-        {tab === "events" && <JsonBlock value={span.events} empty="No events" />}
-        {tab === "exception" && <JsonBlock value={span.exception} empty="No exception" />}
+        {tab === "attrs" && <JsonBlock value={span.attributes} empty={ui("No attributes")} />}
+        {tab === "events" && <JsonBlock value={span.events} empty={ui("No events")} />}
+        {tab === "exception" && <JsonBlock value={span.exception} empty={ui("No exception")} />}
         {tab === "logs" && (
           spanLogs.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No logs for this span</p>
+            <p className="text-xs text-muted-foreground">{ui("No logs for this span")}</p>
           ) : (
             <ul className="space-y-2">
               {spanLogs.map((l) => (
@@ -95,9 +98,7 @@ export function SpanDetail({ span, logs }: Props) {
                   <p className="mt-1 break-words font-mono text-xs text-foreground">{l.message}</p>
                   {l.attributes && Object.keys(l.attributes).length > 0 && (
                     <details className="mt-1">
-                      <summary className="cursor-pointer text-[10px] text-muted-foreground hover:text-foreground">
-                        attributes
-                      </summary>
+                      <summary className="cursor-pointer text-[10px] text-muted-foreground hover:text-foreground"> {ui("attributes")} </summary>
                       <JsonBlock value={l.attributes} empty="" />
                     </details>
                   )}

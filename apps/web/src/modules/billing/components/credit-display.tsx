@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { cn } from "@/lib/utils";
 import type { Credits } from "../hooks/use-billing";
@@ -46,6 +48,8 @@ function CreditBar({
   total: number;
   color: string;
 }) {
+  const ui = useUiText();
+
   const unlimited = isUnlimited(total);
   // BUG-BILLING-001: clamp `used` at 0 — if the API ever reports remaining
   // > total (e.g. plan-limit mismatch, top-up credits showing as monthly),
@@ -59,7 +63,7 @@ function CreditBar({
       <div className="flex items-center justify-between text-sm">
         <span className="font-medium text-foreground">{label}</span>
         <span className={cn("tabular-nums text-muted-foreground", isLow && "text-orange-400")}>
-          {unlimited ? "Unlimited" : `${used} / ${total} used`}
+          {unlimited ? ui("Unlimited") : ui("{v0} / {v1} used", {v0: (used), v1: (total)})}
         </span>
       </div>
       <div className="h-2.5 w-full overflow-hidden rounded-full bg-muted">
@@ -73,6 +77,8 @@ function CreditBar({
 }
 
 export function CreditDisplay({ credits, loading, className }: CreditDisplayProps) {
+  const ui = useUiText();
+
   if (loading) {
     return (
       <div className={cn("space-y-4 rounded-xl border border-border bg-card p-6", className)}>
@@ -87,9 +93,7 @@ export function CreditDisplay({ credits, loading, className }: CreditDisplayProp
 
   if (!credits) {
     return (
-      <div className={cn("rounded-xl border border-border bg-card p-6 text-center text-muted-foreground", className)}>
-        No credit information available. Subscribe to a plan to get started.
-      </div>
+      <div className={cn("rounded-xl border border-border bg-card p-6 text-center text-muted-foreground", className)}> {ui("No credit information available. Subscribe to a plan to get started.")} </div>
     );
   }
 
@@ -116,22 +120,22 @@ export function CreditDisplay({ credits, loading, className }: CreditDisplayProp
   return (
     <div className={cn("space-y-5 rounded-xl border border-border bg-card p-6", className)}>
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-foreground">Credits</h3>
+        <h3 className="text-lg font-semibold text-foreground">{ui("Credits")}</h3>
         <div className="rounded-full bg-brand-500/10 border border-brand-500/20 px-3 py-1 text-sm font-medium text-brand-400">
-          {showUnlimited ? "Unlimited" : `${totalAvailable} available`}
+          {showUnlimited ? ui("Unlimited") : ui("{v0} available", {v0: (totalAvailable)})}
         </div>
       </div>
 
       <div className="space-y-4">
         <CreditBar
-          label="Daily Credits"
+          label={ui("Daily Credits")}
           remaining={credits.daily_remaining}
           total={dailyTotal}
           color="bg-blue-500"
         />
         {monthlyTotal > 0 && (
           <CreditBar
-            label="Monthly Credits"
+            label={ui("Monthly Credits")}
             remaining={credits.monthly_remaining}
             total={monthlyTotal}
             color="bg-brand-500"
@@ -139,7 +143,7 @@ export function CreditDisplay({ credits, loading, className }: CreditDisplayProp
         )}
         {credits.rollover_credits > 0 && (
           <CreditBar
-            label="Rollover Credits"
+            label={ui("Rollover Credits")}
             remaining={credits.rollover_credits}
             total={credits.rollover_credits}
             color="bg-green-500"
@@ -148,15 +152,14 @@ export function CreditDisplay({ credits, loading, className }: CreditDisplayProp
       </div>
 
       <div className="grid grid-cols-3 gap-3 pt-2">
-        <CreditStat label="Daily" value={credits.daily_remaining} />
-        <CreditStat label="Monthly" value={credits.monthly_remaining} />
-        <CreditStat label="Rollover" value={credits.rollover_credits} />
+        <CreditStat label={ui("Daily")} value={credits.daily_remaining} />
+        <CreditStat label={ui("Monthly")} value={credits.monthly_remaining} />
+        <CreditStat label={ui("Rollover")} value={credits.rollover_credits} />
       </div>
 
       {credits.last_daily_reset && (
-        <p className="text-xs text-muted-foreground">
-          Daily credits reset:{" "}
-          {new Date(credits.last_daily_reset).toLocaleString()}
+        <p className="text-xs text-muted-foreground"> {ui("Daily credits reset:")}{" "}
+          {new Date(credits.last_daily_reset).toLocaleString(ui.locale)}
         </p>
       )}
     </div>
@@ -173,6 +176,8 @@ export function CreditToolbarIndicator({
   loading?: boolean;
   onUpgrade?: () => void;
 }) {
+  const ui = useUiText();
+
   if (loading || !credits) return null;
 
   const total = credits.daily_remaining + credits.monthly_remaining + credits.rollover_credits;
@@ -188,10 +193,10 @@ export function CreditToolbarIndicator({
           ? "bg-orange-500/15 text-orange-700 dark:text-orange-400 hover:bg-orange-500/25"
           : "bg-secondary text-muted-foreground hover:bg-accent"
       )}
-      title={unlimited ? "Unlimited credits" : `${total} credits remaining`}
+      title={unlimited ? ui("Unlimited credits") : ui("{v0} credits remaining", {v0: (total)})}
     >
       <span className="tabular-nums">{unlimited ? "∞" : total}</span>
-      <span className="text-muted-foreground">credits</span>
+      <span className="text-muted-foreground">{ui("credits")}</span>
     </button>
   );
 }

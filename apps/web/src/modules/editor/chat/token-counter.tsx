@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, memo } from "react";
 import { Zap, ChevronDown, ChevronUp } from "lucide-react";
@@ -34,6 +36,8 @@ interface TokenCounterProps {
  * Renders nothing when usage is missing or null.
  */
 export const TokenCounter = memo(function TokenCounter({ usage }: TokenCounterProps) {
+  const ui = useUiText();
+
   const [expanded, setExpanded] = useState(false);
 
   if (!usage) return null;
@@ -68,21 +72,15 @@ export const TokenCounter = memo(function TokenCounter({ usage }: TokenCounterPr
 
       {expanded && (
         <div className="mt-1 ml-4 space-y-0.5 text-[10px] text-muted-foreground/50">
-          <div>
-            Prompt: {formatTokenCount(usage.promptTokens)} tokens
-          </div>
-          <div>
-            Completion: {formatTokenCount(usage.completionTokens)} tokens
-          </div>
-          <div>Model: {usage.model || "unknown"}</div>
+          <div> {ui("Prompt:")} {formatTokenCount(usage.promptTokens)} {ui("tokens")} </div>
+          <div> {ui("Completion:")} {formatTokenCount(usage.completionTokens)} {ui("tokens")} </div>
+          <div>{ui("Model:")} {usage.model || ui("unknown")}</div>
           {(usage.toolCallCount ?? 0) > 0 && (
-            <div>Tool calls: {usage.toolCallCount}</div>
+            <div>{ui("Tool calls:")} {usage.toolCallCount}</div>
           )}
-          {isLocal && <div>Provider: local (no cost)</div>}
+          {isLocal && <div>{ui("Provider: local (no cost)")}</div>}
           {estimated && (
-            <div className="text-amber-500/60">
-              Token counts are estimated (provider did not report usage)
-            </div>
+            <div className="text-amber-500/60"> {ui("Token counts are estimated (provider did not report usage)")} </div>
           )}
         </div>
       )}

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 /**
  * /admin/audit/[sessionId] — Full conversation transcript.
@@ -44,6 +46,8 @@ type Message = {
 };
 
 export default function AdminAuditConversationPage() {
+  const ui = useUiText();
+
   const router = useRouter();
   const params = useParams<{ sessionId: string }>();
   const sessionId = params.sessionId;
@@ -70,7 +74,7 @@ export default function AdminAuditConversationPage() {
         }
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : "Failed to load conversation");
+          setError(e instanceof Error ? e.message : ui("Failed to load conversation"));
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -80,7 +84,7 @@ export default function AdminAuditConversationPage() {
     return () => {
       cancelled = true;
     };
-  }, [isPlatformAdmin, sessionId]);
+  }, [ui, isPlatformAdmin, sessionId]);
 
   if (adminLoading || loading) {
     return (
@@ -93,10 +97,9 @@ export default function AdminAuditConversationPage() {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
         <ShieldCheck className="h-12 w-12" />
-        <p className="font-medium text-foreground">Platform admin access required</p>
+        <p className="font-medium text-foreground">{ui("Platform admin access required")}</p>
         <Button variant="outline" size="sm" onClick={() => router.push("/dashboard")}>
-          <ArrowLeft className="mr-2 h-3.5 w-3.5" /> Back
-        </Button>
+          <ArrowLeft className="mr-2 h-3.5 w-3.5" /> {ui("Back")} </Button>
       </div>
     );
   }
@@ -109,40 +112,35 @@ export default function AdminAuditConversationPage() {
             href="/admin/audit"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-3.5 w-3.5" /> Audit search
-          </Link>
+            <ArrowLeft className="h-3.5 w-3.5" /> {ui("Audit search")} </Link>
         </div>
 
         {error && (
           <div className="mb-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-2 text-sm text-red-400">
-            {error}
+            {ui(error)}
           </div>
         )}
 
         {session && (
           <div className="mb-6 rounded-lg border border-border bg-card p-4">
-            <h1 className="mb-2 text-xl font-semibold text-foreground">
-              Conversation transcript
-            </h1>
+            <h1 className="mb-2 text-xl font-semibold text-foreground"> {ui("Conversation transcript")} </h1>
             <dl className="grid grid-cols-2 gap-x-6 gap-y-1 text-sm sm:grid-cols-3">
-              <Info label="User" value={session.user_display_name || session.user_email || session.user_id} />
-              <Info label="Email" value={session.user_email ?? "—"} />
-              <Info label="Mode" value={session.mode} />
-              <Info label="Workspace" value={session.workspace_name ?? "—"} />
-              <Info label="Project" value={session.project_name ?? "—"} />
-              <Info label="Updated" value={new Date(session.updated_at).toLocaleString()} />
-              <Info label="Session ID" value={session.session_id} mono />
-              <Info label="User ID" value={session.user_id} mono />
-              <Info label="Project ID" value={session.project_id} mono />
+              <Info label={ui("User")} value={session.user_display_name || session.user_email || session.user_id} />
+              <Info label={ui("Email")} value={session.user_email ?? "—"} />
+              <Info label={ui("Mode")} value={session.mode} />
+              <Info label={ui("Workspace")} value={session.workspace_name ?? "—"} />
+              <Info label={ui("Project")} value={session.project_name ?? "—"} />
+              <Info label={ui("Updated")} value={new Date(session.updated_at).toLocaleString(ui.locale)} />
+              <Info label={ui("Session ID")} value={session.session_id} mono />
+              <Info label={ui("User ID")} value={session.user_id} mono />
+              <Info label={ui("Project ID")} value={session.project_id} mono />
             </dl>
           </div>
         )}
 
         <div className="space-y-3">
           {messages.length === 0 && (
-            <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
-              This session has no recorded messages.
-            </div>
+            <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground"> {ui("This session has no recorded messages.")} </div>
           )}
           {messages.map((m) => (
             <MessageBubble key={m.id} message={m} />
@@ -163,6 +161,8 @@ function Info({ label, value, mono }: { label: string; value: string; mono?: boo
 }
 
 function MessageBubble({ message }: { message: Message }) {
+  const ui = useUiText();
+
   const role = message.role;
   const Icon = role === "user" ? UserIcon : role === "assistant" ? Bot : Wrench;
   const tone =
@@ -186,15 +186,14 @@ function MessageBubble({ message }: { message: Message }) {
           )}
         </div>
         <div className="text-[11px] text-muted-foreground">
-          {new Date(message.created_at).toLocaleString()}
+          {new Date(message.created_at).toLocaleString(ui.locale)}
         </div>
       </div>
 
       {message.thinking_content && (
         <details className="mb-2 rounded border border-border bg-background/40 p-2 text-xs">
           <summary className="cursor-pointer font-medium text-muted-foreground">
-            <Brain className="mr-1 inline h-3 w-3" /> Thinking
-          </summary>
+            <Brain className="mr-1 inline h-3 w-3" /> {ui("Thinking")} </summary>
           <pre className="mt-2 whitespace-pre-wrap text-muted-foreground">{message.thinking_content}</pre>
         </details>
       )}
@@ -206,8 +205,7 @@ function MessageBubble({ message }: { message: Message }) {
       {hasToolCalls && (
         <details className="mt-2 rounded border border-border bg-background/40 p-2 text-xs">
           <summary className="cursor-pointer font-medium text-muted-foreground">
-            <Wrench className="mr-1 inline h-3 w-3" /> Tool calls
-          </summary>
+            <Wrench className="mr-1 inline h-3 w-3" /> {ui("Tool calls")} </summary>
           <pre className="mt-2 overflow-x-auto whitespace-pre-wrap text-muted-foreground">
             {JSON.stringify(message.tool_calls, null, 2)}
           </pre>

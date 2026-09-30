@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
@@ -24,6 +26,8 @@ const PAGE_SIZE = 12;
 const WS_KEY = "doable_active_workspace_id";
 
 export function useDashboard() {
+  const ui = useUiText();
+
   const router = useRouter();
   const { user } = useAuth();
   const { toasts, addToast, dismissToast } = useToasts();
@@ -140,9 +144,9 @@ export function useDashboard() {
       setProjects((prev) => (append ? [...prev, ...res.data] : res.data));
       setCurrentPage(page);
       setTotalProjects(res.pagination.total);
-    } catch { if (!append) { setError("Failed to load projects"); setProjects([]); }
+    } catch { if (!append) { setError(ui("Failed to load projects")); setProjects([]); }
     } finally { setIsLoading(false); setIsLoadingMore(false); }
-  }, [statusFilter, debouncedSearch, activeFolderId]);
+  }, [ui, statusFilter, debouncedSearch, activeFolderId]);
 
   const fetchRecentlyViewed = useCallback(async (page = 1, append = false) => {
     try {
@@ -285,7 +289,7 @@ export function useDashboard() {
       console.error("[dashboard] handleSubmit failed", err);
       const message = err instanceof Error
         ? `Failed to create project: ${err.message}`
-        : "Failed to create project. Please try again.";
+        : ui("Failed to create project. Please try again.");
       setError(message);
       setIsCreating(false);
       setCreatingStatus("");
@@ -303,16 +307,16 @@ export function useDashboard() {
     updateBothArrays((prev) => prev.filter((p) => p.id !== id));
     setSelectedIds((prev) => { const next = new Set(prev); next.delete(id); return next; });
     setDeleteConfirmId(null);
-    try { await apiDeleteProject(id); emitDashboardEvent(DASHBOARD_EVENTS.PROJECTS_CHANGED); addToast("success", `"${name}" deleted`); }
-    catch { addToast("error", `Failed to delete "${name}"`); fetchProjects(); fetchRecentlyViewed(); }
+    try { await apiDeleteProject(id); emitDashboardEvent(DASHBOARD_EVENTS.PROJECTS_CHANGED); addToast("success", ui("\"{v0}\" deleted",{v0:(name)})); }
+    catch { addToast("error", ui("Failed to delete \"{v0}\"",{v0:(name)})); fetchProjects(); fetchRecentlyViewed(); }
   };
 
   const handleBulkDelete = async () => {
     const ids = Array.from(selectedIds);
     updateBothArrays((prev) => prev.filter((p) => !selectedIds.has(p.id)));
     setSelectedIds(new Set()); setBulkDeleteConfirm(false);
-    try { await Promise.all(ids.map((id) => apiDeleteProject(id))); emitDashboardEvent(DASHBOARD_EVENTS.PROJECTS_CHANGED); addToast("success", `${ids.length} project${ids.length === 1 ? "" : "s"} deleted`); }
-    catch { addToast("error", "Failed to delete some projects"); fetchProjects(); fetchRecentlyViewed(); }
+    try { await Promise.all(ids.map((id) => apiDeleteProject(id))); emitDashboardEvent(DASHBOARD_EVENTS.PROJECTS_CHANGED); addToast("success", ui("{v0} project{v1} deleted",{v0:(ids.length),v1:(ids.length === 1 ? "" : "s")})); }
+    catch { addToast("error", ui("Failed to delete some projects")); fetchProjects(); fetchRecentlyViewed(); }
   };
 
   const handleDuplicate = async (id: string) => {

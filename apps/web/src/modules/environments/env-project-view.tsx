@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback, useEffect } from "react";
 import { Boxes, Loader2, AlertCircle, RefreshCw, Maximize2, Minimize2, X } from "lucide-react";
@@ -21,6 +23,8 @@ import { IntegrationsPanel } from "@/modules/integrations/integrations-panel";
 import type { EnvTab } from "./env-shared";
 
 export function ProjectEnvironmentView({ workspaceId, projectId }: { workspaceId: string; projectId: string }) {
+  const ui = useUiText();
+
   const hooks = useEnvironments(workspaceId, { projectId });
   const { environments, loading, error, refresh } = hooks;
   const [activeTab, setActiveTab] = useState<EnvTab>("integrations");
@@ -74,18 +78,18 @@ export function ProjectEnvironmentView({ workspaceId, projectId }: { workspaceId
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
           <Boxes className="h-4 w-4" />
-          <h2 className="text-sm font-semibold">Environment</h2>
+          <h2 className="text-sm font-semibold">{ui("Environment")}</h2>
           {projectEnv && <ScopeBadge scope={projectEnv.scope} />}
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={() => { void refresh(); setDetail(null); }} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title="Refresh">
+          <button onClick={() => { void refresh(); setDetail(null); }} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title={ui("Refresh")}>
             <RefreshCw className="h-3.5 w-3.5" />
           </button>
-          <button onClick={toggleDetached} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title={detached ? "Dock to sidebar" : "Open as popup"}>
+          <button onClick={toggleDetached} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title={detached ? ui("Dock to sidebar") : ui("Open as popup")}>
             {detached ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
           </button>
           {detached && (
-            <button onClick={toggleDetached} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title="Close">
+            <button onClick={toggleDetached} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title={ui("Close")}>
               <X className="h-3.5 w-3.5" />
             </button>
           )}
@@ -103,7 +107,7 @@ export function ProjectEnvironmentView({ workspaceId, projectId }: { workspaceId
       <div className="flex-1 overflow-y-auto p-3">
         {error && (
           <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3 mb-3">
-            <AlertCircle className="h-4 w-4 text-destructive" /><span className="text-xs text-destructive">{error}</span>
+            <AlertCircle className="h-4 w-4 text-destructive" /><span className="text-xs text-destructive">{ui(error)}</span>
           </div>
         )}
         {(loading || loadingDetail) && !detail ? (
@@ -122,7 +126,7 @@ export function ProjectEnvironmentView({ workspaceId, projectId }: { workspaceId
           </>
         ) : !loading && (
           <div className="flex flex-col items-center py-8 text-center">
-            <Boxes className="h-8 w-8 text-muted-foreground/30 mb-2" /><p className="text-xs text-muted-foreground">No environment loaded</p>
+            <Boxes className="h-8 w-8 text-muted-foreground/30 mb-2" /><p className="text-xs text-muted-foreground">{ui("No environment loaded")}</p>
           </div>
         )}
       </div>

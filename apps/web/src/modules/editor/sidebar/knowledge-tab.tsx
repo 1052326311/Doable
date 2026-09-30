@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -85,12 +87,12 @@ function FileListView({
   onAddFile: () => void;
   onRetry: () => void;
 }) {
+  const ui = useUiText();
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-48 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-        Loading knowledge base...
-      </div>
+        <Loader2 className="h-4 w-4 animate-spin mr-2" /> {ui("Loading knowledge base...")} </div>
     );
   }
 
@@ -98,13 +100,11 @@ function FileListView({
     return (
       <div className="flex flex-col items-center justify-center h-48 px-4">
         <AlertCircle className="h-6 w-6 text-destructive/60" />
-        <p className="mt-2 text-xs text-muted-foreground text-center">{error}</p>
+        <p className="mt-2 text-xs text-muted-foreground text-center">{ui(error)}</p>
         <button
           onClick={onRetry}
           className="mt-3 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        >
-          Retry
-        </button>
+        > {ui("Retry")} </button>
       </div>
     );
   }
@@ -112,14 +112,12 @@ function FileListView({
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Hint */}
-      <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground leading-relaxed">
-        Context files the AI reads before every interaction. Click to edit.
-      </div>
+      <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground leading-relaxed"> {ui("Context files the AI reads before every interaction. Click to edit.")} </div>
 
       {/* File list */}
       <div className="px-2 py-1">
         {files.map((file) => {
-          const desc = FILE_DESCRIPTIONS[file.filename] ?? "Custom context";
+          const desc = ui(FILE_DESCRIPTIONS[file.filename]) ?? "Custom context";
           const hasContent = file.content.trim().length > 0;
           return (
             <button
@@ -147,8 +145,7 @@ function FileListView({
                 </p>
                 {hasContent && (
                   <p className="mt-0.5 text-[10px] text-muted-foreground/60">
-                    {file.content.length} chars
-                  </p>
+                    {file.content.length} {ui("chars")} </p>
                 )}
               </div>
             </button>
@@ -162,9 +159,7 @@ function FileListView({
           onClick={onAddFile}
           className="flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-border py-2 text-xs text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
         >
-          <Plus className="h-3 w-3" />
-          Add Knowledge File
-        </button>
+          <Plus className="h-3 w-3" /> {ui("Add Knowledge File")} </button>
       </div>
     </div>
   );
@@ -176,6 +171,8 @@ export const KnowledgeTab = ({
   projectId,
   apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000",
 }: KnowledgeTabProps) => {
+  const ui = useUiText();
+
   const [files, setFiles] = useState<ContextFile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -191,7 +188,7 @@ export const KnowledgeTab = ({
         `${apiBaseUrl}/projects/${projectId}/context`,
         { headers: getAuthHeaders() }
       );
-      if (!res.ok) throw new Error("Failed to load context files");
+      if (!res.ok) throw new Error(ui("Failed to load context files"));
       const json = await res.json() as { data: { files: ContextFile[] } };
       setFiles(json.data.files);
     } catch (err) {
@@ -199,7 +196,7 @@ export const KnowledgeTab = ({
     } finally {
       setLoading(false);
     }
-  }, [projectId, apiBaseUrl]);
+  }, [ui, projectId, apiBaseUrl]);
 
   useEffect(() => {
     void fetchFiles();
@@ -220,17 +217,17 @@ export const KnowledgeTab = ({
         );
         if (!res.ok) {
           const body = await res.json().catch(() => ({ error: "Failed to create file" }));
-          throw new Error(body.error ?? "Failed to create file");
+          throw new Error(body.error ?? ui("Failed to create file"));
         }
         const json = await res.json() as { data: ContextFile };
         // Add to list and open immediately
         setFiles((prev) => [...prev, json.data].sort((a, b) => a.filename.localeCompare(b.filename)));
         setActiveFile(json.data);
       } catch (err) {
-        console.error("Failed to create context file:", err);
+        console.error(ui("Failed to create context file:"), err);
       }
     },
-    [projectId, apiBaseUrl]
+    [ui, projectId, apiBaseUrl]
   );
 
   // Open file for editing — re-fetch latest content
@@ -279,17 +276,13 @@ export const KnowledgeTab = ({
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2">
           <Brain className="h-3.5 w-3.5 text-muted-foreground" />
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-            Project Knowledge
-          </h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"> {ui("Project Knowledge")} </h3>
         </div>
         <button
           onClick={() => setShowAddDialog(!showAddDialog)}
           className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
         >
-          <Plus className="h-3 w-3" />
-          Add
-        </button>
+          <Plus className="h-3 w-3" /> {ui("Add")} </button>
       </div>
 
       {/* Add File Dialog */}

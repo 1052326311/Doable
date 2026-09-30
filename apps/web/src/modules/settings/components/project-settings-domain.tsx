@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect } from "react";
 import {
@@ -37,6 +39,8 @@ export function DomainTab({
   project: ApiProject;
   addToast: (type: "success" | "error", msg: string) => void;
 }) {
+  const ui = useUiText();
+
   const [customDomains, setCustomDomains] = useState<ApiCustomDomain[]>([]);
   const [loading, setLoading] = useState(true);
   const [newDomain, setNewDomain] = useState("");
@@ -90,9 +94,9 @@ export function DomainTab({
       const res = await apiAddCustomDomain(project.id, domain);
       setCustomDomains((prev) => [res.data, ...prev]);
       setNewDomain("");
-      addToast("success", `Domain ${domain} added. Configure your DNS records below.`);
+      addToast("success", ui("Domain {v0} added. Configure your DNS records below.",{v0:(domain)}));
     } catch (err: any) {
-      addToast("error", err?.body?.error ?? "Failed to add domain");
+      addToast("error", err?.body?.error ?? ui("Failed to add domain"));
     } finally {
       setAdding(false);
     }
@@ -106,7 +110,7 @@ export function DomainTab({
         prev.map((d) => (d.id === domainId ? res.data : d))
       );
       if (res.data.status === "active") {
-        addToast("success", `${res.data.domain} is now active!`);
+        addToast("success", ui("{v0} is now active!",{v0:(res.data.domain)}));
       } else if (res.data.status === "failed") {
         addToast("error", res.data.verification_errors ?? "Verification failed");
       }
@@ -122,9 +126,9 @@ export function DomainTab({
     try {
       await apiRemoveCustomDomain(domainId);
       setCustomDomains((prev) => prev.filter((d) => d.id !== domainId));
-      addToast("success", "Domain removed");
+      addToast("success", ui("Domain removed"));
     } catch (err: any) {
-      addToast("error", err?.body?.error ?? "Failed to remove domain");
+      addToast("error", err?.body?.error ?? ui("Failed to remove domain"));
     } finally {
       setRemovingId(null);
     }
@@ -138,34 +142,34 @@ export function DomainTab({
 
   type StatusInfo = { label: string; color: string; icon: React.ReactNode };
   const defaultStatus: StatusInfo = {
-    label: "Waiting for DNS",
+    label: ui("Waiting for DNS"),
     color: "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300",
     icon: <Clock className="h-3 w-3" />,
   };
   const statusConfig: Record<string, StatusInfo> = {
     pending: defaultStatus,
     verifying: {
-      label: "Verifying",
+      label: ui("Verifying"),
       color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
       icon: <Loader2 className="h-3 w-3 animate-spin" />,
     },
     ssl_pending: {
-      label: "SSL Provisioning",
+      label: ui("SSL Provisioning"),
       color: "bg-blue-100 text-blue-700 dark:bg-blue-900/50 dark:text-blue-300",
       icon: <Loader2 className="h-3 w-3 animate-spin" />,
     },
     active: {
-      label: "Active",
+      label: ui("Active"),
       color: "bg-green-100 text-green-700 dark:bg-green-900/50 dark:text-green-300",
       icon: <ShieldCheck className="h-3 w-3" />,
     },
     failed: {
-      label: "Failed",
+      label: ui("Failed"),
       color: "bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300",
       icon: <AlertCircle className="h-3 w-3" />,
     },
     removing: {
-      label: "Removing",
+      label: ui("Removing"),
       color: "bg-gray-100 text-gray-700 dark:bg-gray-900/50 dark:text-gray-300",
       icon: <Loader2 className="h-3 w-3 animate-spin" />,
     },
@@ -174,42 +178,34 @@ export function DomainTab({
   return (
     <div className="space-y-6">
       {/* Default Domain */}
-      <SectionCard title="Default Domain" description="Your project is always accessible at its .doable.me subdomain.">
+      <SectionCard title={ui("Default Domain")} description={ui("Your project is always accessible at its .doable.me subdomain.")}>
         <div className="flex items-center justify-between rounded-lg bg-muted/30 p-4">
           <div>
-            <p className="text-sm font-medium">Default URL</p>
+            <p className="text-sm font-medium">{ui("Default URL")}</p>
             <p className="mt-0.5 font-mono text-sm text-muted-foreground">
-              {project.slug}.doable.me
-            </p>
+              {project.slug}{ui(".doable.me")} </p>
           </div>
           <a
             href={`https://${project.slug}.doable.me`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-          >
-            Visit
-            <ExternalLink className="h-3.5 w-3.5" />
+          > {ui("Visit")} <ExternalLink className="h-3.5 w-3.5" />
           </a>
         </div>
       </SectionCard>
 
       {/* Custom Domain */}
-      <SectionCard title="Custom Domain" description="Serve your published site from your own domain name.">
+      <SectionCard title={ui("Custom Domain")} description={ui("Serve your published site from your own domain name.")}>
         {!isPro ? (
           <div className="flex flex-col items-center rounded-lg border-2 border-dashed p-8 text-center">
             <div className="flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 dark:bg-amber-900">
               <Crown className="h-6 w-6 text-amber-600 dark:text-amber-300" />
             </div>
-            <h3 className="mt-4 text-sm font-semibold">Pro+ Feature</h3>
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-              Custom domains are available on the Pro plan and above. Upgrade
-              your workspace to connect your own domain.
-            </p>
+            <h3 className="mt-4 text-sm font-semibold">{ui("Pro+ Feature")}</h3>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground"> {ui("Custom domains are available on the Pro plan and above. Upgrade your workspace to connect your own domain.")} </p>
             <button className="mt-4 inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-              <Crown className="h-4 w-4" />
-              Upgrade to Pro
-            </button>
+              <Crown className="h-4 w-4" /> {ui("Upgrade to Pro")} </button>
           </div>
         ) : (
           <div className="space-y-5">
@@ -232,9 +228,7 @@ export function DomainTab({
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
                   <Plus className="h-4 w-4" />
-                )}
-                Add Domain
-              </button>
+                )} {ui("Add Domain")} </button>
             </div>
 
             {loading && (
@@ -246,9 +240,7 @@ export function DomainTab({
             {!loading && customDomains.length === 0 && (
               <div className="rounded-lg border-2 border-dashed p-6 text-center">
                 <Globe className="mx-auto h-8 w-8 text-muted-foreground/50" />
-                <p className="mt-2 text-sm text-muted-foreground">
-                  No custom domains configured. Add one above to get started.
-                </p>
+                <p className="mt-2 text-sm text-muted-foreground"> {ui("No custom domains configured. Add one above to get started.")} </p>
               </div>
             )}
 
@@ -275,9 +267,7 @@ export function DomainTab({
                             target="_blank"
                             rel="noopener noreferrer"
                             className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                          >
-                            Visit
-                            <ExternalLink className="h-3 w-3" />
+                          > {ui("Visit")} <ExternalLink className="h-3 w-3" />
                           </a>
                         )}
                         {d.status !== "active" && d.status !== "removing" && (
@@ -290,9 +280,7 @@ export function DomainTab({
                               <Loader2 className="h-3 w-3 animate-spin" />
                             ) : (
                               <RefreshCw className="h-3 w-3" />
-                            )}
-                            Verify
-                          </button>
+                            )} {ui("Verify")} </button>
                         )}
                         <button
                           onClick={() => handleRemove(d.id)}
@@ -311,31 +299,29 @@ export function DomainTab({
                     {d.status !== "active" && d.status !== "removing" && (
                       <div className="rounded-lg bg-muted/30 p-4 space-y-3">
                         <div>
-                          <h4 className="text-sm font-medium">Configure DNS</h4>
-                          <p className="mt-0.5 text-xs text-muted-foreground">
-                            Add this CNAME record in your Cloudflare DNS dashboard with the proxy (orange cloud) enabled.
-                          </p>
+                          <h4 className="text-sm font-medium">{ui("Configure DNS")}</h4>
+                          <p className="mt-0.5 text-xs text-muted-foreground"> {ui("Add this CNAME record in your Cloudflare DNS dashboard with the proxy (orange cloud) enabled.")} </p>
                         </div>
                         <div className="overflow-hidden rounded-md border">
                           <table className="w-full text-xs">
                             <thead>
                               <tr className="border-b bg-muted/50">
-                                <th className="px-3 py-2 text-left font-medium">Type</th>
-                                <th className="px-3 py-2 text-left font-medium">Name</th>
-                                <th className="px-3 py-2 text-left font-medium">Target</th>
+                                <th className="px-3 py-2 text-left font-medium">{ui("Type")}</th>
+                                <th className="px-3 py-2 text-left font-medium">{ui("Name")}</th>
+                                <th className="px-3 py-2 text-left font-medium">{ui("Target")}</th>
                                 <th className="w-10 px-2 py-2" />
                               </tr>
                             </thead>
                             <tbody>
                               <tr>
-                                <td className="px-3 py-2 font-mono">CNAME</td>
+                                <td className="px-3 py-2 font-mono">{ui("CNAME")}</td>
                                 <td className="px-3 py-2 font-mono">{d.domain}</td>
                                 <td className="px-3 py-2 font-mono text-xs break-all">{d.cname_target}</td>
                                 <td className="px-2 py-2">
                                   <button
                                     onClick={() => copyToClipboard(d.cname_target, `cname-${d.id}`)}
                                     className="rounded p-1 text-muted-foreground hover:bg-accent hover:text-foreground"
-                                    title="Copy target"
+                                    title={ui("Copy target")}
                                   >
                                     {copiedField === `cname-${d.id}` ? (
                                       <Check className="h-3 w-3 text-green-500" />
@@ -348,10 +334,7 @@ export function DomainTab({
                             </tbody>
                           </table>
                         </div>
-                        <p className="text-xs text-muted-foreground">
-                          Your domain must be on Cloudflare DNS (free). The CNAME must be proxied (orange cloud ON).
-                          After adding the record, click Verify above.
-                        </p>
+                        <p className="text-xs text-muted-foreground"> {ui("Your domain must be on Cloudflare DNS (free). The CNAME must be proxied (orange cloud ON). After adding the record, click Verify above.")} </p>
                       </div>
                     )}
 
@@ -366,12 +349,8 @@ export function DomainTab({
                       <div className="flex items-center gap-2 rounded-lg bg-green-50 dark:bg-green-900/20 p-3">
                         <ShieldCheck className="h-4 w-4 text-green-600 dark:text-green-400" />
                         <div>
-                          <p className="text-xs font-medium text-green-700 dark:text-green-300">
-                            Domain Active — SSL and routing configured via Cloudflare
-                          </p>
-                          <p className="text-xs text-green-600/70 dark:text-green-400/70">
-                            HTTPS certificate managed by Cloudflare. Auto-renews.
-                          </p>
+                          <p className="text-xs font-medium text-green-700 dark:text-green-300"> {ui("Domain Active — SSL and routing configured via Cloudflare")} </p>
+                          <p className="text-xs text-green-600/70 dark:text-green-400/70"> {ui("HTTPS certificate managed by Cloudflare. Auto-renews.")} </p>
                         </div>
                       </div>
                     )}

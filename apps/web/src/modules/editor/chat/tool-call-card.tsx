@@ -1,4 +1,7 @@
 "use client";
+import {translateProgress} from "@/i18n/progress";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 /**
  * ToolCallCard — animated card rendered inside assistant messages
@@ -98,6 +101,8 @@ export const ToolCallCard = memo(function ToolCallCard({
   linesAdded,
   linesRemoved,
 }: ToolCallCardProps) {
+  const ui = useUiText();
+
   const baseLabel = FRIENDLY_TOOL_NAMES[toolName] ?? toolName;
   const shortName = filePath ? filePath.split(/[\\/]/).pop() : undefined;
   // Prefer a derived "<Action> <filename>" label so the user sees WHAT file is
@@ -134,7 +139,7 @@ export const ToolCallCard = memo(function ToolCallCard({
               : "text-red-400"
           }`}
         >
-          {label}
+          {translateProgress(label, ui)}
         </span>
 
         {/* Diff stats for file edits */}
@@ -162,7 +167,7 @@ export const ToolCallCard = memo(function ToolCallCard({
         {status === "completed" && (
           <>
             {durationMs !== null && (
-              <span className="text-[10px] text-muted-foreground/50">{durationMs}ms</span>
+              <span className="text-[10px] text-muted-foreground/50">{durationMs}{ui("ms")}</span>
             )}
             <Check className="h-3 w-3 text-green-500" />
           </>

@@ -1,4 +1,7 @@
 "use client";
+import {UiText} from "@/i18n/ui-text";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { memo, useState, useCallback, useRef } from "react";
 import {
@@ -38,7 +41,7 @@ const STATUS_CONFIG = {
     badge: (
       <span className="inline-flex items-center gap-1 rounded-full bg-brand-500/10 border border-brand-500/20 px-1.5 py-0.5 text-[9px] font-medium text-brand-400">
         <span className="h-1 w-1 rounded-full bg-brand-400 animate-pulse" />
-        Running
+        <UiText>Running</UiText>
       </span>
     ),
   },
@@ -66,6 +69,8 @@ export const PlanStepCard = memo(function PlanStepCard({
   isEditable = false,
   isDragging = false,
 }: PlanStepProps) {
+  const ui = useUiText();
+
   const [expanded, setExpanded] = useState(false);
   const [editingField, setEditingField] = useState<"title" | "description" | null>(null);
   const [editValue, setEditValue] = useState("");
@@ -187,8 +192,7 @@ export const PlanStepCard = memo(function PlanStepCard({
                 className="flex items-center gap-1 text-[10px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
               >
                 <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-0" : "-rotate-90"}`} />
-                {expanded ? "Hide" : "Show"} details
-              </button>
+                {expanded ? ui("Hide") : ui("Show")} {ui("details")} </button>
               {expanded && (
                 <div className="mt-1.5 rounded-md border border-border/50 bg-muted/20 px-2.5 py-2 text-xs text-muted-foreground space-y-1.5">
                   {step.details && (
@@ -196,7 +200,7 @@ export const PlanStepCard = memo(function PlanStepCard({
                   )}
                   {step.filePaths && step.filePaths.length > 0 && (
                     <div>
-                      <span className="font-medium text-foreground">Files:</span>
+                      <span className="font-medium text-foreground">{ui("Files:")}</span>
                       <ul className="mt-0.5 space-y-0.5">
                         {step.filePaths.map((fp) => (
                           <li key={fp} className="font-mono text-[11px]">{fp}</li>
@@ -216,7 +220,7 @@ export const PlanStepCard = memo(function PlanStepCard({
         <button
           onClick={() => onRemove(step.id)}
           className="absolute right-2 top-2 flex-none text-muted-foreground opacity-0 group-hover:opacity-60 hover:!opacity-100 hover:text-red-400 transition-all"
-          title="Remove step"
+          title={ui("Remove step")}
         >
           <X className="h-3.5 w-3.5" />
         </button>

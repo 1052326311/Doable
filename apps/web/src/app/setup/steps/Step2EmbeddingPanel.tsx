@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useEffect, useState } from "react";
 import { Check, Eye, EyeOff, Loader2, Sparkles, ChevronDown, ChevronRight } from "lucide-react";
@@ -62,6 +65,9 @@ interface EmbeddingStatus {
 }
 
 export function Step2EmbeddingPanel() {
+  const ui = useUiText();
+  const i18n_PRESETS = useUiData(PRESETS);
+
   const [open, setOpen] = useState(false);
   const [savedStatus, setSavedStatus] = useState<EmbeddingStatus | null>(null);
   const [selected, setSelected] = useState<EmbeddingPreset | null>(null);
@@ -99,7 +105,7 @@ export function Step2EmbeddingPanel() {
     if (!selected) return;
     if (!apiKey.trim() || !baseUrl.trim() || !model.trim()) {
       setStatus("error");
-      setErrorMsg("Provider, base URL, model and API key are all required.");
+      setErrorMsg(ui("Provider, base URL, model and API key are all required."));
       return;
     }
     setStatus("saving");
@@ -128,7 +134,7 @@ export function Step2EmbeddingPanel() {
       });
     } catch (err) {
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : "Could not save. Try again.");
+      setErrorMsg(err instanceof Error ? err.message : ui("Could not save. Try again."));
     }
   }
 
@@ -144,24 +150,19 @@ export function Step2EmbeddingPanel() {
         <div className="flex items-center gap-3 min-w-0">
           <Sparkles className="h-4 w-4 text-brand-400 shrink-0" />
           <div className="min-w-0">
-            <p className="text-sm font-medium text-foreground">
-              Embedding model
-              <span className="ml-2 text-xs font-normal text-muted-foreground">
-                (optional — for chatbots, semantic search, RAG)
-              </span>
+            <p className="text-sm font-medium text-foreground"> {ui("Embedding model")} <span className="ml-2 text-xs font-normal text-muted-foreground"> {ui("(optional — for chatbots, semantic search, RAG)")} </span>
             </p>
             <p className="text-xs text-muted-foreground mt-0.5 truncate">
               {configured
-                ? `Configured: ${savedStatus?.embedding_model} via ${savedStatus?.embedding_base_url}`
-                : "Pick once — every workspace inherits this. Skip if you don't need RAG yet."}
+                ? ui("Configured: {v0} via {v1}", {v0: (savedStatus?.embedding_model), v1: (savedStatus?.embedding_base_url)})
+                : ui("Pick once — every workspace inherits this. Skip if you don't need RAG yet.")}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {configured && (
             <span className="inline-flex items-center gap-1 text-xs text-green-500">
-              <Check className="h-3 w-3" /> Saved
-            </span>
+              <Check className="h-3 w-3" /> {ui("Saved")} </span>
           )}
           {open ? (
             <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -173,15 +174,11 @@ export function Step2EmbeddingPanel() {
 
       {open && (
         <div className="px-4 pb-4 pt-1 flex flex-col gap-3 border-t border-border">
-          <p className="text-xs text-muted-foreground">
-            End-users of apps built on Doable will never see this — they just
-            ask the AI to build a chatbot. The runtime calls this embedding
-            provider to vectorise their documents. You can change it any time
-            from <code className="text-foreground">/admin/ai-settings</code>.
+          <p className="text-xs text-muted-foreground"> {ui("End-users of apps built on Doable will never see this — they just ask the AI to build a chatbot. The runtime calls this embedding provider to vectorise their documents. You can change it any time from")} <code className="text-foreground">/admin/ai-settings</code>.
           </p>
 
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {PRESETS.map((p) => (
+            {i18n_PRESETS.map((p) => (
               <button
                 key={p.id}
                 type="button"
@@ -202,7 +199,7 @@ export function Step2EmbeddingPanel() {
           {selected && (
             <div className="rounded-md border border-brand-500/40 bg-background p-3 flex flex-col gap-3">
               <div>
-                <label className="text-xs font-medium text-foreground">Base URL</label>
+                <label className="text-xs font-medium text-foreground">{ui("Base URL")}</label>
                 <input
                   type="url"
                   value={baseUrl}
@@ -214,16 +211,14 @@ export function Step2EmbeddingPanel() {
 
               <div>
                 <div className="flex items-center justify-between gap-2">
-                  <label className="text-xs font-medium text-foreground">API key</label>
+                  <label className="text-xs font-medium text-foreground">{ui("API key")}</label>
                   {selected.apiKeyHelp && (
                     <a
                       href={selected.apiKeyHelp}
                       target="_blank"
                       rel="noreferrer"
                       className="text-xs text-brand-400 hover:text-brand-300 underline underline-offset-2"
-                    >
-                      Get a key
-                    </a>
+                    > {ui("Get a key")} </a>
                   )}
                 </div>
                 <div className="relative mt-1">
@@ -231,7 +226,7 @@ export function Step2EmbeddingPanel() {
                     type={showKey ? "text" : "password"}
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    placeholder={selected.apiKeyPlaceholder ?? "Your API key"}
+                    placeholder={selected.apiKeyPlaceholder ?? ui("Your API key")}
                     autoComplete="new-password"
                     autoCorrect="off"
                     spellCheck={false}
@@ -249,7 +244,7 @@ export function Step2EmbeddingPanel() {
               </div>
 
               <div>
-                <label className="text-xs font-medium text-foreground">Embedding model</label>
+                <label className="text-xs font-medium text-foreground">{ui("Embedding model")}</label>
                 <input
                   type="text"
                   value={model}
@@ -261,14 +256,13 @@ export function Step2EmbeddingPanel() {
 
               <div className="flex items-center justify-between gap-2 pt-1">
                 {status === "error" && errorMsg && (
-                  <p className="text-xs text-red-400">{errorMsg}</p>
+                  <p className="text-xs text-red-400">{ui(errorMsg)}</p>
                 )}
                 {status === "success" && (
-                  <p className="text-xs text-green-500">
-                    Saved {dims ? `(${dims}-dim vectors)` : ""}
+                  <p className="text-xs text-green-500"> {ui("Saved")} {dims ? ui("({v0}-dim vectors)", {v0: (dims)}) : ""}
                   </p>
                 )}
-                {status !== "error" && status !== "success" && <span className="text-xs text-muted-foreground">Validates the key with a probe call before saving.</span>}
+                {status !== "error" && status !== "success" && <span className="text-xs text-muted-foreground">{ui("Validates the key with a probe call before saving.")}</span>}
                 <Button
                   onClick={handleSave}
                   disabled={status === "saving" || !apiKey.trim() || !baseUrl.trim() || !model.trim()}
@@ -276,7 +270,7 @@ export function Step2EmbeddingPanel() {
                   className="bg-brand-600 text-white hover:bg-brand-500 gap-1.5"
                 >
                   {status === "saving" && <Loader2 className="h-3 w-3 animate-spin" />}
-                  {status === "success" ? "Update" : "Save"}
+                  {status === "success" ? ui("Update") : ui("Save")}
                 </Button>
               </div>
             </div>

@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState } from "react";
 import {
@@ -60,6 +63,9 @@ export function ImportBundleDialog({
   workspaceId,
   onImported,
 }: ImportBundleDialogProps) {
+  const ui = useUiText();
+  const i18n_TABS = useUiData(TABS);
+
   const [tab, setTab] = useState<Tab>("json");
   const [jsonText, setJsonText] = useState("");
   const [zipFile, setZipFile] = useState<File | null>(null);
@@ -131,18 +137,14 @@ export function ImportBundleDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5 text-brand-400" />
-            Import from outside Doable
-          </DialogTitle>
-          <DialogDescription>
-            Bring in an environment from a JSON manifest, Standards Zip, or public GitHub repo.
-          </DialogDescription>
+            <Upload className="h-5 w-5 text-brand-400" /> {ui("Import from outside Doable")} </DialogTitle>
+          <DialogDescription> {ui("Bring in an environment from a JSON manifest, Standards Zip, or public GitHub repo.")} </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
           {/* Tabs */}
           <div className="flex gap-1 rounded-md border border-border bg-card p-1">
-            {TABS.map((t) => {
+            {i18n_TABS.map((t) => {
               const active = tab === t.id;
               return (
                 <button
@@ -171,9 +173,7 @@ export function ImportBundleDialog({
                 onChange={(e) => setJsonText(e.target.value)}
                 className="font-mono text-xs"
               />
-              <p className="text-xs text-muted-foreground">
-                Paste a <code className="rounded bg-muted px-1 py-0.5">doable.json.v1</code> manifest. Anything that fails schema validation is rejected.
-              </p>
+              <p className="text-xs text-muted-foreground"> {ui("Paste a")} <code className="rounded bg-muted px-1 py-0.5">doable.json.v1</code> {ui("manifest. Anything that fails schema validation is rejected.")} </p>
             </div>
           )}
 
@@ -182,11 +182,9 @@ export function ImportBundleDialog({
               <label className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-card/40 px-4 py-6 text-center transition-colors hover:bg-card cursor-pointer">
                 <Upload className="h-6 w-6 text-muted-foreground" />
                 <span className="text-sm text-foreground">
-                  {zipFile ? zipFile.name : "Drop a Standards Zip here, or click to browse"}
+                  {zipFile ? zipFile.name : ui("Drop a Standards Zip here, or click to browse")}
                 </span>
-                <span className="text-xs text-muted-foreground">
-                  Compatible with Anthropic Skills, Cursor Rules, MCP, and Claude Code plugin layouts.
-                </span>
+                <span className="text-xs text-muted-foreground"> {ui("Compatible with Anthropic Skills, Cursor Rules, MCP, and Claude Code plugin layouts.")} </span>
                 <input
                   type="file"
                   accept=".zip,application/zip"
@@ -204,45 +202,40 @@ export function ImportBundleDialog({
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
               />
-              <p className="text-xs text-muted-foreground">
-                Public repos only. The import will tarball the path and decode it as a Standards Zip.
-              </p>
+              <p className="text-xs text-muted-foreground"> {ui("Public repos only. The import will tarball the path and decode it as a Standards Zip.")} </p>
             </div>
           )}
 
           {/* Trust caveat */}
           <p className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
             <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
-            <span>
-              Imports land as a draft environment in your workspace. They never run code or call external services until you authorise each connector individually.
-            </span>
+            <span> {ui("Imports land as a draft environment in your workspace. They never run code or call external services until you authorise each connector individually.")} </span>
           </p>
 
           {error && (
             <div className="flex items-start gap-2 rounded-md border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
               <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>{error}</span>
+              <span>{ui(error)}</span>
             </div>
           )}
           {done && (
             <div className="flex items-center gap-2 rounded-md border border-emerald-500/40 bg-emerald-500/5 p-3 text-sm text-emerald-400">
               <CheckCircle2 className="h-4 w-4" />
-              <span>Imported.</span>
+              <span>{ui("Imported.")}</span>
             </div>
           )}
         </div>
 
         <DialogFooter className="gap-2">
           <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
-            <X className="mr-1 h-3.5 w-3.5" /> Cancel
-          </Button>
+            <X className="mr-1 h-3.5 w-3.5" /> {ui("Cancel")} </Button>
           <Button onClick={handleImport} disabled={!canSubmit}>
             {busy ? (
-              <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> Importing...</>
+              <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> {ui("Importing...")}</>
             ) : done ? (
-              <><CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Imported</>
+              <><CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> {ui("Imported")}</>
             ) : (
-              <><Upload className="mr-1.5 h-3.5 w-3.5" /> Import to workspace</>
+              <><Upload className="mr-1.5 h-3.5 w-3.5" /> {ui("Import to workspace")}</>
             )}
           </Button>
         </DialogFooter>

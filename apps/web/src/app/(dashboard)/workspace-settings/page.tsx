@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { Suspense, useState, useEffect, useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -41,7 +44,7 @@ const TABS = [
   { id: "mcp", label: "MCP Servers", icon: Radio },
   { id: "skills", label: "Skills & Rules", icon: Sparkles },
   { id: "knowledge", label: "Knowledge", icon: Brain },
-  { id: "doable-ai", label: "Doable AI", icon: Bot },
+  { id: "doable-ai", label: "Doable", icon: Bot },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -61,6 +64,9 @@ function SettingsSection({ title, description, children }: { title: string; desc
 // ─── Main Page ───────────────────────────────────────────
 
 function WorkspaceSettingsPageInner() {
+  const ui = useUiText();
+  const i18n_TABS = useUiData(TABS);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading, isAuthenticated } = useAuth();
@@ -68,7 +74,7 @@ function WorkspaceSettingsPageInner() {
   // Active tab
   const initialTab = (searchParams.get("tab") as TabId) || "general";
   const [activeTab, setActiveTab] = useState<TabId>(
-    TABS.some((t) => t.id === initialTab) ? initialTab : "general"
+    i18n_TABS.some((t) => t.id === initialTab) ? initialTab : "general"
   );
 
   const handleTabChange = (tab: TabId) => {
@@ -128,7 +134,7 @@ function WorkspaceSettingsPageInner() {
         // Distinguish "empty list" from "failed call" so user gets a useful message.
         setLoadError(
           wsRes.data.length === 0
-            ? "You are not a member of any workspace yet. Create one from the dashboard to continue."
+            ? ui("You are not a member of any workspace yet. Create one from the dashboard to continue.")
             : null,
         );
         setLoading(false);
@@ -151,7 +157,7 @@ function WorkspaceSettingsPageInner() {
       setMembers(memRes.data);
       setInvites(invRes.data);
     } catch (err) {
-      console.error("Failed to load workspace settings:", err);
+      console.error(ui("Failed to load workspace settings:"), err);
       setLoadError(
         err instanceof Error
           ? `Couldn't load workspaces: ${err.message}`
@@ -160,7 +166,7 @@ function WorkspaceSettingsPageInner() {
     } finally {
       setLoading(false);
     }
-  }, [isAdmin]);
+  }, [ui, isAdmin]);
 
   useEffect(() => {
     // Wait for auth to settle before hitting the API — otherwise an unauthenticated
@@ -206,7 +212,7 @@ function WorkspaceSettingsPageInner() {
       setTimeout(() => setSaveSuccess(false), 2000);
       loadData();
     } catch (err) {
-      console.error("Failed to update workspace:", err);
+      console.error(ui("Failed to update workspace:"), err);
     } finally {
       setSaving(false);
     }
@@ -224,7 +230,7 @@ function WorkspaceSettingsPageInner() {
       setInviteEmail("");
       loadData();
     } catch (err) {
-      setInviteError(err instanceof Error ? err.message : "Failed to send invite");
+      setInviteError(err instanceof Error ? err.message : ui("Failed to send invite"));
     } finally {
       setInviting(false);
     }
@@ -240,7 +246,7 @@ function WorkspaceSettingsPageInner() {
       setInviteLink(link);
       loadData();
     } catch (err) {
-      console.error("Failed to generate invite link:", err);
+      console.error(ui("Failed to generate invite link:"), err);
     } finally {
       setGeneratingLink(false);
     }
@@ -259,7 +265,7 @@ function WorkspaceSettingsPageInner() {
       await apiRemoveWorkspaceMember(workspace.id, userId);
       loadData();
     } catch (err) {
-      console.error("Failed to remove member:", err);
+      console.error(ui("Failed to remove member:"), err);
     }
   };
 
@@ -270,7 +276,7 @@ function WorkspaceSettingsPageInner() {
       await apiUpdateWorkspaceMemberRole(workspace.id, userId, newRole);
       loadData();
     } catch (err) {
-      console.error("Failed to change role:", err);
+      console.error(ui("Failed to change role:"), err);
     } finally {
       setChangingRole(null);
     }
@@ -282,7 +288,7 @@ function WorkspaceSettingsPageInner() {
       await apiRevokeWorkspaceInvite(workspace.id, inviteId);
       loadData();
     } catch (err) {
-      console.error("Failed to revoke invite:", err);
+      console.error(ui("Failed to revoke invite:"), err);
     }
   };
 
@@ -302,7 +308,7 @@ function WorkspaceSettingsPageInner() {
       // Full reload to refresh sidebar workspace list
       window.location.href = "/dashboard";
     } catch (err) {
-      console.error("Failed to delete workspace:", err);
+      console.error(ui("Failed to delete workspace:"), err);
     } finally {
       setDeleting(false);
     }
@@ -320,15 +326,11 @@ function WorkspaceSettingsPageInner() {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
         <p className="text-muted-foreground max-w-md">
-          {loadError ?? "No workspace found."}
+          {loadError ?? ui("No workspace found.")}
         </p>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={() => loadData()}>
-            Retry
-          </Button>
-          <Button variant="outline" onClick={() => router.push("/dashboard")}>
-            Go to dashboard
-          </Button>
+          <Button variant="outline" onClick={() => loadData()}> {ui("Retry")} </Button>
+          <Button variant="outline" onClick={() => router.push("/dashboard")}> {ui("Go to dashboard")} </Button>
         </div>
       </div>
     );
@@ -341,18 +343,14 @@ function WorkspaceSettingsPageInner() {
         onClick={() => router.push("/dashboard")}
         className="mb-6 flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
       >
-        <ArrowLeft className="h-4 w-4" />
-        Back to dashboard
-      </button>
+        <ArrowLeft className="h-4 w-4" /> {ui("Back to dashboard")} </button>
 
-      <h1 className="text-2xl font-bold text-foreground mb-1">Workspace Settings</h1>
-      <p className="text-sm text-muted-foreground mb-2">
-        Manage your workspace, team members, environments, and integrations.
-      </p>
+      <h1 className="text-2xl font-bold text-foreground mb-1">{ui("Workspace Settings")}</h1>
+      <p className="text-sm text-muted-foreground mb-2"> {ui("Manage your workspace, team members, environments, and integrations.")} </p>
 
       {/* ─── Tab Bar ──────────────────────────────────────── */}
       <div className="mb-8 flex gap-1 border-b border-border overflow-x-auto">
-        {TABS.map((tab) => {
+        {i18n_TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
           return (
@@ -416,31 +414,31 @@ function WorkspaceSettingsPageInner() {
       )}
 
       {activeTab === "environments" && (
-        <SettingsSection title="Environments" description="Bundle skills, rules, knowledge, and MCP connectors into reusable presets. Projects inherit the workspace default environment.">
+        <SettingsSection title={ui("Environments")} description={ui("Bundle skills, rules, knowledge, and MCP connectors into reusable presets. Projects inherit the workspace default environment.")}>
           <EnvironmentsPanel workspaceId={workspace.id} />
         </SettingsSection>
       )}
 
       {activeTab === "integrations" && (
-        <SettingsSection title="Integrations" description="Connect third-party services like Slack, Notion, GitHub, and more. Workspace-level integrations are available to all projects.">
+        <SettingsSection title={ui("Integrations")} description={ui("Connect third-party services like Slack, Notion, GitHub, and more. Workspace-level integrations are available to all projects.")}>
           <IntegrationsPanel workspaceId={workspace.id} variant="settings" />
         </SettingsSection>
       )}
 
       {activeTab === "mcp" && (
-        <SettingsSection title="MCP Servers" description="Connect Model Context Protocol servers for custom tools and capabilities. Workspace-scoped connectors are available to all projects.">
+        <SettingsSection title={ui("MCP Servers")} description={ui("Connect Model Context Protocol servers for custom tools and capabilities. Workspace-scoped connectors are available to all projects.")}>
           <McpPanel workspaceId={workspace.id} />
         </SettingsSection>
       )}
 
       {activeTab === "skills" && (
-        <SettingsSection title="Skills & Rules" description="Manage reusable skills and rules that shape how the AI works. Workspace-level skills are inherited by all projects.">
+        <SettingsSection title={ui("Skills & Rules")} description={ui("Manage reusable skills and rules that shape how the AI works. Workspace-level skills are inherited by all projects.")}>
           <SkillsRulesPanel workspaceId={workspace.id} />
         </SettingsSection>
       )}
 
       {activeTab === "knowledge" && (
-        <SettingsSection title="Knowledge Base" description="Context files the AI reads before every interaction. Workspace knowledge is inherited by all projects. Projects can add their own overrides.">
+        <SettingsSection title={ui("Knowledge Base")} description={ui("Context files the AI reads before every interaction. Workspace knowledge is inherited by all projects. Projects can add their own overrides.")}>
           <WorkspaceKnowledgePanel workspaceId={workspace.id} />
         </SettingsSection>
       )}

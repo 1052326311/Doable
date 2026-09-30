@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import {
@@ -63,6 +66,9 @@ export function PreviewToolbar({
   routes = [],
   onNavigate,
 }: PreviewToolbarProps) {
+  const ui = useUiText();
+  const i18n_devices = useUiData(devices);
+
   const [showRouteDropdown, setShowRouteDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -105,7 +111,7 @@ export function PreviewToolbar({
       <button
         onClick={onRefresh}
         className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-        title="Refresh preview"
+        title={ui("Refresh preview")}
       >
         <RefreshCw
           className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`}
@@ -123,7 +129,7 @@ export function PreviewToolbar({
         >
           <Globe className="h-3 w-3 flex-none text-muted-foreground" />
           <span className="truncate text-[11px] text-muted-foreground font-mono flex-1 text-left">
-            {displayPath || url || "No preview available"}
+            {displayPath || url || ui("No preview available")}
           </span>
           {routes.length > 0 && (
             <ChevronDown className="h-3 w-3 flex-none text-muted-foreground" />
@@ -150,7 +156,7 @@ export function PreviewToolbar({
 
       {/* Device toggle */}
       <div className="flex items-center rounded-md border border-border bg-muted/30 p-0.5">
-        {devices.map(({ mode, icon: Icon, label }) => (
+        {i18n_devices.map(({ mode, icon: Icon, label }) => (
           <button
             key={mode}
             onClick={() => onDeviceModeChange(mode)}
@@ -175,7 +181,7 @@ export function PreviewToolbar({
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:bg-accent hover:text-foreground"
           }`}
-          title={visualEditActive ? "Disable visual editing" : "Enable visual editing"}
+          title={visualEditActive ? ui("Disable visual editing") : ui("Enable visual editing")}
         >
           <MousePointer2 className="h-3.5 w-3.5" />
         </button>
@@ -185,7 +191,7 @@ export function PreviewToolbar({
       <button
         onClick={onToggleFullscreen}
         className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-        title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+        title={isFullscreen ? ui("Exit fullscreen") : ui("Fullscreen")}
       >
         {isFullscreen ? (
           <Minimize2 className="h-3.5 w-3.5" />
@@ -198,7 +204,7 @@ export function PreviewToolbar({
       <button
         onClick={onOpenExternal}
         className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-        title="Open in new tab"
+        title={ui("Open in new tab")}
       >
         <ExternalLink className="h-3.5 w-3.5" />
       </button>

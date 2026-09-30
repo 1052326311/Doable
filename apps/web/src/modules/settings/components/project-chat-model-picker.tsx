@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -40,6 +42,8 @@ export function ProjectChatModelPicker({
   defaultModel,
   onChange,
 }: Props) {
+  const ui = useUiText();
+
   const { accounts, loading: accountsLoading } = useGitHubAccounts(workspaceId);
   const { providers, loading: providersLoading } = useCustomProviders(workspaceId);
 
@@ -186,9 +190,7 @@ export function ProjectChatModelPicker({
             data-testid="chat-model-inherit"
           />
           <p className="text-sm font-medium">{inheritLabel}</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Use the model configured in AI Settings for this workspace.
-          </p>
+          <p className="mt-1 text-xs text-muted-foreground"> {ui("Use the model configured in AI Settings for this workspace.")} </p>
         </label>
         <label
           className={`cursor-pointer rounded-lg border p-3 transition-colors ${
@@ -205,10 +207,8 @@ export function ProjectChatModelPicker({
             className="sr-only"
             data-testid="chat-model-override-mode"
           />
-          <p className="text-sm font-medium">Override for this project</p>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Pick a provider and model from your workspace catalog.
-          </p>
+          <p className="text-sm font-medium">{ui("Override for this project")}</p>
+          <p className="mt-1 text-xs text-muted-foreground"> {ui("Pick a provider and model from your workspace catalog.")} </p>
         </label>
       </div>
 
@@ -216,15 +216,11 @@ export function ProjectChatModelPicker({
         <div className="space-y-4 rounded-lg border bg-muted/20 p-4">
           {(accountsLoading || providersLoading) && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Loading providers…
-            </div>
+              <Loader2 className="h-4 w-4 animate-spin" /> {ui("Loading providers…")} </div>
           )}
 
           <div>
-            <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Provider source
-            </label>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted-foreground"> {ui("Provider source")} </label>
             <div className="flex w-fit overflow-hidden rounded-lg border border-border">
               <button
                 type="button"
@@ -236,9 +232,7 @@ export function ProjectChatModelPicker({
                     ? "bg-brand-600 text-white"
                     : "bg-secondary text-muted-foreground hover:text-foreground"
                 }`}
-              >
-                GitHub Copilot
-              </button>
+              > {ui("GitHub Copilot")} </button>
               <button
                 type="button"
                 onClick={() =>
@@ -249,9 +243,7 @@ export function ProjectChatModelPicker({
                     ? "bg-brand-600 text-white"
                     : "bg-secondary text-muted-foreground hover:text-foreground"
                 }`}
-              >
-                Custom provider
-              </button>
+              > {ui("Custom provider")} </button>
             </div>
           </div>
 
@@ -259,9 +251,7 @@ export function ProjectChatModelPicker({
             {state.source === "copilot" ? (
               <>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                    Account
-                  </label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground"> {ui("Account")} </label>
                   <select
                     value={state.copilotAccountId}
                     onChange={(e) =>
@@ -270,7 +260,7 @@ export function ProjectChatModelPicker({
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-500"
                     data-testid="chat-model-copilot-account"
                   >
-                    <option value="">Server default</option>
+                    <option value="">{ui("Server default")}</option>
                     {validAccounts.map((a) => (
                       <option key={a.id} value={a.id}>
                         {a.label} (@{a.github_login})
@@ -279,13 +269,10 @@ export function ProjectChatModelPicker({
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                    Model
-                  </label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground"> {ui("Model")} </label>
                   {copilotModelsLoading ? (
                     <div className="flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-xs text-muted-foreground">
-                      <Loader2 className="h-3 w-3 animate-spin" /> Loading models…
-                    </div>
+                      <Loader2 className="h-3 w-3 animate-spin" /> {ui("Loading models…")} </div>
                   ) : (
                     <select
                       value={state.copilotModel}
@@ -293,7 +280,7 @@ export function ProjectChatModelPicker({
                       className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-500"
                       data-testid="chat-model-copilot-model"
                     >
-                      <option value="">Select a model…</option>
+                      <option value="">{ui("Select a model…")}</option>
                       {copilotModels
                         .filter((m) => m.id !== "")
                         .map((m) => (
@@ -308,9 +295,7 @@ export function ProjectChatModelPicker({
             ) : (
               <>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                    Provider
-                  </label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground"> {ui("Provider")} </label>
                   <select
                     value={state.providerId}
                     onChange={(e) =>
@@ -319,7 +304,7 @@ export function ProjectChatModelPicker({
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-500"
                     data-testid="chat-model-provider"
                   >
-                    <option value="">Select a provider…</option>
+                    <option value="">{ui("Select a provider…")}</option>
                     {validProviders.map((p) => (
                       <option key={p.id} value={p.id}>
                         {p.label} ({p.provider_type})
@@ -327,34 +312,28 @@ export function ProjectChatModelPicker({
                     ))}
                   </select>
                   {validProviders.length === 0 && (
-                    <p className="mt-1 text-[10px] text-muted-foreground">
-                      No workspace providers configured. Add one in{" "}
-                      <a href="/ai-settings" className="text-brand-400 underline">
-                        AI Settings
-                      </a>
+                    <p className="mt-1 text-[10px] text-muted-foreground"> {ui("No workspace providers configured. Add one in")}{" "}
+                      <a href="/ai-settings" className="text-brand-400 underline"> {ui("AI Settings")} </a>
                       .
                     </p>
                   )}
                 </div>
                 <div>
                   <div className="mb-1.5 flex items-center justify-between">
-                    <label className="text-xs font-medium text-muted-foreground">Model</label>
+                    <label className="text-xs font-medium text-muted-foreground">{ui("Model")}</label>
                     {state.providerId && (
                       <button
                         type="button"
                         onClick={refreshProviderModels}
                         className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground"
-                        title="Refresh model list"
+                        title={ui("Refresh model list")}
                       >
-                        <RefreshCw className="h-3 w-3" />
-                        Refresh
-                      </button>
+                        <RefreshCw className="h-3 w-3" /> {ui("Refresh")} </button>
                     )}
                   </div>
                   {providerModelsLoading && state.providerId ? (
                     <div className="flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-xs text-muted-foreground">
-                      <Loader2 className="h-3 w-3 animate-spin" /> Loading models…
-                    </div>
+                      <Loader2 className="h-3 w-3 animate-spin" /> {ui("Loading models…")} </div>
                   ) : showModelDropdown ? (
                     <>
                       <select
@@ -363,12 +342,12 @@ export function ProjectChatModelPicker({
                         className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-500"
                         data-testid="chat-model-provider-model"
                       >
-                        <option value="">Select a model…</option>
+                        <option value="">{ui("Select a model…")}</option>
                         {providerModels.map((m) => (
                           <option key={m.id} value={m.id}>
                             {m.name || m.id}
-                            {m.supportsVision ? " [vision]" : ""}
-                            {m.supportsTools ? " [tools]" : ""}
+                            {m.supportsVision ? ui("[vision]") : ""}
+                            {m.supportsTools ? ui("[tools]") : ""}
                           </option>
                         ))}
                       </select>
@@ -381,8 +360,8 @@ export function ProjectChatModelPicker({
                   ) : (
                     <p className="rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground">
                       {state.providerId
-                        ? "No models discovered yet. Click Refresh or check the provider in AI Settings."
-                        : "Select a provider first."}
+                        ? ui("No models discovered yet. Click Refresh or check the provider in AI Settings.")
+                        : ui("Select a provider first.")}
                     </p>
                   )}
                 </div>
@@ -391,10 +370,7 @@ export function ProjectChatModelPicker({
           </div>
 
           {value && !modelFromState(state) && (
-            <p className="text-xs text-amber-700 dark:text-amber-400">
-              Current saved override: <span className="font-mono">{value}</span> — pick a model above
-              to update it.
-            </p>
+            <p className="text-xs text-amber-700 dark:text-amber-400"> {ui("Current saved override:")} <span className="font-mono">{value}</span> {ui("— pick a model above to update it.")} </p>
           )}
         </div>
       )}

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useEffect, useState } from "react";
 import { Loader2, X } from "lucide-react";
@@ -30,6 +32,8 @@ export function UseTemplateDialog({
   onClose,
   onCreated,
 }: UseTemplateDialogProps) {
+  const ui = useUiText();
+
   const [projectName, setProjectName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +70,7 @@ export function UseTemplateDialog({
         ? localStorage.getItem("doable_active_workspace_id")
         : null;
     if (!activeWorkspaceId) {
-      setError("No active workspace selected. Please pick a workspace and try again.");
+      setError(ui("No active workspace selected. Please pick a workspace and try again."));
       return;
     }
 
@@ -77,9 +81,9 @@ export function UseTemplateDialog({
       const res = await apiUseTemplate(template.id, projectName.trim(), activeWorkspaceId);
       onCreated(res.data.projectId);
     } catch (err) {
-      console.error("Failed to remix project:", err);
+      console.error(ui("Failed to remix project:"), err);
       setError(
-        err instanceof Error ? err.message : "Failed to create project. Please try again."
+        err instanceof Error ? err.message : ui("Failed to create project. Please try again.")
       );
       setIsCreating(false);
     }
@@ -95,7 +99,7 @@ export function UseTemplateDialog({
           className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none text-muted-foreground"
         >
           <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
+          <span className="sr-only">{ui("Close")}</span>
         </button>
 
         <div className="px-6 pt-6 pb-0">
@@ -120,19 +124,13 @@ export function UseTemplateDialog({
           </div>
 
           <DialogHeader className="space-y-2 text-left">
-            <DialogTitle className="text-xl font-semibold text-foreground">
-              Remix project
-            </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground">
-              By remixing a project, you will create a copy that you own.
-            </DialogDescription>
+            <DialogTitle className="text-xl font-semibold text-foreground"> {ui("Remix project")} </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground"> {ui("By remixing a project, you will create a copy that you own.")} </DialogDescription>
           </DialogHeader>
 
           {/* Form */}
           <div className="mt-6 space-y-2">
-            <Label htmlFor="project-name" className="text-sm font-medium text-foreground">
-              Project name
-            </Label>
+            <Label htmlFor="project-name" className="text-sm font-medium text-foreground"> {ui("Project name")} </Label>
             <Input
               id="project-name"
               value={projectName}
@@ -146,7 +144,7 @@ export function UseTemplateDialog({
               }}
             />
             {error && (
-              <p className="text-sm text-red-400 mt-1">{error}</p>
+              <p className="text-sm text-red-400 mt-1">{ui(error)}</p>
             )}
           </div>
         </div>
@@ -157,9 +155,7 @@ export function UseTemplateDialog({
             onClick={onClose}
             disabled={isCreating}
             className="text-muted-foreground hover:text-foreground hover:bg-secondary"
-          >
-            Cancel
-          </Button>
+          > {ui("Cancel")} </Button>
           <Button
             onClick={handleRemix}
             disabled={isCreating || !projectName.trim()}
@@ -167,11 +163,9 @@ export function UseTemplateDialog({
           >
             {isCreating ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Remixing...
-              </>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Remixing...")} </>
             ) : (
-              "Remix"
+              ui("Remix")
             )}
           </Button>
         </DialogFooter>

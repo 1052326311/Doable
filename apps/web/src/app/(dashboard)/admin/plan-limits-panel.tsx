@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -54,6 +57,9 @@ const PLAN_DISPLAY: Record<string, { label: string; emoji: string; color: string
 // ─── PlanLimitsPanel ────────────────────────────────────────
 
 export function PlanLimitsPanel() {
+  const ui = useUiText();
+  const i18n_PLAN_DISPLAY = useUiData(PLAN_DISPLAY);
+
   const [limits, setLimits] = useState<PlanLimitRow[]>([]);
   const [defaults, setDefaults] = useState<PlanLimitsResponse["defaults"] | null>(null);
   const [loading, setLoading] = useState(true);
@@ -68,12 +74,12 @@ export function PlanLimitsPanel() {
       setLimits(res.data);
       setDefaults(res.defaults);
     } catch (e) {
-      console.error("Failed to fetch plan limits:", e);
+      console.error(ui("Failed to fetch plan limits:"), e);
       setMessage({ type: "error", text: "Failed to load plan limits" });
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [ui]);
 
   useEffect(() => { fetchLimits(); }, [fetchLimits]);
 
@@ -100,7 +106,7 @@ export function PlanLimitsPanel() {
         method: "PUT",
         body: JSON.stringify(editValues),
       });
-      setMessage({ type: "success", text: `${PLAN_DISPLAY[editPlan]?.label ?? editPlan} plan limits saved` });
+      setMessage({ type: "success", text: `${i18n_PLAN_DISPLAY[editPlan]?.label ?? editPlan} plan limits saved` });
       setEditPlan(null);
       await fetchLimits();
     } catch (e) {
@@ -115,7 +121,7 @@ export function PlanLimitsPanel() {
     setMessage(null);
     try {
       await apiFetch(`/admin/plan-limits/${plan}/reset`, { method: "PUT" });
-      setMessage({ type: "success", text: `${PLAN_DISPLAY[plan]?.label ?? plan} plan reset to defaults` });
+      setMessage({ type: "success", text: `${i18n_PLAN_DISPLAY[plan]?.label ?? plan} plan reset to defaults` });
       if (editPlan === plan) setEditPlan(null);
       await fetchLimits();
     } catch (e) {
@@ -134,7 +140,7 @@ export function PlanLimitsPanel() {
 
   const formatNumber = (n: number | null) => {
     if (n == null || !isFinite(n)) return "∞";
-    return n.toLocaleString();
+    return n.toLocaleString(ui.locale);
   };
 
   if (loading) {
@@ -149,14 +155,10 @@ export function PlanLimitsPanel() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-muted-foreground">
-            Configure limits for each plan tier. Changes take effect immediately for all users on that plan.
-            Set values to override defaults, or reset to use hardcoded defaults.
-          </p>
+          <p className="text-xs text-muted-foreground"> {ui("Configure limits for each plan tier. Changes take effect immediately for all users on that plan. Set values to override defaults, or reset to use hardcoded defaults.")} </p>
         </div>
         <Button onClick={fetchLimits} variant="outline" className="gap-2 text-sm">
-          <RotateCcw className="h-3.5 w-3.5" /> Refresh
-        </Button>
+          <RotateCcw className="h-3.5 w-3.5" /> {ui("Refresh")} </Button>
       </div>
 
       {message && (
@@ -174,7 +176,7 @@ export function PlanLimitsPanel() {
         {PLAN_ORDER.map((planKey) => {
           const row = limits.find((l) => l.plan === planKey);
           if (!row) return null;
-          const display = PLAN_DISPLAY[planKey];
+          const display = i18n_PLAN_DISPLAY[planKey];
           if (!display) return null;
           const isEditing = editPlan === planKey;
           const isSaving = saving === planKey;
@@ -187,9 +189,7 @@ export function PlanLimitsPanel() {
                   <span className="text-lg">{display.emoji}</span>
                   <h3 className={`font-semibold ${display.color}`}>{display.label}</h3>
                   {row.isOverridden && (
-                    <span className="text-[10px] bg-amber-900/30 text-amber-400 border border-amber-800/50 px-1.5 py-0.5 rounded-full font-medium">
-                      CUSTOMIZED
-                    </span>
+                    <span className="text-[10px] bg-amber-900/30 text-amber-400 border border-amber-800/50 px-1.5 py-0.5 rounded-full font-medium"> {ui("CUSTOMIZED")} </span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
@@ -200,26 +200,20 @@ export function PlanLimitsPanel() {
                       variant="outline"
                       className="text-xs h-7 px-2 gap-1"
                     >
-                      <RotateCcw className="h-3 w-3" /> Reset
-                    </Button>
+                      <RotateCcw className="h-3 w-3" /> {ui("Reset")} </Button>
                   )}
                   {!isEditing ? (
                     <Button onClick={() => startEdit(row)} variant="outline" className="text-xs h-7 px-2 gap-1">
-                      <CreditCard className="h-3 w-3" /> Edit
-                    </Button>
+                      <CreditCard className="h-3 w-3" /> {ui("Edit")} </Button>
                   ) : (
                     <>
-                      <Button onClick={() => setEditPlan(null)} variant="outline" className="text-xs h-7 px-2">
-                        Cancel
-                      </Button>
+                      <Button onClick={() => setEditPlan(null)} variant="outline" className="text-xs h-7 px-2"> {ui("Cancel")} </Button>
                       <Button
                         onClick={handleSave}
                         disabled={isSaving}
                         className="text-xs h-7 px-2 gap-1 bg-brand-600 hover:bg-brand-700 text-white"
                       >
-                        {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                        Save
-                      </Button>
+                        {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} {ui("Save")} </Button>
                     </>
                   )}
                 </div>
@@ -228,31 +222,30 @@ export function PlanLimitsPanel() {
               {/* Limits Grid */}
               {isEditing ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <LimitInput label="Max Projects" value={editValues.maxProjects} onChange={(v) => setEditValues({ ...editValues, maxProjects: v })} />
-                  <LimitInput label="Max Members" value={editValues.maxMembers} onChange={(v) => setEditValues({ ...editValues, maxMembers: v })} />
-                  <LimitInput label="Daily Credits" value={editValues.dailyCredits} onChange={(v) => setEditValues({ ...editValues, dailyCredits: v })} />
-                  <LimitInput label="Monthly Credits" value={editValues.monthlyCredits} onChange={(v) => setEditValues({ ...editValues, monthlyCredits: v })} />
-                  <FileSizeInput label="Max File Size" value={editValues.maxFileSize} onChange={(v) => setEditValues({ ...editValues, maxFileSize: v })} />
-                  <BoolInput label="Custom Domains" value={editValues.customDomains} onChange={(v) => setEditValues({ ...editValues, customDomains: v })} />
-                  <BoolInput label="Analytics" value={editValues.analytics} onChange={(v) => setEditValues({ ...editValues, analytics: v })} />
-                  <BoolInput label="Priority Support" value={editValues.prioritySupport} onChange={(v) => setEditValues({ ...editValues, prioritySupport: v })} />
+                  <LimitInput label={ui("Max Projects")} value={editValues.maxProjects} onChange={(v) => setEditValues({ ...editValues, maxProjects: v })} />
+                  <LimitInput label={ui("Max Members")} value={editValues.maxMembers} onChange={(v) => setEditValues({ ...editValues, maxMembers: v })} />
+                  <LimitInput label={ui("Daily Credits")} value={editValues.dailyCredits} onChange={(v) => setEditValues({ ...editValues, dailyCredits: v })} />
+                  <LimitInput label={ui("Monthly Credits")} value={editValues.monthlyCredits} onChange={(v) => setEditValues({ ...editValues, monthlyCredits: v })} />
+                  <FileSizeInput label={ui("Max File Size")} value={editValues.maxFileSize} onChange={(v) => setEditValues({ ...editValues, maxFileSize: v })} />
+                  <BoolInput label={ui("Custom Domains")} value={editValues.customDomains} onChange={(v) => setEditValues({ ...editValues, customDomains: v })} />
+                  <BoolInput label={ui("Analytics")} value={editValues.analytics} onChange={(v) => setEditValues({ ...editValues, analytics: v })} />
+                  <BoolInput label={ui("Priority Support")} value={editValues.prioritySupport} onChange={(v) => setEditValues({ ...editValues, prioritySupport: v })} />
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <LimitDisplay label="Max Projects" value={formatNumber(row.maxProjects)} />
-                  <LimitDisplay label="Max Members" value={formatNumber(row.maxMembers)} />
-                  <LimitDisplay label="Daily Credits" value={formatNumber(row.dailyCredits)} />
-                  <LimitDisplay label="Monthly Credits" value={formatNumber(row.monthlyCredits)} />
-                  <LimitDisplay label="Max File Size" value={formatFileSize(row.maxFileSize)} />
-                  <LimitDisplay label="Custom Domains" value={row.customDomains ? "✓" : "✗"} />
-                  <LimitDisplay label="Analytics" value={row.analytics ? "✓" : "✗"} />
-                  <LimitDisplay label="Priority Support" value={row.prioritySupport ? "✓" : "✗"} />
+                  <LimitDisplay label={ui("Max Projects")} value={formatNumber(row.maxProjects)} />
+                  <LimitDisplay label={ui("Max Members")} value={formatNumber(row.maxMembers)} />
+                  <LimitDisplay label={ui("Daily Credits")} value={formatNumber(row.dailyCredits)} />
+                  <LimitDisplay label={ui("Monthly Credits")} value={formatNumber(row.monthlyCredits)} />
+                  <LimitDisplay label={ui("Max File Size")} value={formatFileSize(row.maxFileSize)} />
+                  <LimitDisplay label={ui("Custom Domains")} value={row.customDomains ? "✓" : "✗"} />
+                  <LimitDisplay label={ui("Analytics")} value={row.analytics ? "✓" : "✗"} />
+                  <LimitDisplay label={ui("Priority Support")} value={row.prioritySupport ? "✓" : "✗"} />
                 </div>
               )}
 
               {row.updatedAt && (
-                <p className="text-[10px] text-muted-foreground mt-2">
-                  Last updated: {new Date(row.updatedAt).toLocaleString()}
+                <p className="text-[10px] text-muted-foreground mt-2"> {ui("Last updated:")} {new Date(row.updatedAt).toLocaleString(ui.locale)}
                 </p>
               )}
             </div>
@@ -291,10 +284,12 @@ function LimitInput({ label, value, onChange }: { label: string; value: number |
 }
 
 function FileSizeInput({ label, value, onChange }: { label: string; value: number | undefined; onChange: (v: number) => void }) {
+  const ui = useUiText();
+
   const mbValue = value != null ? Math.round(value / 1048576) : "";
   return (
     <div className="rounded-md bg-muted/50 px-3 py-2">
-      <label className="text-[10px] text-muted-foreground uppercase tracking-wide block mb-1">{label} (MB)</label>
+      <label className="text-[10px] text-muted-foreground uppercase tracking-wide block mb-1">{label} {ui("(MB)")}</label>
       <input
         type="number"
         min="1"

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback, useEffect } from "react";
 import {
@@ -24,6 +26,8 @@ export function ConnectionDialog({
   onConnect: (conn: SupabaseConnection) => void;
   initialValues?: SupabaseConnection | null;
 }) {
+  const ui = useUiText();
+
   const [url, setUrl] = useState(initialValues?.url ?? "");
   const [anonKey, setAnonKey] = useState(initialValues?.anonKey ?? "");
   const [serviceRoleKey, setServiceRoleKey] = useState(initialValues?.serviceRoleKey ?? "");
@@ -69,27 +73,23 @@ export function ConnectionDialog({
     >
       <div className="w-full max-w-md rounded-lg border border-border bg-popover shadow-md">
         <div className="border-b border-border px-5 py-4">
-          <h2 className="text-base font-semibold text-foreground">Connect to Supabase</h2>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Enter your Supabase project credentials to enable backend services.
-          </p>
+          <h2 className="text-base font-semibold text-foreground">{ui("Connect to Supabase")}</h2>
+          <p className="mt-1 text-xs text-muted-foreground"> {ui("Enter your Supabase project credentials to enable backend services.")} </p>
         </div>
         <div className="space-y-4 px-5 py-4">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Supabase Project URL</label>
+            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("Supabase Project URL")}</label>
             <input type="url" value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://your-project.supabase.co" className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30" />
           </div>
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Anon / Public Key</label>
-            <input type="text" value={anonKey} onChange={(e) => setAnonKey(e.target.value)} placeholder="eyJhbGciOiJIUzI1NiIs..." className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground font-mono outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30" />
+            <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("Anon / Public Key")}</label>
+            <input type="text" value={anonKey} onChange={(e) => setAnonKey(e.target.value)} placeholder={ui("eyJhbGciOiJIUzI1NiIs...")} className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground font-mono outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30" />
           </div>
           <div>
-            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
-              Service Role Key
-              <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-400">Secret</span>
+            <label className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-muted-foreground"> {ui("Service Role Key")} <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[10px] text-amber-400">{ui("Secret")}</span>
             </label>
             <div className="relative">
-              <input type={showServiceKey ? "text" : "password"} value={serviceRoleKey} onChange={(e) => setServiceRoleKey(e.target.value)} placeholder="eyJhbGciOiJIUzI1NiIs..." className="w-full rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm text-foreground placeholder:text-muted-foreground font-mono outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30" />
+              <input type={showServiceKey ? "text" : "password"} value={serviceRoleKey} onChange={(e) => setServiceRoleKey(e.target.value)} placeholder={ui("eyJhbGciOiJIUzI1NiIs...")} className="w-full rounded-md border border-input bg-background px-3 py-2 pr-10 text-sm text-foreground placeholder:text-muted-foreground font-mono outline-none focus:border-brand-500 focus:ring-1 focus:ring-brand-500/30" />
               <button onClick={() => setShowServiceKey((v) => !v)} className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground" type="button">
                 {showServiceKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
               </button>
@@ -98,21 +98,17 @@ export function ConnectionDialog({
           {testResult && (
             <div className={`flex items-center gap-2 rounded-md border px-3 py-2 text-xs ${testResult === "success" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-400" : "border-red-500/30 bg-red-500/10 text-red-400"}`}>
               {testResult === "success" ? <Check className="h-3.5 w-3.5" /> : <AlertCircle className="h-3.5 w-3.5" />}
-              {testResult === "success" ? "Connection successful!" : "Connection failed. Check your credentials."}
+              {testResult === "success" ? ui("Connection successful!") : ui("Connection failed. Check your credentials.")}
             </div>
           )}
         </div>
         <div className="flex items-center justify-between border-t border-border px-5 py-3">
           <button onClick={handleTest} disabled={testing || !url.trim()} className="flex items-center gap-1.5 rounded-md border border-input px-3 py-1.5 text-xs font-medium text-foreground hover:bg-muted disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-            {testing ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
-            Test Connection
-          </button>
+            {testing ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />} {ui("Test Connection")} </button>
           <div className="flex items-center gap-2">
-            <button onClick={onClose} className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">Cancel</button>
+            <button onClick={onClose} className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors">{ui("Cancel")}</button>
             <button onClick={handleSave} disabled={saving || !url.trim() || !anonKey.trim()} className="flex items-center gap-1.5 rounded-md bg-brand-600 px-4 py-1.5 text-xs font-medium text-white hover:bg-brand-500 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
-              {saving && <Loader2 className="h-3 w-3 animate-spin" />}
-              Save & Connect
-            </button>
+              {saving && <Loader2 className="h-3 w-3 animate-spin" />} {ui("Save & Connect")} </button>
           </div>
         </div>
       </div>

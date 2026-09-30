@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState } from "react";
 import { Users, DollarSign, Zap, Globe, Building2, Github, ChevronDown, ChevronRight, Crown, Cpu, Key, AlertTriangle } from "lucide-react";
@@ -74,6 +77,9 @@ const SUB_TABS: Array<{ id: SubTab; label: string; icon: React.ReactNode }> = [
 ];
 
 export function PlatformUsageTab() {
+  const ui = useUiText();
+  const i18n_SUB_TABS = useUiData(SUB_TABS);
+
   const [active, setActive] = useState<SubTab>("overview");
 
   const { summary, loading: summaryLoading } = usePlatformUsageSummary();
@@ -88,7 +94,7 @@ export function PlatformUsageTab() {
     return (
       <div className="rounded-2xl border border-dashed border-border py-12 text-center">
         <Globe className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-        <p className="text-sm text-muted-foreground">No platform-wide usage data yet</p>
+        <p className="text-sm text-muted-foreground">{ui("No platform-wide usage data yet")}</p>
       </div>
     );
   }
@@ -97,13 +103,11 @@ export function PlatformUsageTab() {
     <div className="space-y-6">
       {/* Description */}
       <p className="text-xs text-muted-foreground bg-card border border-border rounded-lg px-4 py-2">
-        <Globe className="h-3.5 w-3.5 inline mr-1.5 text-violet-400" />
-        Platform-wide view — showing usage across all workspaces and users.
-      </p>
+        <Globe className="h-3.5 w-3.5 inline mr-1.5 text-violet-400" /> {ui("Platform-wide view — showing usage across all workspaces and users.")} </p>
 
       {/* Sub-tab nav */}
       <div className="flex gap-1 border-b border-border overflow-x-auto">
-        {SUB_TABS.map((t) => (
+        {i18n_SUB_TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setActive(t.id)}
@@ -125,29 +129,29 @@ export function PlatformUsageTab() {
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             <StatCard
               icon={<Zap className="h-3.5 w-3.5" />}
-              label="Total Tokens"
+              label={ui("Total Tokens")}
               value={summary ? formatTokenCount(summary.totalTokens) : undefined}
               loading={summaryLoading}
               accent="blue"
             />
             <StatCard
               icon={<DollarSign className="h-3.5 w-3.5" />}
-              label="Total Cost"
+              label={ui("Total Cost")}
               value={summary ? formatCost(summary.totalCostUsd) : undefined}
               loading={summaryLoading}
               accent="emerald"
             />
             <StatCard
               icon={<Building2 className="h-3.5 w-3.5" />}
-              label="Workspaces"
-              value={summary ? summary.workspaceCount.toLocaleString("en-US") : undefined}
+              label={ui("Workspaces")}
+              value={summary ? summary.workspaceCount.toLocaleString(ui.locale) : undefined}
               loading={summaryLoading}
               accent="violet"
             />
             <StatCard
               icon={<Users className="h-3.5 w-3.5" />}
-              label="Active Users"
-              value={summary ? summary.userCount.toLocaleString("en-US") : undefined}
+              label={ui("Active Users")}
+              value={summary ? summary.userCount.toLocaleString(ui.locale) : undefined}
               loading={summaryLoading}
               accent="amber"
             />
@@ -155,8 +159,7 @@ export function PlatformUsageTab() {
 
           <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
             <h3 className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
-              <Crown className="h-4 w-4 text-amber-400" /> All Users Ranked by Tokens
-            </h3>
+              <Crown className="h-4 w-4 text-amber-400" /> {ui("All Users Ranked by Tokens")} </h3>
             {usersLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -164,7 +167,7 @@ export function PlatformUsageTab() {
                 ))}
               </div>
             ) : users.length === 0 ? (
-              <p className="text-xs text-muted-foreground">No users with usage data.</p>
+              <p className="text-xs text-muted-foreground">{ui("No users with usage data.")}</p>
             ) : (
               <PlatformUsersList users={users} />
             )}
@@ -175,11 +178,8 @@ export function PlatformUsageTab() {
       {active === "copilot" && (
         <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
           <h3 className="text-sm font-medium text-foreground mb-1 flex items-center gap-2">
-            <Github className="h-4 w-4 text-blue-400" /> Copilot Subscriptions
-          </h3>
-          <p className="text-xs text-muted-foreground mb-5">
-            One row per GitHub Copilot subscription. Expand to see which users are assigned and which models each user called.
-          </p>
+            <Github className="h-4 w-4 text-blue-400" /> {ui("Copilot Subscriptions")} </h3>
+          <p className="text-xs text-muted-foreground mb-5"> {ui("One row per GitHub Copilot subscription. Expand to see which users are assigned and which models each user called.")} </p>
           {accountsLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -187,7 +187,7 @@ export function PlatformUsageTab() {
               ))}
             </div>
           ) : accounts.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No Copilot accounts configured.</p>
+            <p className="text-xs text-muted-foreground">{ui("No Copilot accounts configured.")}</p>
           ) : (
             <SubscriptionsList
               items={accounts.map((a): SubscriptionRow => ({
@@ -213,11 +213,8 @@ export function PlatformUsageTab() {
       {active === "providers" && (
         <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
           <h3 className="text-sm font-medium text-foreground mb-1 flex items-center gap-2">
-            <Key className="h-4 w-4 text-emerald-400" /> Custom Providers (BYOK)
-          </h3>
-          <p className="text-xs text-muted-foreground mb-5">
-            Custom providers like OpenAI, Anthropic, Azure. Expand to see users and per-user model usage.
-          </p>
+            <Key className="h-4 w-4 text-emerald-400" /> {ui("Custom Providers (BYOK)")} </h3>
+          <p className="text-xs text-muted-foreground mb-5"> {ui("Custom providers like OpenAI, Anthropic, Azure. Expand to see users and per-user model usage.")} </p>
           {providersLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -225,7 +222,7 @@ export function PlatformUsageTab() {
               ))}
             </div>
           ) : providers.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No custom providers configured.</p>
+            <p className="text-xs text-muted-foreground">{ui("No custom providers configured.")}</p>
           ) : (
             <SubscriptionsList
               items={providers.map((p): SubscriptionRow => ({
@@ -251,8 +248,7 @@ export function PlatformUsageTab() {
       {active === "models" && (
         <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
           <h3 className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
-            <Cpu className="h-4 w-4 text-violet-400" /> Model Usage Breakdown
-          </h3>
+            <Cpu className="h-4 w-4 text-violet-400" /> {ui("Model Usage Breakdown")} </h3>
           {modelsLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -260,7 +256,7 @@ export function PlatformUsageTab() {
               ))}
             </div>
           ) : models.length === 0 ? (
-            <p className="text-xs text-muted-foreground">No model usage data.</p>
+            <p className="text-xs text-muted-foreground">{ui("No model usage data.")}</p>
           ) : (
             <PlatformModelsList models={models} />
           )}
@@ -272,6 +268,8 @@ export function PlatformUsageTab() {
 
 // ── Platform Users List ───────────────────────────────────────────────
 function PlatformUsersList({ users }: { users: PlatformUser[] }) {
+  const ui = useUiText();
+
   const maxTokens = Math.max(...users.map((u) => u.totalTokens), 1);
 
   return (
@@ -306,7 +304,7 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
                 </div>
               </div>
               <div className="flex items-center gap-4 shrink-0">
-                <span className="text-xs text-muted-foreground tabular-nums">{u.requestCount} reqs</span>
+                <span className="text-xs text-muted-foreground tabular-nums">{u.requestCount} {ui("reqs")}</span>
                 <span className="text-xs text-blue-400 font-medium tabular-nums">{formatTokenCount(u.totalTokens)}</span>
                 <span className="text-xs text-foreground font-medium tabular-nums">{formatCost(u.totalCostUsd)}</span>
               </div>
@@ -322,8 +320,7 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
             {u.sources && u.sources.length > 0 && (
               <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 hidden w-[420px] max-w-[90vw] -translate-x-1/2 group-hover:block">
                 <div className="rounded-xl border border-border bg-popover shadow-2xl p-3 max-h-[400px] overflow-y-auto pointer-events-auto">
-                  <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider">
-                    Usage breakdown — {u.displayName || u.email}
+                  <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider"> {ui("Usage breakdown —")} {u.displayName || u.email}
                   </div>
                   <div className="space-y-2">
                     {u.sources.map((s, idx) => (
@@ -351,12 +348,11 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
                         </div>
                         <div className="text-[10px] text-muted-foreground mb-1.5">
                           {s.ownerEmail ? (
-                            <>
-                              Owned by <span className="text-muted-foreground">{s.ownerDisplayName || s.ownerEmail}</span>
+                            <> {ui("Owned by")} <span className="text-muted-foreground">{s.ownerDisplayName || s.ownerEmail}</span>
                               {s.ownerDisplayName && <span className="text-muted-foreground"> ({s.ownerEmail})</span>}
                             </>
                           ) : (
-                            <span className="text-muted-foreground">No owner record</span>
+                            <span className="text-muted-foreground">{ui("No owner record")}</span>
                           )}
                         </div>
                         <div className="space-y-0.5">
@@ -367,7 +363,7 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
                             >
                               <span className="text-foreground truncate">{m.model}</span>
                               <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-[10px] text-muted-foreground tabular-nums">{m.requestCount} reqs</span>
+                                <span className="text-[10px] text-muted-foreground tabular-nums">{m.requestCount} {ui("reqs")}</span>
                                 <span className="text-violet-400 tabular-nums">{formatTokenCount(m.totalTokens)}</span>
                               </div>
                             </div>
@@ -427,6 +423,8 @@ function formatOwners(owners: PlatformSubscriptionOwner[]): string {
 }
 
 function SubscriptionsList({ items }: { items: SubscriptionRow[] }) {
+  const ui = useUiText();
+
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set());
   const toggle = (id: string) => {
     setExpandedIds((prev) => {
@@ -478,24 +476,23 @@ function SubscriptionsList({ items }: { items: SubscriptionRow[] }) {
                       <Building2 className="h-3 w-3" />
                       <span className="truncate max-w-[260px]" title={row.workspaceNames.join(", ")}>
                         {row.workspaceCount === 0
-                          ? "no workspaces"
+                          ? ui("no workspaces")
                           : row.workspaceCount === 1
                             ? row.workspaceNames[0]
-                            : `${row.workspaceCount} workspaces: ${row.workspaceNames.slice(0, 3).join(", ")}${row.workspaceCount > 3 ? ", …" : ""}`}
+                            : ui("{v0} workspaces: {v1}{v2}", {v0: (row.workspaceCount), v1: (row.workspaceNames.slice(0, 3).join(", ")), v2: (row.workspaceCount > 3 ? ", …" : "")})}
                       </span>
                     </span>
                     <span>
-                      {row.userCount} user{row.userCount !== 1 ? "s" : ""}
+                      {row.userCount} {ui("user")}{row.userCount !== 1 ? ui("s") : ""}
                     </span>
-                    <span title={row.owners.map((o) => o.email).join(", ")}>
-                      added by <span className="text-muted-foreground">{formatOwners(row.owners)}</span>
+                    <span title={row.owners.map((o) => o.email).join(", ")}> {ui("added by")} <span className="text-muted-foreground">{formatOwners(row.owners)}</span>
                     </span>
-                    <span>on {formatAddedAt(row.addedAt)}</span>
+                    <span>{ui("on")} {formatAddedAt(row.addedAt)}</span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-4 shrink-0">
-                <span className="text-xs text-muted-foreground tabular-nums">{row.requestCount} reqs</span>
+                <span className="text-xs text-muted-foreground tabular-nums">{row.requestCount} {ui("reqs")}</span>
                 <span className="text-xs text-blue-400 font-medium tabular-nums">{formatTokenCount(row.totalTokens)}</span>
                 <span className="text-xs text-foreground font-medium tabular-nums">{formatCost(row.totalCostUsd)}</span>
               </div>
@@ -508,16 +505,12 @@ function SubscriptionsList({ items }: { items: SubscriptionRow[] }) {
                   <div className="text-[11px] text-amber-100/90 leading-relaxed space-y-1">
                     <div className="font-medium text-amber-200">
                       {sharedActiveUsers
-                        ? `This Copilot subscription is being used by ${row.userCount} different users.`
-                        : `This GitHub account (@${row.title.replace(/'s GitHub$/, "")}) was added by ${row.owners.length} different people.`}
-                      {" "}Risk: rate-limiting, abuse-detection flags, or subscription suspension.
-                    </div>
-                    <div className="text-amber-100/80">
-                      GitHub&apos;s terms restrict Copilot Individual licenses to a single person — licenses are tied to one GitHub account and are not shareable. Sharing can cause GitHub to throttle or revoke Copilot access for that account.
-                    </div>
+                        ? ui("This Copilot subscription is being used by {v0} different users.", {v0: (row.userCount)})
+                        : ui("This GitHub account (@{v0}) was added by {v1} different people.", {v0: (row.title.replace(/'s GitHub$/, "")), v1: (row.owners.length)})}
+                      {" "}{ui("Risk: rate-limiting, abuse-detection flags, or subscription suspension.")} </div>
+                    <div className="text-amber-100/80"> {ui("GitHub's terms restrict Copilot Individual licenses to a single person — licenses are tied to one GitHub account and are not shareable. Sharing can cause GitHub to throttle or revoke Copilot access for that account.")} </div>
                     <div className="text-amber-100/70">
-                      <span className="font-medium">What to do:</span> use one Copilot subscription per user, or move everyone to a Copilot Business / Enterprise plan with per-seat assignments. Consider adding each user&apos;s own GitHub Copilot account to Doable instead of reusing one.
-                    </div>
+                      <span className="font-medium">{ui("What to do:")}</span> {ui("use one Copilot subscription per user, or move everyone to a Copilot Business / Enterprise plan with per-seat assignments. Consider adding each user's own GitHub Copilot account to Doable instead of reusing one.")} </div>
                   </div>
                 </div>
               </div>
@@ -525,8 +518,7 @@ function SubscriptionsList({ items }: { items: SubscriptionRow[] }) {
 
             {isExpanded && hasUsers && (
               <div className="px-4 pb-3 pt-1 border-t border-border/50">
-                <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider">
-                  Users on this {row.id.startsWith("copilot:") ? "subscription" : "provider"}
+                <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider"> {ui("Users on this")} {row.id.startsWith("copilot:") ? ui("subscription") : ui("provider")}
                 </div>
                 <div className="space-y-2">
                   {row.users.map((u) => (
@@ -543,6 +535,8 @@ function SubscriptionsList({ items }: { items: SubscriptionRow[] }) {
 }
 
 function UserModelRow({ user, parentId }: { user: PlatformSubscriptionUser; parentId: string }) {
+  const ui = useUiText();
+
   const [open, setOpen] = useState(false);
   const hasModels = user.models && user.models.length > 0;
 
@@ -568,9 +562,9 @@ function UserModelRow({ user, parentId }: { user: PlatformSubscriptionUser; pare
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-[10px] text-muted-foreground tabular-nums">
-            {user.models.length} model{user.models.length !== 1 ? "s" : ""}
+            {user.models.length} {ui("model")}{user.models.length !== 1 ? ui("s") : ""}
           </span>
-          <span className="text-[10px] text-muted-foreground tabular-nums">{user.requestCount} reqs</span>
+          <span className="text-[10px] text-muted-foreground tabular-nums">{user.requestCount} {ui("reqs")}</span>
           <span className="text-xs text-blue-400 tabular-nums">{formatTokenCount(user.totalTokens)}</span>
         </div>
       </button>
@@ -587,7 +581,7 @@ function UserModelRow({ user, parentId }: { user: PlatformSubscriptionUser; pare
                 <span className="text-foreground truncate">{m.model}</span>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-[10px] text-muted-foreground tabular-nums">{m.requestCount} reqs</span>
+                <span className="text-[10px] text-muted-foreground tabular-nums">{m.requestCount} {ui("reqs")}</span>
                 <span className="text-violet-400 tabular-nums">{formatTokenCount(m.totalTokens)}</span>
               </div>
             </div>
@@ -600,6 +594,8 @@ function UserModelRow({ user, parentId }: { user: PlatformSubscriptionUser; pare
 
 // ── Platform Models List ──────────────────────────────────────────────
 function PlatformModelsList({ models }: { models: PlatformModelUsage[] }) {
+  const ui = useUiText();
+
   const [expandedModels, setExpandedModels] = useState<Set<string>>(new Set());
   const maxTokens = Math.max(...models.map((m) => m.totalTokens), 1);
 
@@ -640,12 +636,12 @@ function PlatformModelsList({ models }: { models: PlatformModelUsage[] }) {
                       {m.provider && (
                         <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{m.provider}</span>
                       )}
-                      <span>{m.userCount} user{m.userCount !== 1 ? "s" : ""}</span>
+                      <span>{m.userCount} {ui("user")}{m.userCount !== 1 ? ui("s") : ""}</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
-                  <span className="text-xs text-muted-foreground tabular-nums">{m.requestCount} reqs</span>
+                  <span className="text-xs text-muted-foreground tabular-nums">{m.requestCount} {ui("reqs")}</span>
                   <span className="text-xs text-blue-400 font-medium tabular-nums">{formatTokenCount(m.totalTokens)}</span>
                   <span className="text-xs text-foreground font-medium tabular-nums">{formatCost(m.totalCostUsd)}</span>
                 </div>
@@ -660,7 +656,7 @@ function PlatformModelsList({ models }: { models: PlatformModelUsage[] }) {
 
             {isExpanded && hasUsers && (
               <div className="px-4 pb-3 pt-1 border-t border-border/50">
-                <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider">Used by</div>
+                <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider">{ui("Used by")}</div>
                 <div className="space-y-1.5">
                   {m.users.map((u) => (
                     <div
@@ -675,7 +671,7 @@ function PlatformModelsList({ models }: { models: PlatformModelUsage[] }) {
                         </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-[10px] text-muted-foreground tabular-nums">{u.requestCount} reqs</span>
+                        <span className="text-[10px] text-muted-foreground tabular-nums">{u.requestCount} {ui("reqs")}</span>
                         <span className="text-xs text-violet-400 tabular-nums">{formatTokenCount(u.totalTokens)}</span>
                       </div>
                     </div>

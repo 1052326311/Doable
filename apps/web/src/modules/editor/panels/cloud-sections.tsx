@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback } from "react";
 import {
@@ -74,6 +76,8 @@ export function DatabaseSection({
   connected: boolean;
   tables: DatabaseTable[];
 }) {
+  const ui = useUiText();
+
   const [expandedTable, setExpandedTable] = useState<string | null>(null);
   const [sqlQuery, setSqlQuery] = useState("");
   const [sqlResult, setSqlResult] = useState<string | null>(null);
@@ -94,15 +98,15 @@ export function DatabaseSection({
   }, [sqlQuery]);
 
   if (!connected) {
-    return <div className="px-4 py-3 text-xs text-muted-foreground">Connect to Supabase to view your database tables.</div>;
+    return <div className="px-4 py-3 text-xs text-muted-foreground">{ui("Connect to Supabase to view your database tables.")}</div>;
   }
 
   return (
     <div className="pb-2">
       <div className="px-4 py-2">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Tables</span>
-          <span className="text-[11px] text-muted-foreground">{tables.length} tables</span>
+          <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{ui("Tables")}</span>
+          <span className="text-[11px] text-muted-foreground">{tables.length} {ui("tables")}</span>
         </div>
         <div className="space-y-0.5">
           {tables.map((table) => (
@@ -111,21 +115,21 @@ export function DatabaseSection({
                 {expandedTable === table.name ? <ChevronDown className="h-3 w-3 text-muted-foreground flex-shrink-0" /> : <ChevronRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />}
                 <Database className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                 <span className="text-[13px] text-foreground flex-1 font-mono">{table.name}</span>
-                <span className="text-[11px] text-muted-foreground">{table.rowCount.toLocaleString()} rows</span>
+                <span className="text-[11px] text-muted-foreground">{table.rowCount.toLocaleString(ui.locale)} {ui("rows")}</span>
               </button>
               {expandedTable === table.name && (
                 <div className="ml-7 mt-1 mb-2 rounded-md border border-border bg-card overflow-hidden">
                   <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 px-2.5 py-1.5 border-b border-border text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
-                    <span>Column</span><span>Type</span><span>Null</span>
+                    <span>{ui("Column")}</span><span>{ui("Type")}</span><span>{ui("Null")}</span>
                   </div>
                   {table.columns.map((col) => (
                     <div key={col.name} className="grid grid-cols-[1fr_auto_auto] gap-x-3 px-2.5 py-1 border-b border-border last:border-0 text-[12px]">
                       <span className="flex items-center gap-1.5 font-mono text-foreground">
-                        {col.isPrimary && <span className="text-amber-500 text-[10px]" title="Primary Key">PK</span>}
+                        {col.isPrimary && <span className="text-amber-500 text-[10px]" title={ui("Primary Key")}>{ui("PK")}</span>}
                         {col.name}
                       </span>
                       <span className="font-mono text-brand-400/80">{col.type}</span>
-                      <span className="text-muted-foreground">{col.nullable ? "YES" : "NO"}</span>
+                      <span className="text-muted-foreground">{col.nullable ? ui("YES") : ui("NO")}</span>
                     </div>
                   ))}
                 </div>
@@ -135,13 +139,11 @@ export function DatabaseSection({
         </div>
       </div>
       <div className="px-4 pt-2 pb-1 border-t border-border">
-        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">SQL Query</span>
+        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{ui("SQL Query")}</span>
         <div className="mt-2 relative">
-          <textarea value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} placeholder="SELECT * FROM users LIMIT 10;" rows={3} className="w-full rounded-md border border-input bg-background px-3 py-2 text-[12px] font-mono text-foreground placeholder:text-muted-foreground resize-none outline-none focus:border-brand-500/50" />
+          <textarea value={sqlQuery} onChange={(e) => setSqlQuery(e.target.value)} placeholder={ui("SELECT * FROM users LIMIT 10;")} rows={3} className="w-full rounded-md border border-input bg-background px-3 py-2 text-[12px] font-mono text-foreground placeholder:text-muted-foreground resize-none outline-none focus:border-brand-500/50" />
           <button onClick={handleRunQuery} disabled={running || !sqlQuery.trim()} className="absolute right-2 bottom-2 flex items-center gap-1 rounded bg-brand-600/80 px-2 py-1 text-[11px] font-medium text-white hover:bg-brand-500 disabled:opacity-30 disabled:cursor-not-allowed transition-colors">
-            {running ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />}
-            Run
-          </button>
+            {running ? <Loader2 className="h-3 w-3 animate-spin" /> : <Play className="h-3 w-3" />} {ui("Run")} </button>
         </div>
         {sqlResult && (
           <div className="mt-2 max-h-40 overflow-auto rounded-md border border-border bg-card">
@@ -164,8 +166,10 @@ export function AuthSection({
   providers: AuthProvider[];
   onToggleProvider: (id: string) => void;
 }) {
+  const ui = useUiText();
+
   if (!connected) {
-    return <div className="px-4 py-3 text-xs text-muted-foreground">Connect to Supabase to manage authentication.</div>;
+    return <div className="px-4 py-3 text-xs text-muted-foreground">{ui("Connect to Supabase to manage authentication.")}</div>;
   }
 
   const userCount = 1247;
@@ -178,8 +182,8 @@ export function AuthSection({
   return (
     <div className="pb-2">
       <div className="px-4 py-2 flex items-center justify-between">
-        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Total Users</span>
-        <span className="text-sm font-semibold text-foreground">{userCount.toLocaleString()}</span>
+        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{ui("Total Users")}</span>
+        <span className="text-sm font-semibold text-foreground">{userCount.toLocaleString(ui.locale)}</span>
       </div>
       <div className="px-4 space-y-1">
         {providers.map((provider) => (
@@ -187,19 +191,19 @@ export function AuthSection({
             <div className="flex items-center gap-2.5">
               <div className="flex h-7 w-7 items-center justify-center rounded-md bg-secondary text-muted-foreground">
                 {provider.id === "email" && <span className="text-xs">@</span>}
-                {provider.id === "google" && <span className="text-xs font-bold">G</span>}
-                {provider.id === "github" && <span className="text-xs font-bold">GH</span>}
+                {provider.id === "google" && <span className="text-xs font-bold">{ui("G")}</span>}
+                {provider.id === "github" && <span className="text-xs font-bold">{ui("GH")}</span>}
               </div>
               <span className="text-[13px] text-foreground">{provider.name}</span>
             </div>
-            <button onClick={() => onToggleProvider(provider.id)} className="transition-colors" title={provider.enabled ? "Disable" : "Enable"}>
+            <button onClick={() => onToggleProvider(provider.id)} className="transition-colors" title={provider.enabled ? ui("Disable") : ui("Enable")}>
               {provider.enabled ? <ToggleRight className="h-5 w-5 text-emerald-500" /> : <ToggleLeft className="h-5 w-5 text-muted-foreground" />}
             </button>
           </div>
         ))}
       </div>
       <div className="px-4 pt-3">
-        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Recent Signups</span>
+        <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{ui("Recent Signups")}</span>
         <div className="mt-1.5 space-y-0.5">
           {recentSignups.map((signup, i) => (
             <div key={i} className="flex items-center justify-between rounded-md px-2.5 py-1.5 text-[12px]">
@@ -222,8 +226,10 @@ export function StorageSection({
   connected: boolean;
   buckets: StorageBucket[];
 }) {
+  const ui = useUiText();
+
   if (!connected) {
-    return <div className="px-4 py-3 text-xs text-muted-foreground">Connect to Supabase to manage file storage.</div>;
+    return <div className="px-4 py-3 text-xs text-muted-foreground">{ui("Connect to Supabase to manage file storage.")}</div>;
   }
 
   const totalUsed = buckets.reduce((sum, b) => sum + b.sizeBytes, 0);
@@ -234,7 +240,7 @@ export function StorageSection({
     <div className="pb-2">
       <div className="px-4 py-2">
         <div className="flex items-center justify-between mb-1.5">
-          <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Storage Usage</span>
+          <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{ui("Storage Usage")}</span>
           <span className="text-[11px] text-muted-foreground">{formatBytes(totalUsed)} / {formatBytes(totalLimit)}</span>
         </div>
         <div className="h-1.5 rounded-full bg-muted overflow-hidden">
@@ -248,9 +254,9 @@ export function StorageSection({
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-1.5">
                 <span className="text-[13px] font-mono text-foreground truncate">{bucket.name}</span>
-                {bucket.isPublic && <span className="rounded bg-secondary px-1.5 py-0.5 text-[9px] text-muted-foreground">PUBLIC</span>}
+                {bucket.isPublic && <span className="rounded bg-secondary px-1.5 py-0.5 text-[9px] text-muted-foreground">{ui("PUBLIC")}</span>}
               </div>
-              <span className="text-[11px] text-muted-foreground">{bucket.fileCount} files - {formatBytes(bucket.sizeBytes)}</span>
+              <span className="text-[11px] text-muted-foreground">{bucket.fileCount} {ui("files -")} {formatBytes(bucket.sizeBytes)}</span>
             </div>
           </div>
         ))}
@@ -258,7 +264,7 @@ export function StorageSection({
       <div className="px-4 pt-3">
         <div className="rounded-lg border border-dashed border-border bg-card px-4 py-4 text-center cursor-pointer hover:border-border hover:bg-secondary transition-colors">
           <Upload className="mx-auto h-5 w-5 text-muted-foreground" />
-          <p className="mt-1.5 text-[11px] text-muted-foreground">Drop files here or click to upload</p>
+          <p className="mt-1.5 text-[11px] text-muted-foreground">{ui("Drop files here or click to upload")}</p>
         </div>
       </div>
     </div>
@@ -274,8 +280,10 @@ export function EdgeFunctionsSection({
   connected: boolean;
   functions: EdgeFunction[];
 }) {
+  const ui = useUiText();
+
   if (!connected) {
-    return <div className="px-4 py-3 text-xs text-muted-foreground">Connect to Supabase to manage edge functions.</div>;
+    return <div className="px-4 py-3 text-xs text-muted-foreground">{ui("Connect to Supabase to manage edge functions.")}</div>;
   }
 
   return (
@@ -286,7 +294,7 @@ export function EdgeFunctionsSection({
             <Zap className={`h-3.5 w-3.5 flex-shrink-0 ${fn.status === "active" ? "text-emerald-500" : "text-muted-foreground"}`} />
             <div className="flex-1 min-w-0">
               <span className="text-[13px] font-mono text-foreground truncate block">{fn.name}</span>
-              <span className="text-[11px] text-muted-foreground">{fn.status === "active" ? "Active" : "Inactive"} - Last invoked {formatTimestamp(fn.lastInvoked)}</span>
+              <span className="text-[11px] text-muted-foreground">{fn.status === "active" ? ui("Active") : ui("Inactive")} {ui("- Last invoked")} {formatTimestamp(fn.lastInvoked)}</span>
             </div>
             <span className={`h-2 w-2 rounded-full flex-shrink-0 ${fn.status === "active" ? "bg-emerald-500" : "bg-muted-foreground"}`} />
           </div>
@@ -294,9 +302,7 @@ export function EdgeFunctionsSection({
       </div>
       <div className="px-4 pt-3">
         <button className="flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-border py-2 text-[12px] text-muted-foreground hover:border-border hover:text-foreground transition-colors">
-          <Plus className="h-3.5 w-3.5" />
-          Create New Function
-        </button>
+          <Plus className="h-3.5 w-3.5" /> {ui("Create New Function")} </button>
       </div>
     </div>
   );

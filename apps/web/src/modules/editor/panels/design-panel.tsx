@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback, useMemo, useEffect } from "react";
 import {
@@ -44,6 +46,8 @@ export function DesignPanel({
   onDirectSave,
   isSaving,
 }: DesignPanelProps) {
+  const ui = useUiText();
+
   // ─── Local style editing state (tracks user edits) ─────────
   const [textContent, setTextContent] = useState("");
   const [textColor, setTextColor] = useState("");
@@ -196,18 +200,16 @@ export function DesignPanel({
       {/* ─── Header ──────────────────────────────────────────── */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2 text-sm">
-          <span className="text-muted-foreground">Design</span>
+          <span className="text-muted-foreground">{ui("Design")}</span>
           <span className="text-muted-foreground">/</span>
-          <span className="font-semibold text-foreground">Design View</span>
+          <span className="font-semibold text-foreground">{ui("Design View")}</span>
         </div>
         {selectedElement && (
           <button
             onClick={onSelectParent}
             className="flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1.5 text-xs font-medium text-foreground hover:bg-secondary hover:text-foreground transition-colors"
           >
-            <CornerRightUp className="h-3.5 w-3.5" />
-            Select parent
-          </button>
+            <CornerRightUp className="h-3.5 w-3.5" /> {ui("Select parent")} </button>
         )}
       </div>
 
@@ -223,26 +225,18 @@ export function DesignPanel({
                 <Sparkles className="h-6 w-6 text-muted-foreground" />
               )}
             </div>
-            <h3 className="mb-1 text-base font-semibold text-foreground">Design View</h3>
-            <p className="mb-2 text-center text-sm text-muted-foreground">
-              Select an element to edit it
-            </p>
-            <p className="mb-6 text-center text-xs text-muted-foreground">
-              Hold <kbd className="rounded bg-secondary px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">Ctrl</kbd> to select multiple elements
-            </p>
+            <h3 className="mb-1 text-base font-semibold text-foreground">{ui("Design View")}</h3>
+            <p className="mb-2 text-center text-sm text-muted-foreground"> {ui("Select an element to edit it")} </p>
+            <p className="mb-6 text-center text-xs text-muted-foreground"> {ui("Hold")} <kbd className="rounded bg-secondary px-1.5 py-0.5 font-mono text-[10px] text-muted-foreground">{ui("Ctrl")}</kbd> {ui("to select multiple elements")} </p>
             {mode === "idle" && (
               <button
                 onClick={onActivate}
                 className="flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-500 transition-colors shadow-md shadow-brand-900/30"
               >
-                <MousePointer2 className="h-4 w-4" />
-                Start selecting
-              </button>
+                <MousePointer2 className="h-4 w-4" /> {ui("Start selecting")} </button>
             )}
             {mode === "selecting" && (
-              <p className="text-xs text-brand-400 animate-pulse">
-                Click an element in the preview...
-              </p>
+              <p className="text-xs text-brand-400 animate-pulse"> {ui("Click an element in the preview...")} </p>
             )}
           </div>
         )}
@@ -333,32 +327,28 @@ export function DesignPanel({
               <div className="sticky bottom-0 border-t border-border bg-background px-4 py-3">
                 <div className="mb-2 flex items-center gap-2">
                   <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-medium text-foreground">Unsaved changes</span>
+                  <span className="text-xs font-medium text-foreground">{ui("Unsaved changes")}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={onDiscardChanges}
                     className="rounded-lg border border-border px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-                  >
-                    Discard
-                  </button>
+                  > {ui("Discard")} </button>
                   <button
                     onClick={() => onDirectSave()}
                     disabled={isSaving}
                     className="flex-1 flex items-center justify-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-500 transition-all shadow-md shadow-emerald-900/30 disabled:opacity-50"
                   >
                     {isSaving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-                    {isSaving ? "Saving..." : "Save"}
+                    {isSaving ? ui("Saving...") : ui("Save")}
                   </button>
                   <button
                     onClick={onCommitChanges}
                     disabled={isSaving}
                     className="flex items-center justify-center gap-2 rounded-lg bg-brand-600/80 px-3 py-2 text-xs font-medium text-white hover:bg-brand-500 transition-all disabled:opacity-50"
-                    title="Send changes to AI for smarter code updates"
+                    title={ui("Send changes to AI for smarter code updates")}
                   >
-                    <Sparkles className="h-3.5 w-3.5" />
-                    AI Save
-                  </button>
+                    <Sparkles className="h-3.5 w-3.5" /> {ui("AI Save")} </button>
                 </div>
               </div>
             )}
@@ -371,9 +361,7 @@ export function DesignPanel({
         {/* Element breadcrumb chips */}
         <div className="mb-2 flex items-center gap-1.5">
           <span className="flex items-center gap-1 rounded-md bg-secondary px-2 py-1 text-[11px] text-muted-foreground">
-            <Sparkles className="h-3 w-3" />
-            Design
-          </span>
+            <Sparkles className="h-3 w-3" /> {ui("Design")} </span>
           {selectedElement && (
             <>
               <span className="text-muted-foreground text-[11px]">›</span>
@@ -387,9 +375,7 @@ export function DesignPanel({
           onClick={onClose}
           className="flex w-full items-center justify-center gap-2 text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
-          <ArrowLeft className="h-3 w-3" />
-          Back to Chat
-        </button>
+          <ArrowLeft className="h-3 w-3" /> {ui("Back to Chat")} </button>
       </div>
     </div>
   );

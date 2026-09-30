@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -22,24 +24,20 @@ export function OAuthRequiredSection({
   signInError: string | null;
   onSignIn: () => void;
 }) {
+  const ui = useUiText();
+
   return (
     <div className="flex flex-col items-start gap-3 py-4">
       <div className="flex items-start gap-2">
         <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
-        <p className="text-sm">
-          Sign in with Supabase so Doable can create projects on your behalf.
-          You&apos;ll be redirected briefly to Supabase to authorize, then come
-          right back here.
-        </p>
+        <p className="text-sm"> {ui("Sign in with Supabase so Doable can create projects on your behalf. You'll be redirected briefly to Supabase to authorize, then come right back here.")} </p>
       </div>
       <Button onClick={onSignIn} disabled={signingIn} className="w-full">
         {signingIn ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Waiting for Supabase…
-          </>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Waiting for Supabase…")} </>
         ) : (
-          "Sign in with Supabase"
+          ui("Sign in with Supabase")
         )}
       </Button>
       {signInError ? (
@@ -65,12 +63,11 @@ export function ExistingProjectsSection({
   connectExistingError: string | null;
   onConnect: (p: ExistingSupabaseProject) => void;
 }) {
+  const ui = useUiText();
+
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs text-muted-foreground">
-        Pick a project — Doable will fetch its API keys and wire them into this
-        app automatically.
-      </p>
+      <p className="text-xs text-muted-foreground"> {ui("Pick a project — Doable will fetch its API keys and wire them into this app automatically.")} </p>
       <div className="flex max-h-80 flex-col gap-1.5 overflow-y-auto">
         {existingProjects.map((p) => {
           const busy = connectingExistingRef === p.id;
@@ -95,7 +92,7 @@ export function ExistingProjectsSection({
               {busy ? (
                 <Loader2 className="h-4 w-4 animate-spin shrink-0" />
               ) : (
-                <span className="text-xs text-muted-foreground">Connect</span>
+                <span className="text-xs text-muted-foreground">{ui("Connect")}</span>
               )}
             </button>
           );
@@ -138,26 +135,25 @@ export function CreateNewFormSection({
   onOrgChange: (v: string) => void;
   onRegionChange: (v: string) => void;
 }) {
+  const ui = useUiText();
+
   return (
     <>
       {existingProjects && existingProjects.length === 0 ? (
-        <p className="text-xs text-muted-foreground">
-          You don&apos;t have any Supabase projects yet — let&apos;s create your
-          first one.
-        </p>
+        <p className="text-xs text-muted-foreground"> {ui("You don't have any Supabase projects yet — let's create your first one.")} </p>
       ) : null}
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium">Project name</label>
+        <label className="text-xs font-medium">{ui("Project name")}</label>
         <Input
           value={name}
-          placeholder="e.g. My App"
+          placeholder={ui("e.g. My App")}
           onChange={(e) => onNameChange(e.target.value)}
           disabled={submitting}
         />
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium">Supabase organization</label>
+        <label className="text-xs font-medium">{ui("Supabase organization")}</label>
         <select
           className="h-9 rounded-md border bg-background px-3 text-sm"
           value={orgId}
@@ -173,7 +169,7 @@ export function CreateNewFormSection({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium">Region</label>
+        <label className="text-xs font-medium">{ui("Region")}</label>
         <select
           className="h-9 rounded-md border bg-background px-3 text-sm"
           value={region}
@@ -212,7 +208,7 @@ export function CreateNewFormSection({
       {error ? (
         <div className="flex items-start gap-2 text-sm text-red-600">
           <AlertCircle className="h-4 w-4 mt-0.5" />
-          <span>{error}</span>
+          <span>{ui(error)}</span>
         </div>
       ) : null}
     </>
@@ -232,6 +228,8 @@ export function ModeToggle({
   connectingExistingRef: string | null;
   onModeChange: (m: DialogMode) => void;
 }) {
+  const ui = useUiText();
+
   return (
     <div className="flex gap-1 rounded-md bg-muted/40 p-1 text-xs">
       <button
@@ -243,9 +241,7 @@ export function ModeToggle({
             ? "bg-background text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"
         }`}
-      >
-        Connect existing project
-      </button>
+      > {ui("Connect existing project")} </button>
       <button
         type="button"
         onClick={() => onModeChange("new")}
@@ -255,9 +251,7 @@ export function ModeToggle({
             ? "bg-background text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"
         }`}
-      >
-        Create new
-      </button>
+      > {ui("Create new")} </button>
     </div>
   );
 }

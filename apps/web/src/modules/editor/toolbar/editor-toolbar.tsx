@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useCallback, useState } from "react";
 import { useEditorStore, type ViewMode } from "../hooks/use-editor-store";
@@ -25,6 +27,8 @@ interface EditorToolbarProps {
 }
 
 export function EditorToolbar({ workspaceId: workspaceIdProp, projectId }: EditorToolbarProps = {}) {
+  const ui = useUiText();
+
   const {
     projectName,
     viewMode,
@@ -51,9 +55,9 @@ export function EditorToolbar({ workspaceId: workspaceIdProp, projectId }: Edito
   }, [nameInput, setProjectName]);
 
   const viewModes: { mode: ViewMode; icon: typeof Code2; label: string }[] = [
-    { mode: "code", icon: Code2, label: "Code" },
-    { mode: "split", icon: Columns2, label: "Split" },
-    { mode: "preview", icon: Eye, label: "Preview" },
+    { mode: "code", icon: Code2, label: ui("Code") },
+    { mode: "split", icon: Columns2, label: ui("Split") },
+    { mode: "preview", icon: Eye, label: ui("Preview") },
   ];
 
   return (
@@ -62,7 +66,7 @@ export function EditorToolbar({ workspaceId: workspaceIdProp, projectId }: Edito
       <button
         onClick={toggleSidebar}
         className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-        title={sidebarCollapsed ? "Show sidebar" : "Hide sidebar"}
+        title={sidebarCollapsed ? ui("Show sidebar") : ui("Hide sidebar")}
       >
         {sidebarCollapsed ? (
           <PanelLeft className="h-4 w-4" />
@@ -143,13 +147,13 @@ export function EditorToolbar({ workspaceId: workspaceIdProp, projectId }: Edito
       <div className="flex items-center gap-1">
         <button
           className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-          title="Settings"
+          title={ui("Settings")}
         >
           <Settings className="h-4 w-4" />
         </button>
         <button
           className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-          title="GitHub"
+          title={ui("GitHub")}
         >
           <Github className="h-4 w-4" />
         </button>
@@ -157,7 +161,7 @@ export function EditorToolbar({ workspaceId: workspaceIdProp, projectId }: Edito
           <button
             onClick={() => setShareOpen(true)}
             className="flex h-8 w-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-            title="Share to Discover"
+            title={ui("Share to Discover")}
           >
             <Compass className="h-4 w-4" />
           </button>

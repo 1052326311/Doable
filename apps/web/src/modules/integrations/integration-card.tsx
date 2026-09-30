@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { cn } from "@/lib/utils";
 import { Zap } from "lucide-react";
@@ -14,7 +16,9 @@ interface IntegrationCardProps {
 }
 
 export function IntegrationCard({ item, onSelect, onConnect }: IntegrationCardProps) {
-  const categoryLabel = CATEGORY_LABELS[item.category] ?? item.category;
+  const ui = useUiText();
+
+  const categoryLabel = ui(CATEGORY_LABELS[item.category]) ?? item.category;
 
   return (
     <div
@@ -58,14 +62,14 @@ export function IntegrationCard({ item, onSelect, onConnect }: IntegrationCardPr
             "mt-1 h-2 w-2 rounded-full shrink-0",
             item.connected ? "bg-emerald-500" : "bg-muted-foreground/30"
           )}
-          title={item.connected ? "Connected" : "Available"}
+          title={item.connected ? ui("Connected") : ui("Available")}
         />
       </div>
 
       {/* Name + Description */}
       <h3 className="text-sm font-semibold truncate mb-1">{item.displayName}</h3>
       <p className="text-xs text-muted-foreground line-clamp-2 mb-3 min-h-[2rem]">
-        {item.description || "No description available."}
+        {item.description || ui("No description available.")}
       </p>
 
       {/* Footer: Category + Actions */}
@@ -105,7 +109,7 @@ export function IntegrationCard({ item, onSelect, onConnect }: IntegrationCardPr
               : "bg-primary text-primary-foreground hover:bg-primary/90"
           )}
         >
-          {item.connected ? "Manage" : "Connect"}
+          {item.connected ? ui("Manage") : ui("Connect")}
         </button>
       </div>
     </div>

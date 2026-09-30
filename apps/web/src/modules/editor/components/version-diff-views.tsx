@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useMemo } from "react";
 import { FileText } from "lucide-react";
@@ -127,6 +129,8 @@ export function DiffStatsBar({
 // ─── SideBySideView ─────────────────────────────────────────
 
 export function SideBySideView({ change }: { change: FileChange }) {
+  const ui = useUiText();
+
   const lines = useMemo(
     () => computeLineDiff(change.oldContent ?? "", change.newContent ?? ""),
     [change.oldContent, change.newContent]
@@ -145,8 +149,7 @@ export function SideBySideView({ change }: { change: FileChange }) {
         {/* Old side */}
         <div className="flex-1 border-r overflow-auto">
           <div className="sticky top-0 z-10 bg-muted/50 backdrop-blur-sm border-b px-3 py-1">
-            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-              Before ({getFileName(change.path)})
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"> {ui("Before (")}{getFileName(change.path)})
             </span>
           </div>
           <div className="font-mono text-xs leading-relaxed">
@@ -174,8 +177,7 @@ export function SideBySideView({ change }: { change: FileChange }) {
         {/* New side */}
         <div className="flex-1 overflow-auto">
           <div className="sticky top-0 z-10 bg-muted/50 backdrop-blur-sm border-b px-3 py-1">
-            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
-              After ({getFileName(change.path)})
+            <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider"> {ui("After (")}{getFileName(change.path)})
             </span>
           </div>
           <div className="font-mono text-xs leading-relaxed">

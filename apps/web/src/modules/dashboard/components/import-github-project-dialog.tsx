@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
@@ -36,6 +38,8 @@ type Step = "checking" | "connect" | "select" | "importing";
 // ─── Importing progress with elapsed timer ──────────────────
 
 function ImportingProgress({ status }: { status: string }) {
+  const ui = useUiText();
+
   const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
@@ -50,8 +54,8 @@ function ImportingProgress({ status }: { status: string }) {
     <div className="flex flex-col items-center justify-center py-12 gap-3">
       <Loader2 className="h-8 w-8 animate-spin text-brand-400" />
       <p className="text-sm text-foreground">{status}</p>
-      <p className="text-xs text-muted-foreground tabular-nums">{formatTime(elapsed)} elapsed</p>
-      <p className="text-xs text-muted-foreground">This may take a moment for large repositories</p>
+      <p className="text-xs text-muted-foreground tabular-nums">{formatTime(elapsed)} {ui("elapsed")}</p>
+      <p className="text-xs text-muted-foreground">{ui("This may take a moment for large repositories")}</p>
     </div>
   );
 }
@@ -62,6 +66,8 @@ export function ImportGitHubProjectDialog({
   open,
   onOpenChange,
 }: ImportGitHubProjectDialogProps) {
+  const ui = useUiText();
+
   const router = useRouter();
   const { user } = useAuth();
 
@@ -102,7 +108,7 @@ export function ImportGitHubProjectDialog({
             const reposRes = await apiGitHubListRepos();
             if (!cancelled) setRepos(reposRes.data);
           } catch {
-            if (!cancelled) setError("Failed to load repositories");
+            if (!cancelled) setError(ui("Failed to load repositories"));
           } finally {
             if (!cancelled) setReposLoading(false);
           }
@@ -115,7 +121,7 @@ export function ImportGitHubProjectDialog({
     })();
 
     return () => { cancelled = true; };
-  }, [open]);
+  }, [ui, open]);
 
   // Also check on mount if we just returned from OAuth
   useEffect(() => {
@@ -142,7 +148,7 @@ export function ImportGitHubProjectDialog({
   const handleSwitchAccount = useCallback(async () => {
     if (!user?.id) return;
     if (!confirm(
-      `Disconnect ${githubUsername ? `@${githubUsername}` : "your GitHub account"} and connect a different one?\n\n` +
+      ui("Disconnect {v0} and connect a different one?\n\n", {v0: (githubUsername ? `@${githubUsername}` : "your GitHub account")}) +
       "Existing project-to-repo links won't be deleted, but new pushes/pulls and imports will use the next account you sign in with.",
     )) return;
     setSwitching(true);
@@ -156,14 +162,14 @@ export function ImportGitHubProjectDialog({
       window.location.href = getGitHubConnectUrl(user.id, returnUrl);
     } catch (err) {
       setSwitching(false);
-      setError(err instanceof Error ? err.message : "Failed to disconnect");
+      setError(err instanceof Error ? err.message : ui("Failed to disconnect"));
     }
-  }, [user, githubUsername]);
+  }, [ui, user, githubUsername]);
 
   const handleImport = useCallback(async () => {
     const repo = repos.find((r) => r.fullName === selectedRepo);
     if (!repo) {
-      setError("Please select a repository");
+      setError(ui("Please select a repository"));
       return;
     }
 
@@ -218,11 +224,11 @@ export function ImportGitHubProjectDialog({
       setStep("select");
       const msg = err instanceof Error ? err.message : "Import failed";
       setError(msg.includes("already exists")
-        ? "This repository was already imported. Check your projects list."
+        ? ui("This repository was already imported. Check your projects list.")
         : msg
       );
     }
-  }, [repos, selectedRepo, onOpenChange, router]);
+  }, [ui, repos, selectedRepo, onOpenChange, router]);
 
   const filteredRepos = repos.filter(
     (r) =>
@@ -236,12 +242,8 @@ export function ImportGitHubProjectDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <GitBranch className="h-5 w-5" />
-            Import from GitHub
-          </DialogTitle>
-          <DialogDescription>
-            Import an existing repository to continue working on it in Doable.
-          </DialogDescription>
+            <GitBranch className="h-5 w-5" /> {ui("Import from GitHub")} </DialogTitle>
+          <DialogDescription> {ui("Import an existing repository to continue working on it in Doable.")} </DialogDescription>
         </DialogHeader>
 
         {/* Step: Checking connection */}
@@ -263,12 +265,8 @@ export function ImportGitHubProjectDialog({
               >
                 <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
               </svg>
-              <h4 className="mt-4 text-sm font-medium text-foreground">
-                Connect your GitHub account
-              </h4>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Authorize Doable to access your repositories.
-              </p>
+              <h4 className="mt-4 text-sm font-medium text-foreground"> {ui("Connect your GitHub account")} </h4>
+              <p className="mt-1 text-xs text-muted-foreground"> {ui("Authorize Doable to access your repositories.")} </p>
               <Button
                 className="mt-4 bg-secondary text-secondary-foreground hover:bg-accent border border-border"
                 onClick={handleConnect}
@@ -279,9 +277,7 @@ export function ImportGitHubProjectDialog({
                   fill="currentColor"
                 >
                   <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
-                </svg>
-                Connect with GitHub
-              </Button>
+                </svg> {ui("Connect with GitHub")} </Button>
             </div>
           </div>
         )}
@@ -294,8 +290,7 @@ export function ImportGitHubProjectDialog({
               <div className="flex items-center justify-between gap-2 rounded-lg border border-border bg-muted px-3 py-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="h-2 w-2 rounded-full bg-green-500 shrink-0" />
-                  <span className="text-sm text-muted-foreground truncate">
-                    Connected as{" "}
+                  <span className="text-sm text-muted-foreground truncate"> {ui("Connected as")}{" "}
                     <span className="font-medium text-foreground">{githubUsername}</span>
                   </span>
                 </div>
@@ -304,12 +299,12 @@ export function ImportGitHubProjectDialog({
                   onClick={() => void handleSwitchAccount()}
                   disabled={switching}
                   className="shrink-0 rounded px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50 transition-colors"
-                  title="Disconnect this GitHub account and connect a different one"
+                  title={ui("Disconnect this GitHub account and connect a different one")}
                 >
                   {switching ? (
-                    <span className="flex items-center gap-1.5"><Loader2 className="h-3 w-3 animate-spin" /> Disconnecting…</span>
+                    <span className="flex items-center gap-1.5"><Loader2 className="h-3 w-3 animate-spin" /> {ui("Disconnecting…")}</span>
                   ) : (
-                    "Switch account"
+                    ui("Switch account")
                   )}
                 </button>
               </div>
@@ -319,7 +314,7 @@ export function ImportGitHubProjectDialog({
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search repositories..."
+                placeholder={ui("Search repositories...")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-9"
@@ -331,13 +326,13 @@ export function ImportGitHubProjectDialog({
               {reposLoading ? (
                 <div className="flex items-center justify-center gap-2 p-6">
                   <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">Loading repositories...</span>
+                  <span className="text-sm text-muted-foreground">{ui("Loading repositories...")}</span>
                 </div>
               ) : filteredRepos.length === 0 ? (
                 <p className="p-6 text-center text-sm text-muted-foreground">
                   {searchQuery
-                    ? "No repositories match your search"
-                    : "No repositories found"}
+                    ? ui("No repositories match your search")
+                    : ui("No repositories found")}
                 </p>
               ) : (
                 filteredRepos.map((repo) => (
@@ -367,7 +362,7 @@ export function ImportGitHubProjectDialog({
                         <Globe className="h-3 w-3 text-muted-foreground" />
                       )}
                       <span className="rounded-full border border-border px-2 py-0.5 text-xs text-muted-foreground">
-                        {repo.private ? "Private" : "Public"}
+                        {repo.private ? ui("Private") : ui("Public")}
                       </span>
                     </div>
                   </button>
@@ -377,7 +372,7 @@ export function ImportGitHubProjectDialog({
 
             {error && (
               <div className="rounded-md border border-red-800/50 bg-red-900/20 p-3">
-                <p className="text-sm text-red-400">{error}</p>
+                <p className="text-sm text-red-400">{ui(error)}</p>
               </div>
             )}
           </div>
@@ -394,18 +389,14 @@ export function ImportGitHubProjectDialog({
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-            >
-              Cancel
-            </Button>
+            > {ui("Cancel")} </Button>
             {step === "select" && (
               <Button
                 onClick={() => void handleImport()}
                 disabled={!selectedRepo}
                 className="bg-brand-600 text-white hover:bg-brand-500"
               >
-                <ArrowRight className="mr-2 h-4 w-4" />
-                Import
-              </Button>
+                <ArrowRight className="mr-2 h-4 w-4" /> {ui("Import")} </Button>
             )}
           </DialogFooter>
         )}

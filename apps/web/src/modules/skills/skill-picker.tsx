@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -50,6 +52,8 @@ interface SkillPickerButtonProps {
 }
 
 export function SkillPickerButton({ manifest, onSelect, disabled }: SkillPickerButtonProps) {
+  const ui = useUiText();
+
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("");
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -117,7 +121,7 @@ export function SkillPickerButton({ manifest, onSelect, disabled }: SkillPickerB
             : "border-border bg-accent text-muted-foreground hover:bg-accent hover:text-foreground",
           "disabled:opacity-40 disabled:cursor-not-allowed"
         )}
-        title="Skills"
+        title={ui("Skills")}
       >
         <Slash className="h-3.5 w-3.5" />
       </button>
@@ -137,7 +141,7 @@ export function SkillPickerButton({ manifest, onSelect, disabled }: SkillPickerB
           >
             {/* Header */}
             <div className="flex items-center justify-between px-3 py-2 border-b bg-muted/50">
-              <span className="text-xs font-semibold text-muted-foreground">Skills</span>
+              <span className="text-xs font-semibold text-muted-foreground">{ui("Skills")}</span>
               <button
                 onClick={() => {
                   setOpen(false);
@@ -157,7 +161,7 @@ export function SkillPickerButton({ manifest, onSelect, disabled }: SkillPickerB
                   type="text"
                   value={filter}
                   onChange={(e) => setFilter(e.target.value)}
-                  placeholder="Search skills..."
+                  placeholder={ui("Search skills...")}
                   className="w-full rounded-md border border-input bg-background px-2.5 py-1 text-xs outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground"
                 />
               </div>
@@ -167,7 +171,7 @@ export function SkillPickerButton({ manifest, onSelect, disabled }: SkillPickerB
             <div className="max-h-52 overflow-y-auto">
               {filtered.length === 0 ? (
                 <div className="px-3 py-4 text-center text-xs text-muted-foreground">
-                  {filter ? "No matching skills" : "No skills configured"}
+                  {filter ? ui("No matching skills") : ui("No skills configured")}
                 </div>
               ) : (
                 filtered.map((skill) => (
@@ -186,9 +190,7 @@ export function SkillPickerButton({ manifest, onSelect, disabled }: SkillPickerB
                       )}
                     </div>
                     {!skill.auto_invoke && (
-                      <span className="text-[10px] text-muted-foreground/60 mt-0.5 shrink-0">
-                        manual
-                      </span>
+                      <span className="text-[10px] text-muted-foreground/60 mt-0.5 shrink-0"> {ui("manual")} </span>
                     )}
                   </button>
                 ))

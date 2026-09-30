@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState } from "react";
 import {
@@ -121,14 +123,16 @@ export function OverviewCard({
 // ─── Traffic Chart ──────────────────────────────────────────
 
 export function TrafficChart({ data }: { data: TimeseriesPoint[] }) {
+  const ui = useUiText();
+
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
   const [metric, setMetric] = useState<"visitors" | "pageViews">("visitors");
 
   if (data.length === 0) {
     return (
       <div className="rounded-lg border border-border bg-card p-4">
-        <h3 className="text-sm font-semibold text-foreground">Traffic Overview</h3>
-        <p className="mt-4 text-center text-xs text-muted-foreground">No traffic data available yet.</p>
+        <h3 className="text-sm font-semibold text-foreground">{ui("Traffic Overview")}</h3>
+        <p className="mt-4 text-center text-xs text-muted-foreground">{ui("No traffic data available yet.")}</p>
       </div>
     );
   }
@@ -169,13 +173,13 @@ export function TrafficChart({ data }: { data: TimeseriesPoint[] }) {
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
-    return d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    return d.toLocaleDateString(ui.locale, { month: "short", day: "numeric" });
   };
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold text-foreground">Traffic Overview</h3>
+        <h3 className="text-sm font-semibold text-foreground">{ui("Traffic Overview")}</h3>
         <div className="flex rounded-md border border-border bg-muted/30">
           <button
             onClick={() => setMetric("visitors")}
@@ -185,9 +189,7 @@ export function TrafficChart({ data }: { data: TimeseriesPoint[] }) {
                 ? "bg-brand-500/20 text-brand-400"
                 : "text-muted-foreground hover:text-foreground"
             )}
-          >
-            Visitors
-          </button>
+          > {ui("Visitors")} </button>
           <button
             onClick={() => setMetric("pageViews")}
             className={cn(
@@ -196,9 +198,7 @@ export function TrafficChart({ data }: { data: TimeseriesPoint[] }) {
                 ? "bg-brand-500/20 text-brand-400"
                 : "text-muted-foreground hover:text-foreground"
             )}
-          >
-            Page Views
-          </button>
+          > {ui("Page Views")} </button>
         </div>
       </div>
 
@@ -296,8 +296,8 @@ export function TrafficChart({ data }: { data: TimeseriesPoint[] }) {
             }}
           >
             <p className="font-medium text-foreground">
-              {data[hoveredIndex][metric].toLocaleString()}{" "}
-              {metric === "visitors" ? "visitors" : "views"}
+              {data[hoveredIndex][metric].toLocaleString(ui.locale)}{" "}
+              {metric === "visitors" ? ui("visitors") : ui("views")}
             </p>
             <p className="text-muted-foreground">{formatDate(data[hoveredIndex].date)}</p>
           </div>

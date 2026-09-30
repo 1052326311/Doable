@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useCallback, useRef, useState } from "react";
 import { MessageCircle, Eye, EyeOff } from "lucide-react";
@@ -29,6 +31,8 @@ export function DesignCommentsLayer({
   containerRef,
   active,
 }: DesignCommentsLayerProps) {
+  const ui = useUiText();
+
   const { user } = useAuth();
   const { subscribe, send, joined } = useCollaboration();
   const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
@@ -88,7 +92,7 @@ export function DesignCommentsLayer({
                 ? "bg-muted/80 text-foreground"
                 : "bg-muted/60 text-muted-foreground hover:text-foreground"
             }`}
-            title={dc.showResolved ? "Hide resolved" : "Show resolved"}
+            title={dc.showResolved ? ui("Hide resolved") : ui("Show resolved")}
           >
             {dc.showResolved ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
           </button>
@@ -103,10 +107,10 @@ export function DesignCommentsLayer({
               ? "bg-brand-500 text-white shadow-md"
               : "bg-muted/80 text-muted-foreground hover:text-foreground hover:bg-muted"
           }`}
-          title={dc.commentMode ? "Cancel (Esc)" : "Add comment"}
+          title={dc.commentMode ? ui("Cancel (Esc)") : ui("Add comment")}
         >
           <MessageCircle className="w-3.5 h-3.5" />
-          <span>{dc.commentMode ? "Click to place" : commentCount > 0 ? `${commentCount}` : "Comment"}</span>
+          <span>{dc.commentMode ? ui("Click to place") : commentCount > 0 ? `${commentCount}` : ui("Comment")}</span>
         </button>
       </div>
 

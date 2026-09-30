@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { McpUiResource } from "../hooks/use-editor-store";
@@ -88,6 +90,8 @@ interface ParentMessage {
  * of the spec.
  */
 export function McpUiResourceCard({ resource, projectId, onResource, onPrompt, isStreaming, statusLines, completedText }: Props) {
+  const ui = useUiText();
+
   const [error, setError] = useState<string | null>(null);
   const [iframeHeight, setIframeHeight] = useState<number>(280);
   const iframeRef = useRef<HTMLIFrameElement | null>(null);
@@ -172,7 +176,7 @@ export function McpUiResourceCard({ resource, projectId, onResource, onPrompt, i
           content?: Array<{ type: string; resource?: McpUiResource["resource"] }>;
         };
         if (!res.ok || !json.success) {
-          setError(json.error ?? `Tool call failed (${res.status})`);
+          setError(json.error ?? ui("Tool call failed ({v0})", {v0: (res.status)}));
           return;
         }
         if (onResource && Array.isArray(json.content)) {
@@ -197,7 +201,7 @@ export function McpUiResourceCard({ resource, projectId, onResource, onPrompt, i
         setError(err instanceof Error ? err.message : String(err));
       }
     },
-    [projectId, resource.connectorId, resource.toolCallId, onResource],
+    [ui, projectId, resource.connectorId, resource.toolCallId, onResource],
   );
 
   useEffect(() => {
@@ -361,9 +365,7 @@ export function McpUiResourceCard({ resource, projectId, onResource, onPrompt, i
 
   if (!themedHtml) {
     return (
-      <div className="not-prose w-full rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 shadow-sm dark:border-amber-400/50 dark:bg-amber-950/80 dark:text-amber-200">
-        MCP UI resource has no HTML payload.
-      </div>
+      <div className="not-prose w-full rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-medium text-amber-800 shadow-sm dark:border-amber-400/50 dark:bg-amber-950/80 dark:text-amber-200"> {ui("MCP UI resource has no HTML payload.")} </div>
     );
   }
 
@@ -371,7 +373,7 @@ export function McpUiResourceCard({ resource, projectId, onResource, onPrompt, i
     <div className="not-prose w-full">
       <iframe
         ref={iframeRef}
-        title={`mcp-app:${resource.toolName}`}
+        title={ui("mcp-app:{v0}", {v0: (resource.toolName)})}
         sandbox="allow-scripts allow-forms allow-downloads allow-popups"
         srcDoc={themedHtml}
         onLoad={handleIframeLoad}
@@ -385,7 +387,7 @@ export function McpUiResourceCard({ resource, projectId, onResource, onPrompt, i
       />
       {error && (
         <div className="mt-2 rounded-md border border-red-300 bg-red-50 px-3 py-2 text-xs font-medium text-red-700 shadow-sm dark:border-red-400/50 dark:bg-red-950/80 dark:text-red-200">
-          {error}
+          {ui(error)}
         </div>
       )}
     </div>

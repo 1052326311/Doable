@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect } from "react";
 import {
@@ -51,6 +53,8 @@ export function InlineEdit({
   placeholder?: string;
   className?: string;
 }) {
+  const ui = useUiText();
+
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(value);
   const [saving, setSaving] = useState(false);
@@ -65,8 +69,8 @@ export function InlineEdit({
 
   if (!editing) {
     return (
-      <button onClick={() => setEditing(true)} className={cn("group/edit flex items-center gap-1 text-left rounded px-1 -mx-1 hover:bg-muted/60 min-w-0", className)} title="Click to edit">
-        <span className="truncate">{value || <span className="text-muted-foreground/50 italic">{placeholder ?? "Empty"}</span>}</span>
+      <button onClick={() => setEditing(true)} className={cn("group/edit flex items-center gap-1 text-left rounded px-1 -mx-1 hover:bg-muted/60 min-w-0", className)} title={ui("Click to edit")}>
+        <span className="truncate">{value || <span className="text-muted-foreground/50 italic">{placeholder ?? ui("Empty")}</span>}</span>
         <Pencil className="h-2.5 w-2.5 shrink-0 text-muted-foreground/40 opacity-0 group-hover/edit:opacity-100" />
       </button>
     );
@@ -122,13 +126,15 @@ export function ItemList({ title, icon, items, emptyMessage, onRemove }: {
   title: string; icon: React.ReactNode; items: { name: string; sub: string }[];
   emptyMessage?: string; onRemove?: (index: number) => void;
 }) {
+  const ui = useUiText();
+
   return (
     <div>
       <div className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground mb-1">
         {icon} {title} <span className="text-[10px]">({items.length})</span>
       </div>
       {items.length === 0 ? (
-        <p className="text-[11px] text-muted-foreground/60 italic pl-5">{emptyMessage ?? "None configured"}</p>
+        <p className="text-[11px] text-muted-foreground/60 italic pl-5">{emptyMessage ?? ui("None configured")}</p>
       ) : (
         <div className="pl-1 space-y-0.5">
           {items.map((item, i) => (
@@ -136,7 +142,7 @@ export function ItemList({ title, icon, items, emptyMessage, onRemove }: {
               <span className="font-medium truncate">{item.name}</span>
               <span className="text-[10px] text-muted-foreground truncate ml-auto max-w-[120px]">{item.sub}</span>
               {onRemove && (
-                <button onClick={() => onRemove(i)} className="opacity-0 group-hover:opacity-100 p-0.5 text-muted-foreground hover:text-destructive transition-all" title="Remove">
+                <button onClick={() => onRemove(i)} className="opacity-0 group-hover:opacity-100 p-0.5 text-muted-foreground hover:text-destructive transition-all" title={ui("Remove")}>
                   <X className="h-3 w-3" />
                 </button>
               )}
@@ -158,6 +164,8 @@ export function RefPicker<T extends { id: string }>({
   getLabel: (item: T) => string; getSubLabel?: (item: T) => string;
   onAdd: (id: string) => Promise<void>; onRemove: (id: string) => Promise<void>;
 }) {
+  const ui = useUiText();
+
   const [showPicker, setShowPicker] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const includedIds = new Set(included.map((i) => i.id));
@@ -177,13 +185,13 @@ export function RefPicker<T extends { id: string }>({
         <button onClick={() => setShowPicker(!showPicker)}
           className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground">
           {showPicker ? <X className="h-3 w-3" /> : <Plus className="h-3 w-3" />}
-          {showPicker ? "Done" : "Edit"}
+          {showPicker ? ui("Done") : ui("Edit")}
         </button>
       </div>
 
       {!showPicker ? (
         included.length === 0 ? (
-          <p className="text-[11px] text-muted-foreground/60 italic pl-5">None selected</p>
+          <p className="text-[11px] text-muted-foreground/60 italic pl-5">{ui("None selected")}</p>
         ) : (
           <div className="space-y-0.5 pl-1">
             {included.map((item) => (
@@ -197,9 +205,7 @@ export function RefPicker<T extends { id: string }>({
       ) : (
         <div className="rounded-md border bg-muted/10 p-2 space-y-0.5 max-h-48 overflow-y-auto">
           {available.length === 0 ? (
-            <p className="text-[11px] text-muted-foreground/60 italic text-center py-2">
-              No {title.toLowerCase()} in workspace. Create them in the {title} panel first.
-            </p>
+            <p className="text-[11px] text-muted-foreground/60 italic text-center py-2"> {ui("No")} {title.toLowerCase()} {ui("in workspace. Create them in the")} {title} {ui("panel first.")} </p>
           ) : (
             available.map((item) => {
               const isIn = includedIds.has(item.id);

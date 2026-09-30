@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import { Bot, ChevronDown, ExternalLink, Lock, Eye, Wrench, Wifi } from "lucide-react";
@@ -74,16 +77,18 @@ function CapabilityBadges({
   supportsVision?: boolean;
   supportsTools?: boolean;
 }) {
+  const ui = useUiText();
+
   if (!supportsVision && !supportsTools) return null;
   return (
     <span className="inline-flex items-center gap-0.5 ml-auto">
       {supportsVision && (
-        <span title="Vision">
+        <span title={ui("Vision")}>
           <Eye className="h-2.5 w-2.5 text-muted-foreground" />
         </span>
       )}
       {supportsTools && (
-        <span title="Tool calling">
+        <span title={ui("Tool calling")}>
           <Wrench className="h-2.5 w-2.5 text-muted-foreground" />
         </span>
       )}
@@ -126,10 +131,12 @@ function groupByProvider(models: ModelOption[]): ProviderGroup[] {
 // ─── Latency Hint ──────────────────────────────────────────
 
 function LatencyHint({ ms }: { ms?: number }) {
+  const ui = useUiText();
+
   if (ms == null || ms <= 0) return null;
   const label = ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
   return (
-    <span className="text-[9px] text-muted-foreground ml-1" title="Last health check latency">
+    <span className="text-[9px] text-muted-foreground ml-1" title={ui("Last health check latency")}>
       {label}
     </span>
   );
@@ -146,6 +153,9 @@ export function EditorModelSelector({
   disabled,
   enforcedLabel,
 }: Props) {
+  const ui = useUiText();
+  const i18n_DEFAULT_MODELS = useUiData(DEFAULT_MODELS);
+
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -162,7 +172,7 @@ export function EditorModelSelector({
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
-  const allModels = models.length > 0 ? models : DEFAULT_MODELS;
+  const allModels = models.length > 0 ? models : i18n_DEFAULT_MODELS;
   const copilotModels = allModels.filter((m) => m.group === "copilot");
   const customModels = allModels.filter((m) => m.group === "custom");
 
@@ -176,7 +186,7 @@ export function EditorModelSelector({
     return (
       <div className="flex items-center gap-1.5 rounded-full border border-border px-2.5 h-7 text-[12px] text-muted-foreground cursor-not-allowed">
         <Lock className="h-3 w-3" />
-        <span className="max-w-[100px] truncate">{enforcedLabel || "Locked"}</span>
+        <span className="max-w-[100px] truncate">{enforcedLabel || ui("Locked")}</span>
       </div>
     );
   }
@@ -197,9 +207,7 @@ export function EditorModelSelector({
       {open && (
         <div className="absolute bottom-full mb-1 left-0 z-50 w-64 max-h-80 overflow-y-auto rounded-lg border border-border bg-popover shadow-xl py-1">
           {/* Copilot Models */}
-          <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-            Copilot Models
-          </div>
+          <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> {ui("Copilot Models")} </div>
           {copilotModels.map((m) => (
             <button
               key={m.id}
@@ -230,9 +238,7 @@ export function EditorModelSelector({
                     <span className="truncate">{group.name}</span>
                     {group.isLocal && (
                       <span className="inline-flex items-center gap-0.5 rounded-full bg-secondary px-1.5 py-px text-[8px] font-medium text-muted-foreground normal-case tracking-normal">
-                        <Wifi className="h-2 w-2" />
-                        Local
-                      </span>
+                        <Wifi className="h-2 w-2" /> {ui("Local")} </span>
                     )}
                     <LatencyHint ms={group.healthLatencyMs} />
                   </div>
@@ -268,9 +274,7 @@ export function EditorModelSelector({
             }}
             className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ExternalLink className="h-3 w-3" />
-            Manage AI Settings
-          </button>
+            <ExternalLink className="h-3 w-3" /> {ui("Manage AI Settings")} </button>
         </div>
       )}
     </div>

@@ -1,4 +1,5 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useEditorStore, type ChatMessage } from "./use-editor-store";
@@ -18,6 +19,7 @@ export function useChat(
   projectId: string | null,
   collabSubscribe?: (handler: (msg: any) => void) => () => void,
 ) {
+  const ui = useUiText();
   const abortRef = useRef<AbortController | null>(null);
   // Track which messageIds originated from THIS client so we don't double-render
   const ownMessageIds = useRef<Set<string>>(new Set());
@@ -147,12 +149,12 @@ export function useChat(
             setActiveAgentProgress(null);
             return;
           }
-          // Doable AI disabled for this project — surface a clear message in the
+          // Doable disabled for this project — surface a clear message in the
           // chat instead of a generic failure. See doableinfo/doable_ai.md.
           if (status === 503) {
             const body = await response.json().catch(() => ({} as { code?: string; error?: string; hint?: string }));
             if (body.code === "AI_DISABLED_FOR_PROJECT") {
-              const message = body.error ?? "Doable AI is disabled for this project.";
+              const message = body.error ?? "Doable is disabled for this project.";
               updateMessageFields(assistantId, {
                 content: body.hint ? `${message} ${body.hint}` : message,
                 agentProgress: { phase: "failed", message },
@@ -450,9 +452,9 @@ export function useChat(
         .filter(([, a]) => a.trim())
         .map(([id, a]) => `${questionTextById[id] ?? id}: ${a}`)
         .join("\n");
-      sendMessage(`Here are my answers:\n${answerText}`);
+      sendMessage(ui("Here are my answers:\n{answers}", {answers:answerText}));
     },
-    [projectId, sendMessage],
+    [projectId, sendMessage, ui],
   );
 
   // ─── approvePlan ─────────────────────────────────────────────────
@@ -473,14 +475,14 @@ export function useChat(
         useEditorStore.getState().approvePlan();
         setTimeout(() => {
           sendMessage(
-            "The plan has been approved. Please start building it now, step by step. Follow the plan in .doable/plan.md."
+            ui("The plan has been approved. Please start building it now, step by step. Follow the plan in .doable/plan.md.")
           );
         }, 100);
       } catch (err) {
         console.error("Failed to approve plan:", err);
       }
     },
-    [projectId, sendMessage],
+    [projectId, sendMessage, ui],
   );
 
   // ─── abandonPlan ─────────────────────────────────────────────────

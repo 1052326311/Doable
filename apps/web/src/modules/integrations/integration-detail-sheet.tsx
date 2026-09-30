@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -45,6 +47,8 @@ export function IntegrationDetailSheet({
   onTestConnection,
   onGetActions,
 }: IntegrationDetailSheetProps) {
+  const ui = useUiText();
+
   const [actions, setActions] = useState<IntegrationAction[]>([]);
   const [loadingActions, setLoadingActions] = useState(false);
   const [testingId, setTestingId] = useState<string | null>(null);
@@ -121,8 +125,8 @@ export function IntegrationDetailSheet({
   const itemConnections = connections.filter(
     (c) => c.integrationId === item.id
   );
-  const categoryLabel = CATEGORY_LABELS[item.category] ?? item.category;
-  const authLabel = AUTH_LABELS[item.authType] ?? item.authType;
+  const categoryLabel = ui(CATEGORY_LABELS[item.category]) ?? item.category;
+  const authLabel = ui(AUTH_LABELS[item.authType]) ?? item.authType;
 
   return (
     <>
@@ -197,16 +201,14 @@ export function IntegrationDetailSheet({
             {/* Description */}
             <div className="p-5 border-b">
               <p className="text-sm text-muted-foreground leading-relaxed">
-                {item.description || "No description available."}
+                {item.description || ui("No description available.")}
               </p>
             </div>
 
             {/* Connections */}
             {itemConnections.length > 0 && (
               <div className="p-5 border-b">
-                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                  Active Connections
-                </h3>
+                <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3"> {ui("Active Connections")} </h3>
                 <div className="space-y-2">
                   {itemConnections.map((conn) => (
                     <div
@@ -226,7 +228,7 @@ export function IntegrationDetailSheet({
                             )}
                           />
                           <span className="text-sm font-medium truncate">
-                            {conn.displayName || "Connection"}
+                            {conn.displayName || ui("Connection")}
                           </span>
                         </div>
                         <span className="text-[10px] text-muted-foreground uppercase">
@@ -258,8 +260,8 @@ export function IntegrationDetailSheet({
                             <AlertCircle className="h-3 w-3 shrink-0" />
                           )}
                           {testResult.valid
-                            ? (testResult as any).message || "Connection is healthy"
-                            : testResult.error || "Connection failed"}
+                            ? (testResult as any).message || ui("Connection is healthy")
+                            : testResult.error || ui("Connection failed")}
                         </div>
                       )}
 
@@ -274,9 +276,7 @@ export function IntegrationDetailSheet({
                             <Loader2 className="h-3 w-3 animate-spin" />
                           ) : (
                             <RefreshCw className="h-3 w-3" />
-                          )}
-                          Test
-                        </button>
+                          )} {ui("Test")} </button>
                         <span className="text-muted-foreground/30">|</span>
                         <button
                           onClick={() => handleDisconnect(conn.id)}
@@ -290,8 +290,8 @@ export function IntegrationDetailSheet({
                         >
                           <Unplug className="h-3 w-3" />
                           {confirmDisconnect === conn.id
-                            ? "Confirm disconnect?"
-                            : "Disconnect"}
+                            ? ui("Confirm disconnect?")
+                            : ui("Disconnect")}
                         </button>
                       </div>
                     </div>
@@ -302,9 +302,7 @@ export function IntegrationDetailSheet({
 
             {/* Available Actions */}
             <div className="p-5">
-              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                Available Actions
-                {!loadingActions && actions.length > 0 && (
+              <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3"> {ui("Available Actions")} {!loadingActions && actions.length > 0 && (
                   <span className="ml-1.5 text-muted-foreground/60 normal-case font-normal">
                     ({actions.length})
                   </span>
@@ -313,15 +311,11 @@ export function IntegrationDetailSheet({
 
               {loadingActions && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
-                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                  Loading actions...
-                </div>
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> {ui("Loading actions...")} </div>
               )}
 
               {!loadingActions && actions.length === 0 && (
-                <p className="text-xs text-muted-foreground/70 py-2">
-                  No actions discovered for this integration yet.
-                </p>
+                <p className="text-xs text-muted-foreground/70 py-2"> {ui("No actions discovered for this integration yet.")} </p>
               )}
 
               {!loadingActions && actions.length > 0 && (
@@ -354,25 +348,20 @@ export function IntegrationDetailSheet({
             {item.connected ? (
               <div className="flex items-center justify-between">
                 <span className="flex items-center gap-1.5 text-xs text-emerald-600">
-                  <Check className="h-3.5 w-3.5" />
-                  Connected
-                </span>
+                  <Check className="h-3.5 w-3.5" /> {ui("Connected")} </span>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => onConnect(item)}
                   className="text-xs"
-                >
-                  Add Another Connection
-                </Button>
+                > {ui("Add Another Connection")} </Button>
               </div>
             ) : (
               <Button
                 className="w-full"
                 size="sm"
                 onClick={() => onConnect(item)}
-              >
-                Connect {item.displayName}
+              > {ui("Connect")} {item.displayName}
               </Button>
             )}
           </div>

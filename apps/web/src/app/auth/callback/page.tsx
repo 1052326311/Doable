@@ -1,4 +1,8 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
+import { BrandLogo } from "@/components/brand-logo";
+
 
 import { Suspense, useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -14,6 +18,8 @@ const ERROR_MESSAGES: Record<string, string> = {
 };
 
 function CallbackHandler() {
+  const ui = useUiText();
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const processed = useRef(false);
@@ -83,13 +89,13 @@ function CallbackHandler() {
 
     if (errorParam) {
       setError(
-        ERROR_MESSAGES[errorParam] ?? `Authentication error: ${errorParam}`
+        ui(ERROR_MESSAGES[errorParam]) ?? ui("Authentication error: {v0}", {v0: (errorParam)})
       );
       return;
     }
 
     if (!accessToken || !refreshToken) {
-      setError(ERROR_MESSAGES.missing_tokens ?? "Authentication tokens were missing.");
+      setError(ERROR_MESSAGES.missing_tokens ?? ui("Authentication tokens were missing."));
       return;
     }
 
@@ -123,7 +129,7 @@ function CallbackHandler() {
         // If /auth/me fails, try decoding the JWT as a fallback
         try {
           const jwtBody = accessToken.split(".")[1];
-          if (!jwtBody) throw new Error("Invalid JWT");
+          if (!jwtBody) throw new Error(ui("Invalid JWT"));
           const payload = JSON.parse(atob(jwtBody));
           const user = {
             id: payload.sub,
@@ -138,7 +144,7 @@ function CallbackHandler() {
         setStatus(safeReturnTo ? "Redirecting..." : "Redirecting to dashboard...");
         router.replace(redirectTarget);
       });
-  }, [router, searchParams]);
+  }, [ui, router, searchParams]);
 
   async function handleMfaSubmit(e: FormEvent) {
     e.preventDefault();
@@ -187,12 +193,8 @@ function CallbackHandler() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))]">
         <div className="w-full max-w-sm px-4">
-          <h2 className="mb-2 text-center text-xl font-semibold text-[hsl(var(--foreground))]">
-            Two-factor authentication
-          </h2>
-          <p className="mb-6 text-center text-sm text-[hsl(var(--muted-foreground))]">
-            Enter the 6-digit code from your authenticator app, or a recovery code.
-          </p>
+          <h2 className="mb-2 text-center text-xl font-semibold text-[hsl(var(--foreground))]"> {ui("Two-factor authentication")} </h2>
+          <p className="mb-6 text-center text-sm text-[hsl(var(--muted-foreground))]"> {ui("Enter the 6-digit code from your authenticator app, or a recovery code.")} </p>
 
           <form onSubmit={handleMfaSubmit} className="space-y-4">
             {mfaError && (
@@ -208,7 +210,7 @@ function CallbackHandler() {
               inputMode="text"
               autoComplete="one-time-code"
               autoFocus
-              placeholder="123456 or recovery-code"
+              placeholder={ui("123456 or recovery-code")}
               required
               disabled={mfaSubmitting}
               className="w-full rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--background))] px-3 py-2.5 text-center tracking-widest text-[hsl(var(--foreground))] focus:border-brand-600 focus:outline-none"
@@ -222,20 +224,16 @@ function CallbackHandler() {
             >
               {mfaSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Verifying...
-                </>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Verifying...")} </>
               ) : (
-                "Verify and continue"
+                ui("Verify and continue")
               )}
             </button>
             <button
               type="button"
               onClick={() => router.replace("/login")}
               className="block w-full text-center text-sm text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
-            >
-              Back to sign in
-            </button>
+            > {ui("Back to sign in")} </button>
           </form>
         </div>
       </div>
@@ -263,26 +261,20 @@ function CallbackHandler() {
             </svg>
           </div>
 
-          <h2 className="mb-2 text-lg font-semibold text-[hsl(var(--foreground))]">
-            Authentication Failed
-          </h2>
+          <h2 className="mb-2 text-lg font-semibold text-[hsl(var(--foreground))]"> {ui("Authentication Failed")} </h2>
           <p className="mb-6 text-sm text-[hsl(var(--muted-foreground))]">
-            {error}
+            {ui(error)}
           </p>
 
           <div className="space-y-3">
             <button
               onClick={() => router.replace("/login")}
               className="inline-flex w-full items-center justify-center rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-800 transition-colors"
-            >
-              Back to sign in
-            </button>
+            > {ui("Back to sign in")} </button>
             <button
               onClick={() => window.location.reload()}
               className="inline-flex w-full items-center justify-center rounded-xl border border-[hsl(var(--border))] px-4 py-2.5 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors"
-            >
-              Try again
-            </button>
+            > {ui("Try again")} </button>
           </div>
         </div>
       </div>
@@ -297,9 +289,7 @@ function CallbackHandler() {
           <div className="relative">
             <div className="h-12 w-12 rounded-full border-2 border-zinc-700 border-t-brand-700 animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-sm font-bold text-brand-700">
-                D
-              </span>
+              <BrandLogo className="h-7 w-9 shrink-0" />
             </div>
           </div>
         </div>
@@ -307,9 +297,7 @@ function CallbackHandler() {
         <p className="text-sm font-medium text-[hsl(var(--foreground))]">
           {status}
         </p>
-        <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]">
-          This should only take a moment
-        </p>
+        <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]"> {ui("This should only take a moment")} </p>
 
         {/* Progress dots */}
         <div className="mt-6 flex justify-center gap-1.5">
@@ -332,6 +320,8 @@ function CallbackHandler() {
 }
 
 function CallbackFallback() {
+  const ui = useUiText();
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))]">
       <div className="text-center">
@@ -339,18 +329,12 @@ function CallbackFallback() {
           <div className="relative">
             <div className="h-12 w-12 rounded-full border-2 border-zinc-700 border-t-brand-700 animate-spin" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-sm font-bold text-brand-700">
-                D
-              </span>
+              <BrandLogo className="h-7 w-9 shrink-0" />
             </div>
           </div>
         </div>
-        <p className="text-sm font-medium text-[hsl(var(--foreground))]">
-          Preparing authentication...
-        </p>
-        <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]">
-          This should only take a moment
-        </p>
+        <p className="text-sm font-medium text-[hsl(var(--foreground))]"> {ui("Preparing authentication...")} </p>
+        <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]"> {ui("This should only take a moment")} </p>
       </div>
     </div>
   );

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import {
   useCallback,
@@ -23,6 +25,8 @@ export function EditorLayout({
   preview,
   toolbar,
 }: EditorLayoutProps) {
+  const ui = useUiText();
+
   const {
     panelSizes,
     sidebarCollapsed,
@@ -93,7 +97,7 @@ export function EditorLayout({
           <button
             onClick={toggleSidebar}
             className="flex h-full w-10 flex-col items-center border-r border-border bg-muted/30 pt-3 hover:bg-muted/60 transition-colors"
-            title="Expand sidebar"
+            title={ui("Expand sidebar")}
           >
             <PanelLeft className="h-4 w-4 text-muted-foreground" />
           </button>

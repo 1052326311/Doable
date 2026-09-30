@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { memo, useState, useCallback } from "react";
 import { HelpCircle, Check, ChevronRight } from "lucide-react";
@@ -99,6 +101,8 @@ export const ClarificationFlow = memo(function ClarificationFlow({
   onComplete,
   disabled = false,
 }: ClarificationFlowProps) {
+  const ui = useUiText();
+
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [completed, setCompleted] = useState(false);
@@ -137,7 +141,7 @@ export const ClarificationFlow = memo(function ClarificationFlow({
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/10">
             <Check className="h-3.5 w-3.5 text-blue-500" />
           </div>
-          <span className="text-sm font-medium text-foreground">Answers submitted</span>
+          <span className="text-sm font-medium text-foreground">{ui("Answers submitted")}</span>
         </div>
         <div className="space-y-1.5">
           {questions.map((q) => (
@@ -167,7 +171,7 @@ export const ClarificationFlow = memo(function ClarificationFlow({
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/10">
           <HelpCircle className="h-3.5 w-3.5 text-blue-500" />
         </div>
-        <span className="text-sm font-medium text-foreground">Before we start…</span>
+        <span className="text-sm font-medium text-foreground">{ui("Before we start…")}</span>
       </div>
 
       {/* Progress bar strips */}
@@ -194,9 +198,7 @@ export const ClarificationFlow = memo(function ClarificationFlow({
             onClick={handleSkipAll}
             disabled={disabled}
             className="ml-3 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors disabled:opacity-50 shrink-0"
-          >
-            Skip all
-          </button>
+          > {ui("Skip all")} </button>
         )}
       </div>
 
@@ -242,9 +244,7 @@ export const ClarificationFlow = memo(function ClarificationFlow({
               onClick={() => advance(currentQuestion.id, "")}
               disabled={disabled}
               className="mt-2 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-            >
-              Skip this question
-            </button>
+            > {ui("Skip this question")} </button>
           </>
         ) : (
           <>
@@ -256,9 +256,7 @@ export const ClarificationFlow = memo(function ClarificationFlow({
               onClick={() => advance(currentQuestion.id, "")}
               disabled={disabled}
               className="mt-1.5 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-            >
-              Skip
-            </button>
+            > {ui("Skip")} </button>
           </>
         )}
       </div>

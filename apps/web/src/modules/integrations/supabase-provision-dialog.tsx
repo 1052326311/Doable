@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 /**
  * Phase 2A — Supabase platform-managed provisioner dialog.
@@ -39,6 +41,8 @@ export function SupabaseProvisionDialog({
   reason,
   onClose,
 }: SupabaseProvisionDialogProps) {
+  const ui = useUiText();
+
   const [orgs, setOrgs] = useState<SupabaseOrganization[] | null>(null);
   const [orgsLoading, setOrgsLoading] = useState(false);
   const [orgsError, setOrgsError] = useState<string | null>(null);
@@ -209,7 +213,7 @@ export function SupabaseProvisionDialog({
         throw new Error(body.error ?? `Provisioning failed (${res.status})`);
       }
       const reader = res.body?.getReader();
-      if (!reader) throw new Error("No response body");
+      if (!reader) throw new Error(ui("No response body"));
       const decoder = new TextDecoder();
       let buffer = "";
       let finished = false;
@@ -243,7 +247,7 @@ export function SupabaseProvisionDialog({
     } finally {
       setSubmitting(false);
     }
-  }, [orgId, region, name, projectId, submitting, onClose]);
+  }, [ui, orgId, region, name, projectId, submitting, onClose]);
 
   const disabled = submitting || orgsLoading || !orgId;
   const showCreateNew = mode === "new" || !existingProjects || existingProjects.length === 0;
@@ -258,10 +262,10 @@ export function SupabaseProvisionDialog({
     >
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Connect Supabase</DialogTitle>
+          <DialogTitle>{ui("Connect Supabase")}</DialogTitle>
           <DialogDescription>
             {reason ??
-              "Pick an existing Supabase project from your organization, or let Doable create a brand-new one. Either way the API keys are wired up automatically."}
+              ui("Pick an existing Supabase project from your organization, or let Doable create a brand-new one. Either way the API keys are wired up automatically.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -273,9 +277,7 @@ export function SupabaseProvisionDialog({
           />
         ) : orgsLoading ? (
           <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Loading your Supabase organizations...
-          </div>
+            <Loader2 className="h-4 w-4 animate-spin" /> {ui("Loading your Supabase organizations...")} </div>
         ) : orgsError ? (
           <div className="flex items-start gap-2 py-4 text-sm text-red-600">
             <span>{orgsError}</span>
@@ -323,18 +325,14 @@ export function SupabaseProvisionDialog({
             variant="outline"
             onClick={() => onClose(false)}
             disabled={submitting || !!connectingExistingRef}
-          >
-            Cancel
-          </Button>
+          > {ui("Cancel")} </Button>
           {showCreateNew ? (
             <Button onClick={handleSubmit} disabled={disabled || oauthRequired}>
               {submitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating...
-                </>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Creating...")} </>
               ) : (
-                "Create project"
+                ui("Create project")
               )}
             </Button>
           ) : null}

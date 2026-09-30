@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -56,6 +59,9 @@ export const TemplateGallery = ({
   apiBaseUrl = "/api",
   onSelectTemplate,
 }: TemplateGalleryProps) => {
+  const ui = useUiText();
+  const i18n_CATEGORY_CONFIG = useUiData(CATEGORY_CONFIG);
+
   const [templates, setTemplates] = useState<TemplateSummary[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [activeCategory, setActiveCategory] = useState("all");
@@ -74,7 +80,7 @@ export const TemplateGallery = ({
       if (searchQuery) params.set("search", searchQuery);
       const qs = params.toString();
       const res = await fetch(`${apiBaseUrl}/templates${qs ? `?${qs}` : ""}`);
-      if (!res.ok) throw new Error("Failed to load templates");
+      if (!res.ok) throw new Error(ui("Failed to load templates"));
       const json = (await res.json()) as {
         data: { templates: TemplateSummary[]; categories: string[] };
       };
@@ -85,7 +91,7 @@ export const TemplateGallery = ({
     } finally {
       setLoading(false);
     }
-  }, [apiBaseUrl, searchQuery]);
+  }, [ui, apiBaseUrl, searchQuery]);
 
   useEffect(() => {
     void fetchTemplates();
@@ -105,17 +111,15 @@ export const TemplateGallery = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Start a Project</h2>
-          <p className="text-muted-foreground mt-1">
-            Choose a template or start from scratch.
-          </p>
+          <h2 className="text-2xl font-bold tracking-tight">{ui("Start a Project")}</h2>
+          <p className="text-muted-foreground mt-1"> {ui("Choose a template or start from scratch.")} </p>
         </div>
         {/* Search */}
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search templates..."
+            placeholder={ui("Search templates...")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="h-9 w-64 rounded-md border border-input bg-background pl-9 pr-3 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -126,7 +130,7 @@ export const TemplateGallery = ({
       {/* Category tabs */}
       <div className="flex items-center gap-1 border-b">
         {["all", ...categories].map((cat) => {
-          const config = CATEGORY_CONFIG[cat] ?? {
+          const config = i18n_CATEGORY_CONFIG[cat] ?? {
             label: capitalize(cat),
             icon: FileCode,
           };
@@ -153,7 +157,7 @@ export const TemplateGallery = ({
       {/* Error */}
       {error && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-          {error}
+          {ui(error)}
         </div>
       )}
 
@@ -178,9 +182,7 @@ export const TemplateGallery = ({
           ))}
 
           {filteredTemplates.length === 0 && (
-            <div className="col-span-full flex items-center justify-center h-32 text-sm text-muted-foreground">
-              No templates in this category yet.
-            </div>
+            <div className="col-span-full flex items-center justify-center h-32 text-sm text-muted-foreground"> {ui("No templates in this category yet.")} </div>
           )}
         </div>
       )}
@@ -201,8 +203,11 @@ const TemplateCard = ({
   isScaffolding,
   onSelect,
 }: TemplateCardProps) => {
+  const ui = useUiText();
+  const i18n_CATEGORY_CONFIG = useUiData(CATEGORY_CONFIG);
+
   const CategoryIcon =
-    CATEGORY_CONFIG[template.category]?.icon ?? FileCode;
+    i18n_CATEGORY_CONFIG[template.category]?.icon ?? FileCode;
 
   return (
     <div className="group rounded-lg border bg-card overflow-hidden transition-shadow hover:shadow-md">
@@ -218,9 +223,7 @@ const TemplateCard = ({
           <CategoryIcon className="h-10 w-10 text-muted-foreground/40" />
         )}
         {template.isOfficial && (
-          <span className="absolute top-2 right-2 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-            Official
-          </span>
+          <span className="absolute top-2 right-2 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"> {ui("Official")} </span>
         )}
       </div>
 
@@ -249,8 +252,7 @@ const TemplateCard = ({
 
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
-            {template.fileCount} files
-          </span>
+            {template.fileCount} {ui("files")} </span>
           <button
             onClick={onSelect}
             disabled={isScaffolding}
@@ -263,14 +265,10 @@ const TemplateCard = ({
           >
             {isScaffolding ? (
               <>
-                <Loader2 className="h-3 w-3 animate-spin" />
-                Creating...
-              </>
+                <Loader2 className="h-3 w-3 animate-spin" /> {ui("Creating...")} </>
             ) : (
               <>
-                <Rocket className="h-3 w-3" />
-                Use Template
-              </>
+                <Rocket className="h-3 w-3" /> {ui("Use Template")} </>
             )}
           </button>
         </div>

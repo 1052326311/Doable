@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState } from "react";
 import type { ApiGitHubCopilotAccount, ApiAiProvider, ApiWorkspaceAiDefaults } from "@/lib/api";
@@ -27,6 +29,8 @@ const COMMON_MODELS = [
 ];
 
 export function ModelDefaultsTab({ workspaceId, defaults, loading, accounts, providers, onUpdate }: Props) {
+  const ui = useUiText();
+
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [model, setModel] = useState(defaults?.default_model ?? "");
@@ -59,22 +63,20 @@ export function ModelDefaultsTab({ workspaceId, defaults, loading, accounts, pro
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold text-foreground">Default Model</h2>
-        <p className="text-sm text-muted-foreground">
-          Set the workspace-level default model and provider for new sessions.
-        </p>
+        <h2 className="text-lg font-semibold text-foreground">{ui("Default Model")}</h2>
+        <p className="text-sm text-muted-foreground"> {ui("Set the workspace-level default model and provider for new sessions.")} </p>
       </div>
 
       <div className="space-y-4 max-w-lg">
         {/* Default Model */}
         <div>
-          <label className="block text-sm font-medium text-foreground mb-1.5">Model</label>
+          <label className="block text-sm font-medium text-foreground mb-1.5">{ui("Model")}</label>
           <select
             value={model}
             onChange={(e) => setModel(e.target.value)}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-500"
           >
-            <option value="">Default (auto)</option>
+            <option value="">{ui("Default (auto)")}</option>
             {COMMON_MODELS.map((m) => (
               <option key={m} value={m}>{m}</option>
             ))}
@@ -84,13 +86,13 @@ export function ModelDefaultsTab({ workspaceId, defaults, loading, accounts, pro
         {/* Default Copilot Account */}
         {accounts.length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">GitHub Copilot Account</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">{ui("GitHub Copilot Account")}</label>
             <select
               value={copilotAccountId}
               onChange={(e) => setCopilotAccountId(e.target.value)}
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-500"
             >
-              <option value="">Default (gh CLI)</option>
+              <option value="">{ui("Default (gh CLI)")}</option>
               {accounts.filter((a) => a.is_valid && a.scope === "workspace").map((a) => (
                 <option key={a.id} value={a.id}>
                   {a.label} (@{a.github_login})
@@ -103,13 +105,13 @@ export function ModelDefaultsTab({ workspaceId, defaults, loading, accounts, pro
         {/* Default Provider */}
         {providers.length > 0 && (
           <div>
-            <label className="block text-sm font-medium text-foreground mb-1.5">Custom Provider</label>
+            <label className="block text-sm font-medium text-foreground mb-1.5">{ui("Custom Provider")}</label>
             <select
               value={providerId}
               onChange={(e) => setProviderId(e.target.value)}
               className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-500"
             >
-              <option value="">None (use Copilot)</option>
+              <option value="">{ui("None (use Copilot)")}</option>
               {providers.filter((p) => p.is_valid && p.scope === "workspace").map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.label} ({p.provider_type})
@@ -131,7 +133,7 @@ export function ModelDefaultsTab({ workspaceId, defaults, loading, accounts, pro
           ) : (
             <Bot className="h-4 w-4" />
           )}
-          {saved ? "Saved!" : "Save Defaults"}
+          {saved ? ui("Saved!") : ui("Save Defaults")}
         </button>
       </div>
     </div>

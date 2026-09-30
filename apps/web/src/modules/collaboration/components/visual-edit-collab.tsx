@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import {
   useState,
@@ -209,6 +211,8 @@ interface VisualEditConflictWarningProps {
 }
 
 export function VisualEditConflictWarning({ selectedSelector }: VisualEditConflictWarningProps) {
+  const ui = useUiText();
+
   const { remoteSelections } = useCollaboration();
 
   const conflict = useMemo(() => {
@@ -238,9 +242,7 @@ export function VisualEditConflictWarning({ selectedSelector }: VisualEditConfli
           style={{ backgroundColor: conflict.color }}
         />
         <span className="text-foreground">
-          <span className="font-semibold text-foreground">{conflict.displayName}</span>{" "}
-          is editing this element
-        </span>
+          <span className="font-semibold text-foreground">{conflict.displayName}</span>{" "} {ui("is editing this element")} </span>
       </div>
     </div>
   );

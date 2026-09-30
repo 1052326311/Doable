@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -49,6 +51,8 @@ import { DnsConfigPanel } from "./dns-config-panel";
 // ─── Admin Page ─────────────────────────────────────────────
 
 export default function AdminPage() {
+  const ui = useUiText();
+
   const router = useRouter();
   const { user } = useAuth();
   const {
@@ -122,16 +126,16 @@ export default function AdminPage() {
     try {
       await apiFetch(`/admin/users/${userId}/ai-allocation`, { method: "PUT", body: JSON.stringify(data) });
       await loadAllocations();
-      addToast("success", "AI settings saved");
-    } catch { addToast("error", "Failed to save AI settings"); }
+      addToast("success", ui("AI settings saved"));
+    } catch { addToast("error", ui("Failed to save AI settings")); }
   }
 
   async function handleReset(userId: string) {
     try {
       await apiFetch(`/admin/users/${userId}/ai-allocation`, { method: "DELETE" });
       await loadAllocations();
-      addToast("success", "AI settings reset");
-    } catch { addToast("error", "Failed to reset AI settings"); }
+      addToast("success", ui("AI settings reset"));
+    } catch { addToast("error", ui("Failed to reset AI settings")); }
   }
 
   async function handleBulkApply(userIds: string[], payload: BulkApplyPayload) {
@@ -190,7 +194,7 @@ export default function AdminPage() {
       (payload.model && modelOk === 0 && modelFail > 0) ||
       (payload.addQuota && quotaOk === 0 && quotaFail > 0) ||
       ((payload.role || payload.plan) && rolePlanFailed && !payload.model && !payload.addQuota);
-    addToast(allFailed ? "error" : "success", `Bulk applied to ${userIds.length} users — ${parts.join(" · ")}`);
+    addToast(allFailed ? "error" : "success", ui("Bulk applied to {v0} users — {v1}",{v0:(userIds.length),v1:(parts.join(" · "))}));
   }
 
   async function handleChangeRole(userId: string, role: string) {
@@ -201,8 +205,8 @@ export default function AdminPage() {
     try {
       await setUserRole(userId, role);
       const name = prev.find((u) => u.user_id === userId)?.display_name ?? "User";
-      addToast("success", `${name} → ${ROLE_LABELS[role]}`);
-    } catch { setAllocations(prev); addToast("error", "Failed to update role"); }
+      addToast("success", ui("{v0} → {v1}",{v0:(name),v1:(ROLE_LABELS[role])}));
+    } catch { setAllocations(prev); addToast("error", ui("Failed to update role")); }
   }
 
   async function handleChangePlan(userId: string, plan: string) {
@@ -213,8 +217,8 @@ export default function AdminPage() {
     try {
       await setUserPlan(userId, plan);
       const name = prev.find((u) => u.user_id === userId)?.display_name ?? "User";
-      addToast("success", `${name} → ${PLAN_LABELS[plan]} plan`);
-    } catch { setAllocations(prev); addToast("error", "Failed to update plan"); }
+      addToast("success", ui("{v0} → {v1} plan",{v0:(name),v1:(PLAN_LABELS[plan])}));
+    } catch { setAllocations(prev); addToast("error", ui("Failed to update plan")); }
   }
 
   // Redirect non-admins
@@ -222,9 +226,9 @@ export default function AdminPage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
         <Shield className="h-12 w-12 text-muted-foreground" />
-        <h2 className="text-lg font-semibold text-foreground">Access Denied</h2>
-        <p className="text-sm text-muted-foreground">Platform admin access required.</p>
-        <Button onClick={() => router.push("/dashboard")} className="bg-brand-600 text-white hover:bg-brand-500">Back to Dashboard</Button>
+        <h2 className="text-lg font-semibold text-foreground">{ui("Access Denied")}</h2>
+        <p className="text-sm text-muted-foreground">{ui("Platform admin access required.")}</p>
+        <Button onClick={() => router.push("/dashboard")} className="bg-brand-600 text-white hover:bg-brand-500">{ui("Back to Dashboard")}</Button>
       </div>
     );
   }
@@ -256,73 +260,62 @@ export default function AdminPage() {
       {/* Header */}
       <div className="mb-8">
         <button onClick={() => router.push("/dashboard")} className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-4">
-          <ArrowLeft className="h-4 w-4" /> Back to Dashboard
-        </button>
+          <ArrowLeft className="h-4 w-4" /> {ui("Back to Dashboard")} </button>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600/20">
             <Shield className="h-5 w-5 text-brand-400" />
           </div>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold text-foreground">System Administration</h1>
-            <p className="text-sm text-muted-foreground">Manage platform features, users, AI tools, and access controls</p>
+            <h1 className="text-xl font-semibold text-foreground">{ui("System Administration")}</h1>
+            <p className="text-sm text-muted-foreground">{ui("Manage platform features, users, AI tools, and access controls")}</p>
           </div>
           <Link
             href="/admin/projects"
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent transition-colors"
-            title="All projects (drafts + published) with framework, owner, chat activity"
+            title={ui("All projects (drafts + published) with framework, owner, chat activity")}
           >
-            <Activity className="h-3.5 w-3.5 text-brand-400" />
-            Projects
-          </Link>
+            <Activity className="h-3.5 w-3.5 text-brand-400" /> {ui("Projects")} </Link>
           <Link
             href="/admin/runtime"
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent transition-colors"
-            title="Published apps + live dev servers — CPU, memory, uptime, controls"
+            title={ui("Published apps + live dev servers — CPU, memory, uptime, controls")}
           >
-            <Activity className="h-3.5 w-3.5 text-brand-400" />
-            Runtime
-          </Link>
+            <Activity className="h-3.5 w-3.5 text-brand-400" /> {ui("Runtime")} </Link>
           <Link
             href="/admin/chat"
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent transition-colors"
-            title="All AI chat sessions (redacted, audit-logged) — for training & abuse review"
+            title={ui("All AI chat sessions (redacted, audit-logged) — for training & abuse review")}
           >
-            <Activity className="h-3.5 w-3.5 text-brand-400" />
-            Chat
-          </Link>
+            <Activity className="h-3.5 w-3.5 text-brand-400" /> {ui("Chat")} </Link>
           <Link
             href="/admin/audit"
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent transition-colors"
-            title="Prompt & conversation audit (enterprise)"
+            title={ui("Prompt & conversation audit (enterprise)")}
           >
-            <Activity className="h-3.5 w-3.5 text-brand-400" />
-            Audit
-          </Link>
+            <Activity className="h-3.5 w-3.5 text-brand-400" /> {ui("Audit")} </Link>
           <Link
             href="/admin/moderation"
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent transition-colors"
-            title="Marketplace moderation queue & reports"
+            title={ui("Marketplace moderation queue & reports")}
           >
-            <ShieldCheck className="h-3.5 w-3.5 text-brand-400" />
-            Moderation
-          </Link>
+            <ShieldCheck className="h-3.5 w-3.5 text-brand-400" /> {ui("Moderation")} </Link>
         </div>
       </div>
 
       {/* Tabs */}
       <div className="flex items-center gap-1 mb-6 border-b border-border pb-px overflow-x-auto">
         {([
-          { key: "features" as const, label: "Feature Flags", icon: Settings2 },
-          { key: "dns" as const, label: "DNS", icon: Globe },
-          { key: "signups" as const, label: "Signups", icon: UserCheck },
-          { key: "users" as const, label: "Users & AI", icon: Users },
-          { key: "integrations" as const, label: "Integrations", icon: Plug },
-          { key: "plans" as const, label: "Plans", icon: CreditCard },
-          { key: "tools" as const, label: "AI Tools", icon: Wrench },
-          { key: "mfa" as const, label: "MFA", icon: ShieldCheck },
-          { key: "thumbnails" as const, label: "Thumbnails", icon: ImageIcon },
-          { key: "copilot" as const, label: "Sessions", icon: Activity },
-          { key: "email" as const, label: "Email", icon: Mail },
+          { key: "features" as const, label: ui("Feature Flags"), icon: Settings2 },
+          { key: "dns" as const, label: ui("DNS"), icon: Globe },
+          { key: "signups" as const, label: ui("Signups"), icon: UserCheck },
+          { key: "users" as const, label: ui("Users & AI"), icon: Users },
+          { key: "integrations" as const, label: ui("Integrations"), icon: Plug },
+          { key: "plans" as const, label: ui("Plans"), icon: CreditCard },
+          { key: "tools" as const, label: ui("AI Tools"), icon: Wrench },
+          { key: "mfa" as const, label: ui("MFA"), icon: ShieldCheck },
+          { key: "thumbnails" as const, label: ui("Thumbnails"), icon: ImageIcon },
+          { key: "copilot" as const, label: ui("Sessions"), icon: Activity },
+          { key: "email" as const, label: ui("Email"), icon: Mail },
         ]).map((tab) => (
           <button
             key={tab.key}
@@ -337,7 +330,7 @@ export default function AdminPage() {
       </div>
 
       {error && (
-        <div className="mb-4 rounded-lg border border-red-800/50 bg-red-900/20 px-4 py-2 text-sm text-red-400">{error}</div>
+        <div className="mb-4 rounded-lg border border-red-800/50 bg-red-900/20 px-4 py-2 text-sm text-red-400">{ui(error)}</div>
       )}
 
       {/* Feature Flags Tab */}
@@ -348,12 +341,12 @@ export default function AdminPage() {
 
           {/* Feature Flags */}
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground mb-4">Toggle features on/off globally. Set minimum plan or workspace role requirements.</p>
+            <p className="text-xs text-muted-foreground mb-4">{ui("Toggle features on/off globally. Set minimum plan or workspace role requirements.")}</p>
             {features.map((f) => (
               <FeatureRow key={f.feature_key} feature={f} onToggle={toggleFeature} onUpdate={updateFeature} />
             ))}
             {features.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-8">No feature flags configured.</p>
+              <p className="text-sm text-muted-foreground text-center py-8">{ui("No feature flags configured.")}</p>
             )}
           </div>
         </div>
@@ -380,7 +373,7 @@ export default function AdminPage() {
           onSetCredits={async (userId, data) => {
             await setUserCredits(userId, data);
             const name = allocations.find((a) => a.user_id === userId)?.display_name ?? "User";
-            addToast("success", `Credits updated for ${name}`);
+            addToast("success", ui("Credits updated for {v0}",{v0:(name)}));
             await loadAllocations();
           }}
           onChangeRole={handleChangeRole}
@@ -398,25 +391,19 @@ export default function AdminPage() {
               className={`px-3 py-1.5 text-xs font-medium rounded-t transition-colors ${
                 plansSubTab === "limits" ? "text-foreground border-b-2 border-brand-500" : "text-muted-foreground hover:text-foreground"
               }`}
-            >
-              Plan Limits
-            </button>
+            > {ui("Plan Limits")} </button>
             <button
               onClick={() => setPlansSubTab("defaults")}
               className={`px-3 py-1.5 text-xs font-medium rounded-t transition-colors ${
                 plansSubTab === "defaults" ? "text-foreground border-b-2 border-brand-500" : "text-muted-foreground hover:text-foreground"
               }`}
-            >
-              Plan Defaults
-            </button>
+            > {ui("Plan Defaults")} </button>
             <button
               onClick={() => setPlansSubTab("embedding")}
               className={`px-3 py-1.5 text-xs font-medium rounded-t transition-colors ${
                 plansSubTab === "embedding" ? "text-foreground border-b-2 border-brand-500" : "text-muted-foreground hover:text-foreground"
               }`}
-            >
-              Embedding Model
-            </button>
+            > {ui("Embedding Model")} </button>
           </div>
           {plansSubTab === "limits" && <PlanLimitsPanel />}
           {plansSubTab === "defaults" && <PlanDefaultsPanel />}

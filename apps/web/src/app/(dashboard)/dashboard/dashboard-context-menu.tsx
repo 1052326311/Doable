@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import {
   ExternalLink,
@@ -32,6 +34,8 @@ export function ContextMenuPortal({
   onDelete: () => void;
   onHide: () => void;
 }) {
+  const ui = useUiText();
+
   if (!menu.visible || !project) return null;
 
   return (
@@ -41,24 +45,19 @@ export function ContextMenuPortal({
       onClick={(e) => e.stopPropagation()}
     >
       <button className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors" onClick={() => { onOpen(); onHide(); }}>
-        <ExternalLink className="h-3.5 w-3.5" /> Open in editor
-      </button>
+        <ExternalLink className="h-3.5 w-3.5" /> {ui("Open in editor")} </button>
       <button className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors" onClick={() => { onRename(); onHide(); }}>
-        <Pencil className="h-3.5 w-3.5" /> Rename
-      </button>
+        <Pencil className="h-3.5 w-3.5" /> {ui("Rename")} </button>
       <button className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors" onClick={() => { onDuplicate(); onHide(); }}>
-        <Copy className="h-3.5 w-3.5" /> Duplicate
-      </button>
+        <Copy className="h-3.5 w-3.5" /> {ui("Duplicate")} </button>
       <button className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors" onClick={() => { onMoveToFolder(); onHide(); }}>
-        <FolderInput className="h-3.5 w-3.5" /> Move to folder
-      </button>
+        <FolderInput className="h-3.5 w-3.5" /> {ui("Move to folder")} </button>
       <button className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-popover-foreground hover:bg-accent hover:text-accent-foreground transition-colors" onClick={() => { onStar(); onHide(); }}>
-        <Star className={`h-3.5 w-3.5 ${project.starred ? "fill-yellow-400 text-yellow-400" : ""}`} /> {project.starred ? "Unstar" : "Star"}
+        <Star className={`h-3.5 w-3.5 ${project.starred ? "fill-yellow-400 text-yellow-400" : ""}`} /> {project.starred ? ui("Unstar") : ui("Star")}
       </button>
       <div className="my-1 h-px bg-border" />
       <button className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 transition-colors" onClick={() => { onDelete(); onHide(); }}>
-        <Trash2 className="h-3.5 w-3.5" /> Delete
-      </button>
+        <Trash2 className="h-3.5 w-3.5" /> {ui("Delete")} </button>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 "use client";
+import {UiText} from "@/i18n/ui-text";
 
 import { useState, useCallback } from "react";
 import {
@@ -49,7 +50,7 @@ export function ToastContainer({
   onDismiss: (id: string) => void;
 }) {
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+    <div className="fixed bottom-16 right-4 z-50 flex flex-col gap-2">
       {toasts.map((toast) => (
         <div
           key={toast.id}
@@ -65,7 +66,7 @@ export function ToastContainer({
           ) : (
             <X className="h-4 w-4 shrink-0" />
           )}
-          <span className="text-sm">{toast.message}</span>
+          <span className="text-sm"><UiText>{toast.message}</UiText></span>
           <button onClick={() => onDismiss(toast.id)} className="ml-2 shrink-0 opacity-60 hover:opacity-100">
             <X className="h-3.5 w-3.5" />
           </button>

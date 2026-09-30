@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import {
   Loader2,
@@ -41,6 +43,8 @@ export function StepChoose({
   /** Select the synthetic "Custom OpenAI-compatible URL" provider. */
   onSelectCustom: () => void;
 }) {
+  const ui = useUiText();
+
   if (catalogLoading) {
     return (
       <div className="flex items-center justify-center py-16">
@@ -59,9 +63,9 @@ export function StepChoose({
   }
 
   const TABS: { key: CategoryTab; label: string }[] = [
-    { key: "cloud", label: "Cloud" },
-    { key: "local", label: "Local" },
-    { key: "gateway", label: "Gateway" },
+    { key: "cloud", label: ui("Cloud") },
+    { key: "local", label: ui("Local") },
+    { key: "gateway", label: ui("Gateway") },
   ];
 
   return (
@@ -70,7 +74,7 @@ export function StepChoose({
         <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <input
           type="text"
-          placeholder="Search providers..."
+          placeholder={ui("Search providers...")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full rounded-lg border border-input bg-background pl-9 pr-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500"
@@ -99,10 +103,8 @@ export function StepChoose({
               <Server className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-foreground">Custom OpenAI-compatible URL</p>
-              <p className="text-xs text-muted-foreground line-clamp-1">
-                Paste any /v1 base URL + key — vLLM, LM Studio, LiteLLM, proxies, …
-              </p>
+              <p className="text-sm font-medium text-foreground">{ui("Custom OpenAI-compatible URL")}</p>
+              <p className="text-xs text-muted-foreground line-clamp-1"> {ui("Paste any /v1 base URL + key — vLLM, LM Studio, LiteLLM, proxies, …")} </p>
             </div>
           </button>
         );
@@ -129,9 +131,7 @@ export function StepChoose({
 
       {filteredProviders.length === 0 ? (
         <div className="py-12 text-center">
-          <p className="text-sm text-muted-foreground">
-            No providers match your search.
-          </p>
+          <p className="text-sm text-muted-foreground"> {ui("No providers match your search.")} </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
@@ -159,6 +159,8 @@ export function StepConfigure({
   form: WizardFormState;
   updateForm: (field: keyof WizardFormState, value: string) => void;
 }) {
+  const ui = useUiText();
+
   const isAzure = preset.sdkType === "azure";
   const isLocal = preset.category === "local";
   const requiresAuth = preset.authMethod !== "none";
@@ -175,34 +177,33 @@ export function StepConfigure({
         </div>
         <div>
           <p className="text-sm font-medium text-foreground">{preset.name}</p>
-          <p className="text-xs text-muted-foreground">{preset.description}</p>
+          <p className="text-xs text-muted-foreground">{ui(preset.description)}</p>
         </div>
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Label</label>
+        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("Label")}</label>
         <input
           type="text"
           value={form.label}
           onChange={(e) => updateForm("label", e.target.value)}
-          placeholder="My Provider"
+          placeholder={ui("My Provider")}
           className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500"
         />
       </div>
 
       {isAzure && preset.baseUrlTemplate && (
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Azure Resource Name</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("Azure Resource Name")}</label>
           <input
             type="text"
             value={form.azureResourceName}
             onChange={(e) => updateForm("azureResourceName", e.target.value)}
-            placeholder="my-resource"
+            placeholder={ui("my-resource")}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500"
           />
           {form.azureResourceName && (
-            <p className="mt-1 text-xs text-muted-foreground">
-              URL: {preset.defaultBaseUrl.replace("{resource}", form.azureResourceName)}
+            <p className="mt-1 text-xs text-muted-foreground"> {ui("URL:")} {preset.defaultBaseUrl.replace("{resource}", form.azureResourceName)}
             </p>
           )}
         </div>
@@ -210,7 +211,7 @@ export function StepConfigure({
 
       {(!preset.baseUrlTemplate || !isAzure) && (
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">Base URL</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("Base URL")}</label>
           <input
             type="text"
             value={form.baseUrl}
@@ -220,21 +221,19 @@ export function StepConfigure({
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500 disabled:opacity-60"
           />
           {isLocal && (
-            <p className="mt-1 text-xs text-muted-foreground">
-              Default port: {new URL(preset.defaultBaseUrl).port || "80"}. Make sure the server is running.
-            </p>
+            <p className="mt-1 text-xs text-muted-foreground"> {ui("Default port:")} {new URL(preset.defaultBaseUrl).port || "80"}{ui(". Make sure the server is running.")} </p>
           )}
         </div>
       )}
 
       {isAzure && (
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">API Version</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("API Version")}</label>
           <input
             type="text"
             value={form.azureApiVersion}
             onChange={(e) => updateForm("azureApiVersion", e.target.value)}
-            placeholder="2024-02-15-preview"
+            placeholder={ui("2024-02-15-preview")}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500"
           />
         </div>
@@ -242,12 +241,12 @@ export function StepConfigure({
 
       {requiresAuth && (
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">API Key</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("API Key")}</label>
           <input
             type="password"
             value={form.apiKey}
             onChange={(e) => updateForm("apiKey", e.target.value)}
-            placeholder={preset.apiKeyPlaceholder ?? "Enter API key"}
+            placeholder={preset.apiKeyPlaceholder ?? ui("Enter API key")}
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500"
           />
           {preset.apiKeyHelpUrl && (
@@ -257,18 +256,14 @@ export function StepConfigure({
               rel="noopener noreferrer"
               className="mt-1.5 inline-flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300 transition-colors"
             >
-              <ExternalLink className="h-3 w-3" />
-              Get API Key
-            </a>
+              <ExternalLink className="h-3 w-3" /> {ui("Get API Key")} </a>
           )}
         </div>
       )}
 
       {!requiresAuth && (
         <div className="rounded-lg border border-border bg-muted p-3">
-          <p className="text-xs text-muted-foreground">
-            No API key required. This provider runs locally on your machine.
-          </p>
+          <p className="text-xs text-muted-foreground"> {ui("No API key required. This provider runs locally on your machine.")} </p>
         </div>
       )}
     </div>

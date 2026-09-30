@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -22,6 +24,8 @@ interface ModeToolConfig {
 }
 
 export function ToolsConfigPanel() {
+  const ui = useUiText();
+
   const [modes, setModes] = useState<ModeToolConfig[]>([]);
   const [knownTools, setKnownTools] = useState<KnownTool[]>([]);
   const [loading, setLoading] = useState(true);
@@ -40,11 +44,11 @@ export function ToolsConfigPanel() {
       setModes(res.modes);
       setKnownTools(res.knownTools);
     } catch (err) {
-      console.error("Failed to load tool configs:", err);
+      console.error(ui("Failed to load tool configs:"), err);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [ui]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -74,12 +78,12 @@ export function ToolsConfigPanel() {
           description: editDescription || null,
         }),
       });
-      setSuccessMsg(`Saved "${editingMode}" mode tools`);
+      setSuccessMsg(ui("Saved \"{v0}\" mode tools", {v0: (editingMode)}));
       setTimeout(() => setSuccessMsg(null), 3000);
       setEditingMode(null);
       await load();
     } catch (err) {
-      console.error("Failed to save mode:", err);
+      console.error(ui("Failed to save mode:"), err);
     } finally {
       setSaving(false);
     }
@@ -105,22 +109,22 @@ export function ToolsConfigPanel() {
       const newMode = loaded.modes.find(m => m.mode === name);
       if (newMode) startEdit(newMode);
     } catch (err) {
-      console.error("Failed to add mode:", err);
+      console.error(ui("Failed to add mode:"), err);
     } finally {
       setSaving(false);
     }
   }
 
   async function deleteMode(mode: string) {
-    if (!confirm(`Delete the "${mode}" mode configuration? This will cause the mode to use hardcoded defaults.`)) return;
+    if (!confirm(ui("Delete the \"{v0}\" mode configuration? This will cause the mode to use hardcoded defaults.", {v0: (mode)}))) return;
     try {
       await apiFetch(`/admin/tools/modes/${mode}`, { method: "DELETE" });
-      setSuccessMsg(`Deleted "${mode}" mode`);
+      setSuccessMsg(ui("Deleted \"{v0}\" mode", {v0: (mode)}));
       setTimeout(() => setSuccessMsg(null), 3000);
       if (editingMode === mode) setEditingMode(null);
       await load();
     } catch (err) {
-      console.error("Failed to delete mode:", err);
+      console.error(ui("Failed to delete mode:"), err);
     }
   }
 
@@ -137,18 +141,14 @@ export function ToolsConfigPanel() {
       <div className="rounded-lg border border-border bg-card px-4 py-3">
         <div className="flex items-start gap-2.5">
           <HelpCircle className="h-4 w-4 text-muted-foreground mt-0.5 shrink-0" />
-          <p className="text-xs text-muted-foreground leading-relaxed">
-            Configure which tools are available in each AI mode. <strong className="text-foreground">Strategize</strong> (plan mode) typically
-            uses read-only tools for analysis. <strong className="text-foreground">Build</strong> mode has full file creation and editing tools.
-            Changes take effect on new sessions within 60 seconds.
-          </p>
+          <p className="text-xs text-muted-foreground leading-relaxed"> {ui("Configure which tools are available in each AI mode.")} <strong className="text-foreground">{ui("Strategize")}</strong> {ui("(plan mode) typically uses read-only tools for analysis.")} <strong className="text-foreground">{ui("Build mode")}</strong> {ui("mode has full file creation and editing tools. Changes take effect on new sessions within 60 seconds.")} </p>
         </div>
       </div>
 
       {successMsg && (
         <div className="flex items-center gap-2 rounded-lg border border-emerald-600/30 bg-emerald-600/5 px-4 py-2.5">
           <Check className="h-4 w-4 text-emerald-400" />
-          <span className="text-sm text-emerald-300">{successMsg}</span>
+          <span className="text-sm text-emerald-300">{ui(successMsg)}</span>
         </div>
       )}
 
@@ -171,7 +171,7 @@ export function ToolsConfigPanel() {
                   <div className="flex items-center gap-2">
                     <h3 className="text-sm font-medium text-foreground">{modeLabel}</h3>
                     <code className="text-[10px] text-muted-foreground bg-secondary px-1.5 py-0.5 rounded">{mode.mode}</code>
-                    <span className="text-[10px] text-muted-foreground">{mode.allowed_tools.length} tools</span>
+                    <span className="text-[10px] text-muted-foreground">{mode.allowed_tools.length} {ui("tools")}</span>
                   </div>
                   {mode.description && <p className="text-xs text-muted-foreground mt-0.5">{mode.description}</p>}
                 </div>
@@ -179,12 +179,11 @@ export function ToolsConfigPanel() {
                   {!isEditing && (
                     <button onClick={() => startEdit(mode)}
                       className="flex items-center gap-1.5 rounded-lg bg-secondary px-3 py-1.5 text-xs font-medium text-foreground hover:bg-secondary/80 transition-colors">
-                      <Wrench className="h-3 w-3" /> Configure
-                    </button>
+                      <Wrench className="h-3 w-3" /> {ui("Configure")} </button>
                   )}
                   {mode.mode !== "plan" && mode.mode !== "build" && (
                     <button onClick={() => deleteMode(mode.mode)}
-                      className="rounded p-1.5 text-muted-foreground hover:text-red-400 hover:bg-secondary transition-colors" title="Delete mode">
+                      className="rounded p-1.5 text-muted-foreground hover:text-red-400 hover:bg-secondary transition-colors" title={ui("Delete mode")}>
                       <Trash2 className="h-3.5 w-3.5" />
                     </button>
                   )}
@@ -201,7 +200,7 @@ export function ToolsConfigPanel() {
                       </span>
                     ))}
                     {mode.allowed_tools.length === 0 && (
-                      <span className="text-xs text-muted-foreground italic">No tools configured — will use hardcoded defaults</span>
+                      <span className="text-xs text-muted-foreground italic">{ui("No tools configured — will use hardcoded defaults")}</span>
                     )}
                   </div>
                 </div>
@@ -211,15 +210,15 @@ export function ToolsConfigPanel() {
               {isEditing && (
                 <div className="border-t border-border px-4 py-4 space-y-4">
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">Description</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Description")}</label>
                     <input type="text" value={editDescription} onChange={e => setEditDescription(e.target.value)}
-                      placeholder="e.g. Read-only planning tools"
+                      placeholder={ui("e.g. Read-only planning tools")}
                       className="w-full rounded-lg border border-input bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500" />
                   </div>
 
                   {/* Doable tools */}
                   <div>
-                    <h4 className="text-xs font-medium text-foreground mb-2">Doable Tools</h4>
+                    <h4 className="text-xs font-medium text-foreground mb-2">{ui("Doable Tools")}</h4>
                     <div className="grid grid-cols-2 gap-1.5">
                       {doableTools.map(tool => (
                         <label key={tool.name}
@@ -241,7 +240,7 @@ export function ToolsConfigPanel() {
 
                   {/* SDK tools */}
                   <div>
-                    <h4 className="text-xs font-medium text-foreground mb-2">SDK Built-in Tools</h4>
+                    <h4 className="text-xs font-medium text-foreground mb-2">{ui("SDK Built-in Tools")}</h4>
                     <div className="grid grid-cols-2 gap-1.5">
                       {sdkTools.map(tool => (
                         <label key={tool.name}
@@ -265,7 +264,7 @@ export function ToolsConfigPanel() {
                   {mode.mode === "plan" && editAllowedTools.has("edit_file") && (
                     <div className="flex items-center gap-2 rounded-lg border border-amber-600/30 bg-amber-600/5 px-3 py-2">
                       <AlertTriangle className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-                      <span className="text-xs text-amber-300">Strategize mode with write tools enabled may cause unintended file modifications.</span>
+                      <span className="text-xs text-amber-300">{ui("Strategize mode with write tools enabled may cause unintended file modifications.")}</span>
                     </div>
                   )}
 
@@ -273,14 +272,11 @@ export function ToolsConfigPanel() {
                   <div className="flex items-center gap-2 pt-1">
                     <button onClick={saveMode} disabled={saving}
                       className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-xs font-medium text-white hover:bg-brand-500 disabled:opacity-50 transition-colors">
-                      {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} Save Changes
-                    </button>
+                      {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />} {ui("Save Changes")} </button>
                     <button onClick={() => setEditingMode(null)}
-                      className="rounded-lg px-4 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
-                      Cancel
-                    </button>
+                      className="rounded-lg px-4 py-2 text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"> {ui("Cancel")} </button>
                     <div className="flex-1" />
-                    <span className="text-[10px] text-muted-foreground">{editAllowedTools.size} tools selected</span>
+                    <span className="text-[10px] text-muted-foreground">{editAllowedTools.size} {ui("tools selected")}</span>
                   </div>
                 </div>
               )}
@@ -293,21 +289,19 @@ export function ToolsConfigPanel() {
       {addingMode ? (
         <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-3">
           <input type="text" value={newModeName} onChange={e => setNewModeName(e.target.value)}
-            placeholder="Mode name (e.g. review, debug)"
+            placeholder={ui("Mode name (e.g. review, debug)")}
             onKeyDown={e => e.key === "Enter" && addMode()}
             className="flex-1 rounded-lg border border-input bg-background px-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500" />
           <button onClick={addMode} disabled={!newModeName.trim() || saving}
             className="flex items-center gap-1 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-500 disabled:opacity-50 transition-colors">
-            <Check className="h-3 w-3" /> Add
-          </button>
+            <Check className="h-3 w-3" /> {ui("Add")} </button>
           <button onClick={() => { setAddingMode(false); setNewModeName(""); }}
             className="rounded p-1.5 text-muted-foreground hover:text-foreground"><X className="h-3.5 w-3.5" /></button>
         </div>
       ) : (
         <button onClick={() => setAddingMode(true)}
           className="flex items-center gap-2 w-full rounded-lg border border-dashed border-border px-4 py-3 text-xs text-muted-foreground hover:text-foreground hover:border-border/60 transition-colors">
-          <Plus className="h-3.5 w-3.5" /> Add New Mode
-        </button>
+          <Plus className="h-3.5 w-3.5" /> {ui("Add New Mode")} </button>
       )}
     </div>
   );

@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
@@ -83,6 +86,8 @@ export function ChatInput({
   frameworkId: string | null;
   onFrameworkChange: (id: string | null) => void;
 }) {
+  const ui = useUiText();
+
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
       if (e.key === "Enter" && !e.shiftKey) {
@@ -142,7 +147,7 @@ export function ChatInput({
             <button
               onClick={onOpenFilePicker}
               className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-              title="Attach files"
+              title={ui("Attach files")}
             >
               <Plus className="h-4 w-4" />
             </button>
@@ -155,11 +160,9 @@ export function ChatInput({
                     ? "bg-blue-100 dark:bg-blue-600/20 text-blue-700 dark:text-blue-400"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
-                title="Strategize first, then do the work"
+                title={ui("Strategize first, then do the work")}
               >
-                <Target className="h-3 w-3" />
-                Strategize
-              </button>
+                <Target className="h-3 w-3" /> {ui("Strategize")} </button>
               <div className="w-px h-4 bg-border" />
               <button
                 onClick={startMode === "agent" ? undefined : onToggleMode}
@@ -168,11 +171,9 @@ export function ChatInput({
                     ? "bg-brand-100 dark:bg-brand-600/20 text-brand-700 dark:text-brand-400"
                     : "text-muted-foreground hover:text-foreground"
                 }`}
-                title="Start working immediately"
+                title={ui("Start working immediately")}
               >
-                <Hammer className="h-3 w-3" />
-                Work
-              </button>
+                <Hammer className="h-3 w-3" /> {ui("Work")} </button>
             </div>
             {/* Framework picker — defaults to auto-detect (server picks
                 from prompt text, falls back to workspace admin default). */}
@@ -191,7 +192,7 @@ export function ChatInput({
                     ? "text-red-400 bg-red-500/10 animate-pulse"
                     : "text-muted-foreground hover:bg-accent hover:text-foreground"
                 }`}
-                title={isListening ? "Stop recording" : "Voice input"}
+                title={isListening ? ui("Stop recording") : ui("Voice input")}
               >
                 <Mic className="h-4 w-4" />
               </button>
@@ -200,7 +201,7 @@ export function ChatInput({
                 type="button"
                 disabled
                 className="flex h-8 w-8 items-center justify-center rounded-lg text-muted-foreground opacity-50 cursor-not-allowed"
-                title="Voice input isn't supported in this browser. Try Chrome or Edge."
+                title={ui("Voice input isn't supported in this browser. Try Chrome or Edge.")}
               >
                 <Mic className="h-4 w-4" />
               </button>
@@ -245,10 +246,13 @@ function FrameworkPicker({
   onChange: (id: string | null) => void;
   disabled?: boolean;
 }) {
+  const ui = useUiText();
+  const i18n_AUTO_DETECT_OPTION = useUiData(AUTO_DETECT_OPTION);
+
   const [open, setOpen] = useState(false);
   const btnRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
-  const [options, setOptions] = useState<{ id: string; label: string; icon: LucideIcon; color: string }[]>([AUTO_DETECT_OPTION]);
+  const [options, setOptions] = useState<{ id: string; label: string; icon: LucideIcon; color: string }[]>([i18n_AUTO_DETECT_OPTION]);
   const [pos, setPos] = useState({ top: 0, left: 0 });
 
   // Fetch enabled frameworks from API once
@@ -256,7 +260,7 @@ function FrameworkPicker({
     apiFetch<{ frameworks: Array<{ id: string; name: string }> }>("/frameworks")
       .then((res) => {
         if (res.frameworks?.length > 0) {
-          const opts = [AUTO_DETECT_OPTION, ...res.frameworks.map((fw) => ({
+          const opts = [i18n_AUTO_DETECT_OPTION, ...res.frameworks.map((fw) => ({
             id: fw.id,
             label: fw.name,
             icon: FRAMEWORK_META[fw.id]?.icon ?? Globe,
@@ -304,7 +308,7 @@ function FrameworkPicker({
         type="button"
         onClick={() => !disabled && setOpen((v) => !v)}
         className="flex items-center gap-1.5 rounded-full border border-border px-2.5 h-7 text-[11px] font-medium text-foreground/80 hover:text-foreground hover:bg-accent/50 transition-colors"
-        title="Pick framework explicitly, or let the server detect from your prompt"
+        title={ui("Pick framework explicitly, or let the server detect from your prompt")}
         disabled={disabled}
       >
         <Icon className={`h-3.5 w-3.5 ${selected.color}`} />

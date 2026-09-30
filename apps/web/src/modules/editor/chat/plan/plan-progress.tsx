@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { memo, useMemo, useEffect, useRef, useState } from "react";
 import {
@@ -82,6 +84,8 @@ function StepPill({
 
 // ─── Compact mode (sticky header) ─────────────────────────────
 function CompactPlanProgress({ plan }: { plan: Plan }) {
+  const ui = useUiText();
+
   const sortedSteps = useMemo(
     () => [...plan.steps].sort((a, b) => a.order - b.order),
     [plan.steps]
@@ -106,7 +110,7 @@ function CompactPlanProgress({ plan }: { plan: Plan }) {
       {/* Spinner + label */}
       <div className="flex items-center gap-1.5 shrink-0">
         <Loader2 className="h-3 w-3 text-brand-500 animate-spin" />
-        <span className="text-xs font-medium text-foreground">Building</span>
+        <span className="text-xs font-medium text-foreground">{ui("Building")}</span>
       </div>
 
       {/* Step pills */}
@@ -143,6 +147,8 @@ export const PlanProgress = memo(function PlanProgress({
   onSkipStep,
   compact = false,
 }: PlanProgressProps) {
+  const ui = useUiText();
+
   const sortedSteps = useMemo(
     () => [...plan.steps].sort((a, b) => a.order - b.order),
     [plan.steps]
@@ -165,18 +171,15 @@ export const PlanProgress = memo(function PlanProgress({
       {/* Header */}
       <div className="flex items-center gap-2 px-3 py-2 border-b border-border/50">
         <Loader2 className="h-3.5 w-3.5 text-brand-500 animate-spin" />
-        <span className="text-xs font-semibold text-foreground">Building</span>
+        <span className="text-xs font-semibold text-foreground">{ui("Building")}</span>
         <span className="ml-auto text-xs text-muted-foreground">
-          {completedCount}/{plan.steps.length} steps
-        </span>
+          {completedCount}/{plan.steps.length} {ui("steps")} </span>
         {onPause && (
           <button
             onClick={onPause}
             className="flex items-center gap-1 rounded-md border border-border px-2 py-0.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
           >
-            <Pause className="h-3 w-3" />
-            Pause
-          </button>
+            <Pause className="h-3 w-3" /> {ui("Pause")} </button>
         )}
       </div>
 
@@ -229,7 +232,7 @@ export const PlanProgress = memo(function PlanProgress({
                 <button
                   onClick={() => onSkipStep(step.id)}
                   className="flex-none text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground transition-all"
-                  title="Skip this step"
+                  title={ui("Skip this step")}
                 >
                   <SkipForward className="h-3 w-3" />
                 </button>

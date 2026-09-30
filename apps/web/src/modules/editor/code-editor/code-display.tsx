@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useCallback, useMemo, useState } from "react";
 import { Copy, Check } from "lucide-react";
@@ -114,6 +116,8 @@ interface CodeDisplayProps {
 }
 
 export function CodeDisplay({ code, language, fileName }: CodeDisplayProps) {
+  const ui = useUiText();
+
   const [copied, setCopied] = useState(false);
 
   const tokenizedLines = useMemo(
@@ -139,14 +143,10 @@ export function CodeDisplay({ code, language, fileName }: CodeDisplayProps) {
       >
         {copied ? (
           <>
-            <Check className="h-3 w-3 text-green-500" />
-            Copied
-          </>
+            <Check className="h-3 w-3 text-green-500" /> {ui("Copied")} </>
         ) : (
           <>
-            <Copy className="h-3 w-3" />
-            Copy
-          </>
+            <Copy className="h-3 w-3" /> {ui("Copy")} </>
         )}
       </button>
 

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback } from "react";
 import {
@@ -127,6 +129,8 @@ export function FolderNode({
   onRename: (folder: Folder) => void;
   onDelete: (folder: Folder) => void;
 }) {
+  const ui = useUiText();
+
   const [expanded, setExpanded] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const hasChildren = folder.children.length > 0;
@@ -199,12 +203,10 @@ export function FolderNode({
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem className="focus:bg-accent focus:text-accent-foreground text-xs" onClick={() => onRename(folder)}>
-                <Pencil className="mr-2 h-3 w-3" /> Rename
-              </DropdownMenuItem>
+                <Pencil className="mr-2 h-3 w-3" /> {ui("Rename")} </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem className="text-red-400 focus:bg-red-500/10 focus:text-red-400 text-xs" onClick={() => onDelete(folder)}>
-                <Trash2 className="mr-2 h-3 w-3" /> Delete
-              </DropdownMenuItem>
+                <Trash2 className="mr-2 h-3 w-3" /> {ui("Delete")} </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -52,6 +54,8 @@ function clearHopCount(): void {
 }
 
 function RefreshAndReturn() {
+  const ui = useUiText();
+
   const router = useRouter();
   const params = useSearchParams();
 
@@ -85,7 +89,7 @@ function RefreshAndReturn() {
     <div className="flex min-h-screen items-center justify-center">
       <div className="text-center">
         <div className="mx-auto mb-4 h-8 w-8 animate-spin rounded-full border-2 border-gray-300 border-t-brand-600" />
-        <p className="text-sm text-gray-500">Signing you back in…</p>
+        <p className="text-sm text-gray-500">{ui("Signing you back in…")}</p>
       </div>
     </div>
   );

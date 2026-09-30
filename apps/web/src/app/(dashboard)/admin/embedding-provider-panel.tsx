@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useEffect, useState } from "react";
 import { Loader2, Save, Check, AlertCircle, Eye, EyeOff, Sparkles } from "lucide-react";
@@ -58,6 +61,9 @@ const PRESETS: readonly Preset[] = [
 ];
 
 export function EmbeddingProviderPanel() {
+  const ui = useUiText();
+  const i18n_PRESETS = useUiData(PRESETS);
+
   const [status, setStatus] = useState<Status | null>(null);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<Preset | null>(null);
@@ -76,7 +82,7 @@ export function EmbeddingProviderPanel() {
       setStatus(res.data);
       if (res.data.configured) {
         // Preselect matching tile so the form is pre-populated.
-        const tile = PRESETS.find((p) =>
+        const tile = i18n_PRESETS.find((p) =>
           res.data.baseUrl ? p.defaultBaseUrl === res.data.baseUrl : false,
         );
         if (tile) {
@@ -84,13 +90,13 @@ export function EmbeddingProviderPanel() {
           setBaseUrl(res.data.baseUrl ?? tile.defaultBaseUrl);
           setModel(res.data.model ?? tile.defaultModel);
         } else {
-          setSelected(PRESETS[2]!);
+          setSelected(i18n_PRESETS[2]!);
           setBaseUrl(res.data.baseUrl ?? "");
           setModel(res.data.model ?? "");
         }
       }
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : "Failed to load status");
+      setErrorMsg(err instanceof Error ? err.message : ui("Failed to load status"));
     } finally {
       setLoading(false);
     }
@@ -112,7 +118,7 @@ export function EmbeddingProviderPanel() {
     if (!selected) return;
     if (!apiKey.trim() || !baseUrl.trim() || !model.trim()) {
       setSaveState("error");
-      setErrorMsg("Provider, base URL, model and API key are all required.");
+      setErrorMsg(ui("Provider, base URL, model and API key are all required."));
       return;
     }
     setSaveState("saving");
@@ -136,7 +142,7 @@ export function EmbeddingProviderPanel() {
       await loadStatus();
     } catch (err) {
       setSaveState("error");
-      setErrorMsg(err instanceof Error ? err.message : "Failed to save");
+      setErrorMsg(err instanceof Error ? err.message : ui("Failed to save"));
     }
   }
 
@@ -156,18 +162,12 @@ export function EmbeddingProviderPanel() {
             <Sparkles className="h-5 w-5 text-brand-400" />
           </div>
           <div className="min-w-0 flex-1">
-            <h3 className="text-sm font-semibold text-foreground">
-              Platform Embedding Model
-            </h3>
-            <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-              Set once — every workspace inherits this for chatbots, semantic
-              search and RAG. End users of generated apps never see this UI;
-              they just prompt the AI to build a chatbot.
-            </p>
+            <h3 className="text-sm font-semibold text-foreground"> {ui("Platform Embedding Model")} </h3>
+            <p className="text-xs text-muted-foreground mt-1 leading-relaxed"> {ui("Set once — every workspace inherits this for chatbots, semantic search and RAG. End users of generated apps never see this UI; they just prompt the AI to build a chatbot.")} </p>
             {status?.configured ? (
               <div className="mt-3 flex items-center gap-2 text-xs">
                 <Check className="h-3.5 w-3.5 text-green-500" />
-                <span className="text-green-500 font-medium">Configured</span>
+                <span className="text-green-500 font-medium">{ui("Configured")}</span>
                 <span className="text-muted-foreground">
                   · {status.model} · {status.baseUrl}
                 </span>
@@ -175,9 +175,7 @@ export function EmbeddingProviderPanel() {
             ) : (
               <div className="mt-3 flex items-center gap-2 text-xs">
                 <AlertCircle className="h-3.5 w-3.5 text-yellow-500" />
-                <span className="text-yellow-500">
-                  Not configured — calls to /__doable/ai/embed will return EMBEDDING_NOT_CONFIGURED
-                </span>
+                <span className="text-yellow-500"> {ui("Not configured — calls to /__doable/ai/embed will return EMBEDDING_NOT_CONFIGURED")} </span>
               </div>
             )}
           </div>
@@ -186,9 +184,9 @@ export function EmbeddingProviderPanel() {
 
       <div className="rounded-lg border border-border bg-card p-4 space-y-4">
         <div>
-          <h4 className="text-sm font-medium text-foreground mb-2">Pick provider</h4>
+          <h4 className="text-sm font-medium text-foreground mb-2">{ui("Pick provider")}</h4>
           <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-            {PRESETS.map((p) => (
+            {i18n_PRESETS.map((p) => (
               <button
                 key={p.id}
                 type="button"
@@ -209,7 +207,7 @@ export function EmbeddingProviderPanel() {
         {selected && (
           <div className="space-y-3 border-t border-border pt-4">
             <div>
-              <label className="text-xs font-medium text-foreground">Base URL</label>
+              <label className="text-xs font-medium text-foreground">{ui("Base URL")}</label>
               <input
                 type="url"
                 value={baseUrl}
@@ -221,16 +219,14 @@ export function EmbeddingProviderPanel() {
 
             <div>
               <div className="flex items-center justify-between gap-2">
-                <label className="text-xs font-medium text-foreground">API key</label>
+                <label className="text-xs font-medium text-foreground">{ui("API key")}</label>
                 {selected.apiKeyHelp && (
                   <a
                     href={selected.apiKeyHelp}
                     target="_blank"
                     rel="noreferrer"
                     className="text-xs text-brand-400 hover:text-brand-300 underline underline-offset-2"
-                  >
-                    Get a key
-                  </a>
+                  > {ui("Get a key")} </a>
                 )}
               </div>
               <div className="relative mt-1">
@@ -238,7 +234,7 @@ export function EmbeddingProviderPanel() {
                   type={showKey ? "text" : "password"}
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
-                  placeholder={status?.configured ? "Leave blank to keep current key (replace any to update)" : "Paste API key"}
+                  placeholder={status?.configured ? ui("Leave blank to keep current key (replace any to update)") : ui("Paste API key")}
                   autoComplete="new-password"
                   autoCorrect="off"
                   spellCheck={false}
@@ -256,7 +252,7 @@ export function EmbeddingProviderPanel() {
             </div>
 
             <div>
-              <label className="text-xs font-medium text-foreground">Embedding model</label>
+              <label className="text-xs font-medium text-foreground">{ui("Embedding model")}</label>
               <input
                 type="text"
                 value={model}
@@ -269,17 +265,14 @@ export function EmbeddingProviderPanel() {
             <div className="flex items-center justify-between gap-2 pt-1">
               <div className="text-xs">
                 {saveState === "error" && errorMsg && (
-                  <span className="text-red-400">{errorMsg}</span>
+                  <span className="text-red-400">{ui(errorMsg)}</span>
                 )}
                 {saveState === "saved" && (
-                  <span className="text-green-500">
-                    Saved {dims ? `(${dims}-dim vectors)` : ""}
+                  <span className="text-green-500"> {ui("Saved")} {dims ? ui("({v0}-dim vectors)", {v0: (dims)}) : ""}
                   </span>
                 )}
                 {saveState === "idle" && (
-                  <span className="text-muted-foreground">
-                    Validates with a probe call before persisting.
-                  </span>
+                  <span className="text-muted-foreground"> {ui("Validates with a probe call before persisting.")} </span>
                 )}
               </div>
               <button
@@ -289,7 +282,7 @@ export function EmbeddingProviderPanel() {
                 className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {saveState === "saving" ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />}
-                {status?.configured ? "Update" : "Save"}
+                {status?.configured ? ui("Update") : ui("Save")}
               </button>
             </div>
           </div>

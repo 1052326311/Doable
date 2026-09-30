@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { ArrowLeft, Save, Trash2, Eye, Pencil } from "lucide-react";
@@ -33,6 +35,8 @@ export const ContextEditor = ({
   onBack,
   onDelete,
 }: ContextEditorProps) => {
+  const ui = useUiText();
+
   const [content, setContent] = useState(file.content);
   const [viewMode, setViewMode] = useState<ViewMode>("edit");
   const [saving, setSaving] = useState(false);
@@ -122,13 +126,13 @@ export const ContextEditor = ({
           <button
             onClick={onBack}
             className="p-1.5 rounded-md hover:bg-muted transition-colors"
-            title="Back to file list"
+            title={ui("Back to file list")}
           >
             <ArrowLeft className="h-3.5 w-3.5" />
           </button>
           <span className="text-sm font-medium">{file.filename}</span>
           {dirty && (
-            <span className="text-xs text-muted-foreground">(unsaved)</span>
+            <span className="text-xs text-muted-foreground">{ui("(unsaved)")}</span>
           )}
         </div>
 
@@ -143,7 +147,7 @@ export const ContextEditor = ({
                   ? "bg-background shadow-sm"
                   : "hover:bg-background/50"
               )}
-              title="Edit"
+              title={ui("Edit")}
             >
               <Pencil className="h-3 w-3" />
             </button>
@@ -155,7 +159,7 @@ export const ContextEditor = ({
                   ? "bg-background shadow-sm"
                   : "hover:bg-background/50"
               )}
-              title="Preview"
+              title={ui("Preview")}
             >
               <Eye className="h-3 w-3" />
             </button>
@@ -171,7 +175,7 @@ export const ContextEditor = ({
                 ? "hover:bg-muted text-foreground"
                 : "text-muted-foreground"
             )}
-            title="Save (Ctrl+S)"
+            title={ui("Save (Ctrl+S)")}
           >
             <Save className={cn("h-3.5 w-3.5", saving && "animate-pulse")} />
           </button>
@@ -180,7 +184,7 @@ export const ContextEditor = ({
           <button
             onClick={onDelete}
             className="p-1.5 rounded-md hover:bg-red-50 text-muted-foreground hover:text-red-600 transition-colors"
-            title="Delete / Reset"
+            title={ui("Delete / Reset")}
           >
             <Trash2 className="h-3.5 w-3.5" />
           </button>
@@ -189,11 +193,11 @@ export const ContextEditor = ({
 
       {/* Status bar */}
       <div className="flex items-center justify-between px-3 py-1 border-b text-xs text-muted-foreground">
-        <span>{content.length} chars</span>
+        <span>{content.length} {ui("chars")}</span>
         {lastSaved && (
-          <span>Saved {formatTimeAgo(lastSaved)}</span>
+          <span>{ui("Saved")} {formatTimeAgo(lastSaved)}</span>
         )}
-        {saving && <span>Saving...</span>}
+        {saving && <span>{ui("Saving...")}</span>}
       </div>
 
       {/* Editor / Preview */}
@@ -204,7 +208,7 @@ export const ContextEditor = ({
             value={content}
             onChange={(e) => handleChange(e.target.value)}
             className="w-full h-full p-4 bg-background text-sm font-mono leading-relaxed resize-none focus:outline-none"
-            placeholder="Start writing..."
+            placeholder={ui("Start writing...")}
             spellCheck={false}
           />
         ) : (

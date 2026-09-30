@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback } from "react";
 
@@ -217,6 +219,8 @@ export function useSubscription(workspaceId: string | undefined) {
 }
 
 export function useBillingActions(workspaceId: string | undefined) {
+  const ui = useUiText();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -234,16 +238,16 @@ export function useBillingActions(workspaceId: string | undefined) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Failed to start checkout");
+        setError(data.error || ui("Failed to start checkout"));
         return;
       }
       if (data.data?.url) {
         window.location.href = data.data.url;
       } else {
-        setError("Checkout URL not available. Please try again.");
+        setError(ui("Checkout URL not available. Please try again."));
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError(ui("Network error. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -261,16 +265,16 @@ export function useBillingActions(workspaceId: string | undefined) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Failed to open billing portal");
+        setError(data.error || ui("Failed to open billing portal"));
         return;
       }
       if (data.data?.url) {
         window.location.href = data.data.url;
       } else {
-        setError("Portal URL not available. Please try again.");
+        setError(ui("Portal URL not available. Please try again."));
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError(ui("Network error. Please try again."));
     } finally {
       setLoading(false);
     }
@@ -288,16 +292,16 @@ export function useBillingActions(workspaceId: string | undefined) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setError(data.error || "Failed to start top-up checkout");
+        setError(data.error || ui("Failed to start top-up checkout"));
         return;
       }
       if (data.data?.url) {
         window.location.href = data.data.url;
       } else {
-        setError("Top-up URL not available. Please try again.");
+        setError(ui("Top-up URL not available. Please try again."));
       }
     } catch {
-      setError("Network error. Please try again.");
+      setError(ui("Network error. Please try again."));
     } finally {
       setLoading(false);
     }

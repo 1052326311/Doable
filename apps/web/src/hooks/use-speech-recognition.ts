@@ -1,3 +1,5 @@
+
+import {useUiText} from "@/i18n/use-ui-text";
 import { useState, useCallback, useRef, useEffect } from "react";
 
 interface SpeechRecognitionEvent {
@@ -56,6 +58,8 @@ function messageForError(error: string): string | null {
 }
 
 export function useSpeechRecognition(onResult: (transcript: string) => void) {
+  const ui = useUiText();
+
   const [isListening, setIsListening] = useState(false);
   const [isSupported] = useState(() => getSpeechRecognitionConstructor() !== null);
   const [error, setError] = useState<string | null>(null);
@@ -95,7 +99,7 @@ export function useSpeechRecognition(onResult: (transcript: string) => void) {
         });
         if (status.state === "denied") {
           setError(
-            "Microphone permission is blocked for this site. Open the padlock icon → Site settings → Microphone → Allow, then try again."
+            ui("Microphone permission is blocked for this site. Open the padlock icon → Site settings → Microphone → Allow, then try again.")
           );
           return;
         }
@@ -146,11 +150,11 @@ export function useSpeechRecognition(onResult: (transcript: string) => void) {
       recognitionRef.current = null;
       setError(
         err instanceof Error
-          ? `Voice input couldn't start: ${err.message}`
+          ? ui("Voice input couldn't start: {v0}", {v0: (err.message)})
           : "Voice input couldn't start. Please try again."
       );
     }
-  }, [isListening, isSupported]);
+  }, [ui, isListening, isSupported]);
 
   return { isListening, isSupported, error, clearError, toggle };
 }

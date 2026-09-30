@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useCallback, useEffect, useState } from "react";
 import { apiAdminListMfaUsers, apiAdminResetUserMfa, type AdminMfaUserRow } from "@/lib/api";
@@ -21,6 +23,8 @@ import { AlertTriangle, Loader2, ShieldCheck } from "lucide-react";
  * Resets are audit-logged via admin_audit_log (action="mfa.reset").
  */
 export function AdminMfaPanel() {
+  const ui = useUiText();
+
   const [rows, setRows] = useState<AdminMfaUserRow[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -36,12 +40,12 @@ export function AdminMfaPanel() {
       setError(
         err && typeof err === "object" && "body" in err
           ? (err as { body: { error: string } }).body.error
-          : "Failed to load MFA users",
+          : ui("Failed to load MFA users"),
       );
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [ui]);
 
   useEffect(() => {
     void refresh();
@@ -53,10 +57,8 @@ export function AdminMfaPanel() {
         <div className="flex items-start gap-3">
           <ShieldCheck className="h-4 w-4 mt-0.5 text-brand-400" />
           <div className="flex-1">
-            <p className="text-sm font-medium text-foreground">User MFA status</p>
-            <p className="mt-1 text-xs text-muted-foreground">
-              MFA is optional and user-controlled. Use the reset action only when a user has lost access to both their authenticator app and recovery codes.
-            </p>
+            <p className="text-sm font-medium text-foreground">{ui("User MFA status")}</p>
+            <p className="mt-1 text-xs text-muted-foreground"> {ui("MFA is optional and user-controlled. Use the reset action only when a user has lost access to both their authenticator app and recovery codes.")} </p>
           </div>
         </div>
       </div>
@@ -64,16 +66,16 @@ export function AdminMfaPanel() {
       {error && (
         <div className="flex items-start gap-2 rounded-lg border border-red-800/50 bg-red-900/20 px-3 py-2.5 text-sm text-red-400">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{error}</span>
+          <span>{ui(error)}</span>
         </div>
       )}
 
       <div className="rounded-lg border border-border bg-card">
         <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-4 py-2 text-xs font-medium uppercase tracking-wide text-muted-foreground border-b border-border">
-          <span>User</span>
-          <span>Enrolled</span>
-          <span>Last used</span>
-          <span>Recovery</span>
+          <span>{ui("User")}</span>
+          <span>{ui("Enrolled")}</span>
+          <span>{ui("Last used")}</span>
+          <span>{ui("Recovery")}</span>
         </div>
         {loading && (
           <div className="flex items-center justify-center py-8">
@@ -81,9 +83,7 @@ export function AdminMfaPanel() {
           </div>
         )}
         {!loading && rows && rows.length === 0 && (
-          <p className="px-4 py-8 text-center text-sm text-muted-foreground">
-            No users have enabled MFA yet.
-          </p>
+          <p className="px-4 py-8 text-center text-sm text-muted-foreground"> {ui("No users have enabled MFA yet.")} </p>
         )}
         {!loading && rows && rows.map((r) => (
           <div
@@ -97,23 +97,20 @@ export function AdminMfaPanel() {
               <p className="truncate text-xs text-muted-foreground">{r.email}</p>
             </div>
             <span className="text-xs text-muted-foreground whitespace-nowrap">
-              {r.verifiedAt ? new Date(r.verifiedAt).toLocaleDateString() : "—"}
+              {r.verifiedAt ? new Date(r.verifiedAt).toLocaleDateString(ui.locale) : "—"}
             </span>
             <span className="text-xs text-muted-foreground whitespace-nowrap">
-              {r.lastUsedAt ? new Date(r.lastUsedAt).toLocaleDateString() : "never"}
+              {r.lastUsedAt ? new Date(r.lastUsedAt).toLocaleDateString(ui.locale) : ui("never")}
             </span>
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground tabular-nums">
-                {r.unusedRecoveryCodes} left
-              </span>
+                {r.unusedRecoveryCodes} {ui("left")} </span>
               <Button
                 size="sm"
                 variant="outline"
                 className="rounded-md"
                 onClick={() => setResetTarget(r)}
-              >
-                Reset
-              </Button>
+              > {ui("Reset")} </Button>
             </div>
           </div>
         ))}
@@ -137,6 +134,8 @@ function ResetMfaDialog({
   onOpenChange: (open: boolean) => void;
   onDone: () => void;
 }) {
+  const ui = useUiText();
+
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -156,7 +155,7 @@ function ResetMfaDialog({
       setError(
         err && typeof err === "object" && "body" in err
           ? (err as { body: { error: string } }).body.error
-          : "Failed to reset MFA",
+          : ui("Failed to reset MFA"),
       );
     } finally {
       setBusy(false);
@@ -167,23 +166,19 @@ function ResetMfaDialog({
     <Dialog open={!!target} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Reset MFA for {target?.email}?</DialogTitle>
-          <DialogDescription>
-            This will remove all MFA factors and recovery codes for this user, and sign them out of every active session. They will be able to sign in with just their password until they enroll again.
-          </DialogDescription>
+          <DialogTitle>{ui("Reset MFA for")} {target?.email}?</DialogTitle>
+          <DialogDescription> {ui("This will remove all MFA factors and recovery codes for this user, and sign them out of every active session. They will be able to sign in with just their password until they enroll again.")} </DialogDescription>
         </DialogHeader>
         {error && (
           <div className="flex items-start gap-2 rounded-lg bg-red-950/50 px-3 py-2.5 text-sm text-red-400">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-            <span>{error}</span>
+            <span>{ui(error)}</span>
           </div>
         )}
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)}>{ui("Cancel")}</Button>
           <Button variant="destructive" disabled={busy} onClick={handleReset} className="rounded-lg">
-            {busy ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null}
-            Reset MFA
-          </Button>
+            {busy ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null} {ui("Reset MFA")} </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

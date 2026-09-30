@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState } from "react";
 import {
@@ -39,6 +41,8 @@ export function InviteDialog({
   onClose: () => void;
   onInvite: (email: string, role: string) => Promise<void>;
 }) {
+  const ui = useUiText();
+
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<string>("member");
   const [submitting, setSubmitting] = useState(false);
@@ -56,7 +60,7 @@ export function InviteDialog({
       setRole("member");
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to send invite");
+      setError(err instanceof Error ? err.message : ui("Failed to send invite"));
     } finally {
       setSubmitting(false);
     }
@@ -67,15 +71,13 @@ export function InviteDialog({
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative w-full max-w-md rounded-xl border bg-background p-6 shadow-xl">
         <div className="mb-5">
-          <h3 className="text-lg font-semibold">Invite Member</h3>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Send an invite to join this workspace.
-          </p>
+          <h3 className="text-lg font-semibold">{ui("Invite Member")}</h3>
+          <p className="mt-1 text-sm text-muted-foreground"> {ui("Send an invite to join this workspace.")} </p>
         </div>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="invite-email" className="text-sm font-medium">Email address</label>
+            <label htmlFor="invite-email" className="text-sm font-medium">{ui("Email address")}</label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -83,7 +85,7 @@ export function InviteDialog({
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="colleague@example.com"
+                placeholder={ui("colleague@example.com")}
                 autoFocus
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
                 className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
@@ -92,7 +94,7 @@ export function InviteDialog({
           </div>
 
           <div className="space-y-2">
-            <label className="text-sm font-medium">Role</label>
+            <label className="text-sm font-medium">{ui("Role")}</label>
             <div className="flex gap-2">
               {ASSIGNABLE_ROLES.map((r) => {
                 const Icon = ROLE_ICONS[r] ?? Users;
@@ -108,23 +110,21 @@ export function InviteDialog({
                     )}
                   >
                     <Icon className="h-3.5 w-3.5" />
-                    {ROLE_LABELS[r]}
+                    {ui(ROLE_LABELS[r])}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && <p className="text-sm text-destructive">{ui(error)}</p>}
         </div>
 
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onClose}
             className="rounded-md border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent"
-          >
-            Cancel
-          </button>
+          > {ui("Cancel")} </button>
           <button
             onClick={() => void handleSubmit()}
             disabled={submitting || !email.trim() || !email.includes("@")}
@@ -135,7 +135,7 @@ export function InviteDialog({
             ) : (
               <UserPlus className="h-4 w-4" />
             )}
-            {submitting ? "Sending..." : "Send Invite"}
+            {submitting ? ui("Sending...") : ui("Send Invite")}
           </button>
         </div>
       </div>
@@ -154,6 +154,8 @@ export function RemoveConfirmDialog({
   onClose: () => void;
   onConfirm: () => Promise<void>;
 }) {
+  const ui = useUiText();
+
   const [removing, setRemoving] = useState(false);
 
   const handleRemove = async () => {
@@ -173,20 +175,15 @@ export function RemoveConfirmDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative w-full max-w-sm rounded-xl border bg-background p-6 shadow-xl">
-        <h3 className="text-lg font-semibold">Remove Member</h3>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Are you sure you want to remove{" "}
-          <strong className="text-foreground">{displayName}</strong>{" "}
-          from this workspace? They will lose access to all projects.
-        </p>
+        <h3 className="text-lg font-semibold">{ui("Remove Member")}</h3>
+        <p className="mt-2 text-sm text-muted-foreground"> {ui("Are you sure you want to remove")}{" "}
+          <strong className="text-foreground">{displayName}</strong>{" "} {ui("from this workspace? They will lose access to all projects.")} </p>
 
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onClose}
             className="rounded-md border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent"
-          >
-            Cancel
-          </button>
+          > {ui("Cancel")} </button>
           <button
             onClick={() => void handleRemove()}
             disabled={removing}
@@ -197,7 +194,7 @@ export function RemoveConfirmDialog({
             ) : (
               <Trash2 className="h-4 w-4" />
             )}
-            {removing ? "Removing..." : "Remove"}
+            {removing ? ui("Removing...") : ui("Remove")}
           </button>
         </div>
       </div>

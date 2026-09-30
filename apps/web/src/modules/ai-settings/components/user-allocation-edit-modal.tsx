@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState } from "react";
 import { Loader2, Check, X } from "lucide-react";
@@ -21,20 +23,21 @@ export function rowActiveModel(row: ApiUserAiAllocation): string | null {
 }
 
 export function AllocationStatus({ row }: { row: ApiUserAiAllocation }) {
+  const ui = useUiText();
+
   if (!rowHasAllocation(row)) {
-    return <span className="text-xs text-muted-foreground">Using workspace defaults</span>;
+    return <span className="text-xs text-muted-foreground">{ui("Using workspace defaults")}</span>;
   }
   if (row.source === "custom" && row.provider_id) {
     return (
       <span className="text-xs text-blue-400">
-        {row.provider_type ? row.provider_type.charAt(0).toUpperCase() + row.provider_type.slice(1) : "Provider"}: {row.provider_label ?? "Unknown"}
+        {row.provider_type ? row.provider_type.charAt(0).toUpperCase() + row.provider_type.slice(1) : ui("Provider")}: {row.provider_label ?? ui("Unknown")}
       </span>
     );
   }
   if (row.copilot_account_id) {
     return (
-      <span className="text-xs text-emerald-400">
-        Copilot: {row.copilot_account_label ?? "Unknown"}
+      <span className="text-xs text-emerald-400"> {ui("Copilot:")} {row.copilot_account_label ?? ui("Unknown")}
       </span>
     );
   }
@@ -62,6 +65,8 @@ export function EditAllocationModal({
   }) => Promise<void>;
   onCancel: () => void;
 }) {
+  const ui = useUiText();
+
   const [editSource, setEditSource] = useState<Source>(row.source ?? (row.provider_id ? "custom" : "copilot"));
   const [editCopilotAccountId, setEditCopilotAccountId] = useState(row.copilot_account_id ?? "");
   const [editCopilotModel, setEditCopilotModel] = useState(row.copilot_model ?? "");
@@ -89,12 +94,9 @@ export function EditAllocationModal({
       <div className="w-full max-w-md rounded-xl border border-border bg-popover p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h3 className="text-sm font-semibold text-foreground">
-              Configure AI for {row.display_name ?? row.email}
+            <h3 className="text-sm font-semibold text-foreground"> {ui("Configure AI for")} {row.display_name ?? row.email}
             </h3>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              This overrides the workspace defaults for this user only.
-            </p>
+            <p className="text-xs text-muted-foreground mt-0.5"> {ui("This overrides the workspace defaults for this user only.")} </p>
           </div>
           <button onClick={onCancel} className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-secondary">
             <X className="h-4 w-4" />
@@ -103,7 +105,7 @@ export function EditAllocationModal({
 
         {/* Source toggle */}
         <div className="mb-4">
-          <label className="block text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">Provider Source</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">{ui("Provider Source")}</label>
           <div className="flex rounded-lg border border-border overflow-hidden w-fit">
             <button
               onClick={() => setEditSource("copilot")}
@@ -112,9 +114,7 @@ export function EditAllocationModal({
                   ? "bg-brand-600 text-white"
                   : "bg-secondary text-muted-foreground hover:text-foreground"
               }`}
-            >
-              GitHub Copilot
-            </button>
+            > {ui("GitHub Copilot")} </button>
             <button
               onClick={() => setEditSource("custom")}
               className={`px-4 py-2 text-sm font-medium transition-colors ${
@@ -122,13 +122,9 @@ export function EditAllocationModal({
                   ? "bg-brand-600 text-white"
                   : "bg-secondary text-muted-foreground hover:text-foreground"
               }`}
-            >
-              Custom Provider
-            </button>
+            > {ui("Custom Provider")} </button>
           </div>
-          <p className="text-[10px] text-muted-foreground mt-1.5">
-            Both configurations are kept. The selected tab is what this user will use.
-          </p>
+          <p className="text-[10px] text-muted-foreground mt-1.5"> {ui("Both configurations are kept. The selected tab is what this user will use.")} </p>
         </div>
 
         {/* Fields */}
@@ -136,25 +132,25 @@ export function EditAllocationModal({
           {editSource === "copilot" ? (
             <>
               <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Account</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Account")}</label>
                 <select
                   value={editCopilotAccountId}
                   onChange={(e) => setEditCopilotAccountId(e.target.value)}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-500"
                 >
-                  <option value="">Default (gh CLI)</option>
+                  <option value="">{ui("Default (gh CLI)")}</option>
                   {validAccounts.map((a) => (
                     <option key={a.id} value={a.id}>{a.label} (@{a.github_login})</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Model</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Model")}</label>
                 <input
                   type="text"
                   value={editCopilotModel}
                   onChange={(e) => setEditCopilotModel(e.target.value)}
-                  placeholder="e.g. claude-sonnet-4 (leave blank for auto)"
+                  placeholder={ui("e.g. claude-sonnet-4 (leave blank for auto)")}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500"
                 />
               </div>
@@ -162,25 +158,25 @@ export function EditAllocationModal({
           ) : (
             <>
               <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Provider</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Provider")}</label>
                 <select
                   value={editProviderId}
                   onChange={(e) => setEditProviderId(e.target.value)}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-500"
                 >
-                  <option value="">Select a provider...</option>
+                  <option value="">{ui("Select a provider...")}</option>
                   {validProviders.map((p) => (
                     <option key={p.id} value={p.id}>{p.label} ({p.provider_type})</option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="block text-xs font-medium text-muted-foreground mb-1.5">Model</label>
+                <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Model")}</label>
                 <input
                   type="text"
                   value={editProviderModel}
                   onChange={(e) => setEditProviderModel(e.target.value)}
-                  placeholder="e.g. gpt-4o"
+                  placeholder={ui("e.g. gpt-4o")}
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500"
                 />
               </div>
@@ -195,15 +191,11 @@ export function EditAllocationModal({
             disabled={saving}
             className="flex items-center gap-1.5 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50 transition-colors"
           >
-            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-            Save
-          </button>
+            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />} {ui("Save")} </button>
           <button
             onClick={onCancel}
             className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
-          >
-            Cancel
-          </button>
+          > {ui("Cancel")} </button>
         </div>
       </div>
     </div>

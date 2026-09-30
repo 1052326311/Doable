@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -80,6 +83,9 @@ export function CreateProjectDialog({
   onOpenChange,
   onCreate,
 }: CreateProjectDialogProps) {
+  const ui = useUiText();
+  const i18n_FALLBACK_FRAMEWORKS = useUiData(FALLBACK_FRAMEWORKS);
+
   const [mode, setMode] = useState<CreationMode>("blank");
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
@@ -92,7 +98,7 @@ export function CreateProjectDialog({
   const [slugEdited, setSlugEdited] = useState(false);
   const [templates, setTemplates] = useState<ApiTemplate[]>([]);
   const [templatesLoading, setTemplatesLoading] = useState(false);
-  const [frameworks, setFrameworks] = useState(FALLBACK_FRAMEWORKS);
+  const [frameworks, setFrameworks] = useState(i18n_FALLBACK_FRAMEWORKS);
 
   // Fetch enabled frameworks from the API
   useEffect(() => {
@@ -150,11 +156,11 @@ export function CreateProjectDialog({
 
   const handleSubmit = async () => {
     if (!name.trim()) {
-      setError("Project name is required");
+      setError(ui("Project name is required"));
       return;
     }
     if (!slug.trim() || slug.length < 3) {
-      setError("Slug must be at least 3 characters");
+      setError(ui("Slug must be at least 3 characters"));
       return;
     }
 
@@ -175,7 +181,7 @@ export function CreateProjectDialog({
       reset();
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create project");
+      setError(err instanceof Error ? err.message : ui("Failed to create project"));
     } finally {
       setSubmitting(false);
     }
@@ -185,18 +191,16 @@ export function CreateProjectDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle className="text-xl">Create a new project</DialogTitle>
-          <DialogDescription>
-            Start from scratch, describe what you want, or pick a template.
-          </DialogDescription>
+          <DialogTitle className="text-xl">{ui("Create a new project")}</DialogTitle>
+          <DialogDescription> {ui("Start from scratch, describe what you want, or pick a template.")} </DialogDescription>
         </DialogHeader>
 
         {/* Mode Selector */}
         <div className="grid grid-cols-3 gap-3">
           {[
-            { key: "blank" as const, icon: FileCode, label: "Blank", desc: "Start fresh" },
-            { key: "prompt" as const, icon: MessageSquare, label: "From prompt", desc: "AI generates" },
-            { key: "template" as const, icon: LayoutTemplate, label: "Template", desc: "Pre-built" },
+            { key: "blank" as const, icon: FileCode, label: ui("Blank"), desc: ui("Start fresh") },
+            { key: "prompt" as const, icon: MessageSquare, label: ui("From prompt"), desc: ui("AI generates") },
+            { key: "template" as const, icon: LayoutTemplate, label: ui("Template"), desc: ui("Pre-built") },
           ].map(({ key, icon: Icon, label, desc }) => (
             <button
               key={key}
@@ -219,7 +223,7 @@ export function CreateProjectDialog({
         {/* Framework selector — shown for blank and prompt modes */}
         {(mode === "blank" || mode === "prompt") && (
           <div className="space-y-2">
-            <label className="text-sm font-medium text-zinc-300">Framework</label>
+            <label className="text-sm font-medium text-zinc-300">{ui("Framework")}</label>
             <div className="grid grid-cols-2 gap-2">
               {frameworks.map((fw) => {
                 const meta = FRAMEWORK_META[fw.id] ?? { icon: Globe, color: "text-white" };
@@ -244,7 +248,7 @@ export function CreateProjectDialog({
                       <div className={`text-sm font-medium ${
                         selectedFramework === fw.id ? "text-white" : "text-zinc-200"
                       }`}>{fw.name}</div>
-                      <div className="text-xs text-zinc-500">{fw.description}</div>
+                      <div className="text-xs text-zinc-500">{ui(fw.description)}</div>
                     </div>
                   </button>
                 );
@@ -256,9 +260,9 @@ export function CreateProjectDialog({
         {/* Form */}
         <div className="space-y-3">
           <div>
-            <label className="mb-1 block text-sm font-medium">Name</label>
+            <label className="mb-1 block text-sm font-medium">{ui("Name")}</label>
             <Input
-              placeholder="My Awesome Project"
+              placeholder={ui("My Awesome Project")}
               value={name}
               onChange={(e) => handleNameChange(e.target.value)}
               autoFocus
@@ -266,9 +270,9 @@ export function CreateProjectDialog({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">Slug</label>
+            <label className="mb-1 block text-sm font-medium">{ui("Slug")}</label>
             <Input
-              placeholder="my-awesome-project"
+              placeholder={ui("my-awesome-project")}
               value={slug}
               onChange={(e) => {
                 setSlug(e.target.value);
@@ -278,12 +282,11 @@ export function CreateProjectDialog({
           </div>
 
           <div>
-            <label className="mb-1 block text-sm font-medium">
-              Description{" "}
-              <span className="font-normal text-muted-foreground">(optional)</span>
+            <label className="mb-1 block text-sm font-medium"> {ui("Description")}{" "}
+              <span className="font-normal text-muted-foreground">{ui("(optional)")}</span>
             </label>
             <Input
-              placeholder="A brief description..."
+              placeholder={ui("A brief description...")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
             />
@@ -291,12 +294,10 @@ export function CreateProjectDialog({
 
           {mode === "prompt" && (
             <div>
-              <label className="mb-1 block text-sm font-medium">
-                What do you want to build?
-              </label>
+              <label className="mb-1 block text-sm font-medium"> {ui("What do you want to build?")} </label>
               <textarea
                 className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                placeholder="Describe your application in detail..."
+                placeholder={ui("Describe your application in detail...")}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 rows={3}
@@ -306,18 +307,12 @@ export function CreateProjectDialog({
 
           {mode === "template" && (
             <div>
-              <label className="mb-1 block text-sm font-medium">
-                Choose a template
-              </label>
+              <label className="mb-1 block text-sm font-medium"> {ui("Choose a template")} </label>
               {templatesLoading ? (
                 <div className="flex items-center justify-center py-6 text-xs text-muted-foreground">
-                  <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                  Loading templates…
-                </div>
+                  <Loader2 className="mr-2 h-3 w-3 animate-spin" /> {ui("Loading templates…")} </div>
               ) : templates.length === 0 ? (
-                <div className="py-6 text-center text-xs text-muted-foreground">
-                  No templates available.
-                </div>
+                <div className="py-6 text-center text-xs text-muted-foreground"> {ui("No templates available.")} </div>
               ) : (
                 <div className="grid max-h-72 grid-cols-2 gap-2 overflow-y-auto">
                   {templates.map((t) => (
@@ -342,7 +337,7 @@ export function CreateProjectDialog({
           )}
 
           {error && (
-            <p className="text-sm text-destructive">{error}</p>
+            <p className="text-sm text-destructive">{ui(error)}</p>
           )}
         </div>
 
@@ -353,13 +348,9 @@ export function CreateProjectDialog({
               reset();
               onOpenChange(false);
             }}
-          >
-            Cancel
-          </Button>
+          > {ui("Cancel")} </Button>
           <Button onClick={handleSubmit} disabled={submitting}>
-            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Create project
-          </Button>
+            {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {ui("Create project")} </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

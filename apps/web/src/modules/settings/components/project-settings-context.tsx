@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
@@ -24,6 +26,8 @@ export function ContextFilesTab({
   projectId: string;
   addToast: (type: "success" | "error", msg: string) => void;
 }) {
+  const ui = useUiText();
+
   const [files, setFiles] = useState<ContextFile[]>([]);
   const [stats, setStats] = useState<ContextStats | null>(null);
   const [loading, setLoading] = useState(true);
@@ -38,11 +42,11 @@ export function ContextFilesTab({
       setFiles(res.data.files);
       setStats(res.data.stats);
     } catch (err) {
-      addToast("error", err instanceof Error ? err.message : "Failed to load context files");
+      addToast("error", err instanceof Error ? err.message : ui("Failed to load context files"));
     } finally {
       setLoading(false);
     }
-  }, [projectId, addToast]);
+  }, [ui, projectId, addToast]);
 
   useEffect(() => {
     void fetchFiles();
@@ -61,9 +65,9 @@ export function ContextFilesTab({
             : f
         )
       );
-      addToast("success", `Saved ${filename}`);
+      addToast("success", ui("Saved {v0}",{v0:(filename)}));
     } catch (err) {
-      addToast("error", err instanceof Error ? err.message : "Failed to save");
+      addToast("error", err instanceof Error ? err.message : ui("Failed to save"));
       throw err;
     }
   };
@@ -83,7 +87,7 @@ export function ContextFilesTab({
 
   if (loading) {
     return (
-      <SectionCard title="Knowledge (.doable/)">
+      <SectionCard title={ui("Knowledge (.doable/)")}>
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="flex items-center gap-3 rounded-lg border p-3">
@@ -102,16 +106,15 @@ export function ContextFilesTab({
   return (
     <div className="space-y-4">
       <SectionCard
-        title="Knowledge (.doable/)"
-        description="Knowledge files guide the AI's behavior when editing your project. Each file serves a different purpose."
+        title={ui("Knowledge (.doable/)")}
+        description={ui("Knowledge files guide the AI's behavior when editing your project. Each file serves a different purpose.")}
       >
         {/* Token budget */}
         {stats && (
           <div className="mb-5 rounded-lg bg-muted/30 p-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                {stats.totalFiles} files, {stats.estimatedTokens.toLocaleString()} tokens
-              </span>
+                {stats.totalFiles} {ui("files,")} {stats.estimatedTokens.toLocaleString(ui.locale)} {ui("tokens")} </span>
               <span
                 className={cn(
                   "text-xs font-medium",
@@ -120,8 +123,7 @@ export function ContextFilesTab({
                     : "text-muted-foreground"
                 )}
               >
-                {stats.budgetUsedPercent}% of budget used
-              </span>
+                {stats.budgetUsedPercent}{ui("% of budget used")} </span>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
               <div
@@ -170,8 +172,8 @@ export function ContextFilesTab({
                   <p className="text-sm font-medium">{file.filename}</p>
                   <p className="text-xs text-muted-foreground truncate">
                     {hasContent
-                      ? `${file.content.length} characters`
-                      : "Empty -- click to edit"}
+                      ? ui("{v0} characters", {v0: (file.content.length)})
+                      : ui("Empty -- click to edit")}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
@@ -194,9 +196,7 @@ export function ContextFilesTab({
             onClick={() => void fetchFiles()}
             className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />
-            Refresh
-          </button>
+            <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} /> {ui("Refresh")} </button>
         </div>
       </SectionCard>
     </div>
@@ -216,6 +216,8 @@ function ContextFileEditor({
   onBack: () => void;
   addToast: (type: "success" | "error", msg: string) => void;
 }) {
+  const ui = useUiText();
+
   const [content, setContent] = useState(file.content);
   const [saving, setSaving] = useState(false);
   const dirty = content !== file.content;
@@ -264,16 +266,13 @@ function ContextFileEditor({
           <Icon className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-semibold">{file.filename}</span>
           {dirty && (
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300">
-              Unsaved
-            </span>
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300"> {ui("Unsaved")} </span>
           )}
         </div>
 
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">
-            {content.length} chars
-          </span>
+            {content.length} {ui("chars")} </span>
           <button
             onClick={() => void handleSave()}
             disabled={!dirty || saving}
@@ -289,7 +288,7 @@ function ContextFileEditor({
             ) : (
               <Save className="h-3.5 w-3.5" />
             )}
-            {saving ? "Saving..." : "Save"}
+            {saving ? ui("Saving...") : ui("Save")}
           </button>
         </div>
       </div>
@@ -301,15 +300,14 @@ function ContextFileEditor({
         onChange={(e) => setContent(e.target.value)}
         className="w-full bg-background p-4 text-sm font-mono leading-relaxed focus:outline-none resize-none"
         rows={20}
-        placeholder="Start writing..."
+        placeholder={ui("Start writing...")}
         spellCheck={false}
       />
 
       {/* Footer */}
       <div className="flex items-center justify-between border-t px-4 py-2 text-xs text-muted-foreground">
-        <span>
-          Last updated:{" "}
-          {new Date(file.updatedAt).toLocaleDateString("en-US", {
+        <span> {ui("Last updated:")}{" "}
+          {new Date(file.updatedAt).toLocaleDateString(ui.locale, {
             year: "numeric",
             month: "short",
             day: "numeric",
@@ -317,7 +315,7 @@ function ContextFileEditor({
             minute: "2-digit",
           })}
         </span>
-        <span className="text-muted-foreground">Ctrl+S to save</span>
+        <span className="text-muted-foreground">{ui("Ctrl+S to save")}</span>
       </div>
     </div>
   );

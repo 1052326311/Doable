@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback, useEffect } from "react";
 import { Loader2, ExternalLink, Eye, EyeOff, ShieldAlert } from "lucide-react";
@@ -50,6 +52,8 @@ export function ConnectFlow({
   onGetEnhancedAuthUrl,
   projectId,
 }: ConnectFlowProps) {
+  const ui = useUiText();
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -93,11 +97,11 @@ export function ConnectFlow({
       await onConnect(item.id, { credentials: {}, projectId });
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Connection failed");
+      setError(err instanceof Error ? err.message : ui("Connection failed"));
     } finally {
       setLoading(false);
     }
-  }, [item, onConnect, onOpenChange, projectId]);
+  }, [ui, item, onConnect, onOpenChange, projectId]);
 
   const handleOAuth = useCallback(async () => {
     if (!item) return;
@@ -137,11 +141,11 @@ export function ConnectFlow({
       });
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Connection failed");
+      setError(err instanceof Error ? err.message : ui("Connection failed"));
     } finally {
       setLoading(false);
     }
-  }, [item, apiKey, displayName, onConnect, onOpenChange, projectId]);
+  }, [ui, item, apiKey, displayName, onConnect, onOpenChange, projectId]);
 
   const handleBasicAuthConnect = useCallback(async () => {
     if (!item || !username.trim() || !password.trim()) return;
@@ -155,11 +159,11 @@ export function ConnectFlow({
       });
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Connection failed");
+      setError(err instanceof Error ? err.message : ui("Connection failed"));
     } finally {
       setLoading(false);
     }
-  }, [item, username, password, displayName, onConnect, onOpenChange, projectId]);
+  }, [ui, item, username, password, displayName, onConnect, onOpenChange, projectId]);
 
   const handleCustomAuthConnect = useCallback(async () => {
     if (!item) return;
@@ -189,11 +193,11 @@ export function ConnectFlow({
       });
       onOpenChange(false);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Connection failed");
+      setError(err instanceof Error ? err.message : ui("Connection failed"));
     } finally {
       setLoading(false);
     }
-  }, [item, customFields, apiKey, displayName, onConnect, onOpenChange, projectId]);
+  }, [ui, item, customFields, apiKey, displayName, onConnect, onOpenChange, projectId]);
 
   // Helper: check if custom auth form is valid
   const isCustomAuthValid = useCallback(() => {
@@ -212,7 +216,7 @@ export function ConnectFlow({
 
   if (!item) return null;
 
-  const authLabel = AUTH_LABELS[item.authType] ?? item.authType;
+  const authLabel = ui(AUTH_LABELS[item.authType]) ?? item.authType;
 
   // "none" auth type shows a simple connecting state
   if (item.authType === "none") {
@@ -224,20 +228,17 @@ export function ConnectFlow({
             {loading ? (
               <>
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground">
-                  Connecting to {item.displayName}...
+                <p className="text-sm text-muted-foreground"> {ui("Connecting to")} {item.displayName}...
                 </p>
               </>
             ) : error ? (
               <>
-                <p className="text-sm text-red-600">{error}</p>
+                <p className="text-sm text-red-600">{ui(error)}</p>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => void handleNoAuthConnect()}
-                >
-                  Try Again
-                </Button>
+                > {ui("Try Again")} </Button>
               </>
             ) : null}
           </div>
@@ -265,7 +266,7 @@ export function ConnectFlow({
               )}
             </div>
             <div>
-              <DialogTitle>Connect {item.displayName}</DialogTitle>
+              <DialogTitle>{ui("Connect")} {item.displayName}</DialogTitle>
               <DialogDescription className="mt-0.5">
                 {authLabel}
               </DialogDescription>
@@ -284,7 +285,7 @@ export function ConnectFlow({
             {(error.includes("not set up") || error.includes("OAuth")) && (
               <ShieldAlert className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" />
             )}
-            {error}
+            {ui(error)}
           </div>
         )}
 
@@ -296,7 +297,7 @@ export function ConnectFlow({
               disabled={loading}
               onClick={() => void handleEnhancedAuth()}
             >
-              {loading ? "Connecting…" : (item.enhancedAuth.connectLabel ?? `Connect ${item.displayName}`)}
+              {loading ? ui("Connecting…") : (item.enhancedAuth.connectLabel ?? ui("Connect {v0}", {v0: (item.displayName)}))}
             </Button>
           </div>
         )}

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import {
@@ -103,6 +105,8 @@ function CreditsGauge({
   label: string;
   loading: boolean;
 }) {
+  const ui = useUiText();
+
   const pct = limit > 0 ? Math.min(used / limit, 1) : 0;
   const radius = 40;
   const stroke = 6;
@@ -154,7 +158,7 @@ function CreditsGauge({
       </div>
       <span className="text-xs text-muted-foreground font-medium">{label}</span>
       <span className="text-[10px] text-muted-foreground">
-        {used.toLocaleString()} / {limit > 0 ? limit.toLocaleString() : "Unlimited"}
+        {used.toLocaleString(ui.locale)} / {limit > 0 ? limit.toLocaleString(ui.locale) : ui("Unlimited")}
       </span>
     </div>
   );
@@ -177,6 +181,8 @@ function BreakdownTable({
   formatKey?: (item: { key: string; label?: string }) => string;
   accent?: string;
 }) {
+  const ui = useUiText();
+
   const displayKey = formatKey ?? ((item: { key: string; label?: string }) => item.label || item.key);
   const maxTokens = Math.max(...items.map((i) => i.totalTokens), 1);
 
@@ -197,7 +203,7 @@ function BreakdownTable({
     return (
       <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
         <h3 className="text-sm font-medium text-foreground mb-2">{title}</h3>
-        <p className="text-xs text-muted-foreground">No data</p>
+        <p className="text-xs text-muted-foreground">{ui("No data")}</p>
       </div>
     );
   }
@@ -227,8 +233,8 @@ function BreakdownTable({
                 />
               </div>
               <div className="flex justify-between mt-1">
-                <span className="text-[10px] text-muted-foreground">{item.requestCount} requests</span>
-                <span className="text-[10px] text-muted-foreground">{formatTokenCount(item.totalTokens)} tokens</span>
+                <span className="text-[10px] text-muted-foreground">{item.requestCount} {ui("requests")}</span>
+                <span className="text-[10px] text-muted-foreground">{formatTokenCount(item.totalTokens)} {ui("tokens")}</span>
               </div>
             </div>
           );
@@ -240,6 +246,8 @@ function BreakdownTable({
 
 // ── Main Component ────────────────────────────────────────────────────
 export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
+  const ui = useUiText();
+
   const [period, setPeriod] = useState<"7d" | "30d" | "90d">("30d");
 
   const { summary, loading: summaryLoading } = useMyUsageSummary(workspaceId);
@@ -257,8 +265,8 @@ export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <BarChart3 className="h-10 w-10 text-muted-foreground mb-3" />
-        <p className="text-sm text-muted-foreground">No usage data yet</p>
-        <p className="text-xs text-muted-foreground mt-1">Start using AI features to see your usage here.</p>
+        <p className="text-sm text-muted-foreground">{ui("No usage data yet")}</p>
+        <p className="text-xs text-muted-foreground mt-1">{ui("Start using AI features to see your usage here.")}</p>
       </div>
     );
   }
@@ -271,36 +279,36 @@ export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
         <GlowCard
           icon={Zap}
-          label="Today's Tokens"
+          label={ui("Today's Tokens")}
           value={formatTokenCount(summary?.today.totalTokens ?? 0)}
           loading={summaryLoading}
           accent="blue"
         />
         <GlowCard
           icon={DollarSign}
-          label="This Month's Cost"
+          label={ui("This Month's Cost")}
           value={formatCost(summary?.thisMonth.totalCostUsd ?? 0)}
           loading={summaryLoading}
           accent="emerald"
         />
         <GlowCard
           icon={Hash}
-          label="Monthly Requests"
-          value={(summary?.thisMonth.requestCount ?? 0).toLocaleString()}
+          label={ui("Monthly Requests")}
+          value={(summary?.thisMonth.requestCount ?? 0).toLocaleString(ui.locale)}
           loading={summaryLoading}
           accent="violet"
         />
         <GlowCard
           icon={Clock}
-          label="Avg Response"
+          label={ui("Avg Response")}
           value={formatDuration(summary?.thisMonth.avgDurationMs ?? 0)}
           loading={summaryLoading}
           accent="amber"
         />
         <GlowCard
           icon={CreditCard}
-          label="Credits Used"
-          value={credits ? `${credits.monthCredits.toLocaleString()}` : "0"}
+          label={ui("Credits Used")}
+          value={credits ? `${credits.monthCredits.toLocaleString(ui.locale)}` : "0"}
           loading={creditsLoading}
           accent="rose"
         />
@@ -310,24 +318,22 @@ export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
       {(creditsLoading || credits) && (
         <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
           <h3 className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-rose-400" /> Credit Usage
-            {credits?.planType && (
+            <CreditCard className="h-4 w-4 text-rose-400" /> {ui("Credit Usage")} {credits?.planType && (
               <span className="ml-auto text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                {credits.planType} plan
-              </span>
+                {credits.planType} {ui("plan")} </span>
             )}
           </h3>
           <div className="flex items-center justify-center gap-12">
             <CreditsGauge
               used={credits?.todayCredits ?? 0}
               limit={credits?.dailyLimit ?? 0}
-              label="Today"
+              label={ui("Today")}
               loading={creditsLoading}
             />
             <CreditsGauge
               used={credits?.monthCredits ?? 0}
               limit={credits?.monthlyLimit ?? 0}
-              label="This Month"
+              label={ui("This Month")}
               loading={creditsLoading}
             />
           </div>
@@ -363,7 +369,7 @@ export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
       {/* ── Breakdown Tables ── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         <BreakdownTable
-          title="By Project"
+          title={ui("By Project")}
           keyHeader="Project"
           items={breakdown?.byProject ?? []}
           loading={breakdownLoading}
@@ -371,14 +377,14 @@ export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
           accent="#3b82f6"
         />
         <BreakdownTable
-          title="By Model"
+          title={ui("By Model")}
           keyHeader="Model"
           items={breakdown?.byModel ?? []}
           loading={breakdownLoading}
           accent="#8b5cf6"
         />
         <BreakdownTable
-          title="By Mode"
+          title={ui("By Mode")}
           keyHeader="Mode"
           items={breakdown?.byMode ?? []}
           loading={breakdownLoading}

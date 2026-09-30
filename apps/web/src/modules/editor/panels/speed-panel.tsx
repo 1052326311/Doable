@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
@@ -24,6 +26,8 @@ interface Props {
 
 // ─── Main Component ─────────────────────────────────────────
 export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
+  const ui = useUiText();
+
   const [phase, setPhase] = useState<AuditPhase>("idle");
   const [results, setResults] = useState<AuditResults | null>(null);
   const [auditError, setAuditError] = useState<string | null>(null);
@@ -101,7 +105,7 @@ export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2.5">
           <Zap className="h-4.5 w-4.5 text-amber-400" />
-          <h2 className="text-sm font-semibold text-foreground">Speed</h2>
+          <h2 className="text-sm font-semibold text-foreground">{ui("Speed")}</h2>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -118,12 +122,12 @@ export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
             ) : (
               <Play className="h-3.5 w-3.5" />
             )}
-            {isAuditing ? "Running..." : "Run audit"}
+            {isAuditing ? ui("Running...") : ui("Run audit")}
           </button>
           <button
             onClick={onClose}
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-            title="Close"
+            title={ui("Close")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -140,7 +144,7 @@ export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 mb-4">
                   <AlertCircle className="h-8 w-8 text-red-400" />
                 </div>
-                <h3 className="text-sm font-medium text-foreground mb-1">Audit failed</h3>
+                <h3 className="text-sm font-medium text-foreground mb-1">{ui("Audit failed")}</h3>
                 <p className="text-[13px] text-muted-foreground max-w-[300px] mb-5">{auditError}</p>
               </>
             ) : (
@@ -148,13 +152,8 @@ export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 mb-4">
                   <Zap className="h-8 w-8 text-amber-400" />
                 </div>
-                <h3 className="text-sm font-medium text-foreground mb-1">
-                  Performance Audit
-                </h3>
-                <p className="text-[13px] text-muted-foreground max-w-[300px] mb-5">
-                  Analyze your page speed, transfer size, bundle breakdown, and get
-                  actionable recommendations to improve performance.
-                </p>
+                <h3 className="text-sm font-medium text-foreground mb-1"> {ui("Performance Audit")} </h3>
+                <p className="text-[13px] text-muted-foreground max-w-[300px] mb-5"> {ui("Analyze your page speed, transfer size, bundle breakdown, and get actionable recommendations to improve performance.")} </p>
               </>
             )}
             <button
@@ -166,7 +165,7 @@ export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
               }}
             >
               <Play className="h-4 w-4" />
-              {auditError ? "Try again" : "Run audit"}
+              {auditError ? ui("Try again") : ui("Run audit")}
             </button>
           </div>
         )}
@@ -194,7 +193,7 @@ export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
 
             {/* Phase label */}
             <p className="text-sm font-medium text-foreground mb-2">
-              {PHASE_LABELS[phase as AuditPhase]}
+              {ui(PHASE_LABELS[phase as AuditPhase])}
             </p>
 
             {/* Phase progress indicators */}
@@ -223,7 +222,7 @@ export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
                             : "text-muted-foreground"
                       }`}
                     >
-                      {PHASE_LABELS[p]}
+                      {ui(PHASE_LABELS[p])}
                     </span>
                     {isDone && (
                       <CheckCircle2 className="h-3 w-3 text-emerald-400 ml-auto flex-shrink-0" />

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback, useEffect } from "react";
 import { X, Database, Shield, HardDrive, Zap } from "lucide-react";
@@ -24,6 +26,8 @@ import {
 // ─── Main Cloud Panel ───────────────────────────────────────
 
 export function CloudPanel({ projectId, onClose }: CloudPanelProps) {
+  const ui = useUiText();
+
   const [connected, setConnected] = useState(false);
   const [connection, setConnection] = useState<SupabaseConnection | null>(null);
   const [showDialog, setShowDialog] = useState(false);
@@ -146,12 +150,12 @@ export function CloudPanel({ projectId, onClose }: CloudPanelProps) {
         <div className="flex items-center justify-between border-b border-border px-4 py-3">
           <div className="flex items-center gap-2.5">
             <Database className="h-4 w-4 text-brand-400" />
-            <h2 className="text-sm font-semibold text-foreground">Cloud</h2>
+            <h2 className="text-sm font-semibold text-foreground">{ui("Cloud")}</h2>
           </div>
           <button
             onClick={onClose}
             className="flex h-6 w-6 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            title="Close"
+            title={ui("Close")}
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -167,7 +171,7 @@ export function CloudPanel({ projectId, onClose }: CloudPanelProps) {
                 }`}
               />
               <span className="text-xs text-muted-foreground">
-                {connected ? "Connected to Supabase" : "Not connected"}
+                {connected ? ui("Connected to Supabase") : ui("Not connected")}
               </span>
             </div>
             {connected ? (
@@ -175,24 +179,18 @@ export function CloudPanel({ projectId, onClose }: CloudPanelProps) {
                 <button
                   onClick={() => setShowDialog(true)}
                   className="rounded-md px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                >
-                  Settings
-                </button>
+                > {ui("Settings")} </button>
                 <button
                   onClick={handleDisconnect}
                   className="rounded-md px-2 py-1 text-[11px] text-red-500/70 hover:bg-red-500/10 hover:text-red-400 transition-colors"
-                >
-                  Disconnect
-                </button>
+                > {ui("Disconnect")} </button>
               </div>
             ) : (
               <button
                 onClick={() => setShowDialog(true)}
                 className="flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-[11px] font-medium text-white hover:bg-brand-500 transition-colors"
               >
-                <Database className="h-3 w-3" />
-                Connect Supabase
-              </button>
+                <Database className="h-3 w-3" /> {ui("Connect Supabase")} </button>
             )}
           </div>
           {connected && connection && (
@@ -207,22 +205,22 @@ export function CloudPanel({ projectId, onClose }: CloudPanelProps) {
         {/* Scrollable sections */}
         <div className="flex-1 overflow-y-auto scrollbar-thin">
           <div className="border-b border-border">
-            <SectionHeader icon={Database} title="Database" expanded={expandedSections.has("database")} onToggle={() => toggleSection("database")} badge={connected ? `${tables.length}` : undefined} statusColor={connected ? "green" : "zinc"} />
+            <SectionHeader icon={Database} title={ui("Database")} expanded={expandedSections.has("database")} onToggle={() => toggleSection("database")} badge={connected ? `${tables.length}` : undefined} statusColor={connected ? "green" : "zinc"} />
             {expandedSections.has("database") && <DatabaseSection connected={connected} tables={tables} />}
           </div>
 
           <div className="border-b border-border">
-            <SectionHeader icon={Shield} title="Authentication" expanded={expandedSections.has("auth")} onToggle={() => toggleSection("auth")} badge={connected ? `${authProviders.filter((p) => p.enabled).length} active` : undefined} statusColor={connected ? "green" : "zinc"} />
+            <SectionHeader icon={Shield} title={ui("Authentication")} expanded={expandedSections.has("auth")} onToggle={() => toggleSection("auth")} badge={connected ? `${authProviders.filter((p) => p.enabled).length} active` : undefined} statusColor={connected ? "green" : "zinc"} />
             {expandedSections.has("auth") && <AuthSection connected={connected} providers={authProviders} onToggleProvider={handleToggleProvider} />}
           </div>
 
           <div className="border-b border-border">
-            <SectionHeader icon={HardDrive} title="Storage" expanded={expandedSections.has("storage")} onToggle={() => toggleSection("storage")} badge={connected ? `${buckets.length} buckets` : undefined} statusColor={connected ? "green" : "zinc"} />
+            <SectionHeader icon={HardDrive} title={ui("Storage")} expanded={expandedSections.has("storage")} onToggle={() => toggleSection("storage")} badge={connected ? `${buckets.length} buckets` : undefined} statusColor={connected ? "green" : "zinc"} />
             {expandedSections.has("storage") && <StorageSection connected={connected} buckets={buckets} />}
           </div>
 
           <div className="border-b border-border">
-            <SectionHeader icon={Zap} title="Edge Functions" expanded={expandedSections.has("functions")} onToggle={() => toggleSection("functions")} badge={connected ? `${functions.filter((f) => f.status === "active").length} active` : undefined} statusColor={connected ? functions.some((f) => f.status === "active") ? "green" : "amber" : "zinc"} />
+            <SectionHeader icon={Zap} title={ui("Edge Functions")} expanded={expandedSections.has("functions")} onToggle={() => toggleSection("functions")} badge={connected ? `${functions.filter((f) => f.status === "active").length} active` : undefined} statusColor={connected ? functions.some((f) => f.status === "active") ? "green" : "amber" : "zinc"} />
             {expandedSections.has("functions") && <EdgeFunctionsSection connected={connected} functions={functions} />}
           </div>
         </div>
@@ -230,12 +228,10 @@ export function CloudPanel({ projectId, onClose }: CloudPanelProps) {
         {/* Footer */}
         <div className="border-t border-border px-4 py-2.5">
           <div className="flex items-center justify-between">
-            <span className="text-[10px] text-muted-foreground">Powered by Supabase</span>
+            <span className="text-[10px] text-muted-foreground">{ui("Powered by Supabase")}</span>
             {connected && (
               <span className="flex items-center gap-1 text-[10px] text-emerald-500/70">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Live
-              </span>
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" /> {ui("Live")} </span>
             )}
           </div>
         </div>

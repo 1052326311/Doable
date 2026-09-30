@@ -1,4 +1,12 @@
 "use client";
+import {UiText} from "@/i18n/ui-text";
+import type {UiTranslator} from "@/i18n/text";
+import {translateProgress, translatePlatformPrompt, translateThinkingPrefix} from "@/i18n/progress";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
+import { BrandLogo } from "@/components/brand-logo";
+
 
 import { useState, useRef, useCallback, useEffect, memo, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -140,7 +148,7 @@ const MonacoEditorWrapper = dynamic<MonacoEditorWrapperProps>(
       <div className="flex h-full items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-2">
           <div className="h-5 w-5 animate-spin rounded-full border-2 border-border border-t-brand-400" />
-          <span className="text-xs text-muted-foreground">Loading editor...</span>
+          <span className="text-xs text-muted-foreground"><UiText>Loading editor...</UiText></span>
         </div>
       </div>
     ),
@@ -1654,7 +1662,7 @@ function stripFunctionMarkup(text: string): string {
   return stripped.replace(/\n{3,}/g, "\n\n").trim();
 }
 
-function renderFunctionStepList(content: string, compact = false): React.ReactNode {
+function renderFunctionStepList(content: string, ui: UiTranslator, compact = false): React.ReactNode {
   const steps = extractFunctionSteps(content);
   if (steps.length === 0) {
     return <span>{content}</span>;
@@ -1664,7 +1672,7 @@ function renderFunctionStepList(content: string, compact = false): React.ReactNo
     <div className={compact ? "space-y-2 mt-1" : "space-y-3 mt-2"}>
       <div className="text-[12px] font-medium text-brand-700 dark:text-brand-300 flex items-center gap-2">
         <Sparkles className="h-3.5 w-3.5 animate-pulse" />
-        Planning these actions:
+        <UiText>Planning these actions:</UiText>
       </div>
       <div className="flex flex-col gap-2">
         {steps.map((step, idx) => (
@@ -1673,7 +1681,7 @@ function renderFunctionStepList(content: string, compact = false): React.ReactNo
               {idx + 1}
             </div>
             <div className="flex-1 min-w-0 flex flex-col">
-              <span className="text-[13px] font-medium text-foreground truncate">{step.description}</span>
+              <span className="text-[13px] font-medium text-foreground truncate">{translateProgress(step.description, ui)}</span>
               {step.filePath && (
                 <span
                   className="text-[10px] text-muted-foreground font-mono truncate"
@@ -1741,6 +1749,9 @@ function nowTimestamp(): string {
 
 // ─── Component ──────────────────────────────────────────────
 function EditorPageInner() {
+  const ui = useUiText();
+  const i18n_MORE_MENU_ITEMS = useUiData(MORE_MENU_ITEMS);
+
   const params = useParams<{ projectId: string }>();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -1988,7 +1999,7 @@ function EditorPageInner() {
   const [projectName, setProjectName] = useState(() => {
     const prompt = typeof window !== "undefined" ? new URLSearchParams(window.location.search).get("prompt") : null;
     if (prompt) return deriveProjectName(prompt);
-    return isNewProject ? "New Project" : "My Awesome App";
+    return isNewProject ? ui("New Project") : ui("Loading project…");
   });
   const [isEditingName, setIsEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(projectName);
@@ -2376,7 +2387,7 @@ function EditorPageInner() {
       } catch (err: unknown) {
         clearInterval(ticker);
         if (cancelled) return;
-        const msg = err instanceof Error ? err.message : "Failed to scaffold project";
+        const msg = err instanceof Error ? err.message : ui("Failed to scaffold project");
         setScaffoldError(msg);
         setScaffoldStatus("error");
       }
@@ -2386,7 +2397,7 @@ function EditorPageInner() {
     return () => {
       cancelled = true;
     };
-  }, [resolvedProjectId]);
+  }, [ui, resolvedProjectId]);
 
   // ─── Update project name from prompt on mount ───────────────
   useEffect(() => {
@@ -2415,12 +2426,12 @@ function EditorPageInner() {
         .map((n) => n.path);
       setExpandedFolders((prev) => new Set([...prev, ...topFolders]));
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Failed to load files";
+      const msg = err instanceof Error ? err.message : ui("Failed to load files");
       setFileTreeError(msg);
     } finally {
       setFileTreeLoading(false);
     }
-  }, [resolvedProjectId]);
+  }, [ui, resolvedProjectId]);
 
   useEffect(() => {
     if (scaffoldStatus === "ready") {
@@ -2448,13 +2459,13 @@ function EditorPageInner() {
         setFileContent(content);
         fileContentsCache.current[filePath] = content;
       } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : "Failed to load file";
+        const msg = err instanceof Error ? err.message : ui("Failed to load file");
         setFileContentError(msg);
       } finally {
         setFileContentLoading(false);
       }
     },
-    [resolvedProjectId],
+    [ui, resolvedProjectId],
   );
 
   // ─── Open a file in a tab ────────────────────────────────
@@ -3024,7 +3035,7 @@ function EditorPageInner() {
                 id: m.id,
                 role: m.role as "user" | "assistant",
                 content: displayContent,
-                timestamp: new Date(m.created_at).toLocaleTimeString([], {
+                timestamp: new Date(m.created_at).toLocaleTimeString(ui.locale, {
                   hour: "numeric",
                   minute: "2-digit",
                 }),
@@ -4562,13 +4573,13 @@ function EditorPageInner() {
         }
       } catch (err: unknown) {
         clearInterval(ticker);
-        const msg = err instanceof Error ? err.message : "Failed to scaffold project";
+        const msg = err instanceof Error ? err.message : ui("Failed to scaffold project");
         setScaffoldError(msg);
         setScaffoldStatus("error");
       }
     };
     init();
-  }, [resolvedProjectId]);
+  }, [ui, resolvedProjectId]);
 
   // ─── Toolbar action handlers ────────────────────────────────
 
@@ -4578,7 +4589,7 @@ function EditorPageInner() {
         method: "POST",
         headers: authHeaders(),
       });
-      if (!res.ok) throw new Error("Failed to download project");
+      if (!res.ok) throw new Error(ui("Failed to download project"));
       const blob = await res.blob();
 
       const url = URL.createObjectURL(blob);
@@ -4597,7 +4608,7 @@ function EditorPageInner() {
     } catch (err) {
       console.error("Download failed:", err);
     }
-  }, [resolvedProjectId, projectName]);
+  }, [ui, resolvedProjectId, projectName]);
 
   // Duplicate project
   const handleDuplicateProject = useCallback(async () => {
@@ -4820,8 +4831,8 @@ function EditorPageInner() {
       const cleanErr = rawErr.replace(/\x1b\[[0-9;]*m/g, "");
       const exitMatch = cleanErr.match(/exit(?:ed)?\s+(?:with\s+code\s+)?(-?\d+)/i);
       const summary = exitMatch
-        ? `Preview failed to start (exit code ${exitMatch[1]}).`
-        : "Preview failed to start.";
+        ? ui("Preview failed to start (exit code {code}).", {code:exitMatch[1]})
+        : ui("Preview failed to start.");
       const hasLogs = cleanErr.trim().length > 0;
       const copyLogs = () => {
         if (typeof navigator !== "undefined" && navigator.clipboard) {
@@ -4833,17 +4844,13 @@ function EditorPageInner() {
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-600/10 mb-4">
             <AlertCircle className="h-7 w-7 text-red-400" />
           </div>
-          <h3 className="text-sm font-medium text-red-300 mb-2">
-            Failed to start project
-          </h3>
+          <h3 className="text-sm font-medium text-red-300 mb-2"> {ui("Failed to start project")} </h3>
           <p className="text-[13px] text-muted-foreground max-w-sm mb-4">
             {summary}
           </p>
           {hasLogs && (
             <details className="mb-4 w-full max-w-xl text-left">
-              <summary className="cursor-pointer text-[12px] text-muted-foreground hover:text-foreground select-none">
-                View install logs
-              </summary>
+              <summary className="cursor-pointer text-[12px] text-muted-foreground hover:text-foreground select-none"> {ui("View install logs")} </summary>
               <div className="mt-2 rounded-lg border border-border bg-muted/40">
                 <div className="flex items-center justify-end border-b border-border px-2 py-1">
                   <button
@@ -4851,9 +4858,7 @@ function EditorPageInner() {
                     onClick={copyLogs}
                     className="flex items-center gap-1 rounded px-2 py-1 text-[11px] text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
                   >
-                    <Copy className="h-3 w-3" />
-                    Copy logs
-                  </button>
+                    <Copy className="h-3 w-3" /> {ui("Copy logs")} </button>
                 </div>
                 <pre className="font-mono text-xs overflow-auto max-h-[40vh] p-3 whitespace-pre-wrap break-all">
                   {cleanErr}
@@ -4865,9 +4870,7 @@ function EditorPageInner() {
             onClick={retryScaffold}
             className="flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 transition-colors"
           >
-            <RotateCcw className="h-4 w-4" />
-            Retry
-          </button>
+            <RotateCcw className="h-4 w-4" /> {ui("Retry")} </button>
         </div>
       );
     }
@@ -4892,9 +4895,9 @@ function EditorPageInner() {
           <div className="h-10 w-10 rounded-full border-2 border-border border-t-brand-700 dark:border-t-brand-400 animate-spin" />
           <Sparkles className="absolute inset-0 m-auto h-4 w-4 text-brand-700 dark:text-brand-400" />
         </div>
-        <h3 className="text-sm font-medium text-foreground mb-1.5">{statusMsg}</h3>
+        <h3 className="text-sm font-medium text-foreground mb-1.5">{ui(statusMsg)}</h3>
         <p className="text-[13px] text-muted-foreground max-w-[280px] transition-all">
-          {subtitleMsg}
+          {translateProgress(subtitleMsg, ui)}
         </p>
       </div>
     );
@@ -5129,11 +5132,10 @@ function EditorPageInner() {
           {/* Doable logo icon */}
           <button
             onClick={() => router.push("/dashboard")}
-            className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-lg bg-brand-100 border border-brand-600 dark:bg-gradient-to-br dark:from-brand-600 dark:to-brand-700 dark:border-transparent shadow-sm shadow-brand-700/20 dark:shadow-brand-900/30 hover:brightness-95 transition-all"
-            title="Back to dashboard"
+            className="flex h-8 w-10 flex-shrink-0 items-center justify-center rounded-lg hover:bg-brand-500/10 transition-all"
+            title={ui("Back to dashboard")}
           >
-            <span className="text-sm font-bold text-brand-700 dark:text-white self-end mb-0.5">D</span>
-            <span className="h-1.5 w-1.5 rounded-full bg-violet-700 dark:bg-violet-400 self-end mb-1.5 ml-0.5 shrink-0" />
+            <BrandLogo className="h-7 w-9 shrink-0" />
           </button>
 
           {/* Editable project name with dropdown chevron + status subtitle */}
@@ -5186,18 +5188,18 @@ function EditorPageInner() {
             <span className="text-[11px] text-[#9b9a97] leading-tight truncate flex items-center gap-1.5">
               {isStreaming && liveStatus ? (
                 <>
-                  <span className="truncate">{liveStatus}{streamIdleSeconds != null ? ` · ${streamIdleSeconds}s` : ""}</span>
-                  <span className="font-mono tabular-nums text-[#9b9a77]/70 text-[10px] flex-shrink-0">{chatElapsedSec}s</span>
+                  <span className="truncate">{translateProgress(liveStatus, ui)}{streamIdleSeconds != null ? ` · ${streamIdleSeconds}s` : ""}</span>
+                  <span className="font-mono tabular-nums text-[#9b9a77]/70 text-[10px] flex-shrink-0">{chatElapsedSec}{ui("s")}</span>
                   {chatElapsedSec >= 60 && (
-                    <span className="italic text-[#9b9a77]/60 text-[10px] flex-shrink-0">Taking longer than usual</span>
+                    <span className="italic text-[#9b9a77]/60 text-[10px] flex-shrink-0">{ui("Taking longer than usual")}</span>
                   )}
                 </>
               ) : (
                 scaffoldStatus === "ready"
-                  ? "Previewing last saved version"
+                  ? ui("Previewing last saved version")
                   : scaffoldStatus === "error"
-                    ? "Preview unavailable"
-                    : "Loading Live Preview..."
+                    ? ui("Preview unavailable")
+                    : ui("Loading Live Preview...")
               )}
             </span>
           </div>
@@ -5206,7 +5208,7 @@ function EditorPageInner() {
           {scaffoldStatus !== "ready" && scaffoldStatus !== "idle" && scaffoldStatus !== "error" && (
             <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground flex-shrink-0">
               <Loader2 className="h-3 w-3 animate-spin text-brand-700 dark:text-brand-400" />
-              {scaffoldStatus === "scaffolding" ? "Getting ready..." : "Starting..."}
+              {scaffoldStatus === "scaffolding" ? ui("Getting ready...") : ui("Starting...")}
             </div>
           )}
         </div>
@@ -5216,10 +5218,10 @@ function EditorPageInner() {
           <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-none">
           {/* Core toolbar buttons */}
           {([
-            { key: "history" as ActiveTab, icon: Clock, label: "History", isToggle: false },
-            { key: "chat" as ActiveTab, icon: PanelLeftClose, label: "Toggle sidebar", isToggle: true },
-            { key: "preview" as ActiveTab, icon: Globe, label: "Preview", isToggle: false },
-            { key: "code" as ActiveTab, icon: Code2, label: "Code", isToggle: false },
+            { key: "history" as ActiveTab, icon: Clock, label: ui("History"), isToggle: false },
+            { key: "chat" as ActiveTab, icon: PanelLeftClose, label: ui("Toggle sidebar"), isToggle: true },
+            { key: "preview" as ActiveTab, icon: Globe, label: ui("Preview"), isToggle: false },
+            { key: "code" as ActiveTab, icon: Code2, label: ui("Code"), isToggle: false },
           ]).map(({ key, icon: Icon, label, isToggle }, idx) => {
             const isActive = !isToggle && activeTab === key;
             return (
@@ -5247,7 +5249,7 @@ function EditorPageInner() {
 
           {/* Pinned items from More menu */}
           {pinnedItems.map((tabKey) => {
-            const item = MORE_MENU_ITEMS.find((m) => m.key === tabKey);
+            const item = i18n_MORE_MENU_ITEMS.find((m) => m.key === tabKey);
             if (!item) return null;
             const IconComp = item.icon;
             const isActive = activeTab === tabKey;
@@ -5278,7 +5280,7 @@ function EditorPageInner() {
                   ? "bg-brand-500/15 text-brand-700 dark:text-brand-400"
                   : "text-muted-foreground hover:text-foreground hover:bg-accent"
               }`}
-              title="More views"
+              title={ui("More views")}
             >
               <MoreHorizontal className="h-4 w-4" />
             </button>
@@ -5287,8 +5289,8 @@ function EditorPageInner() {
             {showMoreMenu && (
               <div className="absolute top-full left-1/2 -translate-x-1/2 mt-1 w-52 rounded-lg border border-border bg-muted shadow-xl shadow-md py-1 z-50">
                 {/* View tabs with pin/unpin */}
-                <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Views</div>
-                {MORE_MENU_ITEMS.map(({ key, icon: MenuIcon, label }) => {
+                <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{ui("Views")}</div>
+                {i18n_MORE_MENU_ITEMS.map(({ key, icon: MenuIcon, label }) => {
                   const isActive = activeTab === key;
                   const isPinned = pinnedItems.includes(key);
                   return (
@@ -5320,7 +5322,7 @@ function EditorPageInner() {
                             ? "text-[#4D91FF] hover:text-blue-300"
                             : "text-muted-foreground hover:text-foreground"
                         }`}
-                        title={isPinned ? "Unpin from toolbar" : "Pin to toolbar"}
+                        title={isPinned ? ui("Unpin from toolbar") : ui("Pin to toolbar")}
                       >
                         {isPinned ? <PinOff className="h-3.5 w-3.5" /> : <Pin className="h-3.5 w-3.5" />}
                       </button>
@@ -5330,41 +5332,41 @@ function EditorPageInner() {
                 {/* Separator */}
                 <div className="my-1 border-t border-border" />
                 {/* Project actions */}
-                <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Project</div>
+                <div className="px-3 py-1.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">{ui("Project")}</div>
                 <button
                   className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                   onClick={() => { router.push(`/projects/${resolvedProjectId}/settings`); setShowMoreMenu(false); }}
                 >
                   <Settings className="h-4 w-4 flex-shrink-0" />
-                  <span>Settings</span>
+                  <span>{ui("Settings")}</span>
                 </button>
                 <button
                   className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                   onClick={() => { handleDownloadZip(); setShowMoreMenu(false); }}
                 >
                   <Download className="h-4 w-4 flex-shrink-0" />
-                  <span>Download project</span>
+                  <span>{ui("Download project")}</span>
                 </button>
                 <button
                   className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                   onClick={() => { handleDuplicateProject(); setShowMoreMenu(false); }}
                 >
                   <CopyPlus className="h-4 w-4 flex-shrink-0" />
-                  <span>{isDuplicating ? "Duplicating..." : "Duplicate project"}</span>
+                  <span>{isDuplicating ? ui("Duplicating...") : ui("Duplicate project")}</span>
                 </button>
                 <button
                   className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                   onClick={() => { handleCopyProjectLink(); setShowMoreMenu(false); }}
                 >
                   <Link className="h-4 w-4 flex-shrink-0" />
-                  <span>Copy project link</span>
+                  <span>{ui("Copy project link")}</span>
                 </button>
                 <button
                   className="flex w-full items-center gap-2.5 px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
                   onClick={() => { setShortcutsDialogOpen(true); setShowMoreMenu(false); }}
                 >
                   <Keyboard className="h-4 w-4 flex-shrink-0" />
-                  <span>Keyboard shortcuts</span>
+                  <span>{ui("Keyboard shortcuts")}</span>
                 </button>
                 {/* Separator */}
                 <div className="my-1 border-t border-border" />
@@ -5373,7 +5375,7 @@ function EditorPageInner() {
                   onClick={() => { setDeleteConfirmOpen(true); setShowMoreMenu(false); }}
                 >
                   <Trash2 className="h-4 w-4 flex-shrink-0" />
-                  <span>Delete project</span>
+                  <span>{ui("Delete project")}</span>
                 </button>
               </div>
             )}
@@ -5428,7 +5430,7 @@ function EditorPageInner() {
                 setTimeout(() => routeInputRef.current?.select(), 0);
               }}
               className="flex items-center gap-1 rounded-full bg-muted border border-border px-2.5 py-1 hover:border-border transition-colors cursor-text"
-              title="Click to navigate to a route"
+              title={ui("Click to navigate to a route")}
             >
               <Globe className="h-3 w-3 text-muted-foreground" />
               <span className="text-[11px] text-muted-foreground font-mono">{previewRoute}</span>
@@ -5436,9 +5438,9 @@ function EditorPageInner() {
           )}
           <div className="flex items-center rounded-full bg-muted border border-border p-0.5">
             {([
-              { mode: "desktop" as DeviceMode, Icon: Monitor, label: "Desktop" },
-              { mode: "tablet" as DeviceMode, Icon: Tablet, label: "Tablet (768px)" },
-              { mode: "mobile" as DeviceMode, Icon: Smartphone, label: "Mobile (375px)" },
+              { mode: "desktop" as DeviceMode, Icon: Monitor, label: ui("Desktop") },
+              { mode: "tablet" as DeviceMode, Icon: Tablet, label: ui("Tablet (768px)") },
+              { mode: "mobile" as DeviceMode, Icon: Smartphone, label: ui("Mobile (375px)") },
             ]).map(({ mode, Icon, label }) => (
               <button
                 key={mode}
@@ -5461,7 +5463,7 @@ function EditorPageInner() {
               }
             }}
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            title="Refresh preview"
+            title={ui("Refresh preview")}
             disabled={!previewUrl}
           >
             <RefreshCw className="h-3.5 w-3.5" />
@@ -5471,7 +5473,7 @@ function EditorPageInner() {
               if (previewUrl) window.open(previewUrl, "_blank");
             }}
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            title="Open in new tab"
+            title={ui("Open in new tab")}
             disabled={!previewUrl}
           >
             <ExternalLink className="h-3.5 w-3.5" />
@@ -5479,7 +5481,7 @@ function EditorPageInner() {
           <button
             onClick={handleToggleFullscreen}
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            title={isFullscreen ? "Exit fullscreen" : "Fullscreen"}
+            title={isFullscreen ? ui("Exit fullscreen") : ui("Fullscreen")}
           >
             {isFullscreen ? <Minimize2 className="h-3.5 w-3.5" /> : <Maximize2 className="h-3.5 w-3.5" />}
           </button>
@@ -5496,7 +5498,7 @@ function EditorPageInner() {
             className="flex h-7 items-center gap-1.5 rounded-full bg-muted px-2.5 text-sm text-[#FCFBF8] hover:bg-[#333] transition-colors"
           >
             <UserPlus className="h-4 w-4" />
-            <span className="hidden lg:inline">Share</span>
+            <span className="hidden lg:inline">{ui("Share")}</span>
           </button>
           {/* GitHub sync button with status */}
           <GitHubButton
@@ -5515,7 +5517,7 @@ function EditorPageInner() {
             onClick={() => router.push("/billing")}
             className="flex h-7 items-center gap-1.5 rounded-lg bg-accent border border-border px-2.5 text-sm text-foreground hover:bg-accent hover:text-foreground transition-all"
           >
-            <Crown className="h-4 w-4 text-amber-600 dark:text-amber-400" /><span className="hidden md:inline">Upgrade</span>
+            <Crown className="h-4 w-4 text-amber-600 dark:text-amber-400" /><span className="hidden md:inline">{ui("Upgrade")}</span>
           </button>
           {/* Deploy */}
           <button
@@ -5525,10 +5527,10 @@ function EditorPageInner() {
               setPublishModalOpen(true);
             }}
             className="flex h-7 items-center gap-1.5 rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 px-3 text-sm font-medium text-white shadow-lg shadow-brand-900/30 hover:brightness-110 transition-all"
-            title="Deploy to a public URL"
+            title={ui("Deploy to a public URL")}
           >
             <CloudUpload className="h-4 w-4 md:hidden" />
-            <span className="hidden md:inline">Deploy</span>
+            <span className="hidden md:inline">{ui("Deploy")}</span>
           </button>
         </div>
       </header>
@@ -5577,24 +5579,19 @@ function EditorPageInner() {
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-600/10 mb-4">
                     <Sparkles className="h-6 w-6 text-brand-700 dark:text-brand-400" />
                   </div>
-                  <h3 className="text-sm font-medium text-foreground mb-1">
-                    Start a conversation
-                  </h3>
-                  <p className="text-[13px] text-muted-foreground max-w-[280px]">
-                    Describe what you want to build and Doable AI will generate
-                    the code for you.
-                  </p>
+                  <h3 className="text-sm font-medium text-foreground mb-1"> {ui("Start a conversation")} </h3>
+                  <p className="text-[13px] text-muted-foreground max-w-[280px]"> {ui("Describe what you want to build and Doable will generate the code for you.")} </p>
                   {/* Mode indicator in empty state */}
                   <div className="mt-4 flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-[12px] text-muted-foreground">
                     {chatMode === "agent" ? (
                       <>
                         <Hammer className="h-3.5 w-3.5 text-brand-700 dark:text-brand-400" />
-                        <span>Work mode — generates code</span>
+                        <span>{ui("Work mode — generates code")}</span>
                       </>
                     ) : (
                       <>
                         <Target className="h-3.5 w-3.5 text-blue-600 dark:text-blue-400" />
-                        <span>Strategize mode — creates plans only</span>
+                        <span>{ui("Strategize mode — creates plans only")}</span>
                       </>
                     )}
                   </div>
@@ -5608,10 +5605,10 @@ function EditorPageInner() {
                     ].map((starter) => (
                       <button
                         key={starter}
-                        onClick={() => sendMessage(starter)}
+                        onClick={() => sendMessage(ui(starter))}
                         className="rounded-full border border-border bg-secondary px-3.5 py-1.5 text-[13px] text-foreground hover:bg-accent hover:text-foreground hover:border-border transition-all"
                       >
-                        {starter}
+                        {ui(starter)}
                       </button>
                     ))}
                   </div>
@@ -5627,6 +5624,7 @@ function EditorPageInner() {
 
               {messages.map((msg, msgIdx) => {
                 if (msg.hidden) return null;
+                const userContent = msg.role === "user" ? translatePlatformPrompt(msg.content, ui) : msg.content;
                 return (
                 <div key={msg.id} className="group">
                   {msg.role === "user" ? (
@@ -5668,7 +5666,7 @@ function EditorPageInner() {
                                 })}
                               </div>
                             )}
-                            {msg.content}
+                            {userContent}
                           </div>
                         </div>
                       </div>
@@ -5680,9 +5678,7 @@ function EditorPageInner() {
                             <span className="text-[10px] text-muted-foreground">
                               {msg.timestamp}
                             </span>
-                            <span className="text-xs font-medium text-muted-foreground">
-                              You
-                            </span>
+                            <span className="text-xs font-medium text-muted-foreground"> {ui("You")} </span>
                           </div>
                           <div className="rounded-2xl rounded-br-sm bg-muted px-4 py-2.5 text-[14px] leading-relaxed text-foreground">
                             {msg.attachments && msg.attachments.length > 0 && (
@@ -5701,26 +5697,22 @@ function EditorPageInner() {
                                 })}
                               </div>
                             )}
-                            {msg.content.length > 500 && !expandedUserMsgs.has(msg.id) ? (
+                            {userContent.length > 500 && !expandedUserMsgs.has(msg.id) ? (
                               <>
-                                {msg.content.slice(0, 500)}…
+                                {userContent.slice(0, 500)}…
                                 <button
                                   onClick={() => setExpandedUserMsgs((prev) => new Set(prev).add(msg.id))}
                                   className="ml-1 text-xs text-brand-600 dark:text-brand-400 hover:underline"
-                                >
-                                  Show full prompt ({Math.round(msg.content.length / 1000)}k chars)
-                                </button>
+                                > {ui("Show full prompt ({count}k chars)", {count:Math.round(userContent.length / 1000)})} </button>
                               </>
                             ) : (
                               <>
-                                {msg.content}
-                                {msg.content.length > 500 && (
+                                {userContent}
+                                {userContent.length > 500 && (
                                   <button
                                     onClick={() => setExpandedUserMsgs((prev) => { const next = new Set(prev); next.delete(msg.id); return next; })}
                                     className="ml-1 text-xs text-muted-foreground hover:underline"
-                                  >
-                                    Collapse
-                                  </button>
+                                  > {ui("Collapse")} </button>
                                 )}
                               </>
                             )}
@@ -5747,7 +5739,7 @@ function EditorPageInner() {
                                 : "text-brand-700 dark:text-brand-400"
                             }`}
                           >
-                            {msg.isError ? "Error" : "Doable AI"}
+                            {msg.isError ? ui("Error") : ui("Doable")}
                           </span>
                           <span className="text-[10px] text-muted-foreground">
                             {msg.timestamp}
@@ -5785,17 +5777,17 @@ function EditorPageInner() {
                                   const label = latest.filePath
                                     ? latest.filePath.split("/").pop()
                                     : latest.description;
-                                  return `Step ${stepCount} — ${label}`;
+                                  return ui("Step {count} — {label}", {count:stepCount, label:translateProgress(label ?? "", ui)});
                                 }
-                                return "Thinking...";
-                              })() : "Thought process"}
+                                return ui("Thinking...");
+                              })() : ui("Thought process")}
                             </summary>
                             <div className="px-3 pb-2 text-muted-foreground max-h-60 overflow-y-auto scroll-smooth">
                               {extractFunctionSteps(msg.thinkingContent).length > 0
-                                ? renderFunctionStepList(msg.thinkingContent, true)
+                                ? renderFunctionStepList(msg.thinkingContent, ui, true)
                                 : msg.thinkingContent.split("\n\n---\n\n").filter(Boolean).map((block, i) => (
                                   <div key={i} className={`whitespace-pre-wrap ${i > 0 ? "mt-2 pt-2 border-t border-border/50" : ""}`}>
-                                    {block.trim()}
+                                    {translateThinkingPrefix(block.trim(), ui)}
                                   </div>
                                 ))}
                             </div>
@@ -5825,27 +5817,18 @@ function EditorPageInner() {
                               // streams the SDK error string is concatenated into the
                               // assistant content WITHOUT the isError flag being set.
                               <div data-testid="ai-not-configured-cta" className="space-y-2">
-                                <div className="font-semibold text-red-300">
-                                  AI provider not connected
-                                </div>
-                                <div className="text-[12px] text-red-400/90 leading-relaxed">
-                                  Connect a GitHub Copilot account or add a custom provider key in
-                                  Settings &rarr; AI.
-                                </div>
+                                <div className="font-semibold text-red-300"> {ui("AI provider not connected")} </div>
+                                <div className="text-[12px] text-red-400/90 leading-relaxed"> {ui("Connect a GitHub Copilot account or add a custom provider key in Settings → AI.")} </div>
                                 <div className="flex flex-wrap items-center gap-2 pt-1">
                                   <a
                                     data-testid="ai-not-configured-cta-primary"
                                     href="/admin?tab=users"
                                     className="inline-flex items-center gap-1.5 rounded-md bg-brand-500 px-3 py-1.5 text-[12px] font-medium text-white hover:bg-brand-600 transition-colors no-underline"
                                   >
-                                    <Settings className="h-3.5 w-3.5" />
-                                    Configure AI
-                                  </a>
+                                    <Settings className="h-3.5 w-3.5" /> {ui("Configure AI")} </a>
                                 </div>
                                 <details className="mt-2 text-[11px] text-red-400/70">
-                                  <summary className="cursor-pointer select-none hover:text-red-300">
-                                    Show raw SDK error (for debugging)
-                                  </summary>
+                                  <summary className="cursor-pointer select-none hover:text-red-300"> {ui("Show raw SDK error (for debugging)")} </summary>
                                   <pre className="mt-1 whitespace-pre-wrap break-words rounded-md bg-red-500/5 p-2 font-mono text-[10px] text-red-300/80">
                                     {msg.content}
                                   </pre>
@@ -5853,7 +5836,7 @@ function EditorPageInner() {
                               </div>
                             ) : msg.content && (
                               extractFunctionSteps(msg.content).length > 0 && stripFunctionMarkup(msg.content).length === 0
-                                ? renderFunctionStepList(msg.content)
+                                ? renderFunctionStepList(msg.content, ui)
                                 : <MemoizedMessageContent content={stripFunctionMarkup(msg.content)} />
                             )}
                             
@@ -5874,7 +5857,7 @@ function EditorPageInner() {
                                   const parts = action.toolName.slice(4).split("_");
                                   const verbIdx = parts.findIndex(p => ["get", "list", "search", "create", "update", "delete", "query", "manage", "run", "download", "cancel", "save", "new"].includes(p));
                                   if (verbIdx > 0) {
-                                    return parts.slice(verbIdx).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
+                                    return translateProgress(parts.slice(verbIdx).map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(" "), ui);
                                   }
                                 }
                                 // Sanitize: strip absolute paths, UUIDs, emails
@@ -5883,7 +5866,7 @@ function EditorPageInner() {
                                 desc = desc.replace(/[A-Za-z]:\\[\w.\\-]+\\([\w.\-]+)/g, "$1"); // C:\path\file → file
                                 desc = desc.replace(/[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}/gi, "***"); // UUIDs
                                 desc = desc.replace(/[\w.+-]+@[\w-]+\.[\w.]+/g, "***@***"); // emails
-                                return desc;
+                                return translateProgress(desc, ui);
                               };
                               if (!msg.isStreaming && allActions.length === 0) return null;
                               return (
@@ -5904,8 +5887,8 @@ function EditorPageInner() {
                                   </div>
                                   <h3 className="mt-4 mb-3 text-sm font-semibold text-foreground tracking-wide">
                                     {msg.isStreaming
-                                      ? (liveStatus || "Building...")
-                                      : `${allActions.length} ${(allActions.length === 1) ? "change" : "changes"} applied`}
+                                      ? translateProgress(liveStatus || "Building...", ui)
+                                      : ui("Completed {count} actions", {count:allActions.length})}
                                   </h3>
                                   
                                   {allActions.length > 0 && (() => {
@@ -5932,13 +5915,10 @@ function EditorPageInner() {
                                         >
                                           {isExpanded ? (
                                             <>
-                                              <ChevronUp className="h-3 w-3" />
-                                              Hide earlier steps
-                                            </>
+                                              <ChevronUp className="h-3 w-3" /> {ui("Hide earlier steps")} </>
                                           ) : (
                                             <>
-                                              <ChevronDown className="h-3 w-3" />
-                                              Show {hiddenCount} earlier {hiddenCount === 1 ? "step" : "steps"}
+                                              <ChevronDown className="h-3 w-3" /> {ui("Show {count} earlier steps", {count:hiddenCount})}
                                             </>
                                           )}
                                         </button>
@@ -5980,7 +5960,7 @@ function EditorPageInner() {
                                   ? "bg-emerald-900/30 text-emerald-400"
                                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
                               }`}
-                              title="Good response"
+                              title={ui("Good response")}
                             >
                               <ThumbsUp className="h-3.5 w-3.5" />
                             </button>
@@ -5992,14 +5972,14 @@ function EditorPageInner() {
                                   ? "bg-red-900/30 text-red-400"
                                   : "text-muted-foreground hover:bg-muted hover:text-foreground"
                               }`}
-                              title="Bad response"
+                              title={ui("Bad response")}
                             >
                               <ThumbsDown className="h-3.5 w-3.5" />
                             </button>
                             {/* Copy */}
                             <button
                               className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                              title="Copy message"
+                              title={ui("Copy message")}
                               onClick={() => {
                                 navigator.clipboard.writeText(msg.content).then(() => {
                                   setCopiedMsgId(msg.id);
@@ -6022,7 +6002,7 @@ function EditorPageInner() {
                                     ? "bg-secondary text-foreground"
                                     : "text-muted-foreground hover:bg-muted hover:text-foreground"
                                 }`}
-                                title="More actions"
+                                title={ui("More actions")}
                               >
                                 <MoreHorizontal className="h-3.5 w-3.5" />
                               </button>
@@ -6037,16 +6017,12 @@ function EditorPageInner() {
                                     }}
                                     className="flex w-full items-center gap-2 px-3 py-2 text-[13px] text-foreground hover:bg-accent transition-colors"
                                   >
-                                    <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
-                                    Edit message
-                                  </button>
+                                    <Pencil className="h-3.5 w-3.5 text-muted-foreground" /> {ui("Edit message")} </button>
                                   <button
                                     onClick={() => handleRevertToPoint(msg.id)}
                                     className="flex w-full items-center gap-2 px-3 py-2 text-[13px] text-foreground hover:bg-accent transition-colors"
                                   >
-                                    <Undo2 className="h-3.5 w-3.5 text-muted-foreground" />
-                                    Revert to this point
-                                  </button>
+                                    <Undo2 className="h-3.5 w-3.5 text-muted-foreground" /> {ui("Revert to this point")} </button>
                                 </div>
                               )}
                             </div>
@@ -6175,12 +6151,9 @@ function EditorPageInner() {
                                     {a.fileName}
                                   </span>
                                   <span className="block text-xs text-muted-foreground">
-                                    {a.sizeBytes > 0 ? `${(a.sizeBytes / 1024).toFixed(1)} KB · ` : ""}Click to download
-                                  </span>
+                                    {a.sizeBytes > 0 ? ui("{v0} KB · ", {v0: ((a.sizeBytes / 1024).toFixed(1))}) : ""}{ui("Click to download")} </span>
                                 </span>
-                                <span className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground">
-                                  Download
-                                </span>
+                                <span className="rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground"> {ui("Download")} </span>
                               </a>
                             ))}
                           </div>
@@ -6197,10 +6170,10 @@ function EditorPageInner() {
                                 {(msgIdx === messages.length - 1 && aiSuggestions.length > 0 ? aiSuggestions : (msg.suggestions || [])).map((suggestion) => (
                                   <button
                                     key={suggestion}
-                                    onClick={() => sendMessage(suggestion)}
+                                    onClick={() => sendMessage(ui(suggestion))}
                                     className="rounded-full border border-border bg-secondary px-3.5 py-1.5 text-[13px] text-foreground hover:bg-accent hover:text-foreground hover:border-border transition-all"
                                   >
-                                    {suggestion}
+                                    {ui(suggestion)}
                                   </button>
                                 ))}
                               </div>
@@ -6224,7 +6197,7 @@ function EditorPageInner() {
                         .map(([qId, answer]) => `${qId}: ${answer}`)
                         .join("\n");
                       // Send answers back as a follow-up in plan mode
-                      sendMessage(`Here are my answers to your questions:\n\n${answerText}`);
+                      sendMessage(ui("Here are my answers to your questions:\n\n{answers}", {answers:answerText}));
                     }}
                     disabled={isStreaming}
                   />
@@ -6262,14 +6235,14 @@ function EditorPageInner() {
                       // Trigger the AI to start building — pass "agent" mode explicitly
                       setTimeout(() => {
                         sendMessage(
-                          `Start building! Here's the approved plan:\n\n**${summary}**\n\n${stepList}\n\nBuild each step in order. The full plan details are in .doable/plan.md.`,
+                          ui("Start building! Here's the approved plan:\n\n**{summary}**\n\n{steps}\n\nBuild each step in order. The full plan details are in .doable/plan.md.", {summary, steps:stepList}),
                           undefined,
                           "agent"
                         );
                       }, 150);
                     }}
                     onRefine={() => {
-                      sendMessage("Please refine the plan based on my feedback.");
+                      sendMessage(ui("Please refine the plan based on my feedback."));
                     }}
                     onReset={async () => {
                       try {
@@ -6327,8 +6300,8 @@ function EditorPageInner() {
                           steps: [...prev.steps, {
                             id: `step_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
                             order: prev.steps.length + 1,
-                            title: "New step",
-                            description: "Describe what this step does",
+                            title: ui("New step"),
+                            description: ui("Describe what this step does"),
                             status: "pending" as const,
                           }],
                         };
@@ -6347,9 +6320,7 @@ function EditorPageInner() {
                 onClick={handlePanelClose}
                 className="flex items-center gap-2 px-4 py-2.5 text-sm text-muted-foreground hover:text-foreground border-t border-border transition-colors"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Back to Chat
-              </button>
+                <ArrowLeft className="h-4 w-4" /> {ui("Back to Chat")} </button>
             )}
 
             {/* ── Stop Generation Button (floating above input) ── */}
@@ -6359,9 +6330,7 @@ function EditorPageInner() {
                   onClick={handleStopStreaming}
                   className="flex items-center gap-2 rounded-full border border-border bg-secondary px-4 py-2 text-[13px] font-medium text-foreground shadow-lg shadow-md hover:bg-accent hover:border-border transition-all backdrop-blur-sm"
                 >
-                  <Square className="h-3 w-3 fill-current" />
-                  Stop Doable
-                </button>
+                  <Square className="h-3 w-3 fill-current" /> {ui("Stop Doable")} </button>
               </div>
             )}
 
@@ -6375,19 +6344,17 @@ function EditorPageInner() {
                 <div className="flex items-center justify-between px-4 py-2 bg-muted border-b border-border">
                   <div className="flex items-center gap-2 text-[12px] text-muted-foreground">
                     <Coins className="h-3.5 w-3.5 text-amber-400" />
-                    <span>5 credits remaining</span>
+                    <span>{ui("5 credits remaining")}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => router.push("/billing")}
                       className="text-[12px] font-medium text-brand-400 hover:text-brand-300 transition-colors"
-                    >
-                      Add credits
-                    </button>
+                    > {ui("Add credits")} </button>
                     <button
                       onClick={() => setShowCreditsBar(false)}
                       className="p-0.5 text-muted-foreground hover:text-muted-foreground transition-colors"
-                      title="Dismiss"
+                      title={ui("Dismiss")}
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
@@ -6458,7 +6425,7 @@ function EditorPageInner() {
                         }
                       }}
                       onPaste={fileAttachments.handlePaste}
-                      placeholder={inputValue.length > 0 ? "" : "Ask Doable..."}
+                      placeholder={inputValue.length > 0 ? "" : ui("Ask Doable...")}
                       rows={1}
                       disabled={isStreaming}
                       className="w-full max-h-[40vh] min-h-[48px] resize-none bg-transparent px-4 py-3.5 text-[14px] leading-relaxed text-foreground placeholder:text-muted-foreground/70 outline-none disabled:opacity-50"
@@ -6472,7 +6439,7 @@ function EditorPageInner() {
                         <button
                           onClick={fileAttachments.openFilePicker}
                           className="shrink-0 relative flex h-7 w-7 items-center justify-center rounded-full border border-border bg-accent text-muted-foreground hover:bg-accent hover:text-foreground transition-all duration-200"
-                          title="Attach file (images, text, code, PDF)"
+                          title={ui("Attach file (images, text, code, PDF)")}
                         >
                           <Plus className="h-3.5 w-3.5" />
                           {fileAttachments.attachments.length > 0 && (
@@ -6500,10 +6467,10 @@ function EditorPageInner() {
                                 ? "bg-brand-500/20 text-brand-700 dark:text-brand-300 shadow-[0_0_10px_rgba(168,85,247,0.1)]"
                                 : "text-muted-foreground hover:text-foreground"
                             }`}
-                            title="Strategize mode — creates plans only"
+                            title={ui("Strategize mode — creates plans only")}
                           >
                             <Target className="h-3 w-3" />
-                            <span className="hidden @[26rem]:inline">Strategize</span>
+                            <span className="hidden @[26rem]:inline">{ui("Strategize")}</span>
                           </button>
                           <button
                             onClick={() => setChatMode("agent")}
@@ -6512,10 +6479,10 @@ function EditorPageInner() {
                                 ? "bg-brand-500/20 text-brand-700 dark:text-brand-300 shadow-[0_0_10px_rgba(168,85,247,0.1)]"
                                 : "text-muted-foreground hover:text-foreground"
                             }`}
-                            title="Work mode — generates code"
+                            title={ui("Work mode — generates code")}
                           >
                             <Hammer className="h-3 w-3" />
-                            <span className="hidden @[26rem]:inline">Work</span>
+                            <span className="hidden @[26rem]:inline">{ui("Work")}</span>
                           </button>
                         </div>
                         
@@ -6527,10 +6494,10 @@ function EditorPageInner() {
                               ? "border-brand-500/50 bg-brand-500/10 text-brand-700 dark:text-brand-300"
                               : "border-border bg-muted text-muted-foreground hover:bg-accent hover:text-foreground"
                           }`}
-                          title="Design View"
+                          title={ui("Design View")}
                         >
                           <Paintbrush className="h-3 w-3" />
-                          <span className="hidden @[26rem]:inline">Design View</span>
+                          <span className="hidden @[26rem]:inline">{ui("Design View")}</span>
                         </button>
                         
                         {/* Model selector — hidden unless admin enables it */}
@@ -6560,7 +6527,7 @@ function EditorPageInner() {
                                 ? "text-red-400 bg-red-500/10 border border-red-500/20 animate-pulse"
                                 : "text-muted-foreground hover:text-foreground hover:bg-accent border border-transparent"
                             }`}
-                            title={speechRecognition.isListening ? "Stop recording" : "Voice input"}
+                            title={speechRecognition.isListening ? ui("Stop recording") : ui("Voice input")}
                           >
                             <Mic className="h-3.5 w-3.5" />
                           </button>
@@ -6571,10 +6538,10 @@ function EditorPageInner() {
                           <button
                             onClick={handleStopStreaming}
                             className="flex h-7 items-center gap-1.5 rounded-full bg-red-500/10 border border-red-500/20 px-2.5 text-red-500 hover:bg-red-500/20 transition-colors shadow-sm"
-                            title="Stop generation"
+                            title={ui("Stop generation")}
                           >
                             <Square className="h-3 w-3 fill-current" />
-                            <span className="text-[10px] sm:text-[11px] font-medium">Stop</span>
+                            <span className="text-[10px] sm:text-[11px] font-medium">{ui("Stop")}</span>
                           </button>
                         ) : (
                           <button
@@ -6582,7 +6549,7 @@ function EditorPageInner() {
                             disabled={!inputValue.trim() && fileAttachments.attachments.length === 0}
                             className="group flex h-7 w-7 sm:w-auto sm:px-2.5 items-center justify-center gap-1.5 rounded-full bg-brand-500 border border-brand-500/20 text-white shadow-md hover:bg-brand-400 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                           >
-                            <span className="hidden sm:inline text-[10px] sm:text-[11px] font-medium tracking-wide">Send</span>
+                            <span className="hidden sm:inline text-[10px] sm:text-[11px] font-medium tracking-wide">{ui("Send")}</span>
                             <ArrowUp className="h-3.5 w-3.5 transition-transform group-hover:-translate-y-0.5" />
                           </button>
                         )}
@@ -6590,9 +6557,7 @@ function EditorPageInner() {
                     </div>
                   </div>
                   
-                  <div className="mt-2 text-center text-[10px] text-muted-foreground/60 font-medium tracking-wide">
-                    Shift + Enter for new line
-                  </div>
+                  <div className="mt-2 text-center text-[10px] text-muted-foreground/60 font-medium tracking-wide"> {ui("Shift + Enter for new line")} </div>
                 </div>
               </div>
 
@@ -6603,9 +6568,7 @@ function EditorPageInner() {
                     onClick={() => setActiveTab("chat")}
                     className="flex items-center gap-1.5 text-[12px] text-brand-400 hover:text-brand-300 transition-colors"
                   >
-                    <MessageSquare className="h-3 w-3" />
-                    Back to Chat
-                  </button>
+                    <MessageSquare className="h-3 w-3" /> {ui("Back to Chat")} </button>
                 </div>
               )}
             </div>
@@ -6620,9 +6583,7 @@ function EditorPageInner() {
             {/* File tree sidebar */}
             <div className="w-56 flex-shrink-0 overflow-y-auto border-r border-border bg-card py-2">
               <div className="mb-1 px-3 flex items-center justify-between">
-                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-                  Explorer
-                </span>
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"> {ui("Explorer")} </span>
                 {fileTreeLoading && (
                   <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
                 )}
@@ -6630,11 +6591,11 @@ function EditorPageInner() {
               {scaffoldStatus !== "ready" ? (
                 <div className="px-3 py-4 text-center">
                   {scaffoldStatus === "error" ? (
-                    <p className="text-[12px] text-red-400">Failed to load</p>
+                    <p className="text-[12px] text-red-400">{ui("Failed to load")}</p>
                   ) : (
                     <div className="flex flex-col items-center gap-2">
                       <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                      <p className="text-[12px] text-muted-foreground">Loading files...</p>
+                      <p className="text-[12px] text-muted-foreground">{ui("Loading files...")}</p>
                     </div>
                   )}
                 </div>
@@ -6644,16 +6605,12 @@ function EditorPageInner() {
                   <button
                     onClick={loadFileTree}
                     className="text-[11px] text-brand-400 hover:text-brand-300"
-                  >
-                    Retry
-                  </button>
+                  > {ui("Retry")} </button>
                 </div>
               ) : fileTree.length === 0 ? (
                 <div className="px-3 py-4 text-center">
-                  <p className="text-[12px] text-muted-foreground">No files yet</p>
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    Ask the AI to create some files
-                  </p>
+                  <p className="text-[12px] text-muted-foreground">{ui("No files yet")}</p>
+                  <p className="text-[11px] text-muted-foreground mt-1"> {ui("Ask the AI to create some files")} </p>
                 </div>
               ) : (
                 renderTree(fileTree)
@@ -6697,7 +6654,7 @@ function EditorPageInner() {
                             closeFileTab(tab.path);
                           }}
                           className="flex h-4 w-4 flex-none items-center justify-center rounded opacity-0 group-hover:opacity-100 hover:bg-muted transition-all"
-                          title="Close (Ctrl+W)"
+                          title={ui("Close (Ctrl+W)")}
                         >
                           <X className="h-3 w-3" />
                         </button>
@@ -6705,9 +6662,7 @@ function EditorPageInner() {
                     );
                   })
                 ) : (
-                  <div className="px-3 py-1.5 text-[12px] text-muted-foreground">
-                    No file selected
-                  </div>
+                  <div className="px-3 py-1.5 text-[12px] text-muted-foreground"> {ui("No file selected")} </div>
                 )}
 
                 {/* Minimap toggle */}
@@ -6719,7 +6674,7 @@ function EditorPageInner() {
                         ? "text-brand-400 bg-secondary"
                         : "text-muted-foreground hover:text-muted-foreground"
                     }`}
-                    title={showMinimap ? "Hide minimap" : "Show minimap"}
+                    title={showMinimap ? ui("Hide minimap") : ui("Show minimap")}
                   >
                     <Map className="h-3 w-3" />
                   </button>
@@ -6742,17 +6697,13 @@ function EditorPageInner() {
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary mx-auto mb-3">
                       <Code2 className="h-6 w-6 text-muted-foreground" />
                     </div>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      Select a file from the explorer
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Click on any file to view its content
-                    </p>
+                    <p className="text-sm text-muted-foreground mb-1"> {ui("Select a file from the explorer")} </p>
+                    <p className="text-xs text-muted-foreground"> {ui("Click on any file to view its content")} </p>
                     <div className="mt-4 flex flex-col gap-1 text-[11px] text-muted-foreground">
-                      <span>Ctrl+S to save</span>
-                      <span>Ctrl+F to search</span>
-                      <span>Ctrl+H to replace</span>
-                      <span>Ctrl+W to close tab</span>
+                      <span>{ui("Ctrl+S to save")}</span>
+                      <span>{ui("Ctrl+F to search")}</span>
+                      <span>{ui("Ctrl+H to replace")}</span>
+                      <span>{ui("Ctrl+W to close tab")}</span>
                     </div>
                   </div>
                 </div>
@@ -6760,7 +6711,7 @@ function EditorPageInner() {
                 <div className="flex flex-1 items-center justify-center bg-background">
                   <div className="flex flex-col items-center gap-2">
                     <Loader2 className="h-6 w-6 animate-spin text-brand-400" />
-                    <p className="text-sm text-muted-foreground">Loading file...</p>
+                    <p className="text-sm text-muted-foreground">{ui("Loading file...")}</p>
                   </div>
                 </div>
               ) : fileContentError ? (
@@ -6771,9 +6722,7 @@ function EditorPageInner() {
                     <button
                       onClick={() => loadFileContent(selectedFile)}
                       className="text-sm text-brand-400 hover:text-brand-300"
-                    >
-                      Retry
-                    </button>
+                    > {ui("Retry")} </button>
                   </div>
                 </div>
               ) : fileContent !== null ? (
@@ -6795,13 +6744,8 @@ function EditorPageInner() {
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-secondary mx-auto mb-3">
                       <Code2 className="h-6 w-6 text-muted-foreground" />
                     </div>
-                    <p className="text-sm text-muted-foreground mb-1">
-                      Code will appear here as the AI generates files
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      Start a conversation in the Chat tab to generate your
-                      project
-                    </p>
+                    <p className="text-sm text-muted-foreground mb-1"> {ui("Code will appear here as the AI generates files")} </p>
+                    <p className="text-xs text-muted-foreground"> {ui("Start a conversation in the Chat tab to generate your project")} </p>
                   </div>
                 </div>
               )}
@@ -6866,7 +6810,7 @@ function EditorPageInner() {
                     ref={iframeRef}
                     src={previewUrl}
                     className="h-full w-full border-0"
-                    title="App Preview"
+                    title={ui("App Preview")}
                     // allow-same-origin is required: without it the iframe gets
                     // an opaque origin and accessing window.localStorage throws
                     // SecurityError, which crashes any user app that touches
@@ -6885,22 +6829,20 @@ function EditorPageInner() {
                         <div className="flex-1">
                           <div className="font-medium">
                             {autoFixPausedReason.kind === "hard"
-                              ? `Auto-fix paused — the AI couldn't fix this error after ${autoFixPausedReason.attempts} attempts.`
-                              : "Auto-fix paused — the AI didn't edit any files on the last attempt."}
+                              ? ui("Auto-fix paused — the AI couldn't fix this error after {v0} attempts.", {v0: (autoFixPausedReason.attempts)})
+                              : ui("Auto-fix paused — the AI didn't edit any files on the last attempt.")}
                           </div>
                           <div className="mt-0.5 text-xs opacity-90">
                             {autoFixPausedReason.kind === "hard"
-                              ? "Open the chat to fix it manually, or click Reset Preview."
-                              : "Will retry automatically in 2 minutes, or resume now."}
+                              ? ui("Open the chat to fix it manually, or click Reset Preview.")
+                              : ui("Will retry automatically in 2 minutes, or resume now.")}
                           </div>
                         </div>
                         <button
                           type="button"
                           onClick={resumeAutoFix}
                           className="shrink-0 rounded-md border border-amber-400 bg-white px-2.5 py-1 text-xs font-medium text-amber-900 hover:bg-amber-100 dark:border-amber-600 dark:bg-amber-900/60 dark:text-amber-50 dark:hover:bg-amber-900"
-                        >
-                          Resume auto-fix
-                        </button>
+                        > {ui("Resume auto-fix")} </button>
                       </div>
                     </div>
                   )}
@@ -6927,13 +6869,13 @@ function EditorPageInner() {
                       </div>
                       <h3 className="text-sm font-medium text-foreground mb-1">
                         {scaffoldStatus !== "ready"
-                          ? "Setting up workspace..."
+                          ? ui("Setting up workspace...")
                           : planPhase === "building"
-                            ? "Building from plan..."
-                            : "Building your app..."}
+                            ? ui("Building from plan...")
+                            : ui("Building your app...")}
                       </h3>
                       <p className="text-xs text-muted-foreground max-w-[260px] text-center">
-                        {liveStatus || scaffoldProgressMsg || (scaffoldStatus !== "ready" ? "Installing dependencies" : "AI is writing code")}
+                        {translateProgress(liveStatus || scaffoldProgressMsg, ui) || (scaffoldStatus !== "ready" ? ui("Installing dependencies") : ui("AI is writing code"))}
                       </p>
                     </div>
                   )}
@@ -7014,10 +6956,8 @@ function EditorPageInner() {
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
         <DialogContent className="bg-card border-border text-foreground max-w-md" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
-            <DialogTitle className="text-foreground">Share Project</DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              Share your project with others or embed it on your website.
-            </DialogDescription>
+            <DialogTitle className="text-foreground">{ui("Share Project")}</DialogTitle>
+            <DialogDescription className="text-muted-foreground"> {ui("Share your project with others or embed it on your website.")} </DialogDescription>
           </DialogHeader>
 
           <div className="mt-4 space-y-4">
@@ -7031,12 +6971,12 @@ function EditorPageInner() {
                 )}
                 <div>
                   <p className="text-sm font-medium text-foreground">
-                    {projectVisibility === "public" ? "Link sharing enabled" : "Private project"}
+                    {projectVisibility === "public" ? ui("Link sharing enabled") : ui("Private project")}
                   </p>
                   <p className="text-xs text-muted-foreground">
                     {projectVisibility === "public"
-                      ? "Anyone with the link can join and collaborate"
-                      : "Only invited collaborators can access"}
+                      ? ui("Anyone with the link can join and collaborate")
+                      : ui("Only invited collaborators can access")}
                   </p>
                 </div>
               </div>
@@ -7057,10 +6997,10 @@ function EditorPageInner() {
             {/* Collaborate Link — only shown when link sharing is enabled */}
             {projectVisibility === "public" && (
               <div>
-                <label className="text-sm font-medium text-foreground mb-1.5 block">Collaboration Link</label>
+                <label className="text-sm font-medium text-foreground mb-1.5 block">{ui("Collaboration Link")}</label>
                 <div className="flex items-center gap-2">
                   <div className="flex-1 rounded-md bg-secondary border border-border px-3 py-2 text-sm text-muted-foreground font-mono truncate">
-                    {`${typeof window !== "undefined" ? window.location.origin : ""}/editor/${resolvedProjectId}`}
+                    {ui("{v0}/editor/{v1}", {v0: (typeof window !== "undefined" ? window.location.origin : ""), v1: (resolvedProjectId)})}
                   </div>
                   <button
                     onClick={() => {
@@ -7071,9 +7011,9 @@ function EditorPageInner() {
                       });
                     }}
                     className="flex h-9 items-center gap-1.5 rounded-md bg-brand-600 hover:bg-brand-500 px-3 text-sm font-medium text-white transition-colors"
-                    title="Copy collaboration link"
+                    title={ui("Copy collaboration link")}
                   >
-                    {shareCopied === "collab" ? <><Check className="h-4 w-4" /> Copied!</> : <><Copy className="h-4 w-4" /> Copy Link</>}
+                    {shareCopied === "collab" ? <><Check className="h-4 w-4" /> {ui("Copied!")}</> : <><Copy className="h-4 w-4" /> {ui("Copy Link")}</>}
                   </button>
                 </div>
               </div>
@@ -7087,7 +7027,7 @@ function EditorPageInner() {
                     <Eye className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium text-foreground">{shareStats.uniqueVisitors}</p>
-                      <p className="text-xs text-muted-foreground">{shareStats.uniqueVisitors === 1 ? "visitor" : "visitors"}</p>
+                      <p className="text-xs text-muted-foreground">{shareStats.uniqueVisitors === 1 ? ui("visitor") : ui("visitors")}</p>
                     </div>
                   </div>
                   <div className="h-8 w-px bg-border" />
@@ -7095,7 +7035,7 @@ function EditorPageInner() {
                     <Users className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <p className="text-sm font-medium text-foreground">{shareStats.totalVisits}</p>
-                      <p className="text-xs text-muted-foreground">total views</p>
+                      <p className="text-xs text-muted-foreground">{ui("total views")}</p>
                     </div>
                   </div>
                 </div>
@@ -7104,7 +7044,7 @@ function EditorPageInner() {
                 {shareStats.visitors.length > 0 && (
                   <div className="rounded-lg bg-secondary border border-border overflow-hidden">
                     <div className="px-4 py-2 border-b border-border">
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">People who viewed this project</p>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{ui("People who viewed this project")}</p>
                     </div>
                     <div className="max-h-48 overflow-y-auto divide-y divide-border">
                       {shareStats.visitors.map((visitor) => (
@@ -7114,13 +7054,13 @@ function EditorPageInner() {
                               {(visitor.display_name || visitor.email || "?").charAt(0).toUpperCase()}
                             </div>
                             <div className="min-w-0">
-                              <p className="text-sm text-foreground truncate">{visitor.display_name || visitor.email?.split("@")[0] || "Unknown visitor"}</p>
+                              <p className="text-sm text-foreground truncate">{visitor.display_name || visitor.email?.split("@")[0] || ui("Unknown visitor")}</p>
                               <p className="text-xs text-muted-foreground truncate">{visitor.email || ""}</p>
                             </div>
                           </div>
                           <div className="text-right shrink-0 ml-3">
-                            <p className="text-xs text-muted-foreground">{visitor.visit_count} {visitor.visit_count === 1 ? "visit" : "visits"}</p>
-                            <p className="text-xs text-muted-foreground">{new Date(visitor.last_visited_at).toLocaleDateString()}</p>
+                            <p className="text-xs text-muted-foreground">{visitor.visit_count} {visitor.visit_count === 1 ? ui("visit") : ui("visits")}</p>
+                            <p className="text-xs text-muted-foreground">{new Date(visitor.last_visited_at).toLocaleDateString(ui.locale)}</p>
                           </div>
                         </div>
                       ))}
@@ -7135,8 +7075,7 @@ function EditorPageInner() {
               <div className="px-4 py-2.5 border-b border-border flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Users className="h-3.5 w-3.5 text-muted-foreground" />
-                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
-                    Collaborators{collaborators.length > 0 ? ` (${collaborators.length})` : ""}
+                  <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider"> {ui("Collaborators")}{collaborators.length > 0 ? ` (${collaborators.length})` : ""}
                   </p>
                 </div>
               </div>
@@ -7149,7 +7088,7 @@ function EditorPageInner() {
                           {(collab.display_name || collab.email || "?").charAt(0).toUpperCase()}
                         </div>
                         <div className="min-w-0">
-                          <p className="text-sm text-foreground truncate">{collab.display_name || collab.email?.split("@")[0] || "Collaborator"}</p>
+                          <p className="text-sm text-foreground truncate">{collab.display_name || collab.email?.split("@")[0] || ui("Collaborator")}</p>
                           <p className="text-xs text-muted-foreground truncate">{collab.email || ""}</p>
                         </div>
                       </div>
@@ -7169,7 +7108,7 @@ function EditorPageInner() {
                           }}
                           disabled={removingCollabId === collab.user_id}
                           className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors disabled:opacity-50"
-                          title="Remove collaborator"
+                          title={ui("Remove collaborator")}
                         >
                           {removingCollabId === collab.user_id ? (
                             <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -7183,11 +7122,11 @@ function EditorPageInner() {
                 </div>
               ) : (
                 <div className="px-4 py-4 text-center">
-                  <p className="text-sm text-muted-foreground">No collaborators yet</p>
+                  <p className="text-sm text-muted-foreground">{ui("No collaborators yet")}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {projectVisibility === "public"
-                      ? "Share the link above to invite people"
-                      : "Enable link sharing to let others join"}
+                      ? ui("Share the link above to invite people")
+                      : ui("Enable link sharing to let others join")}
                   </p>
                 </div>
               )}
@@ -7197,16 +7136,16 @@ function EditorPageInner() {
 
             {/* Preview URL */}
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Preview URL</label>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">{ui("Preview URL")}</label>
               <div className="flex items-center gap-2">
                 <div className="flex-1 rounded-md bg-secondary border border-border px-3 py-2 text-sm text-muted-foreground font-mono truncate">
-                  {previewUrl ?? "Not available yet"}
+                  {previewUrl ?? ui("Not available yet")}
                 </div>
                 <button
                   onClick={handleCopyPreviewUrl}
                   disabled={!previewUrl}
                   className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50"
-                  title="Copy URL"
+                  title={ui("Copy URL")}
                 >
                   {shareCopied === "preview" ? <Check className="h-4 w-4 text-emerald-400" /> : <Copy className="h-4 w-4" />}
                 </button>
@@ -7217,18 +7156,18 @@ function EditorPageInner() {
 
             {/* Embed Code */}
             <div>
-              <label className="text-sm font-medium text-foreground mb-1.5 block">Embed Code</label>
+              <label className="text-sm font-medium text-foreground mb-1.5 block">{ui("Embed Code")}</label>
               <div className="flex items-center gap-2">
                 <div className="flex-1 rounded-md bg-secondary border border-border px-3 py-2 text-xs text-muted-foreground font-mono truncate">
                   {previewUrl
                     ? `<iframe src="${previewUrl}" ...>`
-                    : "Preview not available yet"}
+                    : ui("Preview not available yet")}
                 </div>
                 <button
                   onClick={handleCopyEmbedCode}
                   disabled={!previewUrl}
                   className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-50"
-                  title="Copy embed code"
+                  title={ui("Copy embed code")}
                 >
                   {shareCopied === "embed" ? <Check className="h-4 w-4 text-emerald-400" /> : <Code className="h-4 w-4" />}
                 </button>
@@ -7240,9 +7179,7 @@ function EditorPageInner() {
             <button
               onClick={() => setShareDialogOpen(false)}
               className="rounded-md bg-secondary border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
-            >
-              Close
-            </button>
+            > {ui("Close")} </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -7252,12 +7189,8 @@ function EditorPageInner() {
         <DialogContent className="bg-card border-border text-foreground max-w-md" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle className="text-foreground flex items-center gap-2">
-              <Rocket className="h-5 w-5 text-blue-400" />
-              Deploy Project
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              Push your project to a public URL.
-            </DialogDescription>
+              <Rocket className="h-5 w-5 text-blue-400" /> {ui("Deploy Project")} </DialogTitle>
+            <DialogDescription className="text-muted-foreground"> {ui("Push your project to a public URL.")} </DialogDescription>
           </DialogHeader>
 
           <div className="mt-4 space-y-4">
@@ -7265,7 +7198,7 @@ function EditorPageInner() {
             {publishStatus === "idle" && (
               <>
                 <div>
-                  <label className="text-sm font-medium text-foreground mb-2 block">Environment</label>
+                  <label className="text-sm font-medium text-foreground mb-2 block">{ui("Environment")}</label>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => setPublishEnv("production")}
@@ -7276,8 +7209,8 @@ function EditorPageInner() {
                       }`}
                     >
                       <Globe className="h-5 w-5" />
-                      <span className="font-medium">Live</span>
-                      <span className="text-xs opacity-70">Production deploy</span>
+                      <span className="font-medium">{ui("Live")}</span>
+                      <span className="text-xs opacity-70">{ui("Production deploy")}</span>
                     </button>
                     <button
                       onClick={() => setPublishEnv("preview")}
@@ -7288,8 +7221,8 @@ function EditorPageInner() {
                       }`}
                     >
                       <Eye className="h-5 w-5" />
-                      <span className="font-medium">Test</span>
-                      <span className="text-xs opacity-70">Preview deploy</span>
+                      <span className="font-medium">{ui("Test")}</span>
+                      <span className="text-xs opacity-70">{ui("Preview deploy")}</span>
                     </button>
                   </div>
                 </div>
@@ -7298,8 +7231,7 @@ function EditorPageInner() {
                   onClick={handlePublish}
                   className="w-full flex items-center justify-center gap-2 rounded-md bg-[#1E52F1] px-4 py-2.5 text-sm font-medium text-white hover:brightness-110 transition-colors"
                 >
-                  <Rocket className="h-4 w-4" />
-                  Deploy to {publishEnv === "production" ? "Live" : "Test"}
+                  <Rocket className="h-4 w-4" /> {ui("Deploy to")} {publishEnv === "production" ? ui("Live") : ui("Test")}
                 </button>
               </>
             )}
@@ -7309,16 +7241,14 @@ function EditorPageInner() {
               <div className="flex flex-col items-center py-8 text-center">
                 <Loader2 className="h-10 w-10 animate-spin text-blue-400 mb-4" />
                 <h3 className="text-sm font-medium text-foreground mb-1">
-                  {publishStatus === "building" ? "Building project..." : "Deploying..."}
+                  {publishStatus === "building" ? ui("Building project...") : ui("Deploying...")}
                 </h3>
-                <p className="text-xs text-muted-foreground">
-                  This may take a moment. Please don&apos;t close this dialog.
-                </p>
+                <p className="text-xs text-muted-foreground"> {ui("This may take a moment. Please don't close this dialog.")} </p>
                 {/* Progress steps */}
                 <div className="mt-6 w-full max-w-xs space-y-2">
                   <div className="flex items-center gap-2 text-sm">
                     <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                    <span className="text-foreground">Preparing files</span>
+                    <span className="text-foreground">{ui("Preparing files")}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     {publishStatus === "building" ? (
@@ -7326,9 +7256,7 @@ function EditorPageInner() {
                     ) : (
                       <CheckCircle2 className="h-4 w-4 text-emerald-400" />
                     )}
-                    <span className={publishStatus === "building" ? "text-blue-300" : "text-foreground"}>
-                      Building project
-                    </span>
+                    <span className={publishStatus === "building" ? "text-blue-300" : "text-foreground"}> {ui("Building project")} </span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     {publishStatus === "deploying" ? (
@@ -7336,8 +7264,7 @@ function EditorPageInner() {
                     ) : (
                       <div className="h-4 w-4 rounded-full border border-border" />
                     )}
-                    <span className={publishStatus === "deploying" ? "text-blue-300" : "text-muted-foreground"}>
-                      Deploying to {publishEnv === "production" ? "production" : "preview"}
+                    <span className={publishStatus === "deploying" ? "text-blue-300" : "text-muted-foreground"}> {ui("Deploying to")} {publishEnv === "production" ? ui("production") : ui("preview")}
                     </span>
                   </div>
                 </div>
@@ -7350,10 +7277,8 @@ function EditorPageInner() {
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500/10 mb-4">
                   <CheckCircle2 className="h-8 w-8 text-emerald-400" />
                 </div>
-                <h3 className="text-sm font-semibold text-foreground mb-1">Live!</h3>
-                <p className="text-xs text-muted-foreground mb-4">
-                  Your project is now live at:
-                </p>
+                <h3 className="text-sm font-semibold text-foreground mb-1">{ui("Live!")}</h3>
+                <p className="text-xs text-muted-foreground mb-4"> {ui("Your project is now live at:")} </p>
                 {publishedUrl && (
                   <div className="flex items-center gap-2 w-full">
                     <div className="flex-1 rounded-md bg-secondary border border-border px-3 py-2 text-sm text-blue-400 font-mono truncate">
@@ -7364,14 +7289,14 @@ function EditorPageInner() {
                         navigator.clipboard.writeText(publishedUrl);
                       }}
                       className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      title="Copy URL"
+                      title={ui("Copy URL")}
                     >
                       <Copy className="h-4 w-4" />
                     </button>
                     <button
                       onClick={() => window.open(publishedUrl, "_blank")}
                       className="flex h-9 w-9 items-center justify-center rounded-md bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                      title="Open in new tab"
+                      title={ui("Open in new tab")}
                     >
                       <ExternalLink className="h-4 w-4" />
                     </button>
@@ -7381,12 +7306,12 @@ function EditorPageInner() {
                   onClick={handleUnpublish}
                   disabled={unpublishing}
                   className="mt-5 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-red-400 transition-colors disabled:opacity-50"
-                  title="Remove the live site and free the URL"
+                  title={ui("Remove the live site and free the URL")}
                 >
                   {unpublishing ? (
-                    <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Taking down…</>
+                    <><Loader2 className="h-3.5 w-3.5 animate-spin" /> {ui("Taking down…")}</>
                   ) : (
-                    <><XCircle className="h-3.5 w-3.5" /> Take down this site</>
+                    <><XCircle className="h-3.5 w-3.5" /> {ui("Take down this site")}</>
                   )}
                 </button>
               </div>
@@ -7398,15 +7323,13 @@ function EditorPageInner() {
                 <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-500/10 mb-4">
                   <XCircle className="h-8 w-8 text-red-400" />
                 </div>
-                <h3 className="text-sm font-semibold text-red-300 mb-1">Deploy failed</h3>
+                <h3 className="text-sm font-semibold text-red-300 mb-1">{ui("Deploy failed")}</h3>
                 <p className="text-xs text-muted-foreground mb-4 max-w-sm">
-                  {publishError ?? "Something went wrong during deployment."}
+                  {publishError ?? ui("Something went wrong during deployment.")}
                 </p>
                 {publishBuildLog && (
                   <details className="w-full text-left mb-4">
-                    <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground">
-                      View build log
-                    </summary>
+                    <summary className="text-xs text-muted-foreground cursor-pointer hover:text-foreground"> {ui("View build log")} </summary>
                     <pre className="mt-2 max-h-40 overflow-auto rounded-md bg-card border border-border p-3 text-[11px] text-muted-foreground font-mono">
                       {publishBuildLog}
                     </pre>
@@ -7419,18 +7342,14 @@ function EditorPageInner() {
                       setPublishError(null);
                     }}
                     className="rounded-md bg-secondary border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
-                  >
-                    Try again
-                  </button>
+                  > {ui("Try again")} </button>
                   <button
                     onClick={() => {
                       setPublishModalOpen(false);
-                      sendMessage("The publish/deploy failed with this error: " + (publishError ?? "unknown error") + ". Please help me fix it.");
+                      sendMessage(ui("The publish/deploy failed with this error: ") + (publishError ?? "unknown error") + ". Please help me fix it.");
                     }}
                     className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-500 transition-colors"
-                  >
-                    Try to Fix
-                  </button>
+                  > {ui("Try to Fix")} </button>
                 </div>
               </div>
             )}
@@ -7442,7 +7361,7 @@ function EditorPageInner() {
                 onClick={() => setPublishModalOpen(false)}
                 className="rounded-md bg-secondary border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
               >
-                {publishStatus === "success" ? "Done" : "Cancel"}
+                {publishStatus === "success" ? ui("Done") : ui("Cancel")}
               </button>
             </DialogFooter>
           )}
@@ -7454,12 +7373,8 @@ function EditorPageInner() {
         <DialogContent className="bg-card border-border text-foreground max-w-sm" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle className="text-foreground flex items-center gap-2">
-              <Trash2 className="h-5 w-5 text-red-400" />
-              Delete Project
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground">
-              Are you sure you want to delete <strong className="text-foreground">{projectName}</strong>? This action cannot be undone.
-            </DialogDescription>
+              <Trash2 className="h-5 w-5 text-red-400" /> {ui("Delete Project")} </DialogTitle>
+            <DialogDescription className="text-muted-foreground"> {ui("Are you sure you want to delete")} <strong className="text-foreground">{projectName}</strong>{ui("? This action cannot be undone.")} </DialogDescription>
           </DialogHeader>
 
           <DialogFooter className="mt-6 flex gap-2">
@@ -7467,9 +7382,7 @@ function EditorPageInner() {
               onClick={() => setDeleteConfirmOpen(false)}
               disabled={isDeleting}
               className="flex-1 rounded-md bg-secondary border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors disabled:opacity-50"
-            >
-              Cancel
-            </button>
+            > {ui("Cancel")} </button>
             <button
               onClick={handleDeleteProject}
               disabled={isDeleting}
@@ -7477,11 +7390,9 @@ function EditorPageInner() {
             >
               {isDeleting ? (
                 <span className="flex items-center justify-center gap-2">
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Deleting...
-                </span>
+                  <Loader2 className="h-4 w-4 animate-spin" /> {ui("Deleting...")} </span>
               ) : (
-                "Delete"
+                ui("Delete")
               )}
             </button>
           </DialogFooter>
@@ -7517,9 +7428,7 @@ function EditorPageInner() {
         <DialogContent className="bg-card border-border text-foreground max-w-md" onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle className="text-foreground flex items-center gap-2">
-              <Keyboard className="h-5 w-5 text-muted-foreground" />
-              Keyboard Shortcuts
-            </DialogTitle>
+              <Keyboard className="h-5 w-5 text-muted-foreground" /> {ui("Keyboard Shortcuts")} </DialogTitle>
           </DialogHeader>
 
           <div className="mt-4 space-y-1">
@@ -7534,7 +7443,7 @@ function EditorPageInner() {
               { keys: "Esc", desc: "Close dialog" },
             ].map(({ keys, desc }) => (
               <div key={keys} className="flex items-center justify-between py-2 px-1">
-                <span className="text-sm text-muted-foreground">{desc}</span>
+                <span className="text-sm text-muted-foreground">{ui(desc)}</span>
                 <div className="flex items-center gap-1">
                   {keys.split(" + ").map((k) => (
                     <kbd
@@ -7553,9 +7462,7 @@ function EditorPageInner() {
             <button
               onClick={() => setShortcutsDialogOpen(false)}
               className="rounded-md bg-secondary border border-border px-4 py-2 text-sm font-medium text-foreground hover:bg-muted transition-colors"
-            >
-              Close
-            </button>
+            > {ui("Close")} </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

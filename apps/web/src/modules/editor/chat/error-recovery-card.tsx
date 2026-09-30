@@ -1,4 +1,8 @@
 "use client";
+import {translateUiData} from "@/i18n/text";
+
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 /**
  * ErrorRecoveryCard — shown when the AI stream hits a fatal error.
@@ -37,6 +41,8 @@ function RateLimitCountdown({
   retryAfterSeconds: number;
   onRetry?: () => void;
 }) {
+  const ui = useUiText();
+
   const [remaining, setRemaining] = useState(retryAfterSeconds);
   const [done, setDone] = useState(false);
 
@@ -62,10 +68,9 @@ function RateLimitCountdown({
     <div className="mt-2 flex items-center gap-2">
       <Clock className="h-3 w-3 text-amber-400 shrink-0" />
       {done ? (
-        <span className="text-xs text-amber-400">Ready — you can retry now</span>
+        <span className="text-xs text-amber-400">{ui("Ready — you can retry now")}</span>
       ) : (
-        <span className="text-xs text-muted-foreground">
-          Auto-retrying in <span className="text-amber-400 font-medium">{remaining}s</span>
+        <span className="text-xs text-muted-foreground"> {ui("Auto-retrying in")} <span className="text-amber-400 font-medium">{remaining}{ui("s")}</span>
         </span>
       )}
       {/* Progress fill */}
@@ -79,9 +84,7 @@ function RateLimitCountdown({
         <button
           onClick={onRetry}
           className="text-xs font-medium text-amber-400 hover:text-amber-300 transition-colors"
-        >
-          Retry now
-        </button>
+        > {ui("Retry now")} </button>
       )}
     </div>
   );
@@ -173,7 +176,9 @@ export function ErrorRecoveryCard({
   onSwitchModel,
   onDismiss,
 }: ErrorRecoveryCardProps) {
-  const cfg = getConfig(kind, message);
+  const ui = useUiText();
+
+  const cfg = translateUiData(getConfig(kind, message), ui);
   const Icon = cfg.icon;
 
   const handlePrimary = () => {
@@ -216,9 +221,7 @@ export function ErrorRecoveryCard({
               <button
                 onClick={onDismiss}
                 className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Dismiss
-              </button>
+              > {ui("Dismiss")} </button>
             )}
           </div>
         </div>

@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -34,6 +37,8 @@ function HeaderPhaseIcon({ phase }: { phase: AgentPhase }) {
 }
 
 export function ChatPanel() {
+  const ui = useUiText();
+
   const projectId = useEditorStore((s) => s.projectId);
   const workspaceId =
     typeof window !== "undefined"
@@ -147,7 +152,7 @@ export function ChatPanel() {
       {/* ── Header ───────────────────────────────────────────── */}
       <div className="flex h-10 items-center gap-2 border-b border-border px-3 shrink-0">
         <MessageSquare className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        <span className="text-xs font-semibold text-foreground">Chat</span>
+        <span className="text-xs font-semibold text-foreground">{ui("Chat")}</span>
 
         {/* Premium streaming badge */}
         {isStreaming && (
@@ -175,10 +180,8 @@ export function ChatPanel() {
               <button
                 onClick={stopStreaming}
                 className="ml-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                title="Cancel task"
-              >
-                Cancel
-              </button>
+                title={ui("Cancel task")}
+              > {ui("Cancel")} </button>
             )}
           </div>
         )}
@@ -187,7 +190,7 @@ export function ChatPanel() {
           {/* Activity feed toggle button */}
           <button
             onClick={() => setShowActivityFeed((v) => !v)}
-            title="Toggle activity feed"
+            title={ui("Toggle activity feed")}
             className={`flex h-6 w-6 items-center justify-center rounded transition-colors ${
               showActivityFeed
                 ? "bg-brand-500/15 text-brand-400"
@@ -226,15 +229,13 @@ export function ChatPanel() {
                     {loadingMore ? (
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <Loader2 className="h-3 w-3 animate-spin" />
-                        <span>Loading older messages…</span>
+                        <span>{ui("Loading older messages…")}</span>
                       </div>
                     ) : (
                       <button
                         onClick={() => loadMore()}
                         className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      >
-                        Load older messages
-                      </button>
+                      > {ui("Load older messages")} </button>
                     )}
                   </div>
                 )}
@@ -290,7 +291,7 @@ export function ChatPanel() {
                       plan={activePlan}
                       isEditable
                       onApprove={() => approvePlan(activePlan.id)}
-                      onRefine={() => sendMessage("Please refine the plan based on my feedback.")}
+                      onRefine={() => sendMessage(ui("Please refine the plan based on my feedback."))}
                       onReset={() => abandonPlan(activePlan.id)}
                       onStepEdit={(stepId, field, value) =>
                         updatePlanStep(stepId, { [field]: value })
@@ -300,8 +301,8 @@ export function ChatPanel() {
                       onStepAdd={() =>
                         addPlanStep({
                           order: (activePlan.steps.length ?? 0) + 1,
-                          title: "New step",
-                          description: "Describe what this step does",
+                          title: ui("New step"),
+                          description: ui("Describe what this step does"),
                           status: "pending",
                         })
                       }
@@ -375,6 +376,8 @@ function IntegrationConnectCard({
   onDismiss: () => void;
   onConnected: () => void;
 }) {
+  const ui = useUiText();
+
   return (
     <div className="mx-3 mb-2 rounded-lg border border-brand-500/40 bg-brand-500/5 p-3">
       <div className="flex items-start gap-3">
@@ -387,14 +390,13 @@ function IntegrationConnectCard({
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <p className="truncate text-sm font-semibold text-foreground">
-              Connect {request.displayName}
+            <p className="truncate text-sm font-semibold text-foreground"> {ui("Connect")} {request.displayName}
             </p>
             <button
               type="button"
               onClick={onDismiss}
               className="flex h-5 w-5 items-center justify-center rounded text-muted-foreground hover:bg-muted hover:text-foreground"
-              aria-label="Dismiss"
+              aria-label={ui("Dismiss")}
             >
               <X className="h-3 w-3" />
             </button>
@@ -408,16 +410,12 @@ function IntegrationConnectCard({
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center rounded-md bg-brand-500 px-3 py-1 text-xs font-medium text-white hover:bg-brand-600"
-            >
-              Connect
-            </a>
+            > {ui("Connect")} </a>
             <button
               type="button"
               onClick={onConnected}
               className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1 text-xs font-medium text-foreground hover:bg-muted"
-            >
-              I just connected — continue
-            </button>
+            > {ui("I just connected — continue")} </button>
           </div>
         </div>
       </div>
@@ -436,6 +434,9 @@ const SUGGESTIONS = [
 ];
 
 function EmptyState({ onSuggestion }: { onSuggestion: (text: string) => void }) {
+  const ui = useUiText();
+  const i18n_SUGGESTIONS = useUiData(SUGGESTIONS);
+
   const handleClick = (suggestion: string) => {
     // Try to put the suggestion in the textarea; fall back to sending directly
     const chatInput = document.querySelector<HTMLTextAreaElement>(
@@ -457,15 +458,10 @@ function EmptyState({ onSuggestion }: { onSuggestion: (text: string) => void }) 
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-500/10 to-brand-300/10">
         <Sparkles className="h-6 w-6 text-brand-500" />
       </div>
-      <h3 className="mt-4 text-sm font-semibold text-foreground">
-        Start building with AI
-      </h3>
-      <p className="mt-1.5 max-w-[240px] text-xs text-muted-foreground leading-relaxed">
-        Describe what you want to build and the AI will generate the code,
-        files, and preview for you.
-      </p>
+      <h3 className="mt-4 text-sm font-semibold text-foreground"> {ui("Start building with AI")} </h3>
+      <p className="mt-1.5 max-w-[240px] text-xs text-muted-foreground leading-relaxed"> {ui("Describe what you want to build and the AI will generate the code, files, and preview for you.")} </p>
       <div className="mt-4 w-full space-y-1.5">
-        {SUGGESTIONS.map(({ label, category }) => (
+        {i18n_SUGGESTIONS.map(({ label, category }) => (
           <button
             key={label}
             onClick={() => handleClick(label)}

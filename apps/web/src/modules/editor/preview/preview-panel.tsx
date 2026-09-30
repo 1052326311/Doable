@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useCallback, useState, useEffect, useRef, useMemo } from "react";
 import { useEditorStore } from "../hooks/use-editor-store";
@@ -11,6 +13,8 @@ import { DEVICE_WIDTHS } from "@/modules/editor/visual-edit/types";
 // ─── Component ──────────────────────────────────────────────
 
 export function PreviewPanel() {
+  const ui = useUiText();
+
   const projectId = useEditorStore((s) => s.projectId);
   const fileTree = useEditorStore((s) => s.fileTree);
   const isStreaming = useEditorStore((s) => s.isStreaming);
@@ -143,7 +147,7 @@ export function PreviewPanel() {
     walk(fileTree);
     // Always include root
     if (!entries.some((e) => e.path === "/")) {
-      entries.unshift({ label: "Home", path: "/" });
+      entries.unshift({ label: ui("Home"), path: "/" });
     }
     entries.sort((a, b) => {
       if (a.path === "/") return -1;
@@ -151,7 +155,7 @@ export function PreviewPanel() {
       return a.label.localeCompare(b.label);
     });
     return entries;
-  }, [fileTree]);
+  }, [ui, fileTree]);
 
   // ─── Fullscreen toggle ──────────────────────────────────────
   const containerRef = useRef<HTMLDivElement>(null);
@@ -248,9 +252,7 @@ export function PreviewPanel() {
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-2">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                <span className="text-xs text-muted-foreground">
-                  Loading preview...
-                </span>
+                <span className="text-xs text-muted-foreground"> {ui("Loading preview...")} </span>
               </div>
             </div>
           )}
@@ -259,7 +261,7 @@ export function PreviewPanel() {
           {isStreaming && !previewLoading && (
             <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5 rounded-full bg-primary/90 px-2.5 py-1 shadow-md">
               <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-              <span className="text-[10px] font-medium text-white">AI generating...</span>
+              <span className="text-[10px] font-medium text-white">{ui("AI generating...")}</span>
             </div>
           )}
 
@@ -268,18 +270,12 @@ export function PreviewPanel() {
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-background">
               <div className="flex flex-col items-center gap-2 text-center px-4">
                 <AlertTriangle className="h-8 w-8 text-muted-foreground/50" />
-                <p className="text-sm font-medium text-foreground">
-                  Preview unavailable
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  The preview server may not be running.
-                </p>
+                <p className="text-sm font-medium text-foreground"> {ui("Preview unavailable")} </p>
+                <p className="text-xs text-muted-foreground"> {ui("The preview server may not be running.")} </p>
                 <button
                   onClick={handleRefresh}
                   className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                >
-                  Retry
-                </button>
+                > {ui("Retry")} </button>
               </div>
             </div>
           )}
@@ -304,7 +300,7 @@ export function PreviewPanel() {
             // doable.voice.listen) and autoplay (TTS playback). Paired with the
             // parent Permissions-Policy delegation in next.config.ts.
             allow="microphone; autoplay; clipboard-write"
-            title="Project preview"
+            title={ui("Project preview")}
           />
         </div>
       </div>
@@ -313,18 +309,15 @@ export function PreviewPanel() {
       {notebooklmPreview && (
         <div className="absolute inset-0 z-30 flex flex-col bg-white">
           <div className="flex items-center justify-between border-b border-border bg-background px-3 py-1.5">
-            <span className="truncate text-xs font-medium text-muted-foreground">
-              NotebookLM result{notebooklmPreview.toolName ? ` · ${notebooklmPreview.toolName}` : ""}
+            <span className="truncate text-xs font-medium text-muted-foreground"> {ui("NotebookLM result")}{notebooklmPreview.toolName ? ` · ${notebooklmPreview.toolName}` : ""}
             </span>
             <button
               onClick={clearNotebooklmPreview}
               className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            >
-              ← Back to app
-            </button>
+            > {ui("← Back to app")} </button>
           </div>
           <iframe
-            title="notebooklm-result"
+            title={ui("notebooklm-result")}
             sandbox="allow-scripts allow-popups"
             srcDoc={notebooklmPreview.html}
             className="w-full flex-1 border-0 bg-white"
@@ -338,15 +331,13 @@ export function PreviewPanel() {
 // ─── Empty State ──────────────────────────────────────────────
 
 function EmptyPreview() {
+  const ui = useUiText();
+
   return (
     <div className="flex h-full flex-col items-center justify-center text-center px-6">
       <Eye className="h-10 w-10 text-muted-foreground/30" />
-      <h3 className="mt-3 text-sm font-medium text-foreground">
-        Live Preview
-      </h3>
-      <p className="mt-1 text-xs text-muted-foreground max-w-[200px]">
-        Your app preview will appear here as the AI generates code.
-      </p>
+      <h3 className="mt-3 text-sm font-medium text-foreground"> {ui("Live Preview")} </h3>
+      <p className="mt-1 text-xs text-muted-foreground max-w-[200px]"> {ui("Your app preview will appear here as the AI generates code.")} </p>
     </div>
   );
 }

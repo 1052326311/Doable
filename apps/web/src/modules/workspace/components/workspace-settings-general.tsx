@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState } from "react";
 import {
@@ -96,6 +98,8 @@ export function GeneralTab({
   onUpdate: (updated: Workspace) => void;
   addToast: (type: "success" | "error", msg: string) => void;
 }) {
+  const ui = useUiText();
+
   const [name, setName] = useState(workspace.name);
   const [description, setDescription] = useState(
     workspace.description ?? ""
@@ -121,11 +125,11 @@ export function GeneralTab({
         }
       );
       onUpdate(data);
-      addToast("success", "Workspace settings saved");
+      addToast("success", ui("Workspace settings saved"));
     } catch (err) {
       addToast(
         "error",
-        err instanceof Error ? err.message : "Failed to save"
+        err instanceof Error ? err.message : ui("Failed to save")
       );
     } finally {
       setSaving(false);
@@ -134,18 +138,16 @@ export function GeneralTab({
 
   return (
     <div className="space-y-6">
-      <SectionCard title="Workspace Details">
+      <SectionCard title={ui("Workspace Details")}>
         <div className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="ws-name" className="text-sm font-medium">
-              Name
-            </label>
+            <label htmlFor="ws-name" className="text-sm font-medium"> {ui("Name")} </label>
             <input
               id="ws-name"
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="My Workspace"
+              placeholder={ui("My Workspace")}
               className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             />
           </div>
@@ -154,22 +156,20 @@ export function GeneralTab({
             <label
               htmlFor="ws-description"
               className="text-sm font-medium"
-            >
-              Description
-            </label>
+            > {ui("Description")} </label>
             <textarea
               id="ws-description"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               rows={3}
-              placeholder="A brief description of your workspace"
+              placeholder={ui("A brief description of your workspace")}
               className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring resize-none"
             />
           </div>
 
           <div className="flex items-center justify-between pt-2">
             <div className="text-sm text-muted-foreground">
-              {hasChanges && "You have unsaved changes"}
+              {hasChanges && ui("You have unsaved changes")}
             </div>
             <button
               onClick={() => void handleSave()}
@@ -186,34 +186,34 @@ export function GeneralTab({
               ) : (
                 <Save className="h-4 w-4" />
               )}
-              {saving ? "Saving..." : "Save Changes"}
+              {saving ? ui("Saving...") : ui("Save Changes")}
             </button>
           </div>
         </div>
       </SectionCard>
 
       <SectionCard
-        title="Workspace Information"
-        description="Read-only metadata about your workspace."
+        title={ui("Workspace Information")}
+        description={ui("Read-only metadata about your workspace.")}
       >
         <div className="grid gap-4 sm:grid-cols-2">
           <InfoItem
             icon={Hash}
-            label="Workspace ID"
+            label={ui("Workspace ID")}
             value={workspace.id}
             mono
           />
           <InfoItem
             icon={Hash}
-            label="Slug"
+            label={ui("Slug")}
             value={workspace.slug}
             mono
           />
           <InfoItem
             icon={Calendar}
-            label="Created"
+            label={ui("Created")}
             value={new Date(workspace.createdAt).toLocaleDateString(
-              "en-US",
+              ui.locale,
               {
                 year: "numeric",
                 month: "long",
@@ -223,18 +223,18 @@ export function GeneralTab({
           />
           <InfoItem
             icon={Crown}
-            label="Plan"
+            label={ui("Plan")}
             value={workspace.plan}
             badge
           />
           <InfoItem
             icon={Users}
-            label="Members"
+            label={ui("Members")}
             value={String(workspace.memberCount)}
           />
           <InfoItem
             icon={Shield}
-            label="Your Role"
+            label={ui("Your Role")}
             value={workspace.userRole}
             badge
           />

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState } from "react";
 import { Loader2, Search, Plus, GitBranch, AlertCircle, ArrowUpDown, ChevronUp, ChevronDown, FolderPlus } from "lucide-react";
@@ -20,6 +22,8 @@ import { AddProjectsToFolderDialog } from "@/modules/dashboard/components/add-pr
 import { apiCreateProject } from "@/lib/api";
 
 export default function DashboardPage() {
+  const ui = useUiText();
+
   const d = useDashboard();
   const shared = useMyShared();
   const [createOpen, setCreateOpen] = useState(false);
@@ -96,16 +100,14 @@ export default function DashboardPage() {
                   d.setStarredFilter(false);
                   emitDashboardEvent(DASHBOARD_EVENTS.NAVIGATE_FILTER, "all");
                 }}
-              >
-                Home
-              </button>
+              > {ui("Home")} </button>
               <span className="text-muted-foreground">/</span>
               <span className="text-foreground font-medium">
-                {d.activeFolderName ?? (d.sidebarFilter === "starred" ? "Starred" : d.sidebarFilter === "created-by-me" ? "Created by me" : "Shared with me")}
+                {d.activeFolderName ?? (d.sidebarFilter === "starred" ? ui("Starred") : d.sidebarFilter === "created-by-me" ? ui("Created by me") : ui("Shared with me"))}
               </span>
             </div>
             <h1 className="text-2xl font-semibold text-foreground mt-2">
-              {d.activeFolderName ?? (d.sidebarFilter === "starred" ? "Starred Projects" : d.sidebarFilter === "created-by-me" ? "My Projects" : "Shared Projects")}
+              {d.activeFolderName ?? (d.sidebarFilter === "starred" ? ui("Starred Projects") : d.sidebarFilter === "created-by-me" ? ui("My Projects") : ui("Shared Projects"))}
             </h1>
           </div>
         )}
@@ -115,7 +117,7 @@ export default function DashboardPage() {
           <div className="mb-6 rounded-lg border border-red-800/50 bg-red-900/20 px-4 py-3 text-sm text-red-400 flex items-center gap-2">
             <AlertCircle className="h-4 w-4 shrink-0" />
             {d.error}
-            <button onClick={() => { d.setError(null); d.fetchProjects(); }} className="ml-auto underline hover:text-red-300">Retry</button>
+            <button onClick={() => { d.setError(null); d.fetchProjects(); }} className="ml-auto underline hover:text-red-300">{ui("Retry")}</button>
           </div>
         )}
 
@@ -127,9 +129,7 @@ export default function DashboardPage() {
             onClick={() => setCreateOpen(true)}
             className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-500 transition-colors"
           >
-            <Plus className="h-3.5 w-3.5" />
-            New project
-          </button>
+            <Plus className="h-3.5 w-3.5" /> {ui("New project")} </button>
         </div>
 
         {/* Toolbar */}
@@ -157,7 +157,7 @@ export default function DashboardPage() {
         {d.isLoading && d.activeTab !== "templates" && (
           <div className="flex flex-col items-center justify-center py-20">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
-            <p className="text-sm text-muted-foreground">Loading projects...</p>
+            <p className="text-sm text-muted-foreground">{ui("Loading projects...")}</p>
           </div>
         )}
 
@@ -192,18 +192,15 @@ export default function DashboardPage() {
                   <th className="w-10 px-3 py-3" />
                   <th className="w-10 px-1 py-3" />
                   <th className="px-3 py-3 text-left">
-                    <button className="inline-flex items-center font-medium text-muted-foreground hover:text-foreground transition-colors" onClick={() => d.handleSort("name")}>
-                      Name <SortIcon col="name" />
+                    <button className="inline-flex items-center font-medium text-muted-foreground hover:text-foreground transition-colors" onClick={() => d.handleSort("name")}> {ui("Name")} <SortIcon col="name" />
                     </button>
                   </th>
                   <th className="px-3 py-3 text-left">
-                    <button className="inline-flex items-center font-medium text-muted-foreground hover:text-foreground transition-colors" onClick={() => d.handleSort("status")}>
-                      Status <SortIcon col="status" />
+                    <button className="inline-flex items-center font-medium text-muted-foreground hover:text-foreground transition-colors" onClick={() => d.handleSort("status")}> {ui("Status")} <SortIcon col="status" />
                     </button>
                   </th>
                   <th className="px-3 py-3 text-left">
-                    <button className="inline-flex items-center font-medium text-muted-foreground hover:text-foreground transition-colors" onClick={() => d.handleSort("updated_at")}>
-                      Updated <SortIcon col="updated_at" />
+                    <button className="inline-flex items-center font-medium text-muted-foreground hover:text-foreground transition-colors" onClick={() => d.handleSort("updated_at")}> {ui("Updated")} <SortIcon col="updated_at" />
                     </button>
                   </th>
                   <th className="w-10 px-3 py-3" />
@@ -236,7 +233,7 @@ export default function DashboardPage() {
           d.isLoadingTemplates ? (
             <div className="flex flex-col items-center justify-center py-20">
               <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
-              <p className="text-sm text-muted-foreground">Loading templates...</p>
+              <p className="text-sm text-muted-foreground">{ui("Loading templates...")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
@@ -250,7 +247,7 @@ export default function DashboardPage() {
                 ))}
               {d.templates.length === 0 && (
                 <div className="col-span-full flex flex-col items-center justify-center py-16 text-center">
-                  <p className="text-sm text-muted-foreground">No templates available.</p>
+                  <p className="text-sm text-muted-foreground">{ui("No templates available.")}</p>
                 </div>
               )}
             </div>
@@ -267,24 +264,19 @@ export default function DashboardPage() {
               <div className="h-16 w-16 rounded-2xl bg-secondary flex items-center justify-center mb-4">
                 <FolderPlus className="h-8 w-8 text-muted-foreground" />
               </div>
-              <h3 className="text-lg font-medium text-foreground mb-2">This folder is empty</h3>
-              <p className="text-sm text-muted-foreground max-w-sm">
-                Create a new project inside <strong>{d.activeFolderName ?? "this folder"}</strong>,
-                or move existing projects here.
-              </p>
+              <h3 className="text-lg font-medium text-foreground mb-2">{ui("This folder is empty")}</h3>
+              <p className="text-sm text-muted-foreground max-w-sm"> {ui("Create a new project inside")} <strong>{d.activeFolderName ?? ui("this folder")}</strong>{ui(", or move existing projects here.")} </p>
               <div className="mt-4 flex items-center gap-2">
                 <button
                   onClick={() => setCreateOpen(true)}
                   className="inline-flex items-center gap-1.5 rounded-md bg-brand-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-brand-500 transition-colors"
                 >
-                  <Plus className="h-3.5 w-3.5" /> Create a project here
-                </button>
+                  <Plus className="h-3.5 w-3.5" /> {ui("Create a project here")} </button>
                 <button
                   onClick={() => setAddExistingOpen(true)}
                   className="inline-flex items-center gap-1.5 rounded-md border border-border bg-secondary px-3 py-1.5 text-sm font-medium text-foreground hover:bg-accent transition-colors"
                 >
-                  <FolderPlus className="h-3.5 w-3.5" /> Add existing projects
-                </button>
+                  <FolderPlus className="h-3.5 w-3.5" /> {ui("Add existing projects")} </button>
               </div>
             </div>
           ) : (
@@ -295,24 +287,21 @@ export default function DashboardPage() {
                   : <Plus className="h-8 w-8 text-muted-foreground" />}
               </div>
               <h3 className="text-lg font-medium text-foreground mb-2">
-                {d.searchQuery ? "No projects found"
-                  : d.statusFilter !== "all" || d.starredFilter ? "No matching projects"
-                  : "No projects yet"}
+                {d.searchQuery ? ui("No projects found")
+                  : d.statusFilter !== "all" || d.starredFilter ? ui("No matching projects")
+                  : ui("No projects yet")}
               </h3>
               <p className="text-sm text-muted-foreground max-w-sm">
-                {d.searchQuery ? `No projects match "${d.searchQuery}". Try a different search.`
-                  : d.statusFilter !== "all" || d.starredFilter ? "Try adjusting your filters."
-                  : "Describe what you want to build in the chat above, or import an existing project from GitHub."}
+                {d.searchQuery ? ui("No projects match \"{v0}\". Try a different search.", {v0: (d.searchQuery)})
+                  : d.statusFilter !== "all" || d.starredFilter ? ui("Try adjusting your filters.")
+                  : ui("Describe what you want to build in the chat above, or import an existing project from GitHub.")}
               </p>
               {!d.searchQuery && d.statusFilter === "all" && !d.starredFilter && (
                 <button onClick={() => d.setShowImportGitHub(true)} className="mt-4 flex items-center gap-1.5 text-sm text-brand-400 hover:text-brand-300 transition-colors">
-                  <GitBranch className="h-3.5 w-3.5" /> Import from GitHub
-                </button>
+                  <GitBranch className="h-3.5 w-3.5" /> {ui("Import from GitHub")} </button>
               )}
               {(d.searchQuery || d.statusFilter !== "all" || d.starredFilter) && (
-                <button onClick={() => { d.setSearchQuery(""); d.setStatusFilter("all"); d.setStarredFilter(false); }} className="mt-4 text-sm text-brand-400 hover:text-brand-300 transition-colors">
-                  Clear all filters
-                </button>
+                <button onClick={() => { d.setSearchQuery(""); d.setStatusFilter("all"); d.setStarredFilter(false); }} className="mt-4 text-sm text-brand-400 hover:text-brand-300 transition-colors"> {ui("Clear all filters")} </button>
               )}
             </div>
           )
@@ -327,11 +316,10 @@ export default function DashboardPage() {
                 disabled={d.isLoadingMore}
                 className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary px-5 py-2.5 text-sm font-medium text-foreground hover:bg-accent transition-colors disabled:opacity-50"
               >
-                {d.isLoadingMore ? <><Loader2 className="h-4 w-4 animate-spin" /> Loading...</> : "Load more"}
+                {d.isLoadingMore ? <><Loader2 className="h-4 w-4 animate-spin" /> {ui("Loading...")}</> : ui("Load more")}
               </button>
             )}
-            <span className="text-xs text-muted-foreground">
-              Showing {d.displayProjects.length} of {d.activeTab === "recent" ? d.totalRecent : d.totalProjects} project{(d.activeTab === "recent" ? d.totalRecent : d.totalProjects) !== 1 ? "s" : ""}
+            <span className="text-xs text-muted-foreground"> {ui("Showing {count} of {total} projects", {count:d.displayProjects.length,total:d.activeTab === "recent" ? d.totalRecent : d.totalProjects})}
               {d.searchQuery && ` matching "${d.searchQuery}"`}
             </span>
           </div>

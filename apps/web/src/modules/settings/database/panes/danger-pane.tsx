@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback } from "react";
 import { Loader2, Trash2, AlertTriangle } from "lucide-react";
@@ -12,6 +14,8 @@ interface DangerPaneProps {
 }
 
 export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
+  const ui = useUiText();
+
   const { client, loading: tokenLoading, error: tokenError } = tokenState;
   const [tables, setTables] = useState<TableSchema[]>([]);
   const [loading, setLoading] = useState(false);
@@ -27,9 +31,9 @@ export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
     client
       .schema()
       .then((s) => { setTables(s.tables); setError(null); })
-      .catch((err) => setError(err instanceof Error ? err.message : "Failed to load schema"))
+      .catch((err) => setError(err instanceof Error ? err.message : ui("Failed to load schema")))
       .finally(() => setLoading(false));
-  }, [client]);
+  }, [ui, client]);
 
   useEffect(() => { refresh(); }, [refresh]);
 
@@ -47,7 +51,7 @@ export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
       setConfirmFor(null);
       refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to drop table");
+      setError(err instanceof Error ? err.message : ui("Failed to drop table"));
     } finally {
       setBusy(null);
     }
@@ -61,7 +65,7 @@ export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
       setConfirmFor(null);
       refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to reset database");
+      setError(err instanceof Error ? err.message : ui("Failed to reset database"));
     } finally {
       setBusy(null);
     }
@@ -76,7 +80,7 @@ export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
   }
   if (tokenError) {
     return (
-      <SectionCard title="Danger Zone">
+      <SectionCard title={ui("Danger Zone")}>
         <p className="text-sm text-destructive">{tokenError}</p>
       </SectionCard>
     );
@@ -84,10 +88,10 @@ export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
 
   return (
     <div className="space-y-6">
-      <SectionCard title="Drop tables" description="Permanently delete a table and all its data. This cannot be undone.">
-        {error && <p className="mb-3 text-sm text-destructive">{error}</p>}
+      <SectionCard title={ui("Drop tables")} description={ui("Permanently delete a table and all its data. This cannot be undone.")}>
+        {error && <p className="mb-3 text-sm text-destructive">{ui(error)}</p>}
         {tables.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No tables to drop.</p>
+          <p className="text-sm text-muted-foreground">{ui("No tables to drop.")}</p>
         ) : (
           <ul className="space-y-2">
             {tables.map((t) => {
@@ -97,21 +101,18 @@ export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
                 <li key={t.name} className="rounded-md border p-3">
                   <div className="flex items-center gap-3">
                     <span className="font-mono text-sm">{t.name}</span>
-                    <span className="text-xs text-muted-foreground">{t.rowCount} rows</span>
+                    <span className="text-xs text-muted-foreground">{t.rowCount} {ui("rows")}</span>
                     {!arming && (
                       <button
                         onClick={() => arm(key)}
                         className="ml-auto inline-flex items-center gap-1.5 rounded-md border border-destructive/40 px-3 py-1 text-xs font-medium text-destructive transition-colors hover:bg-destructive/10"
                       >
-                        <Trash2 className="h-3.5 w-3.5" /> Drop
-                      </button>
+                        <Trash2 className="h-3.5 w-3.5" /> {ui("Drop")} </button>
                     )}
                   </div>
                   {arming && (
                     <div className="mt-3 space-y-2">
-                      <p className="text-xs text-muted-foreground">
-                        Type <span className="font-mono font-semibold text-foreground">{t.name}</span> to confirm:
-                      </p>
+                      <p className="text-xs text-muted-foreground"> {ui("Type")} <span className="font-mono font-semibold text-foreground">{t.name}</span> {ui("to confirm:")} </p>
                       <div className="flex items-center gap-2">
                         <input
                           autoFocus
@@ -124,12 +125,8 @@ export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
                           disabled={confirmText !== t.name || busy === t.name}
                           className="inline-flex items-center gap-1.5 rounded-md bg-destructive px-3 py-1 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90 disabled:opacity-50"
                         >
-                          {busy === t.name && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                          Drop table
-                        </button>
-                        <button onClick={() => setConfirmFor(null)} className="rounded-md border px-3 py-1 text-xs hover:bg-muted">
-                          Cancel
-                        </button>
+                          {busy === t.name && <Loader2 className="h-3.5 w-3.5 animate-spin" />} {ui("Drop table")} </button>
+                        <button onClick={() => setConfirmFor(null)} className="rounded-md border px-3 py-1 text-xs hover:bg-muted"> {ui("Cancel")} </button>
                       </div>
                     </div>
                   )}
@@ -140,12 +137,10 @@ export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
         )}
       </SectionCard>
 
-      <SectionCard title="Reset database" description="Drop ALL tables and start from an empty database. This cannot be undone.">
+      <SectionCard title={ui("Reset database")} description={ui("Drop ALL tables and start from an empty database. This cannot be undone.")}>
         {confirmFor === "reset" ? (
           <div className="space-y-2">
-            <p className="text-xs text-muted-foreground">
-              Type <span className="font-mono font-semibold text-foreground">reset</span> to drop every table:
-            </p>
+            <p className="text-xs text-muted-foreground"> {ui("Type")} <span className="font-mono font-semibold text-foreground">{ui("reset")}</span> {ui("to drop every table:")} </p>
             <div className="flex items-center gap-2">
               <input
                 autoFocus
@@ -158,12 +153,8 @@ export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
                 disabled={confirmText !== "reset" || busy === "__reset__"}
                 className="inline-flex items-center gap-1.5 rounded-md bg-destructive px-3 py-1 text-xs font-medium text-destructive-foreground transition-colors hover:bg-destructive/90 disabled:opacity-50"
               >
-                {busy === "__reset__" && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                Reset database
-              </button>
-              <button onClick={() => setConfirmFor(null)} className="rounded-md border px-3 py-1 text-xs hover:bg-muted">
-                Cancel
-              </button>
+                {busy === "__reset__" && <Loader2 className="h-3.5 w-3.5 animate-spin" />} {ui("Reset database")} </button>
+              <button onClick={() => setConfirmFor(null)} className="rounded-md border px-3 py-1 text-xs hover:bg-muted"> {ui("Cancel")} </button>
             </div>
           </div>
         ) : (
@@ -171,8 +162,7 @@ export function DangerPane({ projectId, tokenState }: DangerPaneProps) {
             onClick={() => arm("reset")}
             className="inline-flex items-center gap-1.5 rounded-md border border-destructive/40 px-4 py-2 text-sm font-medium text-destructive transition-colors hover:bg-destructive/10"
           >
-            <AlertTriangle className="h-4 w-4" /> Reset database
-          </button>
+            <AlertTriangle className="h-4 w-4" /> {ui("Reset database")} </button>
         )}
       </SectionCard>
     </div>

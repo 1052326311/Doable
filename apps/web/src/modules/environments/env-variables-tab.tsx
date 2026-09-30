@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState, useCallback, useEffect } from "react";
 import {
@@ -27,6 +30,9 @@ const TARGET_OPTIONS = [
 ] as const;
 
 export function VariablesTab({ workspaceId, projectId }: { workspaceId: string; projectId: string }) {
+  const ui = useUiText();
+  const i18n_TARGET_OPTIONS = useUiData(TARGET_OPTIONS);
+
   const [projectVars, setProjectVars] = useState<EnvVar[]>([]);
   const [workspaceVars, setWorkspaceVars] = useState<EnvVar[]>([]);
   const [loading, setLoading] = useState(true);
@@ -100,33 +106,32 @@ export function VariablesTab({ workspaceId, projectId }: { workspaceId: string; 
     <div className="space-y-3">
       {!adding ? (
         <button onClick={() => setAdding(true)} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
-          <Plus className="h-3.5 w-3.5" /> Add Variable
-        </button>
+          <Plus className="h-3.5 w-3.5" /> {ui("Add Variable")} </button>
       ) : (
         <div className="rounded-lg border bg-card p-3 space-y-2">
           <div className="grid grid-cols-2 gap-2">
             <input placeholder="KEY_NAME" value={newKey} onChange={(e) => setNewKey(e.target.value.toUpperCase().replace(/[^A-Z0-9_]/g, "_"))}
               className="rounded-md border bg-background px-2 py-1.5 text-xs font-mono" autoFocus />
             <select value={newTarget} onChange={(e) => setNewTarget(e.target.value)} className="rounded-md border bg-background px-2 py-1.5 text-xs">
-              {TARGET_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              {i18n_TARGET_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
             </select>
           </div>
-          <input placeholder="Value" type={newSecret ? "password" : "text"} value={newValue} onChange={(e) => setNewValue(e.target.value)}
+          <input placeholder={ui("Value")} type={newSecret ? "password" : "text"} value={newValue} onChange={(e) => setNewValue(e.target.value)}
             className="w-full rounded-md border bg-background px-2 py-1.5 text-xs font-mono" />
-          <input placeholder="Description (optional)" value={newDescription} onChange={(e) => setNewDescription(e.target.value)}
+          <input placeholder={ui("Description (optional)")} value={newDescription} onChange={(e) => setNewDescription(e.target.value)}
             className="w-full rounded-md border bg-background px-2 py-1.5 text-xs" />
           <div className="flex items-center justify-between">
             <label className="flex items-center gap-1.5 text-xs text-muted-foreground cursor-pointer">
               <button type="button" onClick={() => setNewSecret(!newSecret)} className="text-muted-foreground hover:text-foreground">
                 {newSecret ? <Shield className="h-3.5 w-3.5 text-amber-500" /> : <Globe className="h-3.5 w-3.5" />}
               </button>
-              {newSecret ? "Secret (masked after save)" : "Plaintext"}
+              {newSecret ? ui("Secret (masked after save)") : ui("Plaintext")}
             </label>
             <div className="flex gap-1.5">
-              <button onClick={() => setAdding(false)} className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted">Cancel</button>
+              <button onClick={() => setAdding(false)} className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted">{ui("Cancel")}</button>
               <button onClick={handleAdd} disabled={saving || !newKey.trim() || !newValue.trim()}
                 className="rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-                {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Save"}
+                {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : ui("Save")}
               </button>
             </div>
           </div>
@@ -136,8 +141,8 @@ export function VariablesTab({ workspaceId, projectId }: { workspaceId: string; 
       {projectVars.length === 0 && inheritedVars.length === 0 && !adding && (
         <div className="flex flex-col items-center py-6 text-center">
           <Key className="h-6 w-6 text-muted-foreground/30 mb-2" />
-          <p className="text-xs text-muted-foreground">No environment variables</p>
-          <p className="text-xs text-muted-foreground/60 mt-1">Variables are injected into dev server and builds</p>
+          <p className="text-xs text-muted-foreground">{ui("No environment variables")}</p>
+          <p className="text-xs text-muted-foreground/60 mt-1">{ui("Variables are injected into dev server and builds")}</p>
         </div>
       )}
 
@@ -148,17 +153,17 @@ export function VariablesTab({ workspaceId, projectId }: { workspaceId: string; 
               <div className="flex items-center gap-2">
                 <span className="font-mono text-xs font-medium">{v.key}</span>
                 <select value={editTarget} onChange={(e) => setEditTarget(e.target.value)} className="ml-auto rounded border bg-background px-1.5 py-0.5 text-[10px]">
-                  {TARGET_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  {i18n_TARGET_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                 </select>
               </div>
-              <input placeholder="New value (leave blank to keep)" type={v.is_secret ? "password" : "text"} value={editValue} onChange={(e) => setEditValue(e.target.value)}
+              <input placeholder={ui("New value (leave blank to keep)")} type={v.is_secret ? "password" : "text"} value={editValue} onChange={(e) => setEditValue(e.target.value)}
                 className="w-full rounded-md border bg-background px-2 py-1.5 text-xs font-mono" />
-              <input placeholder="Description" value={editDescription} onChange={(e) => setEditDescription(e.target.value)}
+              <input placeholder={ui("Description")} value={editDescription} onChange={(e) => setEditDescription(e.target.value)}
                 className="w-full rounded-md border bg-background px-2 py-1.5 text-xs" />
               <div className="flex justify-end gap-1.5">
-                <button onClick={() => setEditingId(null)} className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted">Cancel</button>
+                <button onClick={() => setEditingId(null)} className="rounded-md px-2 py-1 text-xs text-muted-foreground hover:bg-muted">{ui("Cancel")}</button>
                 <button onClick={() => handleUpdate(v.id)} disabled={saving} className="rounded-md bg-primary px-2 py-1 text-xs text-primary-foreground hover:bg-primary/90 disabled:opacity-50">
-                  {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : "Update"}
+                  {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : ui("Update")}
                 </button>
               </div>
             </div>
@@ -174,11 +179,11 @@ export function VariablesTab({ workspaceId, projectId }: { workspaceId: string; 
                 {v.description && <p className="text-[10px] text-muted-foreground/70 mt-0.5">{v.description}</p>}
               </div>
               <div className="flex items-center gap-0.5 shrink-0">
-                <button onClick={() => revealValue(v.id)} className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted" title="Toggle value">
+                <button onClick={() => revealValue(v.id)} className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted" title={ui("Toggle value")}>
                   {revealedValues[v.id] ? <EyeOff className="h-3 w-3" /> : <Eye className="h-3 w-3" />}
                 </button>
-                <button onClick={() => startEdit(v)} className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted" title="Edit"><Pencil className="h-3 w-3" /></button>
-                <button onClick={() => handleDelete(v.id)} className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-muted" title="Delete"><Trash2 className="h-3 w-3" /></button>
+                <button onClick={() => startEdit(v)} className="rounded p-1 text-muted-foreground hover:text-foreground hover:bg-muted" title={ui("Edit")}><Pencil className="h-3 w-3" /></button>
+                <button onClick={() => handleDelete(v.id)} className="rounded p-1 text-muted-foreground hover:text-destructive hover:bg-muted" title={ui("Delete")}><Trash2 className="h-3 w-3" /></button>
               </div>
             </div>
           )}
@@ -188,8 +193,7 @@ export function VariablesTab({ workspaceId, projectId }: { workspaceId: string; 
       {inheritedVars.length > 0 && (
         <div className="mt-2">
           <button onClick={() => setShowInherited(!showInherited)} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground mb-2">
-            {showInherited ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
-            Inherited from workspace ({inheritedVars.length})
+            {showInherited ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />} {ui("Inherited from workspace (")}{inheritedVars.length})
           </button>
           {showInherited && inheritedVars.map((v) => (
             <div key={v.id} className="rounded-lg border border-dashed bg-muted/30 mb-1.5">
@@ -199,7 +203,7 @@ export function VariablesTab({ workspaceId, projectId }: { workspaceId: string; 
                     <span className="font-mono text-xs text-muted-foreground truncate">{v.key}</span>
                     {v.is_secret && <Shield className="h-3 w-3 text-amber-500/60 shrink-0" />}
                     <Badge variant="outline" className="text-[10px] px-1 py-0 opacity-60">{v.target}</Badge>
-                    <Badge variant="secondary" className="text-[10px] px-1 py-0">inherited</Badge>
+                    <Badge variant="secondary" className="text-[10px] px-1 py-0">{ui("inherited")}</Badge>
                   </div>
                   {v.description && <p className="text-[10px] text-muted-foreground/50 mt-0.5">{v.description}</p>}
                 </div>

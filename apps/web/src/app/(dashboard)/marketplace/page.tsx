@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect } from "react";
 import { apiListWorkspaces, type ApiWorkspace } from "@/lib/api";
@@ -6,6 +8,8 @@ import { MarketplacePanel } from "@/modules/marketplace/marketplace-panel";
 import { Loader2 } from "lucide-react";
 
 export default function MarketplacePage() {
+  const ui = useUiText();
+
   const [workspace, setWorkspace] = useState<ApiWorkspace | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -38,9 +42,7 @@ export default function MarketplacePage() {
 
   if (!workspace) {
     return (
-      <div className="flex items-center justify-center h-full text-zinc-500">
-        No workspace found
-      </div>
+      <div className="flex items-center justify-center h-full text-zinc-500"> {ui("No workspace found")} </div>
     );
   }
 

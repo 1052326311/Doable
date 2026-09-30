@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect } from "react";
 import { Minus, X, MessageCircle } from "lucide-react";
@@ -10,6 +12,8 @@ interface Props {
 }
 
 export function ChatPopout({ currentUserId }: Props) {
+  const ui = useUiText();
+
   const {
     chatPopoutOpen,
     setChatPopoutOpen,
@@ -66,8 +70,8 @@ export function ChatPopout({ currentUserId }: Props) {
       >
         <div className="flex items-center gap-2">
           <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-xs font-medium text-foreground">Team Chat</span>
-          <span className="text-[10px] text-muted-foreground">{members.length} online</span>
+          <span className="text-xs font-medium text-foreground">{ui("Team Chat")}</span>
+          <span className="text-[10px] text-muted-foreground">{members.length} {ui("online")}</span>
         </div>
         <div className="flex items-center gap-1">
           <button

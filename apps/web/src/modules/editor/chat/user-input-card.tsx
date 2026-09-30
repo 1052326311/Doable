@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { memo, useState, useCallback } from "react";
 import { Check, HelpCircle, ChevronRight, Loader2 } from "lucide-react";
@@ -32,6 +34,8 @@ export const UserInputCard = memo(function UserInputCard({
   answerLabel,
   onAnswered,
 }: UserInputCardProps) {
+  const ui = useUiText();
+
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(answered);
   const [freeText, setFreeText] = useState("");
@@ -57,7 +61,7 @@ export const UserInputCard = memo(function UserInputCard({
         });
         if (!res.ok) {
           // 409 = the prompt already expired / was answered elsewhere.
-          const msg = res.status === 409 ? "This prompt is no longer active." : `Failed to submit (${res.status}).`;
+          const msg = res.status === 409 ? ui("This prompt is no longer active.") : `Failed to submit (${res.status}).`;
           setError(msg);
           setSubmitting(false);
           setPickedLabel(null);
@@ -66,12 +70,12 @@ export const UserInputCard = memo(function UserInputCard({
         setSubmitted(true);
         onAnswered(label);
       } catch {
-        setError("Network error — please try again.");
+        setError(ui("Network error — please try again."));
         setSubmitting(false);
         setPickedLabel(null);
       }
     },
-    [submitting, submitted, projectId, requestId, onAnswered],
+    [ui, submitting, submitted, projectId, requestId, onAnswered],
   );
 
   const handleFreeSubmit = useCallback(() => {
@@ -144,7 +148,7 @@ export const UserInputCard = memo(function UserInputCard({
             onChange={(e) => setFreeText(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleFreeSubmit()}
             disabled={submitting}
-            placeholder={choices.length > 0 ? "Or type a custom answer…" : "Type your answer…"}
+            placeholder={choices.length > 0 ? ui("Or type a custom answer…") : ui("Type your answer…")}
             className="min-w-0 flex-1 rounded-lg border border-white/8 bg-white/[0.03] px-2.5 py-1.5 text-xs text-foreground transition-all placeholder:text-muted-foreground/40 focus:border-brand-500/40 focus:outline-none focus:ring-1 focus:ring-brand-500/20 disabled:opacity-40"
           />
           {freeText.trim() && (
@@ -159,7 +163,7 @@ export const UserInputCard = memo(function UserInputCard({
         </div>
       )}
 
-      {error && <p className="mt-1 text-[10px] text-red-400">{error}</p>}
+      {error && <p className="mt-1 text-[10px] text-red-400">{ui(error)}</p>}
     </div>
   );
 });

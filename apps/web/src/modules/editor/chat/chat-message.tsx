@@ -1,4 +1,7 @@
 "use client";
+import {translateProgress} from "@/i18n/progress";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { memo, useCallback, useState, useMemo, useRef, useEffect } from "react";
 import {
@@ -44,6 +47,7 @@ function PhaseIcon({ phase, className = "" }: { phase: AgentPhase; className?: s
 // ─── Streaming Status Indicator ───────────────────────────────
 // Shown inline beneath the message header while content is also streaming
 function StreamingStatus({ progress }: { progress?: AgentProgressState }) {
+  const ui = useUiText();
   if (!progress || progress.phase === "streaming_response") return null;
 
   const isError = progress.phase === "failed";
@@ -55,7 +59,7 @@ function StreamingStatus({ progress }: { progress?: AgentProgressState }) {
           "text-muted-foreground"
       }`}>
       <PhaseIcon phase={progress.phase} className="h-3 w-3" />
-      <span>{progress.message}</span>
+      <span>{translateProgress(progress.message, ui)}</span>
     </div>
   );
 }
@@ -63,6 +67,8 @@ function StreamingStatus({ progress }: { progress?: AgentProgressState }) {
 // ─── Glowing Progress Card (formerly WaitingIndicator) ──────────
 // Shown during agent execution when no content has streamed yet, or while terminal commands run
 function GlowingProgressCard({ progress }: { progress?: AgentProgressState }) {
+  const ui = useUiText();
+
   const phase = progress?.phase ?? "thinking";
   const message = progress?.message ?? "Thinking…";
 
@@ -93,7 +99,7 @@ function GlowingProgressCard({ progress }: { progress?: AgentProgressState }) {
 
         {/* Title */}
         <h3 className="mt-4 text-sm font-semibold text-white tracking-wide">
-          {message}
+          {translateProgress(message, ui)}
         </h3>
 
         {/* Dynamic Checklist */}
@@ -111,7 +117,7 @@ function GlowingProgressCard({ progress }: { progress?: AgentProgressState }) {
                   )}
                 </div>
                 <span className={`text-[11px] font-medium truncate ${isSpinning ? "text-brand-100" : "text-muted-foreground"}`}>
-                  {evt.message}
+                  {translateProgress(evt.message, ui)}
                 </span>
               </div>
             );
@@ -122,7 +128,7 @@ function GlowingProgressCard({ progress }: { progress?: AgentProgressState }) {
               <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500/10 border border-brand-500/20">
                 <Loader2 className="h-3 w-3 text-brand-400 animate-spin" />
               </div>
-              <span className="text-[11px] font-medium text-muted-foreground">Preparing workspace…</span>
+              <span className="text-[11px] font-medium text-muted-foreground">{ui("Preparing workspace…")}</span>
             </div>
           )}
         </div>
@@ -153,6 +159,8 @@ function ThinkingSection({
   isStreaming: boolean;
   summaryLine?: string;
 }) {
+  const ui = useUiText();
+
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(isStreaming);
   const wasStreamingRef = useRef(isStreaming);
@@ -190,9 +198,9 @@ function ThinkingSection({
       >
         <Brain className={`h-3 w-3 text-brand-400 shrink-0 ${isStreaming ? "animate-pulse" : ""}`} />
         <span className="flex-1 text-left truncate">
-          {isStreaming ? "Thinking…" : (displaySummary || "Thought process")}
+          {isStreaming ? ui("Thinking…") : (displaySummary || ui("Thought process"))}
         </span>
-        <span className="text-[10px] text-muted-foreground/40 shrink-0">{wordCount}w</span>
+        <span className="text-[10px] text-muted-foreground/40 shrink-0">{wordCount}{ui("w")}</span>
         <ChevronDown className={`h-3 w-3 shrink-0 transition-transform ${isOpen ? "rotate-180" : ""}`} />
       </button>
       {isOpen && (
@@ -219,6 +227,8 @@ interface ChatMessageProps {
 }
 
 export const ChatMessage = memo(function ChatMessage({ message, onClarificationAnswer }: ChatMessageProps) {
+  const ui = useUiText();
+
   const isUser = message.role === "user";
   const hasThinking = !!message.thinkingContent;
 
@@ -238,7 +248,7 @@ export const ChatMessage = memo(function ChatMessage({ message, onClarificationA
             maybeType === "tool_result" ? "completed" :
               maybeType === "plan" ? "planning" :
                 "thinking";
-        return { phase, message: msg || PHASE_LABELS[phase] };
+        return { phase, message: msg || ui(PHASE_LABELS[phase]) };
       })()
       : undefined);
 
@@ -351,10 +361,10 @@ export const ChatMessage = memo(function ChatMessage({ message, onClarificationA
         {/* Header row */}
         <div className="mb-1 flex items-center gap-2">
           <span className="text-xs font-semibold text-foreground">
-            {isUser ? "You" : "Doable AI"}
+            {isUser ? ui("You") : ui("Doable")}
           </span>
           <span className="text-xs text-muted-foreground">
-            {new Date(message.timestamp).toLocaleTimeString([], {
+            {new Date(message.timestamp).toLocaleTimeString(ui.locale, {
               hour: "2-digit",
               minute: "2-digit",
             })}
@@ -415,7 +425,7 @@ export const ChatMessage = memo(function ChatMessage({ message, onClarificationA
         {message.undone && (
           <div className="mb-1.5 flex items-center gap-1.5 text-xs text-amber-600 dark:text-amber-400">
             <Undo2 className="h-3 w-3" />
-            <span className="font-medium">Changes undone</span>
+            <span className="font-medium">{ui("Changes undone")}</span>
           </div>
         )}
 
@@ -435,9 +445,7 @@ export const ChatMessage = memo(function ChatMessage({ message, onClarificationA
                   onClick={() => setUserMsgExpanded(true)}
                   className="mt-1 text-xs text-brand-500 hover:text-brand-400 font-medium flex items-center gap-1"
                 >
-                  <ChevronDown className="h-3 w-3" />
-                  Show full prompt ({Math.ceil(message.content.length / 1000)}k chars)
-                </button>
+                  <ChevronDown className="h-3 w-3" /> {ui("Show full prompt (")}{Math.ceil(message.content.length / 1000)}{ui("k chars)")} </button>
               </>
             ) : (
               <>
@@ -447,9 +455,7 @@ export const ChatMessage = memo(function ChatMessage({ message, onClarificationA
                     onClick={() => setUserMsgExpanded(false)}
                     className="mt-1 text-xs text-brand-500 hover:text-brand-400 font-medium flex items-center gap-1"
                   >
-                    <ChevronDown className="h-3 w-3 rotate-180" />
-                    Collapse
-                  </button>
+                    <ChevronDown className="h-3 w-3 rotate-180" /> {ui("Collapse")} </button>
                 )}
               </>
             )}
@@ -554,7 +560,7 @@ export const ChatMessage = memo(function ChatMessage({ message, onClarificationA
             ) : (
               <Undo2 className="h-3 w-3" />
             )}
-            {undoing ? "Undoing..." : "Undo changes"}
+            {undoing ? ui("Undoing...") : ui("Undo changes")}
           </button>
         )}
 

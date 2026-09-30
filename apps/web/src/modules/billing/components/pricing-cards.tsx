@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState } from "react";
 import { Check, Sparkles, Loader2 } from "lucide-react";
@@ -18,6 +20,8 @@ export function PricingCards({
   onSelect,
   loading,
 }: PricingCardsProps) {
+  const ui = useUiText();
+
   const [interval, setInterval] = useState<"monthly" | "yearly">("monthly");
 
   return (
@@ -33,9 +37,7 @@ export function PricingCards({
                 ? "bg-brand-600 text-white shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             )}
-          >
-            Monthly
-          </button>
+          > {ui("Monthly")} </button>
           <button
             onClick={() => setInterval("yearly")}
             className={cn(
@@ -44,9 +46,7 @@ export function PricingCards({
                 ? "bg-brand-600 text-white shadow-sm"
                 : "text-muted-foreground hover:text-foreground"
             )}
-          >
-            Yearly
-            <span className="ml-1.5 rounded-full bg-green-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-green-400">
+          > {ui("Yearly")} <span className="ml-1.5 rounded-full bg-green-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-green-400">
               -20%
             </span>
           </button>
@@ -75,9 +75,7 @@ export function PricingCards({
               {isPopular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <div className="inline-flex items-center gap-1 rounded-full bg-brand-600 px-3 py-1 text-xs font-medium text-white shadow-sm">
-                    <Sparkles className="h-3 w-3" />
-                    Most Popular
-                  </div>
+                    <Sparkles className="h-3 w-3" /> {ui("Most Popular")} </div>
                 </div>
               )}
 
@@ -96,14 +94,11 @@ export function PricingCards({
                   <span className="text-muted-foreground">/mo</span>
                 )}
                 {interval === "yearly" && plan.priceYearly > 0 && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Billed ${plan.priceYearly}/year
+                  <p className="mt-1 text-xs text-muted-foreground"> {ui("Billed $")}{plan.priceYearly}/year
                   </p>
                 )}
                 {plan.priceMonthly === 0 && (
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    Free forever
-                  </p>
+                  <p className="mt-1 text-xs text-muted-foreground"> {ui("Free forever")} </p>
                 )}
               </div>
 
@@ -131,11 +126,11 @@ export function PricingCards({
                 {loading ? (
                   <Loader2 className="mx-auto h-4 w-4 animate-spin" />
                 ) : isCurrent ? (
-                  "Current Plan"
+                  ui("Current Plan")
                 ) : plan.id === "free" ? (
-                  "Free Forever"
+                  ui("Free Forever")
                 ) : (
-                  `Upgrade to ${plan.name}`
+                  ui("Upgrade to {v0}", {v0: (plan.name)})
                 )}
               </button>
             </div>

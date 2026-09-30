@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect } from "react";
 import type { ApiGitHubCopilotAccount, ApiAiProvider, ApiWorkspaceAiDefaults } from "@/lib/api";
@@ -21,6 +23,8 @@ interface AccessControlTabProps {
 type Source = "copilot" | "custom";
 
 export function AccessControlTab({ defaults, accounts, providers, onUpdate }: AccessControlTabProps) {
+  const ui = useUiText();
+
   const [enforceAi, setEnforceAi] = useState(false);
   const [source, setSource] = useState<Source>("copilot");
   const [copilotAccountId, setCopilotAccountId] = useState("");
@@ -80,8 +84,8 @@ export function AccessControlTab({ defaults, accounts, providers, onUpdate }: Ac
             <Shield className="h-4 w-4 text-brand-400" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground">AI Rules for Your Team</h3>
-            <p className="text-xs text-muted-foreground">Lock everyone in your workspace to a specific AI model — no one can change it</p>
+            <h3 className="text-sm font-semibold text-foreground">{ui("AI Rules for Your Team")}</h3>
+            <p className="text-xs text-muted-foreground">{ui("Lock everyone in your workspace to a specific AI model — no one can change it")}</p>
           </div>
         </div>
 
@@ -100,11 +104,9 @@ export function AccessControlTab({ defaults, accounts, providers, onUpdate }: Ac
                 }`}
               />
             </button>
-            <span className="text-sm text-foreground">Require everyone to use the same AI model</span>
+            <span className="text-sm text-foreground">{ui("Require everyone to use the same AI model")}</span>
           </label>
-          <p className="text-xs text-muted-foreground mt-2 ml-14">
-            When turned on, every workspace member uses the model you pick below. They won&apos;t be able to change it.
-          </p>
+          <p className="text-xs text-muted-foreground mt-2 ml-14"> {ui("When turned on, every workspace member uses the model you pick below. They won't be able to change it.")} </p>
         </div>
 
         {/* Enforced model configuration (only shown when enforcement is on) */}
@@ -112,7 +114,7 @@ export function AccessControlTab({ defaults, accounts, providers, onUpdate }: Ac
           <div className="border-t border-border pt-4 mt-4 space-y-4">
             {/* Source toggle */}
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">Provider Source</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">{ui("Provider Source")}</label>
               <div className="flex rounded-lg border border-border overflow-hidden w-fit">
                 <button
                   onClick={() => { setSource("copilot"); setProviderId(""); }}
@@ -121,9 +123,7 @@ export function AccessControlTab({ defaults, accounts, providers, onUpdate }: Ac
                       ? "bg-brand-600 text-white"
                       : "bg-secondary text-muted-foreground hover:text-foreground"
                   }`}
-                >
-                  GitHub Copilot
-                </button>
+                > {ui("GitHub Copilot")} </button>
                 <button
                   onClick={() => { setSource("custom"); setCopilotAccountId(""); }}
                   className={`px-4 py-2 text-sm font-medium transition-colors ${
@@ -131,9 +131,7 @@ export function AccessControlTab({ defaults, accounts, providers, onUpdate }: Ac
                       ? "bg-brand-600 text-white"
                       : "bg-secondary text-muted-foreground hover:text-foreground"
                   }`}
-                >
-                  Custom Provider
-                </button>
+                > {ui("Custom Provider")} </button>
               </div>
             </div>
 
@@ -142,26 +140,26 @@ export function AccessControlTab({ defaults, accounts, providers, onUpdate }: Ac
               {source === "copilot" ? (
                 <>
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">Account</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Account")}</label>
                     <select
                       value={copilotAccountId}
                       onChange={(e) => setCopilotAccountId(e.target.value)}
                       className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-500"
                     >
-                      <option value="">Server Default</option>
+                      <option value="">{ui("Server Default")}</option>
                       {validAccounts.map((a) => (
                         <option key={a.id} value={a.id}>{a.label} (@{a.github_login})</option>
                       ))}
                     </select>
                     {copilotAccountId === "" && (
-                      <p className="text-[10px] text-muted-foreground mt-1">Uses the server&apos;s built-in GitHub authentication.</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{ui("Uses the server's built-in GitHub authentication.")}</p>
                     )}
                     {validAccounts.length === 0 && (
-                      <p className="text-[10px] text-muted-foreground mt-1">No accounts connected yet. Go to the Connections tab to add one.</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{ui("No accounts connected yet. Go to the Connections tab to add one.")}</p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">Model</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Model")}</label>
                     <select
                       value={model}
                       onChange={(e) => setModel(e.target.value)}
@@ -176,28 +174,28 @@ export function AccessControlTab({ defaults, accounts, providers, onUpdate }: Ac
               ) : (
                 <>
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">Provider</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Provider")}</label>
                     <select
                       value={providerId}
                       onChange={(e) => setProviderId(e.target.value)}
                       className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-500"
                     >
-                      <option value="">Select a provider...</option>
+                      <option value="">{ui("Select a provider...")}</option>
                       {validProviders.map((p) => (
                         <option key={p.id} value={p.id}>{p.label} ({p.provider_type})</option>
                       ))}
                     </select>
                     {validProviders.length === 0 && (
-                      <p className="text-[10px] text-muted-foreground mt-1">No providers set up yet. Go to the Connections tab to add one.</p>
+                      <p className="text-[10px] text-muted-foreground mt-1">{ui("No providers set up yet. Go to the Connections tab to add one.")}</p>
                     )}
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">Model</label>
+                    <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Model")}</label>
                     <input
                       type="text"
                       value={model}
                       onChange={(e) => setModel(e.target.value)}
-                      placeholder="e.g. gpt-4o"
+                      placeholder={ui("e.g. gpt-4o")}
                       className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500"
                     />
                   </div>
@@ -215,8 +213,8 @@ export function AccessControlTab({ defaults, accounts, providers, onUpdate }: Ac
             <Eye className="h-4 w-4 text-blue-400" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-foreground">Let Members Choose Their Model</h3>
-            <p className="text-xs text-muted-foreground">Show or hide the model picker in the editor for workspace members</p>
+            <h3 className="text-sm font-semibold text-foreground">{ui("Let Members Choose Their Model")}</h3>
+            <p className="text-xs text-muted-foreground">{ui("Show or hide the model picker in the editor for workspace members")}</p>
           </div>
         </div>
 
@@ -233,11 +231,9 @@ export function AccessControlTab({ defaults, accounts, providers, onUpdate }: Ac
               }`}
             />
           </button>
-          <span className="text-sm text-foreground">Show model picker to workspace members</span>
+          <span className="text-sm text-foreground">{ui("Show model picker to workspace members")}</span>
         </label>
-        <p className="text-xs text-muted-foreground mt-2 ml-14">
-          When turned off, members won&apos;t see which model they&apos;re using. The workspace default (or enforced model) runs automatically in the background.
-        </p>
+        <p className="text-xs text-muted-foreground mt-2 ml-14"> {ui("When turned off, members won't see which model they're using. The workspace default (or enforced model) runs automatically in the background.")} </p>
       </div>
 
       <button
@@ -246,7 +242,7 @@ export function AccessControlTab({ defaults, accounts, providers, onUpdate }: Ac
         className="flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-500 disabled:opacity-50 transition-colors"
       >
         {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : saved ? <Check className="h-4 w-4" /> : <Shield className="h-4 w-4" />}
-        {saved ? "Saved!" : "Save Policy"}
+        {saved ? ui("Saved!") : ui("Save Policy")}
       </button>
     </div>
   );

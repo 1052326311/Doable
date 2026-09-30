@@ -1,4 +1,8 @@
 "use client";
+import {UiText} from "@/i18n/ui-text";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState, useCallback, useEffect } from "react";
 import {
@@ -41,7 +45,7 @@ function ToastContainer({
   onDismiss: (id: string) => void;
 }) {
   return (
-    <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2">
+    <div className="fixed bottom-16 right-4 z-50 flex flex-col gap-2">
       {toasts.map((toast) => (
         <div
           key={toast.id}
@@ -57,7 +61,7 @@ function ToastContainer({
           ) : (
             <X className="h-4 w-4 shrink-0" />
           )}
-          <span className="text-sm">{toast.message}</span>
+          <span className="text-sm"><UiText>{toast.message}</UiText></span>
           <button
             onClick={() => onDismiss(toast.id)}
             className="ml-2 shrink-0 opacity-60 hover:opacity-100"
@@ -115,10 +119,13 @@ export function WorkspaceSettings({
   currentUserId,
   onUpdate,
 }: WorkspaceSettingsProps) {
+  const ui = useUiText();
+  const i18n_TABS = useUiData(TABS);
+
   const [activeTab, setActiveTab] = useState<Tab>("general");
   const { toasts, addToast, dismissToast } = useToasts();
 
-  const visibleTabs = TABS.filter((tab) =>
+  const visibleTabs = i18n_TABS.filter((tab) =>
     hasRole(workspace.userRole, tab.minRole)
   );
 

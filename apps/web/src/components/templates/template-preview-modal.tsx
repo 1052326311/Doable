@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useEffect, useCallback } from "react";
 import { X } from "lucide-react";
@@ -22,6 +24,8 @@ export function TemplatePreviewModal({
   onClose,
   onUseTemplate,
 }: TemplatePreviewModalProps) {
+  const ui = useUiText();
+
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -63,22 +67,18 @@ export function TemplatePreviewModal({
               <h2 className="text-[15px] font-semibold text-foreground truncate">
                 {template.name}
               </h2>
-              <span className="text-[13px] text-muted-foreground shrink-0">
-                by Doable
-              </span>
+              <span className="text-[13px] text-muted-foreground shrink-0"> {ui("by Doable")} </span>
             </div>
 
             <div className="flex items-center gap-3 shrink-0">
               <button
                 onClick={onUseTemplate}
                 className="px-4 py-1.5 text-sm font-medium text-primary-foreground bg-primary rounded-lg hover:bg-primary/90 transition-colors"
-              >
-                Use template
-              </button>
+              > {ui("Use template")} </button>
               <button
                 onClick={onClose}
                 className="p-1.5 text-muted-foreground hover:text-foreground rounded-md hover:bg-secondary transition-colors"
-                aria-label="Close preview"
+                aria-label={ui("Close preview")}
               >
                 <X className="w-4 h-4" />
               </button>
@@ -89,7 +89,7 @@ export function TemplatePreviewModal({
           <div className="flex-1 bg-white overflow-hidden">
             <iframe
               src={`${API_URL}/templates/${template.id}/preview`}
-              title={`Preview of ${template.name}`}
+              title={ui("Preview of {v0}", {v0: (template.name)})}
               className="w-full h-full border-0"
             />
           </div>

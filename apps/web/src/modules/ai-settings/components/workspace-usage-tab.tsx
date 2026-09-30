@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState } from "react";
 import { Users, DollarSign, Zap, Clock, Hash, Server, Crown, Cpu, Github, ChevronDown, ChevronRight, Trophy } from "lucide-react";
@@ -34,6 +36,8 @@ const MEMBER_COLORS = ["#60a5fa", "#a78bfa", "#fbbf24", "#34d399", "#f87171", "#
 const MODEL_COLORS = ["#818cf8", "#fb923c", "#4ade80", "#f472b6", "#22d3ee", "#a3e635"];
 
 export function WorkspaceUsageTab({ workspaceId }: WorkspaceUsageTabProps) {
+  const ui = useUiText();
+
   const { summary, loading: summaryLoading } = useWorkspaceUsageSummary(workspaceId);
   const { members, loading: membersLoading } = useWorkspaceMembers(workspaceId);
   const { providers, loading: providersLoading } = useWorkspaceProviders(workspaceId);
@@ -48,7 +52,7 @@ export function WorkspaceUsageTab({ workspaceId }: WorkspaceUsageTabProps) {
     return (
       <div className="rounded-2xl border border-dashed border-border py-12 text-center">
         <Users className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-        <p className="text-sm text-muted-foreground">No workspace usage data yet</p>
+        <p className="text-sm text-muted-foreground">{ui("No workspace usage data yet")}</p>
       </div>
     );
   }
@@ -59,28 +63,28 @@ export function WorkspaceUsageTab({ workspaceId }: WorkspaceUsageTabProps) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <StatCard
           icon={<Zap className="h-3.5 w-3.5 text-blue-400" />}
-          label="Total Tokens"
+          label={ui("Total Tokens")}
           value={summary ? formatTokenCount(summary.totalTokens) : undefined}
           loading={summaryLoading}
           accent="blue"
         />
         <StatCard
           icon={<DollarSign className="h-3.5 w-3.5 text-emerald-400" />}
-          label="Total Cost"
+          label={ui("Total Cost")}
           value={summary ? formatCost(summary.totalCostUsd) : undefined}
           loading={summaryLoading}
           accent="emerald"
         />
         <StatCard
           icon={<Hash className="h-3.5 w-3.5 text-violet-400" />}
-          label="Total Requests"
-          value={summary ? summary.requestCount.toLocaleString("en-US") : undefined}
+          label={ui("Total Requests")}
+          value={summary ? summary.requestCount.toLocaleString(ui.locale) : undefined}
           loading={summaryLoading}
           accent="violet"
         />
         <StatCard
           icon={<Clock className="h-3.5 w-3.5 text-amber-400" />}
-          label="Avg Response"
+          label={ui("Avg Response")}
           value={summary ? formatDuration(summary.avgDurationMs) : undefined}
           loading={summaryLoading}
           accent="amber"
@@ -90,8 +94,7 @@ export function WorkspaceUsageTab({ workspaceId }: WorkspaceUsageTabProps) {
       {/* ── Top Token Consumers ── */}
       <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
         <h3 className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
-          <Trophy className="h-4 w-4 text-amber-400" /> Top Token Consumers
-        </h3>
+          <Trophy className="h-4 w-4 text-amber-400" /> {ui("Top Token Consumers")} </h3>
         {topConsumersLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -99,7 +102,7 @@ export function WorkspaceUsageTab({ workspaceId }: WorkspaceUsageTabProps) {
             ))}
           </div>
         ) : topConsumers.length === 0 ? (
-          <p className="text-xs text-muted-foreground">No usage data yet.</p>
+          <p className="text-xs text-muted-foreground">{ui("No usage data yet.")}</p>
         ) : (
           <TopConsumersList consumers={topConsumers} />
         )}
@@ -108,8 +111,7 @@ export function WorkspaceUsageTab({ workspaceId }: WorkspaceUsageTabProps) {
       {/* ── Member Usage with Model Breakdown ── */}
       <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
         <h3 className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
-          <Cpu className="h-4 w-4 text-violet-400" /> Member Usage by Model
-        </h3>
+          <Cpu className="h-4 w-4 text-violet-400" /> {ui("Member Usage by Model")} </h3>
         {membersLoading || memberModelsLoading ? (
           <div className="space-y-3">
             {Array.from({ length: 3 }).map((_, i) => (
@@ -117,7 +119,7 @@ export function WorkspaceUsageTab({ workspaceId }: WorkspaceUsageTabProps) {
             ))}
           </div>
         ) : members.length === 0 ? (
-          <p className="text-xs text-muted-foreground">No member usage data.</p>
+          <p className="text-xs text-muted-foreground">{ui("No member usage data.")}</p>
         ) : (
           <MemberModelBreakdown members={members} memberModels={memberModels} />
         )}
@@ -127,8 +129,7 @@ export function WorkspaceUsageTab({ workspaceId }: WorkspaceUsageTabProps) {
       {copilotAccounts.length > 0 && (
         <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
           <h3 className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
-            <Github className="h-4 w-4 text-blue-400" /> Copilot Account Usage
-          </h3>
+            <Github className="h-4 w-4 text-blue-400" /> {ui("Copilot Account Usage")} </h3>
           {copilotAccountsLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 2 }).map((_, i) => (
@@ -144,14 +145,13 @@ export function WorkspaceUsageTab({ workspaceId }: WorkspaceUsageTabProps) {
       {/* ── Provider Distribution (donut + legend) ── */}
       <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
         <h3 className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
-          <Server className="h-4 w-4 text-violet-400" /> Provider Distribution
-        </h3>
+          <Server className="h-4 w-4 text-violet-400" /> {ui("Provider Distribution")} </h3>
         {providersLoading ? (
           <div className="flex items-center justify-center py-8">
             <Skeleton className="h-32 w-32 rounded-full" />
           </div>
         ) : providers.length === 0 ? (
-          <p className="text-xs text-muted-foreground">No provider usage data.</p>
+          <p className="text-xs text-muted-foreground">{ui("No provider usage data.")}</p>
         ) : (
           <ProviderDonut providers={providers} />
         )}
@@ -162,6 +162,8 @@ export function WorkspaceUsageTab({ workspaceId }: WorkspaceUsageTabProps) {
 
 // ── Top Consumers List ────────────────────────────────────────────────
 function TopConsumersList({ consumers }: { consumers: TopConsumer[] }) {
+  const ui = useUiText();
+
   const maxTokens = Math.max(...consumers.map((c) => c.totalTokens), 1);
   
   return (
@@ -193,7 +195,7 @@ function TopConsumersList({ consumers }: { consumers: TopConsumer[] }) {
                 </div>
               </div>
               <div className="flex items-center gap-4 shrink-0">
-                <span className="text-xs text-muted-foreground tabular-nums">{c.requestCount} reqs</span>
+                <span className="text-xs text-muted-foreground tabular-nums">{c.requestCount} {ui("reqs")}</span>
                 <span className="text-xs text-blue-400 font-medium tabular-nums">{formatTokenCount(c.totalTokens)}</span>
                 <span className="text-xs text-foreground font-medium tabular-nums">{formatCost(c.totalCostUsd)}</span>
               </div>
@@ -206,9 +208,9 @@ function TopConsumersList({ consumers }: { consumers: TopConsumer[] }) {
             </div>
             {/* Token breakdown tooltip-style info */}
             <div className="flex gap-4 mt-2 text-[10px] text-muted-foreground">
-              <span>Prompt: {formatTokenCount(c.promptTokens)}</span>
-              <span>Output: {formatTokenCount(c.completionTokens)}</span>
-              {c.thinkingTokens > 0 && <span>Thinking: {formatTokenCount(c.thinkingTokens)}</span>}
+              <span>{ui("Prompt:")} {formatTokenCount(c.promptTokens)}</span>
+              <span>{ui("Output:")} {formatTokenCount(c.completionTokens)}</span>
+              {c.thinkingTokens > 0 && <span>{ui("Thinking:")} {formatTokenCount(c.thinkingTokens)}</span>}
             </div>
           </div>
         );
@@ -225,6 +227,8 @@ function MemberModelBreakdown({
   members: { userId: string; displayName?: string | null; email: string; requestCount: number; totalTokens: number; totalCostUsd: number }[];
   memberModels: MemberModelUsage[];
 }) {
+  const ui = useUiText();
+
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   
   // Group models by user
@@ -278,7 +282,7 @@ function MemberModelBreakdown({
                   </div>
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
-                  <span className="text-xs text-muted-foreground tabular-nums">{m.requestCount} reqs</span>
+                  <span className="text-xs text-muted-foreground tabular-nums">{m.requestCount} {ui("reqs")}</span>
                   <span className="text-xs text-muted-foreground tabular-nums">{formatTokenCount(m.totalTokens)}</span>
                   <span className="text-xs text-foreground font-medium tabular-nums">{formatCost(m.totalCostUsd)}</span>
                 </div>
@@ -297,7 +301,7 @@ function MemberModelBreakdown({
             {/* Expanded model breakdown */}
             {isExpanded && userModels.length > 0 && (
               <div className="px-3 pb-3 pt-1 border-t border-border">
-                <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">Models used</div>
+                <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-2">{ui("Models used")}</div>
                 <div className="space-y-1.5">
                   {userModels.map((mm, j) => (
                     <div key={mm.model} className="flex items-center gap-2">
@@ -306,7 +310,7 @@ function MemberModelBreakdown({
                         style={{ backgroundColor: MODEL_COLORS[j % MODEL_COLORS.length] }}
                       />
                       <span className="text-xs text-foreground flex-1 truncate">{mm.model}</span>
-                      <span className="text-[10px] text-muted-foreground tabular-nums">{mm.requestCount} reqs</span>
+                      <span className="text-[10px] text-muted-foreground tabular-nums">{mm.requestCount} {ui("reqs")}</span>
                       <span className="text-[10px] text-muted-foreground tabular-nums">{formatTokenCount(mm.totalTokens)}</span>
                       <span className="text-[10px] text-foreground tabular-nums">{formatCost(mm.totalCostUsd)}</span>
                     </div>
@@ -323,6 +327,8 @@ function MemberModelBreakdown({
 
 // ── Copilot Accounts List ─────────────────────────────────────────────
 function CopilotAccountsList({ accounts }: { accounts: CopilotAccountUsage[] }) {
+  const ui = useUiText();
+
   // Group by account
   const byAccount = new Map<string, { label: string; githubLogin: string; users: CopilotAccountUsage[]; totalTokens: number; totalCostUsd: number }>();
   
@@ -372,7 +378,7 @@ function CopilotAccountsList({ accounts }: { accounts: CopilotAccountUsage[] }) 
           </div>
           
           {/* Users who used this account */}
-          <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">Used by</div>
+          <div className="text-[10px] text-muted-foreground uppercase tracking-wider mb-1.5">{ui("Used by")}</div>
           <div className="flex flex-wrap gap-2">
             {account.users.map((u) => (
               <div
@@ -396,6 +402,8 @@ function ProviderDonut({
 }: {
   providers: { provider: string; providerLabel?: string | null; requestCount: number; totalTokens: number; totalCostUsd: number; uniqueModels: number }[];
 }) {
+  const ui = useUiText();
+
   const total = providers.reduce((s, p) => s + p.totalCostUsd, 0);
   const radius = 50;
   const strokeW = 16;
@@ -430,7 +438,7 @@ function ProviderDonut({
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
           <span className="text-lg font-bold text-foreground">{formatCost(total)}</span>
-          <span className="text-[10px] text-muted-foreground">total cost</span>
+          <span className="text-[10px] text-muted-foreground">{ui("total cost")}</span>
         </div>
       </div>
       <div className="space-y-3 min-w-[200px]">
@@ -450,9 +458,9 @@ function ProviderDonut({
                 </span>
               </div>
               <div className="flex gap-3 mt-0.5">
-                <span className="text-[10px] text-muted-foreground">{p.requestCount} reqs</span>
-                <span className="text-[10px] text-muted-foreground">{formatTokenCount(p.totalTokens)} tokens</span>
-                <span className="text-[10px] text-muted-foreground">{p.uniqueModels} models</span>
+                <span className="text-[10px] text-muted-foreground">{p.requestCount} {ui("reqs")}</span>
+                <span className="text-[10px] text-muted-foreground">{formatTokenCount(p.totalTokens)} {ui("tokens")}</span>
+                <span className="text-[10px] text-muted-foreground">{p.uniqueModels} {ui("models")}</span>
               </div>
             </div>
           </div>

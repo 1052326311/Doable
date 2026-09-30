@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useEditorStore, type EditorMode } from "../hooks/use-editor-store";
 import { Hammer, Target } from "lucide-react";
@@ -9,11 +12,14 @@ const modes: { id: EditorMode; label: string; icon: typeof Hammer; desc: string 
 ];
 
 export function ModeToggle() {
+  const ui = useUiText();
+  const i18n_modes = useUiData(modes);
+
   const { mode, setMode } = useEditorStore();
 
   return (
     <div className="flex shrink-0 items-center gap-0 rounded-full border border-border bg-muted p-0.5">
-      {modes.map(({ id, label, icon: Icon, desc }) => (
+      {i18n_modes.map(({ id, label, icon: Icon, desc }) => (
         <button
           key={id}
           onClick={() => setMode(id)}

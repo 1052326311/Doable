@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
@@ -30,6 +32,8 @@ import { InstallPermissionDialog } from "@/modules/marketplace/install-permissio
 import { ReportListingDialog } from "@/modules/marketplace/report-listing-dialog";
 
 export default function MarketplaceListingPage({ params }: { params: Promise<{ slug: string }> }) {
+  const ui = useUiText();
+
   const { slug } = use(params);
   const router = useRouter();
   const [workspaces, setWorkspaces] = useState<ApiWorkspace[]>([]);
@@ -96,12 +100,11 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
     return (
       <div className="flex flex-col items-center justify-center h-full gap-3 text-muted-foreground">
         <Package className="w-12 h-12" />
-        <p className="font-medium text-foreground">Listing not found</p>
-        <p className="text-sm">It may have been removed or unpublished.</p>
+        <p className="font-medium text-foreground">{ui("Listing not found")}</p>
+        <p className="text-sm">{ui("It may have been removed or unpublished.")}</p>
         <Link href="/marketplace" className="mt-2">
           <Button variant="outline" size="sm">
-            <ArrowLeft className="w-3.5 h-3.5 mr-2" /> Back to Marketplace
-          </Button>
+            <ArrowLeft className="w-3.5 h-3.5 mr-2" /> {ui("Back to Marketplace")} </Button>
         </Link>
       </div>
     );
@@ -118,8 +121,7 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
             href="/marketplace"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Marketplace
-          </Link>
+            <ArrowLeft className="w-3.5 h-3.5" /> {ui("Marketplace")} </Link>
         </div>
       </div>
 
@@ -130,8 +132,7 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
             <div className="flex items-center gap-2 mb-2">
               {listing.featured && (
                 <span className="flex items-center gap-1 px-2 py-0.5 bg-amber-500/15 text-amber-400 rounded-full text-xs font-medium">
-                  <Sparkles className="w-3 h-3" /> Featured
-                </span>
+                  <Sparkles className="w-3 h-3" /> {ui("Featured")} </span>
               )}
               {listing.category_name && (
                 <span className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -141,17 +142,16 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-2">{listing.title}</h1>
             <p className="text-sm text-muted-foreground flex items-center gap-1.5 flex-wrap">
-              <span>by</span>
+              <span>{ui("by")}</span>
               <span className="text-foreground font-medium">{listing.publisher_name}</span>
               {listing.publisher_verified && (
                 <span
                   className="inline-flex items-center gap-1 rounded-full border border-sky-500/40 bg-sky-500/10 px-1.5 py-0 text-[10px] font-medium text-sky-300"
-                  title="Verified publisher"
+                  title={ui("Verified publisher")}
                 >
-                  <BadgeCheck className="h-3 w-3" /> Verified
-                </span>
+                  <BadgeCheck className="h-3 w-3" /> {ui("Verified")} </span>
               )}
-              <span>· v{listing.version}</span>
+              <span>{ui("· v")}{listing.version}</span>
             </p>
           </div>
           <div className="flex flex-col items-end gap-2">
@@ -165,19 +165,17 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
                 >
                   {installed ? (
                     <>
-                      <CheckCircle2 className="w-4 h-4 mr-2" /> Installed
-                    </>
+                      <CheckCircle2 className="w-4 h-4 mr-2" /> {ui("Installed")} </>
                   ) : (
                     <>
-                      <Download className="w-4 h-4 mr-2" /> Install
-                    </>
+                      <Download className="w-4 h-4 mr-2" /> {ui("Install")} </>
                   )}
                 </Button>
                 {/* Workspace destination — visible BEFORE you click Install
                     so it's never ambiguous where this is going to land. */}
                 {workspaces.length > 1 ? (
                   <label className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                    <span>Install to:</span>
+                    <span>{ui("Install to:")}</span>
                     <select
                       value={workspace.id}
                       onChange={(e) => handleWorkspaceChange(e.target.value)}
@@ -190,13 +188,12 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
                     </select>
                   </label>
                 ) : (
-                  <p className="text-xs text-muted-foreground">
-                    Installs to <span className="text-foreground font-medium">{workspace.name}</span>
+                  <p className="text-xs text-muted-foreground"> {ui("Installs to")} <span className="text-foreground font-medium">{workspace.name}</span>
                   </p>
                 )}
               </>
             ) : (
-              <p className="text-xs text-muted-foreground">No workspace available</p>
+              <p className="text-xs text-muted-foreground">{ui("No workspace available")}</p>
             )}
             {installError && (
               <p className="text-xs text-destructive flex items-center gap-1">
@@ -212,18 +209,18 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
             <span className="flex items-center gap-1.5">
               <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
               <span className="text-foreground font-medium">{listing.avg_rating.toFixed(1)}</span>
-              <span>({listing.review_count} review{listing.review_count !== 1 ? "s" : ""})</span>
+              <span>({listing.review_count} {ui("review")}{listing.review_count !== 1 ? ui("s") : ""})</span>
             </span>
           )}
           <span className="flex items-center gap-1.5">
             <Download className="w-4 h-4" />
             <span className="text-foreground font-medium">{listing.install_count}</span>
-            <span>install{listing.install_count !== 1 ? "s" : ""}</span>
+            <span>{ui("install")}{listing.install_count !== 1 ? ui("s") : ""}</span>
           </span>
           {listing.published_at && (
             <span className="flex items-center gap-1.5">
               <Calendar className="w-4 h-4" />
-              <span>Updated {new Date(listing.updated_at).toLocaleDateString()}</span>
+              <span>{ui("Updated")} {new Date(listing.updated_at).toLocaleDateString(ui.locale)}</span>
             </span>
           )}
         </div>
@@ -235,16 +232,16 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
         <div className="lg:col-span-2 space-y-8">
           {/* Description */}
           <section>
-            <h2 className="text-lg font-semibold text-foreground mb-3">About</h2>
+            <h2 className="text-lg font-semibold text-foreground mb-3">{ui("About")}</h2>
             <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-muted-foreground">
-              {listing.long_desc || listing.short_desc || "No description provided."}
+              {listing.long_desc || listing.short_desc || ui("No description provided.")}
             </div>
           </section>
 
           {/* Changelog */}
           {listing.changelog && (
             <section>
-              <h2 className="text-lg font-semibold text-foreground mb-3">What's new in v{listing.version}</h2>
+              <h2 className="text-lg font-semibold text-foreground mb-3">{ui("What's new in v")}{listing.version}</h2>
               <pre className="rounded-lg bg-muted p-4 text-xs text-muted-foreground whitespace-pre-wrap font-mono">
                 {listing.changelog}
               </pre>
@@ -253,11 +250,10 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
 
           {/* Reviews */}
           <section>
-            <h2 className="text-lg font-semibold text-foreground mb-3">
-              Reviews{reviews.length > 0 ? ` (${reviews.length})` : ""}
+            <h2 className="text-lg font-semibold text-foreground mb-3"> {ui("Reviews")}{reviews.length > 0 ? ` (${reviews.length})` : ""}
             </h2>
             {reviews.length === 0 ? (
-              <p className="text-sm text-muted-foreground italic">No reviews yet.</p>
+              <p className="text-sm text-muted-foreground italic">{ui("No reviews yet.")}</p>
             ) : (
               <div className="space-y-4">
                 {reviews.map((review) => (
@@ -275,7 +271,7 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
                         </span>
                       </div>
                       <span className="text-xs text-muted-foreground">
-                        {new Date(review.created_at).toLocaleDateString()}
+                        {new Date(review.created_at).toLocaleDateString(ui.locale)}
                       </span>
                     </div>
                     {review.title && (
@@ -293,42 +289,38 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
         <aside className="space-y-6">
           {/* Composition card — what's in this bundle */}
           <div className="rounded-lg border border-border bg-card p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-3">What's included</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">{ui("What's included")}</h3>
             <ul className="space-y-2 text-sm">
               {listing.skill_count > 0 && (
                 <li className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-muted-foreground">
-                    <Sparkles className="w-4 h-4 text-violet-400" /> Skills
-                  </span>
+                    <Sparkles className="w-4 h-4 text-violet-400" /> {ui("Skills")} </span>
                   <span className="font-medium text-foreground">{listing.skill_count}</span>
                 </li>
               )}
               {listing.rule_count > 0 && (
                 <li className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-muted-foreground">
-                    <ShieldIcon className="w-4 h-4 text-emerald-400" /> Rules
-                  </span>
+                    <ShieldIcon className="w-4 h-4 text-emerald-400" /> {ui("Rules")} </span>
                   <span className="font-medium text-foreground">{listing.rule_count}</span>
                 </li>
               )}
               {listing.knowledge_count > 0 && (
                 <li className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-muted-foreground">
-                    <BookOpen className="w-4 h-4 text-sky-400" /> Knowledge files
-                  </span>
+                    <BookOpen className="w-4 h-4 text-sky-400" /> {ui("Knowledge files")} </span>
                   <span className="font-medium text-foreground">{listing.knowledge_count}</span>
                 </li>
               )}
               {listing.connector_count > 0 && (
                 <li className="flex items-center justify-between">
                   <span className="flex items-center gap-2 text-muted-foreground">
-                    <Plug className="w-4 h-4 text-orange-400" /> MCP connectors
-                  </span>
+                    <Plug className="w-4 h-4 text-orange-400" /> {ui("MCP connectors")} </span>
                   <span className="font-medium text-foreground">{listing.connector_count}</span>
                 </li>
               )}
               {listing.skill_count + listing.rule_count + listing.knowledge_count + listing.connector_count === 0 && (
-                <li className="text-sm text-muted-foreground italic">Empty environment</li>
+                <li className="text-sm text-muted-foreground italic">{ui("Empty environment")}</li>
               )}
             </ul>
           </div>
@@ -339,12 +331,8 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
               <div className="flex items-start gap-2">
                 <AlertTriangle className="w-4 h-4 text-orange-400 shrink-0 mt-0.5" />
                 <div className="text-xs text-muted-foreground">
-                  <p className="font-medium text-orange-300 mb-1">Includes MCP connectors</p>
-                  <p>
-                    This bundle adds {listing.connector_count} external tool connection
-                    {listing.connector_count !== 1 ? "s" : ""}. You'll be asked to authorise
-                    each one separately after install.
-                  </p>
+                  <p className="font-medium text-orange-300 mb-1">{ui("Includes MCP connectors")}</p>
+                  <p> {ui("This bundle adds")} {listing.connector_count} {ui("external tool connection")} {listing.connector_count !== 1 ? ui("s") : ""}{ui(". You'll be asked to authorise each one separately after install.")} </p>
                 </div>
               </div>
             </div>
@@ -354,8 +342,7 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
           {listing.tags.length > 0 && (
             <div className="rounded-lg border border-border bg-card p-4">
               <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-                <Tag className="w-3.5 h-3.5" /> Tags
-              </h3>
+                <Tag className="w-3.5 h-3.5" /> {ui("Tags")} </h3>
               <div className="flex flex-wrap gap-1.5">
                 {listing.tags.map((tag) => (
                   <button
@@ -375,8 +362,8 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
             href="/help/discover-vs-marketplace"
             className="block rounded-lg border border-dashed border-border bg-card/50 p-4 text-xs text-muted-foreground hover:bg-card transition-colors"
           >
-            <p className="font-medium text-foreground mb-1">What is the Marketplace?</p>
-            <p>Learn the difference between Discover (whole projects) and the Marketplace (AI environments).</p>
+            <p className="font-medium text-foreground mb-1">{ui("What is the Marketplace?")}</p>
+            <p>{ui("Learn the difference between Discover (whole projects) and the Marketplace (AI environments).")}</p>
           </Link>
 
           {/* Report */}
@@ -384,8 +371,7 @@ export default function MarketplaceListingPage({ params }: { params: Promise<{ s
             onClick={() => setReportOpen(true)}
             className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-border bg-transparent px-3 py-2 text-xs text-muted-foreground hover:bg-card hover:text-foreground transition-colors"
           >
-            <Flag className="h-3.5 w-3.5" /> Report this listing
-          </button>
+            <Flag className="h-3.5 w-3.5" /> {ui("Report this listing")} </button>
         </aside>
       </div>
 

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -92,6 +94,8 @@ function ApiKeysSection({
   projectId: string;
   addToast: (type: "success" | "error", msg: string) => void;
 }) {
+  const ui = useUiText();
+
   const [keys, setKeys] = useState<ApiKeyEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [creating, setCreating] = useState(false);
@@ -105,11 +109,11 @@ function ApiKeysSection({
       );
       setKeys(data);
     } catch {
-      addToast("error", "Failed to load API keys");
+      addToast("error", ui("Failed to load API keys"));
     } finally {
       setLoading(false);
     }
-  }, [projectId, addToast]);
+  }, [ui, projectId, addToast]);
 
   useEffect(() => {
     loadKeys();
@@ -127,9 +131,9 @@ function ApiKeysSection({
       );
       setNewKeyValue(result.key);
       await loadKeys();
-      addToast("success", "API key created — copy it now, it won't be shown again");
+      addToast("success", ui("API key created — copy it now, it won't be shown again"));
     } catch (err) {
-      addToast("error", err instanceof Error ? err.message : "Failed to create key");
+      addToast("error", err instanceof Error ? err.message : ui("Failed to create key"));
     } finally {
       setCreating(false);
     }
@@ -139,9 +143,9 @@ function ApiKeysSection({
     try {
       await apiFetch(`/projects/${projectId}/api-keys/${keyId}`, { method: "DELETE" });
       setKeys((prev) => prev.filter((k) => k.id !== keyId));
-      addToast("success", "Key revoked");
+      addToast("success", ui("Key revoked"));
     } catch {
-      addToast("error", "Failed to revoke key");
+      addToast("error", ui("Failed to revoke key"));
     }
   };
 
@@ -168,7 +172,7 @@ function ApiKeysSection({
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
             <div className="flex-1">
-              <p className="text-sm font-medium text-amber-200">Save this key — it won't be shown again</p>
+              <p className="text-sm font-medium text-amber-200">{ui("Save this key — it won't be shown again")}</p>
               <div className="mt-2 flex items-center gap-2">
                 <code className="flex-1 rounded bg-muted px-3 py-1.5 text-xs font-mono break-all">
                   {newKeyValue}
@@ -183,9 +187,7 @@ function ApiKeysSection({
               <button
                 onClick={() => setNewKeyValue(null)}
                 className="mt-2 text-xs text-muted-foreground hover:text-foreground"
-              >
-                Dismiss
-              </button>
+              > {ui("Dismiss")} </button>
             </div>
           </div>
         </div>
@@ -195,10 +197,7 @@ function ApiKeysSection({
       {keys.length === 0 ? (
         <div className="rounded-lg border border-dashed p-6 text-center">
           <Key className="mx-auto h-8 w-8 text-muted-foreground/50" />
-          <p className="mt-2 text-sm text-muted-foreground">
-            No API keys yet. Keys are auto-provisioned on first publish,
-            or you can create one manually below.
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground"> {ui("No API keys yet. Keys are auto-provisioned on first publish, or you can create one manually below.")} </p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -226,14 +225,11 @@ function ApiKeysSection({
                     {k.allowed_tools && (
                       <span className="flex items-center gap-1">
                         <Wrench className="h-3 w-3" />
-                        {k.allowed_tools.length} tool{k.allowed_tools.length !== 1 ? "s" : ""} allowed
-                      </span>
+                        {k.allowed_tools.length} {ui("tool")}{k.allowed_tools.length !== 1 ? ui("s") : ""} {ui("allowed")} </span>
                     )}
                     {!k.allowed_tools && (
                       <span className="flex items-center gap-1">
-                        <Wrench className="h-3 w-3" />
-                        All tools
-                      </span>
+                        <Wrench className="h-3 w-3" /> {ui("All tools")} </span>
                     )}
                     {k.allowed_origins && (
                       <span className="flex items-center gap-1">
@@ -243,20 +239,17 @@ function ApiKeysSection({
                     )}
                     {!k.allowed_origins && (
                       <span className="flex items-center gap-1">
-                        <Globe className="h-3 w-3" />
-                        Any origin
-                      </span>
+                        <Globe className="h-3 w-3" /> {ui("Any origin")} </span>
                     )}
                   </div>
-                  <p className="mt-1.5 text-[11px] text-muted-foreground/70">
-                    Created {new Date(k.created_at).toLocaleDateString()}
-                    {k.last_used_at && ` · Last used ${new Date(k.last_used_at).toLocaleDateString()}`}
+                  <p className="mt-1.5 text-[11px] text-muted-foreground/70"> {ui("Created")} {new Date(k.created_at).toLocaleDateString(ui.locale)}
+                    {k.last_used_at && ` · Last used ${new Date(k.last_used_at).toLocaleDateString(ui.locale)}`}
                   </p>
                 </div>
                 <button
                   onClick={() => handleRevoke(k.id)}
                   className="shrink-0 rounded-md p-2 text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                  title="Revoke key"
+                  title={ui("Revoke key")}
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -273,24 +266,20 @@ function ApiKeysSection({
           disabled={creating}
           className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50"
         >
-          {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Key className="h-4 w-4" />}
-          Create Client Key
-        </button>
+          {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Key className="h-4 w-4" />} {ui("Create Client Key")} </button>
         <button
           onClick={() => handleCreate("server")}
           disabled={creating}
           className="inline-flex items-center gap-2 rounded-md border px-3 py-2 text-sm font-medium transition-colors hover:bg-muted disabled:opacity-50"
         >
-          {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Key className="h-4 w-4" />}
-          Create Server Key
-        </button>
+          {creating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Key className="h-4 w-4" />} {ui("Create Server Key")} </button>
       </div>
 
       {/* Explanation */}
       <div className="rounded-lg bg-muted/30 p-4 text-xs text-muted-foreground space-y-2">
-        <p><strong className="text-foreground">Client keys</strong> (dpk_c_*): For browser apps. Origin-bound, lower rate limits (600/min).</p>
-        <p><strong className="text-foreground">Server keys</strong> (dpk_s_*): For backend apps. No origin check, higher rate limits (1200/min).</p>
-        <p><strong className="text-foreground">Auto-provisioned:</strong> When you publish, a client key is automatically created and scoped to exactly the MCP tools your app uses.</p>
+        <p><strong className="text-foreground">{ui("Client keys")}</strong> {ui("(dpk_c_*): For browser apps. Origin-bound, lower rate limits (600/min).")}</p>
+        <p><strong className="text-foreground">{ui("Server keys")}</strong> {ui("(dpk_s_*): For backend apps. No origin check, higher rate limits (1200/min).")}</p>
+        <p><strong className="text-foreground">{ui("Auto-provisioned:")}</strong> {ui("When you publish, a client key is automatically created and scoped to exactly the MCP tools your app uses.")}</p>
       </div>
     </div>
   );
@@ -305,6 +294,8 @@ function RateLimitSection({
   projectId: string;
   addToast: (type: "success" | "error", msg: string) => void;
 }) {
+  const ui = useUiText();
+
   const [settings, setSettings] = useState<ConnectorSettings>({ rateLimitPerMinute: null });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -324,9 +315,9 @@ function RateLimitSection({
           setCustomValue(data.rateLimitPerMinute);
         }
       })
-      .catch(() => addToast("error", "Failed to load rate limit settings"))
+      .catch(() => addToast("error", ui("Failed to load rate limit settings")))
       .finally(() => setLoading(false));
-  }, [projectId, addToast]);
+  }, [ui, projectId, addToast]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -340,9 +331,9 @@ function RateLimitSection({
         }
       );
       setSettings(data);
-      addToast("success", "Rate limiting settings saved");
+      addToast("success", ui("Rate limiting settings saved"));
     } catch (err) {
-      addToast("error", err instanceof Error ? err.message : "Failed to save");
+      addToast("error", err instanceof Error ? err.message : ui("Failed to save"));
     } finally {
       setSaving(false);
     }
@@ -366,7 +357,7 @@ function RateLimitSection({
     <div className="space-y-4">
       {/* Mode Selection */}
       <div className="space-y-3">
-        <label className="text-sm font-medium text-foreground">Rate Limit Mode</label>
+        <label className="text-sm font-medium text-foreground">{ui("Rate Limit Mode")}</label>
         <div className="grid gap-3">
           {/* Default */}
           <button
@@ -381,10 +372,8 @@ function RateLimitSection({
           >
             <Gauge className={cn("mt-0.5 h-5 w-5 shrink-0", mode === "default" ? "text-primary" : "text-muted-foreground")} />
             <div>
-              <p className="text-sm font-medium">System Default</p>
-              <p className="text-xs text-muted-foreground">
-                600 calls/min for preview, 1200 calls/min for published apps with API keys
-              </p>
+              <p className="text-sm font-medium">{ui("System Default")}</p>
+              <p className="text-xs text-muted-foreground"> {ui("600 calls/min for preview, 1200 calls/min for published apps with API keys")} </p>
             </div>
           </button>
 
@@ -401,10 +390,8 @@ function RateLimitSection({
           >
             <RotateCcw className={cn("mt-0.5 h-5 w-5 shrink-0", mode === "custom" ? "text-primary" : "text-muted-foreground")} />
             <div className="flex-1">
-              <p className="text-sm font-medium">Custom Limit</p>
-              <p className="text-xs text-muted-foreground">
-                Set a specific calls-per-minute limit for this project
-              </p>
+              <p className="text-sm font-medium">{ui("Custom Limit")}</p>
+              <p className="text-xs text-muted-foreground"> {ui("Set a specific calls-per-minute limit for this project")} </p>
               {mode === "custom" && (
                 <div className="mt-3 flex items-center gap-2">
                   <input
@@ -415,7 +402,7 @@ function RateLimitSection({
                     onChange={(e) => setCustomValue(Math.max(1, Math.min(10000, Number(e.target.value) || 1)))}
                     className="w-24 rounded-md border bg-background px-3 py-1.5 text-sm"
                   />
-                  <span className="text-xs text-muted-foreground">calls / minute</span>
+                  <span className="text-xs text-muted-foreground">{ui("calls / minute")}</span>
                 </div>
               )}
             </div>
@@ -434,10 +421,8 @@ function RateLimitSection({
           >
             <Infinity className={cn("mt-0.5 h-5 w-5 shrink-0", mode === "disabled" ? "text-primary" : "text-muted-foreground")} />
             <div>
-              <p className="text-sm font-medium">Unlimited (No Rate Limiting)</p>
-              <p className="text-xs text-muted-foreground">
-                Disable rate limiting entirely. Use with caution — external MCP servers may still apply their own limits.
-              </p>
+              <p className="text-sm font-medium">{ui("Unlimited (No Rate Limiting)")}</p>
+              <p className="text-xs text-muted-foreground"> {ui("Disable rate limiting entirely. Use with caution — external MCP servers may still apply their own limits.")} </p>
             </div>
           </button>
         </div>
@@ -451,9 +436,7 @@ function RateLimitSection({
             disabled={saving}
             className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Save Changes
-          </button>
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />} {ui("Save Changes")} </button>
         </div>
       )}
     </div>
@@ -469,11 +452,13 @@ export function SecurityTab({
   projectId: string;
   addToast: (type: "success" | "error", msg: string) => void;
 }) {
+  const ui = useUiText();
+
   return (
     <div className="space-y-4">
       <CollapsibleSection
-        title="API Keys"
-        description="Manage authentication keys for published apps. Auto-provisioned on first publish with tool-scoping and origin-binding."
+        title={ui("API Keys")}
+        description={ui("Manage authentication keys for published apps. Auto-provisioned on first publish with tool-scoping and origin-binding.")}
         icon={Key}
         defaultOpen={true}
       >
@@ -481,8 +466,8 @@ export function SecurityTab({
       </CollapsibleSection>
 
       <CollapsibleSection
-        title="Rate Limiting"
-        description="Control how many MCP tool calls and integration requests this project can make per minute."
+        title={ui("Rate Limiting")}
+        description={ui("Control how many MCP tool calls and integration requests this project can make per minute.")}
         icon={Gauge}
         defaultOpen={true}
       >

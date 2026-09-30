@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect } from "react";
 import { Plus, Loader2, X, AlertCircle, RefreshCw, LayoutGrid, FileText, Copy, Boxes, Store, Trash2 } from "lucide-react";
@@ -15,6 +17,8 @@ import { useMarketplaceInstalls } from "@/modules/marketplace/use-marketplace";
 // ─── Installed-from-Marketplace section ─────────────────────
 
 function InstalledMarketplaceListings({ workspaceId, onChange }: { workspaceId: string; onChange: () => void }) {
+  const ui = useUiText();
+
   const { installs, loading, uninstall, refresh } = useMarketplaceInstalls(workspaceId);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -38,10 +42,10 @@ function InstalledMarketplaceListings({ workspaceId, onChange }: { workspaceId: 
       <div className="flex items-center justify-between border-b px-3 py-2">
         <div className="flex items-center gap-2">
           <Store className="h-3.5 w-3.5 text-violet-400" />
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Installed from Marketplace</h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{ui("Installed from Marketplace")}</h3>
           <Badge variant="secondary" className="text-[10px]">{installs.length}</Badge>
         </div>
-        <button onClick={() => void refresh()} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground" title="Refresh">
+        <button onClick={() => void refresh()} className="rounded-md p-1 text-muted-foreground hover:bg-muted hover:text-foreground" title={ui("Refresh")}>
           <RefreshCw className="h-3 w-3" />
         </button>
       </div>
@@ -51,26 +55,23 @@ function InstalledMarketplaceListings({ workspaceId, onChange }: { workspaceId: 
             <Store className="h-4 w-4 shrink-0 text-violet-400" />
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground truncate">
-                {inst.listing_title ?? "Marketplace listing"}
+                {inst.listing_title ?? ui("Marketplace listing")}
               </p>
-              <p className="text-xs text-muted-foreground">
-                v{inst.version} · installed {new Date(inst.installed_at).toLocaleDateString()}
-                {inst.is_modified && <span className="ml-1.5 text-amber-400">· modified</span>}
+              <p className="text-xs text-muted-foreground"> {ui("v")}{inst.version} {ui("· installed")} {new Date(inst.installed_at).toLocaleDateString(ui.locale)}
+                {inst.is_modified && <span className="ml-1.5 text-amber-400">{ui("· modified")}</span>}
               </p>
             </div>
             <button
               onClick={() => void handleUninstall(inst.listing_id)}
               disabled={busyId === inst.listing_id}
               className="flex items-center gap-1 rounded-md border px-2 py-1 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30 disabled:opacity-50"
-              title="Uninstall — removes the cloned environment from this workspace"
+              title={ui("Uninstall — removes the cloned environment from this workspace")}
             >
               {busyId === inst.listing_id ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
               ) : (
                 <Trash2 className="h-3 w-3" />
-              )}
-              Uninstall
-            </button>
+              )} {ui("Uninstall")} </button>
           </li>
         ))}
       </ul>
@@ -85,6 +86,8 @@ interface TemplateEnv { id: string; name: string; description: string; icon: str
 function TemplateGallery({ workspaceId, open, onClose, onCloned }: {
   workspaceId: string; open: boolean; onClose: () => void; onCloned: () => void;
 }) {
+  const ui = useUiText();
+
   const [templates, setTemplates] = useState<TemplateEnv[]>([]);
   const [loading, setLoading] = useState(false);
   const [cloning, setCloning] = useState<string | null>(null);
@@ -108,7 +111,7 @@ function TemplateGallery({ workspaceId, open, onClose, onCloned }: {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
       <div className="w-full max-w-lg rounded-lg border bg-background shadow-lg" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b px-4 py-3">
-          <div className="flex items-center gap-2"><LayoutGrid className="h-4 w-4" /><h3 className="text-sm font-semibold">Environment Templates</h3></div>
+          <div className="flex items-center gap-2"><LayoutGrid className="h-4 w-4" /><h3 className="text-sm font-semibold">{ui("Environment Templates")}</h3></div>
           <button onClick={onClose} className="rounded-md p-1 hover:bg-muted"><X className="h-4 w-4" /></button>
         </div>
         <div className="max-h-[400px] overflow-y-auto p-4">
@@ -117,8 +120,8 @@ function TemplateGallery({ workspaceId, open, onClose, onCloned }: {
           ) : templates.length === 0 ? (
             <div className="flex flex-col items-center py-8 text-center">
               <LayoutGrid className="h-8 w-8 text-muted-foreground/40 mb-2" />
-              <p className="text-sm text-muted-foreground">No templates available yet</p>
-              <p className="text-xs text-muted-foreground/60 mt-1">Templates will appear here once created by your team.</p>
+              <p className="text-sm text-muted-foreground">{ui("No templates available yet")}</p>
+              <p className="text-xs text-muted-foreground/60 mt-1">{ui("Templates will appear here once created by your team.")}</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-3">
@@ -132,8 +135,7 @@ function TemplateGallery({ workspaceId, open, onClose, onCloned }: {
                   {t.description && <p className="text-[11px] text-muted-foreground line-clamp-2 mb-2">{t.description}</p>}
                   <button onClick={() => void handleUse(t)} disabled={cloning === t.id}
                     className="mt-auto flex items-center justify-center gap-1.5 rounded-md border px-2 py-1 text-xs hover:bg-muted disabled:opacity-50">
-                    {cloning === t.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Copy className="h-3 w-3" />} Use Template
-                  </button>
+                    {cloning === t.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Copy className="h-3 w-3" />} {ui("Use Template")} </button>
                 </div>
               ))}
             </div>
@@ -147,6 +149,8 @@ function TemplateGallery({ workspaceId, open, onClose, onCloned }: {
 // ─── Workspace Environments View ────────────────────────────
 
 function WorkspaceEnvironmentsView({ workspaceId }: { workspaceId: string }) {
+  const ui = useUiText();
+
   const hooks = useEnvironments(workspaceId);
   const { environments, loading, error, refresh, createEnvironment, deleteEnvironment, cloneEnvironment, setDefault } = hooks;
   const [showCreate, setShowCreate] = useState(false);
@@ -165,15 +169,14 @@ function WorkspaceEnvironmentsView({ workspaceId }: { workspaceId: string }) {
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
-          <Boxes className="h-4 w-4" /><h2 className="text-sm font-semibold">Environments</h2>
+          <Boxes className="h-4 w-4" /><h2 className="text-sm font-semibold">{ui("Environments")}</h2>
           <Badge variant="secondary" className="text-[10px]">{environments.length}</Badge>
         </div>
         <div className="flex items-center gap-1">
-          <button onClick={() => void refresh()} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title="Refresh"><RefreshCw className="h-3.5 w-3.5" /></button>
-          <button onClick={() => setShowTemplates(true)} className="flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs hover:bg-muted"><LayoutGrid className="h-3.5 w-3.5" /> Templates</button>
+          <button onClick={() => void refresh()} className="rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground" title={ui("Refresh")}><RefreshCw className="h-3.5 w-3.5" /></button>
+          <button onClick={() => setShowTemplates(true)} className="flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs hover:bg-muted"><LayoutGrid className="h-3.5 w-3.5" /> {ui("Templates")}</button>
           <label className="flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs hover:bg-muted cursor-pointer">
-            <FileText className="h-3.5 w-3.5" /> Import
-            <input type="file" accept=".json" className="hidden"
+            <FileText className="h-3.5 w-3.5" /> {ui("Import")} <input type="file" accept=".json" className="hidden"
               onChange={async (e) => {
                 const file = e.target.files?.[0]; if (!file) return;
                 try { const text = await file.text(); const bundle = JSON.parse(text);
@@ -183,20 +186,16 @@ function WorkspaceEnvironmentsView({ workspaceId }: { workspaceId: string }) {
               }} />
           </label>
           <button onClick={() => setShowCreate(!showCreate)} className="flex items-center gap-1 rounded-md bg-primary px-2.5 py-1 text-xs text-primary-foreground hover:bg-primary/90">
-            <Plus className="h-3.5 w-3.5" /> New
-          </button>
+            <Plus className="h-3.5 w-3.5" /> {ui("New")} </button>
         </div>
       </div>
       <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        <p className="text-xs text-muted-foreground">
-          Environments bundle workspace skills, rules, knowledge, and connectors into reusable presets.
-          The <strong>default</strong> environment includes all workspace items automatically.
-        </p>
+        <p className="text-xs text-muted-foreground"> {ui("Environments bundle workspace skills, rules, knowledge, and connectors into reusable presets. The")} <strong>{ui("default")}</strong> {ui("environment includes all workspace items automatically.")} </p>
         <InstalledMarketplaceListings workspaceId={workspaceId} onChange={() => void refresh()} />
         {showCreate && <CreateEnvironmentForm onSubmit={handleCreate} onCancel={() => setShowCreate(false)} />}
         {error && (
           <div className="flex items-center gap-2 rounded-md border border-destructive/30 bg-destructive/5 p-3">
-            <AlertCircle className="h-4 w-4 text-destructive" /><span className="text-xs text-destructive">{error}</span>
+            <AlertCircle className="h-4 w-4 text-destructive" /><span className="text-xs text-destructive">{ui(error)}</span>
           </div>
         )}
         {loading ? (
@@ -210,10 +209,9 @@ function WorkspaceEnvironmentsView({ workspaceId }: { workspaceId: string }) {
             ))}
             {environments.length === 0 && !showCreate && (
               <div className="flex flex-col items-center rounded-lg border-2 border-dashed p-6 text-center">
-                <p className="text-xs text-muted-foreground">Create a custom environment to bundle a specific subset of your workspace items.</p>
+                <p className="text-xs text-muted-foreground">{ui("Create a custom environment to bundle a specific subset of your workspace items.")}</p>
                 <button onClick={() => setShowCreate(true)} className="mt-3 flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs text-primary-foreground hover:bg-primary/90">
-                  <Plus className="h-3.5 w-3.5" /> Create Environment
-                </button>
+                  <Plus className="h-3.5 w-3.5" /> {ui("Create Environment")} </button>
               </div>
             )}
           </div>

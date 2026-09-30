@@ -1,4 +1,8 @@
 "use client";
+import {translateUiData} from "@/i18n/text";
+
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback, useEffect } from "react";
 import {
@@ -52,6 +56,8 @@ export function VersionDiffDialog({
   toVersion,
   loading,
 }: VersionDiffDialogProps) {
+  const ui = useUiText();
+
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"side-by-side" | "unified">(
     "unified"
@@ -121,12 +127,10 @@ export function VersionDiffDialog({
         <div className="flex items-center justify-between border-b px-5 py-3">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-sm">
-              <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 font-mono font-semibold text-xs">
-                v{fromVersion}
+              <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 font-mono font-semibold text-xs"> {ui("v")}{fromVersion}
               </span>
               <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 font-mono font-semibold text-xs text-primary">
-                v{toVersion}
+              <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 font-mono font-semibold text-xs text-primary"> {ui("v")}{toVersion}
               </span>
             </div>
             {diff && (
@@ -134,18 +138,15 @@ export function VersionDiffDialog({
                 <span className="text-muted-foreground/30">|</span>
                 {diff.summary.added > 0 && (
                   <span className="text-green-600">
-                    +{diff.summary.added} added
-                  </span>
+                    +{diff.summary.added} {ui("added")} </span>
                 )}
                 {diff.summary.modified > 0 && (
                   <span className="text-amber-600">
-                    ~{diff.summary.modified} modified
-                  </span>
+                    ~{diff.summary.modified} {ui("modified")} </span>
                 )}
                 {diff.summary.deleted > 0 && (
                   <span className="text-red-600">
-                    -{diff.summary.deleted} deleted
-                  </span>
+                    -{diff.summary.deleted} {ui("deleted")} </span>
                 )}
               </div>
             )}
@@ -159,7 +160,7 @@ export function VersionDiffDialog({
                   onClick={goToPrevFile}
                   disabled={!canGoPrev}
                   className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  title="Previous file"
+                  title={ui("Previous file")}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </button>
@@ -170,7 +171,7 @@ export function VersionDiffDialog({
                   onClick={goToNextFile}
                   disabled={!canGoNext}
                   className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-                  title="Next file"
+                  title={ui("Next file")}
                 >
                   <ChevronRight className="h-4 w-4" />
                 </button>
@@ -186,11 +187,9 @@ export function VersionDiffDialog({
                     : "text-muted-foreground hover:text-foreground hover:bg-accent"
                 }`}
                 onClick={() => setViewMode("unified")}
-                title="Unified view"
+                title={ui("Unified view")}
               >
-                <AlignJustify className="h-3 w-3" />
-                Unified
-              </button>
+                <AlignJustify className="h-3 w-3" /> {ui("Unified")} </button>
               <button
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium transition-colors ${
                   viewMode === "side-by-side"
@@ -198,18 +197,16 @@ export function VersionDiffDialog({
                     : "text-muted-foreground hover:text-foreground hover:bg-accent"
                 }`}
                 onClick={() => setViewMode("side-by-side")}
-                title="Side by side view"
+                title={ui("Side by side view")}
               >
-                <Columns2 className="h-3 w-3" />
-                Split
-              </button>
+                <Columns2 className="h-3 w-3" /> {ui("Split")} </button>
             </div>
 
             {/* Close */}
             <button
               className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
               onClick={onClose}
-              aria-label="Close"
+              aria-label={ui("Close")}
             >
               <X className="h-4 w-4" />
             </button>
@@ -221,29 +218,28 @@ export function VersionDiffDialog({
           {loading ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 text-muted-foreground">
               <Loader2 className="h-6 w-6 animate-spin" />
-              <p className="text-sm">Loading diff...</p>
+              <p className="text-sm">{ui("Loading diff...")}</p>
             </div>
           ) : !diff ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 text-muted-foreground">
               <FileText className="h-6 w-6 opacity-50" />
-              <p className="text-sm">No diff data available</p>
+              <p className="text-sm">{ui("No diff data available")}</p>
             </div>
           ) : diff.changes.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 text-muted-foreground">
               <FileText className="h-6 w-6 opacity-50" />
-              <p className="text-sm">No changes between these versions</p>
+              <p className="text-sm">{ui("No changes between these versions")}</p>
             </div>
           ) : (
             <>
               {/* File list sidebar */}
               <div className="w-60 shrink-0 overflow-y-auto border-r bg-muted/20">
                 <div className="p-2">
-                  <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                    Changed Files ({diff.summary.totalChanges})
+                  <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> {ui("Changed Files (")}{diff.summary.totalChanges})
                   </p>
                   <div className="space-y-0.5">
                     {diff.changes.map((change) => {
-                      const colors = getChangeColors(change.type);
+                      const colors = translateUiData(getChangeColors(change.type), ui);
                       const Icon = getChangeIcon(change.type);
                       const isSelected = selectedFile === change.path;
 
@@ -287,7 +283,7 @@ export function VersionDiffDialog({
                 {!selectedChange ? (
                   <div className="flex h-full flex-col items-center justify-center text-muted-foreground gap-2">
                     <FileText className="h-6 w-6 opacity-50" />
-                    <p className="text-sm">Select a file to view changes</p>
+                    <p className="text-sm">{ui("Select a file to view changes")}</p>
                   </div>
                 ) : (
                   <>

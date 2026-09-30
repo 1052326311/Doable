@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import {
@@ -89,6 +92,9 @@ interface IntegrationsAdminPanelProps {
 }
 
 export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: IntegrationsAdminPanelProps) {
+  const ui = useUiText();
+  const i18n_PRESET_STACKS = useUiData(PRESET_STACKS);
+
   const [workspaces, setWorkspaces] = useState<Array<{ id: string; name: string }>>([]);
   const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(propWorkspaceId || "");
 
@@ -175,11 +181,11 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
       setPlatformCredsMap(credsMap);
       setError(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load integrations");
+      setError(err instanceof Error ? err.message : ui("Failed to load integrations"));
     } finally {
       setLoading(false);
     }
-  }, [workspaceId, isPlatformMode]);
+  }, [ui, workspaceId, isPlatformMode]);
 
   useEffect(() => {
     fetchData();
@@ -215,7 +221,7 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
       }
       await fetchData();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to update");
+      setError(err instanceof Error ? err.message : ui("Failed to update"));
     } finally {
       setSaving(null);
     }
@@ -290,23 +296,23 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
     }
     setBulkBusy(null);
     if (failures > 0) {
-      setError(`${failures} of ${ids.length} ${kind} operations failed. The list has been refreshed.`);
+      setError(ui("{v0} of {v1} {v2} operations failed. The list has been refreshed.", {v0: (failures), v1: (ids.length), v2: (kind)}));
     }
     clearSelection();
     await fetchData();
-  }, [selectedIds, isPlatformMode, workspaceId, fetchData, clearSelection]);
+  }, [ui, selectedIds, isPlatformMode, workspaceId, fetchData, clearSelection]);
 
   const applyPreset = useCallback((presetIds: readonly string[]) => {
     // Only select IDs that actually exist in the current catalog
     const available = new Set(catalog.map((i) => i.id));
     const matching = presetIds.filter((id) => available.has(id));
     if (matching.length === 0) {
-      setError(`None of this preset's integrations are in the catalog yet.`);
+      setError(ui("None of this preset's integrations are in the catalog yet."));
       return;
     }
     setError(null);
     setSelectedIds(new Set(matching));
-  }, [catalog]);
+  }, [ui, catalog]);
 
   // Filter and search
   const filtered = catalog.filter((item) => {
@@ -359,35 +365,32 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
       {isPlatformMode && (
         <div className="flex items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/5 p-3">
           <ExternalLink className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
-          <div className="text-sm text-blue-700 dark:text-blue-400">
-            Integrations enabled here apply <strong>globally to all workspaces</strong> (existing and new).
-            Users across the platform will see these integrations in their catalog.
-          </div>
+          <div className="text-sm text-blue-700 dark:text-blue-400"> {ui("Integrations enabled here apply")} <strong>{ui("globally to all workspaces")}</strong> {ui("(existing and new). Users across the platform will see these integrations in their catalog.")} </div>
         </div>
       )}
       {/* Summary cards */}
       <div className="grid grid-cols-4 gap-3">
         <div className="rounded-lg border p-3 bg-background">
           <div className="text-2xl font-bold text-foreground">{enabledCount}</div>
-          <div className="text-xs text-muted-foreground">Enabled</div>
+          <div className="text-xs text-muted-foreground">{ui("Enabled")}</div>
         </div>
         <div className={cn("rounded-lg border p-3 bg-background", platformConfiguredCount > 0 && "border-green-500/50")}>
           <div className={cn("text-2xl font-bold", platformConfiguredCount > 0 ? "text-green-600" : "text-foreground")}>
             {platformConfiguredCount}
           </div>
-          <div className="text-xs text-muted-foreground">Configured (DB)</div>
+          <div className="text-xs text-muted-foreground">{ui("Configured (DB)")}</div>
         </div>
         <div className={cn("rounded-lg border p-3 bg-background", envConfiguredCount > 0 && "border-blue-500/50")}>
           <div className={cn("text-2xl font-bold", envConfiguredCount > 0 ? "text-blue-600" : "text-foreground")}>
             {envConfiguredCount}
           </div>
-          <div className="text-xs text-muted-foreground">Via Env Vars</div>
+          <div className="text-xs text-muted-foreground">{ui("Via Env Vars")}</div>
         </div>
         <div className={cn("rounded-lg border p-3 bg-background", unconfiguredCount > 0 && "border-yellow-500/50")}>
           <div className={cn("text-2xl font-bold", unconfiguredCount > 0 ? "text-yellow-600" : "text-foreground")}>
             {unconfiguredCount}
           </div>
-          <div className="text-xs text-muted-foreground">Enabled, Needs Config</div>
+          <div className="text-xs text-muted-foreground">{ui("Enabled, Needs Config")}</div>
         </div>
       </div>
 
@@ -395,9 +398,7 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
         <div className="flex items-start gap-2 rounded-lg border border-yellow-500/30 bg-yellow-500/5 p-3">
           <AlertTriangle className="h-4 w-4 text-yellow-600 mt-0.5 shrink-0" />
           <div className="text-sm text-yellow-700 dark:text-yellow-400">
-            <strong>{unconfiguredCount} integration(s)</strong> are enabled but missing credentials.
-            Users won&apos;t be able to connect until credentials are configured. Click <strong>Configure</strong> on a row below to fix.
-          </div>
+            <strong>{unconfiguredCount} {ui("integration(s)")}</strong> {ui("are enabled but missing credentials. Users won't be able to connect until credentials are configured. Click")} <strong>{ui("Configure")}</strong> {ui("on a row below to fix.")} </div>
         </div>
       )}
 
@@ -405,19 +406,16 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
         <div className="flex items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/5 p-3">
           <Key className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
           <div className="text-sm text-blue-700 dark:text-blue-400">
-            <strong>{envConfiguredCount} integration(s)</strong> are pre-configured via server environment variables
-            (e.g. <code className="text-[11px] bg-background/50 px-1 py-0.5 rounded border">GOOGLE_CLIENT_ID</code>,{" "}
-            <code className="text-[11px] bg-background/50 px-1 py-0.5 rounded border">OAUTH_*_CLIENT_ID</code>).
-            These work automatically without manual OAuth setup here.
-          </div>
+            <strong>{envConfiguredCount} {ui("integration(s)")}</strong> {ui("are pre-configured via server environment variables (e.g.")} <code className="text-[11px] bg-background/50 px-1 py-0.5 rounded border">GOOGLE_CLIENT_ID</code>,{" "}
+            <code className="text-[11px] bg-background/50 px-1 py-0.5 rounded border">OAUTH_*_CLIENT_ID</code>{ui("). These work automatically without manual OAuth setup here.")} </div>
         </div>
       )}
 
       {/* Preset stacks — one-click select-a-common-bundle */}
       {isPlatformMode && (
         <div className="flex items-start gap-2 flex-wrap">
-          <span className="text-xs text-muted-foreground mt-1.5 mr-1">Quick start:</span>
-          {PRESET_STACKS.map((preset) => (
+          <span className="text-xs text-muted-foreground mt-1.5 mr-1">{ui("Quick start:")}</span>
+          {i18n_PRESET_STACKS.map((preset) => (
             <button
               key={preset.key}
               onClick={() => applyPreset(preset.ids)}
@@ -434,10 +432,9 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
       {selectedIds.size > 0 && (
         <div className="sticky top-0 z-10 flex items-center justify-between gap-2 rounded-lg border border-primary/40 bg-primary/5 p-3 shadow-sm">
           <div className="text-sm font-medium text-foreground">
-            {selectedIds.size} integration{selectedIds.size === 1 ? "" : "s"} selected
-            {bulkBusy && (
+            {selectedIds.size} {ui("integration")}{selectedIds.size === 1 ? "" : ui("s")} {ui("selected")} {bulkBusy && (
               <span className="ml-2 text-xs text-muted-foreground">
-                · {bulkBusy.kind === "enable" ? "Enabling" : "Disabling"} {bulkBusy.done}/{bulkBusy.total}…
+                · {bulkBusy.kind === "enable" ? ui("Enabling") : ui("Disabling")} {bulkBusy.done}/{bulkBusy.total}…
               </span>
             )}
           </div>
@@ -447,22 +444,20 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
               disabled={!!bulkBusy}
               className="rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50 transition-colors"
             >
-              {bulkBusy?.kind === "enable" ? <Loader2 className="h-3 w-3 animate-spin" /> : "Enable selected"}
+              {bulkBusy?.kind === "enable" ? <Loader2 className="h-3 w-3 animate-spin" /> : ui("Enable selected")}
             </button>
             <button
               onClick={() => void runBulk("disable")}
               disabled={!!bulkBusy}
               className="rounded-md border px-3 py-1.5 text-xs font-medium hover:bg-muted disabled:opacity-50 transition-colors"
             >
-              {bulkBusy?.kind === "disable" ? <Loader2 className="h-3 w-3 animate-spin" /> : "Disable selected"}
+              {bulkBusy?.kind === "disable" ? <Loader2 className="h-3 w-3 animate-spin" /> : ui("Disable selected")}
             </button>
             <button
               onClick={clearSelection}
               disabled={!!bulkBusy}
               className="rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-            >
-              Clear
-            </button>
+            > {ui("Clear")} </button>
           </div>
         </div>
       )}
@@ -476,7 +471,7 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
             name="integration-catalog-search"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search integrations..."
+            placeholder={ui("Search integrations...")}
             autoComplete="off"
             autoCorrect="off"
             autoCapitalize="off"
@@ -493,10 +488,10 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
           onChange={(e) => setCategory(e.target.value || null)}
           className="rounded-md border border-input bg-background px-3 py-2 text-sm"
         >
-          <option value="">All Categories</option>
+          <option value="">{ui("All Categories")}</option>
           {categories.map((cat) => (
             <option key={cat} value={cat}>
-              {CATEGORY_LABELS[cat] || cat}
+              {ui(CATEGORY_LABELS[cat]) || cat}
             </option>
           ))}
         </select>
@@ -512,7 +507,7 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
                   : "bg-background text-muted-foreground hover:text-foreground"
               )}
             >
-              {mode === "all" ? "All" : mode === "enabled" ? "Enabled" : mode === "env" ? "Env Vars" : "Needs Config"}
+              {mode === "all" ? ui("All") : mode === "enabled" ? ui("Enabled") : mode === "env" ? ui("Env Vars") : ui("Needs Config")}
             </button>
           ))}
         </div>
@@ -520,14 +515,14 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
 
       {error && (
         <div className="rounded-md border border-red-500/30 bg-red-500/5 p-3 text-sm text-red-600">
-          {error}
+          {ui(error)}
         </div>
       )}
 
       {/* Integration list grouped by category */}
       <div className="space-y-4">
         {Object.entries(grouped)
-          .sort(([a], [b]) => (CATEGORY_LABELS[a] || a).localeCompare(CATEGORY_LABELS[b] || b))
+          .sort(([a], [b]) => (ui(CATEGORY_LABELS[a]) || a).localeCompare(ui(CATEGORY_LABELS[b]) || b))
           .map(([cat, items]) => {
             const categoryIds = items.map((i) => i.id);
             const allSelectedInCategory = categoryIds.length > 0 && categoryIds.every((id) => selectedIds.has(id));
@@ -544,10 +539,10 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
                     else deselectAllVisible(categoryIds);
                   }}
                   className="h-3.5 w-3.5 rounded border-input cursor-pointer"
-                  aria-label={`Select all in ${CATEGORY_LABELS[cat] || cat}`}
+                  aria-label={ui("Select all in {v0}", {v0: (ui(CATEGORY_LABELS[cat]) || cat)})}
                 />
                 <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                  {CATEGORY_LABELS[cat] || cat} ({items.length})
+                  {ui(CATEGORY_LABELS[cat]) || cat} ({items.length})
                 </h3>
               </div>
               <div className="space-y-1">
@@ -583,7 +578,7 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
                           checked={selectedIds.has(item.id)}
                           onChange={() => toggleSelected(item.id)}
                           className="h-3.5 w-3.5 rounded border-input cursor-pointer shrink-0"
-                          aria-label={`Select ${item.displayName}`}
+                          aria-label={ui("Select {v0}", {v0: (item.displayName)})}
                         />
                         {/* Logo */}
                         <img
@@ -597,14 +592,10 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
                             <span className="text-sm font-medium text-foreground">{item.displayName}</span>
                             <StatusChip authType={item.authType} />
                             {isEnvConfigured && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20" title={`Configured via: ${envInfo!.source}`}>
-                                ENV
-                              </span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-700 dark:text-blue-400 border border-blue-500/20" title={ui("Configured via: {v0}", {v0: (envInfo!.source)})}> {ui("ENV")} </span>
                             )}
                             {hasPlatformCred && !isEnvConfigured && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20" title="Platform credential configured">
-                                DB
-                              </span>
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-500/10 text-green-700 dark:text-green-400 border border-green-500/20" title={ui("Platform credential configured")}> {ui("DB")} </span>
                             )}
                             {isEnabled && isConfigured && (
                               <Check className="h-3.5 w-3.5 text-green-500" />
@@ -633,10 +624,10 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
                                     ? "border-green-500/30 bg-green-500/5 text-green-700 dark:text-green-400 hover:bg-green-500/10"
                                     : "border-input bg-background text-foreground hover:bg-muted"
                               )}
-                              title={isConfigured ? "Update credentials" : "Configure credentials"}
+                              title={isConfigured ? ui("Update credentials") : ui("Configure credentials")}
                             >
                               <Settings2 className="h-3 w-3" />
-                              {isConfigured ? "Update" : "Configure"}
+                              {isConfigured ? ui("Update") : ui("Configure")}
                               {isExpanded ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
                             </button>
                           )}
@@ -653,9 +644,9 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
                             {isSaving ? (
                               <Loader2 className="h-3 w-3 animate-spin mx-auto" />
                             ) : isEnabled ? (
-                              "Enabled"
+                              ui("Enabled")
                             ) : (
-                              "Enable"
+                              ui("Enable")
                             )}
                           </button>
                         </div>
@@ -691,9 +682,7 @@ export function IntegrationsAdminPanel({ workspaceId: propWorkspaceId }: Integra
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-8 text-sm text-muted-foreground">
-          No integrations match your filters.
-        </div>
+        <div className="text-center py-8 text-sm text-muted-foreground"> {ui("No integrations match your filters.")} </div>
       )}
     </div>
   );
@@ -756,9 +745,11 @@ function WorkspaceSelector({
   selected: string;
   onChange: (id: string) => void;
 }) {
+  const ui = useUiText();
+
   return (
     <div className="flex items-center gap-2">
-      <label className="text-xs font-medium text-muted-foreground">Workspace:</label>
+      <label className="text-xs font-medium text-muted-foreground">{ui("Workspace:")}</label>
       <select
         value={selected}
         onChange={(e) => onChange(e.target.value)}

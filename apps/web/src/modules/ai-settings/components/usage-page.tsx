@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect } from "react";
 import { apiListWorkspaces, type ApiWorkspace } from "@/lib/api";
@@ -11,6 +13,8 @@ import { BarChart3, Users, Globe } from "lucide-react";
 type Tab = "my-usage" | "workspace-usage" | "platform-usage";
 
 export function UsagePage() {
+  const ui = useUiText();
+
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>("my-usage");
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<string | null>(null);
@@ -34,19 +38,17 @@ export function UsagePage() {
   if (!loaded) return null;
 
   const allTabs: { key: Tab; label: string; icon: React.ElementType; adminOnly?: boolean }[] = [
-    { key: "my-usage", label: "My Usage", icon: BarChart3 },
-    { key: "workspace-usage", label: "Workspace Usage", icon: Users, adminOnly: true },
-    { key: "platform-usage", label: "Platform", icon: Globe, adminOnly: true },
+    { key: "my-usage", label: ui("My Usage"), icon: BarChart3 },
+    { key: "workspace-usage", label: ui("Workspace Usage"), icon: Users, adminOnly: true },
+    { key: "platform-usage", label: ui("Platform"), icon: Globe, adminOnly: true },
   ];
   const tabs = allTabs.filter((t) => !t.adminOnly || isPlatformAdmin);
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-foreground">Usage</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Track your AI usage, token consumption, and costs.
-        </p>
+        <h1 className="text-2xl font-bold text-foreground">{ui("Usage")}</h1>
+        <p className="mt-1 text-sm text-muted-foreground"> {ui("Track your AI usage, token consumption, and costs.")} </p>
       </div>
 
       {/* Tab bar */}

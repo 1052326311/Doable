@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState, useEffect, useCallback } from "react";
 import { apiFetch } from "@/lib/api";
@@ -121,9 +124,12 @@ async function fetchCopilotModels(copilotAccountId?: string): Promise<{ id: stri
 }
 
 export function useCopilotModels(copilotAccountId?: string) {
+  const ui = useUiText();
+  const i18n_FALLBACK_MODELS = useUiData(FALLBACK_MODELS);
+
   const [models, setModels] = useState<{ id: string; label: string }[]>(() => {
     const cached = _modelsCache.get(copilotAccountId ?? "__default__");
-    return cached && cached.expires > Date.now() ? cached.data : FALLBACK_MODELS;
+    return cached && cached.expires > Date.now() ? cached.data : i18n_FALLBACK_MODELS;
   });
   const [loadingModels, setLoadingModels] = useState(() => {
     const cached = _modelsCache.get(copilotAccountId ?? "__default__");
@@ -141,7 +147,7 @@ export function useCopilotModels(copilotAccountId?: string) {
     setLoadingModels(true);
     fetchCopilotModels(copilotAccountId)
       .then((m) => { if (!cancelled) setModels(m); })
-      .catch(() => { if (!cancelled) setModels(FALLBACK_MODELS); })
+      .catch(() => { if (!cancelled) setModels(i18n_FALLBACK_MODELS); })
       .finally(() => { if (!cancelled) setLoadingModels(false); });
     return () => { cancelled = true; };
   }, [copilotAccountId]);

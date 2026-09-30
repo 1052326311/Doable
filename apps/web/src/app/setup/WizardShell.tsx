@@ -1,4 +1,8 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
+import { BrandLogo, BrandWordmark } from "@/components/brand-logo";
+
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -29,6 +33,8 @@ const STEP_LABELS = [
 ];
 
 export function WizardShell() {
+  const ui = useUiText();
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, isLoading: authLoading } = useAuth();
@@ -109,12 +115,11 @@ export function WizardShell() {
       <header className="flex items-center justify-between px-8 py-5 border-b border-border/60">
         <div className="flex items-center gap-2.5">
           {/* Simple wordmark — matches the app's existing brand pattern */}
-          <span className="text-lg font-semibold tracking-tight text-foreground">Doable</span>
-          <span className="text-xs text-muted-foreground font-medium">Setup</span>
+          <BrandLogo /><BrandWordmark />
+          <span className="text-xs text-muted-foreground font-medium">{ui("Setup")}</span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground">
-            Step {step} of {TOTAL_STEPS}
+          <span className="text-xs text-muted-foreground"> {ui("Step {current} of {total}", {current:step, total:TOTAL_STEPS})}
           </span>
           <div className="flex items-center gap-1">
             {STEP_LABELS.map((label, i) => {
@@ -126,7 +131,7 @@ export function WizardShell() {
                   <button
                     onClick={() => n < step && goToStep(n)}
                     disabled={n >= step}
-                    title={label}
+                    title={ui(label)}
                     className={[
                       "h-7 w-7 rounded-full text-xs font-semibold transition-all flex items-center justify-center",
                       done

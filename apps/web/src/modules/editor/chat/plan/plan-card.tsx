@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { memo, useState, useCallback, useRef } from "react";
 import { ListChecks, Play, RefreshCw, RotateCcw, Plus, Sparkles } from "lucide-react";
@@ -34,11 +37,14 @@ export const PlanCard = memo(function PlanCard({
   onStepAdd,
   isEditable = false,
 }: PlanCardProps) {
+  const ui = useUiText();
+  const i18n_complexityConfig = useUiData(complexityConfig);
+
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const draggedIndexRef = useRef<number | null>(null);
 
   const sortedSteps = [...plan.steps].sort((a, b) => a.order - b.order);
-  const complexity = complexityConfig[plan.complexity] ?? complexityConfig.moderate;
+  const complexity = i18n_complexityConfig[plan.complexity] ?? i18n_complexityConfig.moderate;
 
   // ─── Drag and Drop ──────────────────────────────────────
   const handleDragStart = useCallback(
@@ -94,14 +100,14 @@ export const PlanCard = memo(function PlanCard({
         <div className="flex h-5 w-5 items-center justify-center rounded-md bg-brand-500/15 border border-brand-500/20 shrink-0">
           <ListChecks className="h-3 w-3 text-brand-400" />
         </div>
-        <span className="text-xs font-semibold text-foreground">Plan</span>
+        <span className="text-xs font-semibold text-foreground">{ui("Plan mode")}</span>
 
         <div className="ml-auto flex items-center gap-2">
           <span className={`rounded-full border px-2 py-0.5 text-[9px] font-semibold tracking-wide uppercase ${complexity.classes}`}>
             {complexity.label}
           </span>
           <span className="text-[10px] text-muted-foreground/40">
-            {sortedSteps.length} step{sortedSteps.length !== 1 ? "s" : ""}
+            {sortedSteps.length} {ui("step")}{sortedSteps.length !== 1 ? ui("s") : ""}
           </span>
         </div>
       </div>
@@ -144,9 +150,7 @@ export const PlanCard = memo(function PlanCard({
             onClick={onStepAdd}
             className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-brand-500/20 py-1.5 text-xs text-muted-foreground/60 hover:border-brand-500/40 hover:text-muted-foreground hover:bg-brand-500/5 transition-all duration-200"
           >
-            <Plus className="h-3 w-3" />
-            Add a step
-          </button>
+            <Plus className="h-3 w-3" /> {ui("Add a step")} </button>
         )}
       </div>
 
@@ -158,27 +162,21 @@ export const PlanCard = memo(function PlanCard({
               onClick={onApprove}
               className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-brand-600 to-brand-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm hover:from-brand-500 hover:to-brand-400 transition-all duration-200 hover:shadow-brand-500/25 hover:shadow-md"
             >
-              <Sparkles className="h-3 w-3" />
-              Start Building
-            </button>
+              <Sparkles className="h-3 w-3" /> {ui("Start Building")} </button>
           )}
           {onRefine && (
             <button
               onClick={onRefine}
               className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent hover:border-brand-500/30 transition-all duration-200"
             >
-              <RefreshCw className="h-3 w-3" />
-              Refine
-            </button>
+              <RefreshCw className="h-3 w-3" /> {ui("Refine")} </button>
           )}
           {onReset && (
             <button
               onClick={onReset}
               className="ml-auto flex items-center gap-1.5 px-2 py-1.5 text-xs text-muted-foreground/60 hover:text-muted-foreground transition-colors"
             >
-              <RotateCcw className="h-3 w-3" />
-              Reset
-            </button>
+              <RotateCcw className="h-3 w-3" /> {ui("Reset")} </button>
           )}
         </div>
       )}

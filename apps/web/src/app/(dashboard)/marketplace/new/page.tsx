@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -45,6 +48,8 @@ function slugify(s: string): string {
 }
 
 export default function MarketplaceNewPage() {
+  const ui = useUiText();
+
   const router = useRouter();
   const [workspace, setWorkspace] = useState<ApiWorkspace | null>(null);
   const [wsLoading, setWsLoading] = useState(true);
@@ -78,10 +83,8 @@ export default function MarketplaceNewPage() {
   if (!workspace) {
     return (
       <div className="flex flex-col items-center justify-center py-20 text-center">
-        <p className="text-muted-foreground">You need a workspace before listing on the marketplace.</p>
-        <Link href="/dashboard" className="mt-3 text-sm text-brand-400 hover:text-brand-300">
-          Go to dashboard
-        </Link>
+        <p className="text-muted-foreground">{ui("You need a workspace before listing on the marketplace.")}</p>
+        <Link href="/dashboard" className="mt-3 text-sm text-brand-400 hover:text-brand-300"> {ui("Go to dashboard")} </Link>
       </div>
     );
   }
@@ -90,6 +93,9 @@ export default function MarketplaceNewPage() {
 }
 
 function Wizard({ workspace, onCancel }: { workspace: ApiWorkspace; onCancel: () => void }) {
+  const ui = useUiText();
+  const i18n_STEPS = useUiData(STEPS);
+
   const router = useRouter();
   const [step, setStep] = useState<Step>("environment");
 
@@ -147,7 +153,7 @@ function Wizard({ workspace, onCancel }: { workspace: ApiWorkspace; onCancel: ()
     [tagsInput]
   );
 
-  const stepIdx = STEPS.findIndex((s) => s.id === step);
+  const stepIdx = i18n_STEPS.findIndex((s) => s.id === step);
 
   const canAdvance = useMemo(() => {
     if (step === "environment") return !!envId;
@@ -174,7 +180,7 @@ function Wizard({ workspace, onCancel }: { workspace: ApiWorkspace; onCancel: ()
       await publishListing(created.id);
       setSubmitting("done");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create listing");
+      setError(err instanceof Error ? err.message : ui("Failed to create listing"));
       setSubmitting("error");
     }
   }
@@ -183,12 +189,11 @@ function Wizard({ workspace, onCancel }: { workspace: ApiWorkspace; onCancel: ()
     <div className="mx-auto max-w-3xl px-4 py-8">
       <div className="mb-6 flex items-center gap-3">
         <Button variant="ghost" size="sm" onClick={onCancel} className="-ml-2">
-          <ArrowLeft className="mr-1 h-4 w-4" /> Marketplace
-        </Button>
-        <h1 className="text-2xl font-semibold text-foreground">List on the Marketplace</h1>
+          <ArrowLeft className="mr-1 h-4 w-4" /> {ui("Marketplace")} </Button>
+        <h1 className="text-2xl font-semibold text-foreground">{ui("List on the Marketplace")}</h1>
       </div>
 
-      <Stepper steps={STEPS} active={step} />
+      <Stepper steps={i18n_STEPS} active={step} />
 
       <div className="mt-6 rounded-xl border border-border bg-card p-6">
         {step === "environment" && (
@@ -244,20 +249,19 @@ function Wizard({ workspace, onCancel }: { workspace: ApiWorkspace; onCancel: ()
           variant="outline"
           onClick={() => {
             if (stepIdx === 0) onCancel();
-            else setStep(STEPS[stepIdx - 1]!.id);
+            else setStep(i18n_STEPS[stepIdx - 1]!.id);
           }}
           disabled={submitting === "creating" || submitting === "publishing"}
         >
           <ArrowLeft className="mr-1 h-4 w-4" />
-          {stepIdx === 0 ? "Cancel" : "Back"}
+          {stepIdx === 0 ? ui("Cancel") : ui("Back")}
         </Button>
 
         {step !== "publish" && (
           <Button
-            onClick={() => setStep(STEPS[stepIdx + 1]!.id)}
+            onClick={() => setStep(i18n_STEPS[stepIdx + 1]!.id)}
             disabled={!canAdvance}
-          >
-            Continue <ArrowRight className="ml-1 h-4 w-4" />
+          > {ui("Continue")} <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
         )}
       </div>
@@ -268,6 +272,8 @@ function Wizard({ workspace, onCancel }: { workspace: ApiWorkspace; onCancel: ()
 // ─── Step renderers ─────────────────────────────────────────
 
 function Stepper({ steps, active }: { steps: typeof STEPS; active: Step }) {
+  const ui = useUiText();
+
   const activeIdx = steps.findIndex((s) => s.id === active);
   return (
     <ol className="flex items-center gap-2 text-xs">
@@ -309,6 +315,8 @@ function PickEnvironmentStep({
   onPick: (id: string) => void;
   loading: boolean;
 }) {
+  const ui = useUiText();
+
   if (loading) {
     return (
       <div className="flex items-center justify-center py-10 text-muted-foreground">
@@ -321,23 +329,17 @@ function PickEnvironmentStep({
     return (
       <div className="flex flex-col items-center justify-center py-10 text-center">
         <Box className="mb-2 h-8 w-8 text-muted-foreground" />
-        <p className="text-foreground font-medium">No environments to publish yet</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Create a workspace environment first — environments bundle skills, rules, knowledge, and connectors together.
-        </p>
-        <Link href="/workspace-settings?tab=environments" className="mt-4 text-sm text-brand-400 hover:text-brand-300">
-          Open environments
-        </Link>
+        <p className="text-foreground font-medium">{ui("No environments to publish yet")}</p>
+        <p className="mt-1 text-sm text-muted-foreground"> {ui("Create a workspace environment first — environments bundle skills, rules, knowledge, and connectors together.")} </p>
+        <Link href="/workspace-settings?tab=environments" className="mt-4 text-sm text-brand-400 hover:text-brand-300"> {ui("Open environments")} </Link>
       </div>
     );
   }
 
   return (
     <div>
-      <h2 className="text-base font-semibold text-foreground mb-1">Pick the environment to package</h2>
-      <p className="text-sm text-muted-foreground mb-4">
-        Only the contents of the selected environment will be published. Secrets and connector credentials are never included.
-      </p>
+      <h2 className="text-base font-semibold text-foreground mb-1">{ui("Pick the environment to package")}</h2>
+      <p className="text-sm text-muted-foreground mb-4"> {ui("Only the contents of the selected environment will be published. Secrets and connector credentials are never included.")} </p>
       <div className="grid gap-2">
         {environments.map((env) => (
           <button
@@ -363,7 +365,7 @@ function PickEnvironmentStep({
                         ? "bg-emerald-500/15 text-emerald-400"
                         : "bg-zinc-500/15 text-zinc-400"
                   }`}
-                  title={env.scope === "project" ? "Auto-created for a single project" : env.scope === "workspace" ? "Shared across the whole workspace" : "Personal to you"}
+                  title={env.scope === "project" ? ui("Auto-created for a single project") : env.scope === "workspace" ? ui("Shared across the whole workspace") : ui("Personal to you")}
                 >
                   {env.scope}
                 </span>
@@ -394,18 +396,18 @@ function MetadataStep(props: {
   category: string;
   setCategory: (v: string) => void;
 }) {
+  const ui = useUiText();
+
   const slugValid = /^[a-z0-9-]+$/.test(props.slug);
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-base font-semibold text-foreground mb-1">Listing details</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          What installers will see in the Marketplace catalog.
-        </p>
+        <h2 className="text-base font-semibold text-foreground mb-1">{ui("Listing details")}</h2>
+        <p className="text-sm text-muted-foreground mb-4"> {ui("What installers will see in the Marketplace catalog.")} </p>
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="title">Title</Label>
+        <Label htmlFor="title">{ui("Title")}</Label>
         <Input
           id="title"
           value={props.title}
@@ -415,59 +417,58 @@ function MetadataStep(props: {
             if (props.slug === slugify(props.title)) props.setSlug(slugify(e.target.value));
           }}
           maxLength={100}
-          placeholder="Beautiful, descriptive name"
+          placeholder={ui("Beautiful, descriptive name")}
         />
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="slug">Slug</Label>
+        <Label htmlFor="slug">{ui("Slug")}</Label>
         <Input
           id="slug"
           value={props.slug}
           onChange={(e) => props.setSlug(slugify(e.target.value))}
           maxLength={100}
-          placeholder="lower-case-dashes-only"
+          placeholder={ui("lower-case-dashes-only")}
         />
-        <p className="text-xs text-muted-foreground">
-          Used in the URL: <code className="text-foreground">/marketplace/{props.slug || "your-slug"}</code>
+        <p className="text-xs text-muted-foreground"> {ui("Used in the URL:")} <code className="text-foreground">/marketplace/{props.slug || "your-slug"}</code>
           {!slugValid && props.slug.length > 0 && (
-            <span className="ml-2 text-destructive">Only lowercase letters, numbers, and dashes.</span>
+            <span className="ml-2 text-destructive">{ui("Only lowercase letters, numbers, and dashes.")}</span>
           )}
         </p>
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="short">Short description</Label>
+        <Label htmlFor="short">{ui("Short description")}</Label>
         <Input
           id="short"
           value={props.shortDesc}
           onChange={(e) => props.setShortDesc(e.target.value)}
           maxLength={200}
-          placeholder="One sentence shown on cards"
+          placeholder={ui("One sentence shown on cards")}
         />
         <p className="text-xs text-muted-foreground">{props.shortDesc.length}/200</p>
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="long">Long description (markdown)</Label>
+        <Label htmlFor="long">{ui("Long description (markdown)")}</Label>
         <Textarea
           id="long"
           value={props.longDesc}
           onChange={(e) => props.setLongDesc(e.target.value)}
           rows={6}
           maxLength={5000}
-          placeholder="What does this environment do? Who's it for? How is it set up?"
+          placeholder={ui("What does this environment do? Who's it for? How is it set up?")}
         />
         <p className="text-xs text-muted-foreground">{props.longDesc.length}/5000</p>
       </div>
 
       <div className="space-y-1.5">
-        <Label htmlFor="tags">Tags</Label>
+        <Label htmlFor="tags">{ui("Tags")}</Label>
         <Input
           id="tags"
           value={props.tagsInput}
           onChange={(e) => props.setTagsInput(e.target.value)}
-          placeholder="react, ai, design  (comma-separated, max 10)"
+          placeholder={ui("react, ai, design (comma-separated, max 10)")}
         />
       </div>
     </div>
@@ -485,13 +486,13 @@ function PreviewStep({
   shortDesc: string;
   tags: string[];
 }) {
+  const ui = useUiText();
+
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-base font-semibold text-foreground mb-1">Preview & permissions</h2>
-        <p className="text-sm text-muted-foreground mb-4">
-          This is roughly what installers will see. Permissions are derived automatically from your environment.
-        </p>
+        <h2 className="text-base font-semibold text-foreground mb-1">{ui("Preview & permissions")}</h2>
+        <p className="text-sm text-muted-foreground mb-4"> {ui("This is roughly what installers will see. Permissions are derived automatically from your environment.")} </p>
       </div>
 
       <div className="rounded-lg border border-border bg-background p-4">
@@ -523,33 +524,24 @@ function PreviewStep({
         <div className="flex items-start gap-2 text-sm">
           <ShieldAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-400" />
           <div>
-            <p className="font-medium text-foreground">Permissions installers will be asked to grant</p>
-            <p className="text-xs text-muted-foreground mt-1">
-              The exact permissions list is computed from your environment at install time. The previewer below shows
-              the categories — installers always see the full breakdown before clicking Install.
-            </p>
+            <p className="font-medium text-foreground">{ui("Permissions installers will be asked to grant")}</p>
+            <p className="text-xs text-muted-foreground mt-1"> {ui("The exact permissions list is computed from your environment at install time. The previewer below shows the categories — installers always see the full breakdown before clicking Install.")} </p>
             <ul className="mt-3 space-y-1.5 text-xs">
               <li className="flex items-center gap-2 text-muted-foreground">
-                <Sparkles className="h-3 w-3 text-violet-400" /> Adds skills to the user's AI
-              </li>
+                <Sparkles className="h-3 w-3 text-violet-400" /> {ui("Adds skills to the user's AI")} </li>
               <li className="flex items-center gap-2 text-muted-foreground">
-                <Shield className="h-3 w-3 text-emerald-400" /> Adds rules that auto-attach to matching files
-              </li>
+                <Shield className="h-3 w-3 text-emerald-400" /> {ui("Adds rules that auto-attach to matching files")} </li>
               <li className="flex items-center gap-2 text-muted-foreground">
-                <BookOpen className="h-3 w-3 text-sky-400" /> Adds knowledge files to the user's context
-              </li>
+                <BookOpen className="h-3 w-3 text-sky-400" /> {ui("Adds knowledge files to the user's context")} </li>
               <li className="flex items-center gap-2 text-muted-foreground">
-                <Plug className="h-3 w-3 text-orange-400" /> If your env contains MCP connectors, they may require user-supplied credentials
-              </li>
+                <Plug className="h-3 w-3 text-orange-400" /> {ui("If your env contains MCP connectors, they may require user-supplied credentials")} </li>
             </ul>
           </div>
         </div>
       </div>
 
       <div className="rounded-lg border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
-        <Eye className="inline-block h-3 w-3 mr-1" />
-        Tip: After publishing, you can iterate quickly via Marketplace → My listings.
-      </div>
+        <Eye className="inline-block h-3 w-3 mr-1" /> {ui("Tip: After publishing, you can iterate quickly via Marketplace → My listings.")} </div>
     </div>
   );
 }
@@ -571,20 +563,19 @@ function PublishStep({
   onViewListing: () => void;
   onManage: () => void;
 }) {
+  const ui = useUiText();
+
   if (submitting === "done") {
     return (
       <div className="text-center py-8">
         <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
           <Check className="h-6 w-6" />
         </div>
-        <h3 className="text-lg font-semibold text-foreground">Listed on the Marketplace</h3>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Your environment is live. Anyone can find and install it.
-        </p>
+        <h3 className="text-lg font-semibold text-foreground">{ui("Listed on the Marketplace")}</h3>
+        <p className="mt-1 text-sm text-muted-foreground"> {ui("Your environment is live. Anyone can find and install it.")} </p>
         <div className="mt-5 flex justify-center gap-2">
-          <Button variant="outline" onClick={onManage}>Manage listings</Button>
-          <Button onClick={onViewListing}>
-            View listing <ArrowRight className="ml-1 h-4 w-4" />
+          <Button variant="outline" onClick={onManage}>{ui("Manage listings")}</Button>
+          <Button onClick={onViewListing}> {ui("View listing")} <ArrowRight className="ml-1 h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -593,16 +584,13 @@ function PublishStep({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-base font-semibold text-foreground">Ready to list?</h2>
-      <p className="text-sm text-muted-foreground">
-        We'll create the listing as a draft and immediately publish it. You can unpublish or edit later from
-        Marketplace → My listings.
-      </p>
+      <h2 className="text-base font-semibold text-foreground">{ui("Ready to list?")}</h2>
+      <p className="text-sm text-muted-foreground"> {ui("We'll create the listing as a draft and immediately publish it. You can unpublish or edit later from Marketplace → My listings.")} </p>
 
       {error && (
         <div className="flex items-start gap-2 rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-          <span>{error}</span>
+          <span>{ui(error)}</span>
         </div>
       )}
 
@@ -612,20 +600,17 @@ function PublishStep({
         className="w-full"
       >
         {submitting === "creating" ? (
-          <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Creating listing...</>
+          <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Creating listing...")}</>
         ) : submitting === "publishing" ? (
-          <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Publishing...</>
+          <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Publishing...")}</>
         ) : (
-          <><Rocket className="mr-2 h-4 w-4" /> List on Marketplace</>
+          <><Rocket className="mr-2 h-4 w-4" /> {ui("List on Marketplace")}</>
         )}
       </Button>
 
       {createdListingId && submitting === "error" && (
-        <p className="text-xs text-muted-foreground">
-          Draft created with ID <code>{createdListingId}</code>. You can finish publishing from{" "}
-          <Link href="/marketplace/my-listings" className="text-brand-400 hover:text-brand-300">
-            My listings
-          </Link>
+        <p className="text-xs text-muted-foreground"> {ui("Draft created with ID")} <code>{createdListingId}</code>{ui(". You can finish publishing from")}{" "}
+          <Link href="/marketplace/my-listings" className="text-brand-400 hover:text-brand-300"> {ui("My listings")} </Link>
           .
         </p>
       )}

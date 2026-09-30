@@ -1,4 +1,7 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+import {useUiData} from "@/i18n/use-ui-data";
+
 
 import { useState } from "react";
 import type { Project, ProjectStatus } from "@doable/shared";
@@ -77,6 +80,9 @@ export function ProjectList({
   onEdit,
   onMove,
 }: ProjectListProps) {
+  const ui = useUiText();
+  const i18n_STATUS_CONFIG = useUiData(STATUS_CONFIG);
+
   const [sortKey, setSortKey] = useState<SortKey>("updatedAt");
   const [sortDir, setSortDir] = useState<SortDir>("desc");
 
@@ -117,24 +123,21 @@ export function ProjectList({
               <button
                 className="inline-flex items-center font-medium"
                 onClick={() => handleSort("name")}
-              >
-                Name <SortIcon col="name" />
+              > {ui("Name")} <SortIcon col="name" />
               </button>
             </th>
             <th className="p-3 text-left">
               <button
                 className="inline-flex items-center font-medium"
                 onClick={() => handleSort("status")}
-              >
-                Status <SortIcon col="status" />
+              > {ui("Status")} <SortIcon col="status" />
               </button>
             </th>
             <th className="p-3 text-left">
               <button
                 className="inline-flex items-center font-medium"
                 onClick={() => handleSort("updatedAt")}
-              >
-                Updated <SortIcon col="updatedAt" />
+              > {ui("Updated")} <SortIcon col="updatedAt" />
               </button>
             </th>
             <th className="w-10 p-3" />
@@ -144,7 +147,7 @@ export function ProjectList({
           {loading
             ? Array.from({ length: 6 }).map((_, i) => <RowSkeleton key={i} />)
             : sorted.map((project) => {
-                const statusCfg = STATUS_CONFIG[project.status];
+                const statusCfg = i18n_STATUS_CONFIG[project.status];
                 return (
                   <tr
                     key={project.id}
@@ -154,7 +157,7 @@ export function ProjectList({
                       <button
                         onClick={() => onStar(project.id)}
                         className="rounded p-0.5"
-                        aria-label="Toggle star"
+                        aria-label={ui("Toggle star")}
                       >
                         <Star
                           className={`h-4 w-4 ${
@@ -187,26 +190,23 @@ export function ProjectList({
                       <DropdownMenu>
                         <DropdownMenuTrigger
                           className="rounded p-1 opacity-0 hover:bg-accent group-hover:opacity-100"
-                          aria-label="Actions"
+                          aria-label={ui("Actions")}
                         >
                           <MoreVertical className="h-4 w-4" />
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem onClick={() => onEdit(project)}>
-                            <Pencil className="mr-2 h-3.5 w-3.5" /> Edit
-                          </DropdownMenuItem>
+                            <Pencil className="mr-2 h-3.5 w-3.5" /> {ui("Edit")} </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => onDuplicate(project.id)}
                           >
-                            <Copy className="mr-2 h-3.5 w-3.5" /> Duplicate
-                          </DropdownMenuItem>
+                            <Copy className="mr-2 h-3.5 w-3.5" /> {ui("Duplicate")} </DropdownMenuItem>
                           <DropdownMenuSeparator />
                           <DropdownMenuItem
                             className="text-destructive"
                             onClick={() => onDelete(project.id)}
                           >
-                            <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
-                          </DropdownMenuItem>
+                            <Trash2 className="mr-2 h-3.5 w-3.5" /> {ui("Delete")} </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </td>

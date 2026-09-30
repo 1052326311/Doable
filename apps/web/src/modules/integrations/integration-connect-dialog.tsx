@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useMemo, useRef } from "react";
 import { Loader2 } from "lucide-react";
@@ -44,6 +46,8 @@ export function IntegrationConnectDialog({
   onDismiss: () => void;
   onConnected: () => void;
 }) {
+  const ui = useUiText();
+
   const { catalog, loading, connect, getAuthorizationUrl, getEnhancedAuthUrl } =
     useIntegrationCatalog(workspaceId);
 
@@ -69,8 +73,7 @@ export function IntegrationConnectDialog({
         <DialogContent>
           <div className="flex flex-col items-center justify-center gap-3 py-8">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground">
-              Connecting {request.displayName}…
+            <p className="text-sm text-muted-foreground"> {ui("Connecting")} {request.displayName}…
             </p>
           </div>
         </DialogContent>
@@ -86,15 +89,12 @@ export function IntegrationConnectDialog({
       <Dialog open onOpenChange={(o) => { if (!o) onDismiss(); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Connect {request.displayName}</DialogTitle>
+            <DialogTitle>{ui("Connect")} {request.displayName}</DialogTitle>
             <DialogDescription className="mt-1">
-              {request.displayName} isn’t enabled for this workspace yet. Ask a
-              workspace admin to enable it under Settings → Integrations, then
-              try again.
-            </DialogDescription>
+              {request.displayName} {ui("isn’t enabled for this workspace yet. Ask a workspace admin to enable it under Settings → Integrations, then try again.")} </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={onDismiss}>Close</Button>
+            <Button variant="outline" onClick={onDismiss}>{ui("Close")}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback, useMemo } from "react";
 import { useEditorStore, type FileNode } from "../hooks/use-editor-store";
@@ -107,6 +109,8 @@ function AddPageDialog({
   onSubmit: (name: string) => void;
   onCancel: () => void;
 }) {
+  const ui = useUiText();
+
   const [name, setName] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -117,14 +121,12 @@ function AddPageDialog({
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-2 p-3 border-b border-border bg-muted/30">
-      <label className="text-xs font-medium text-muted-foreground">
-        New Page Name
-      </label>
+      <label className="text-xs font-medium text-muted-foreground"> {ui("New Page Name")} </label>
       <input
         autoFocus
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="e.g. Dashboard, Settings, Pricing"
+        placeholder={ui("e.g. Dashboard, Settings, Pricing")}
         className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
       />
       <div className="flex items-center gap-2">
@@ -132,16 +134,12 @@ function AddPageDialog({
           type="submit"
           disabled={!name.trim()}
           className="rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          Create via AI
-        </button>
+        > {ui("Create via AI")} </button>
         <button
           type="button"
           onClick={onCancel}
           className="rounded-md px-3 py-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-        >
-          Cancel
-        </button>
+        > {ui("Cancel")} </button>
       </div>
     </form>
   );
@@ -150,6 +148,8 @@ function AddPageDialog({
 // ─── Main Component ─────────────────────────────────────────
 
 export function PagesTab() {
+  const ui = useUiText();
+
   const { fileTree, projectId, previewUrl } = useEditorStore();
   const { navigate } = usePreview(projectId);
   const { sendMessage, isStreaming } = useChat(projectId);
@@ -211,9 +211,7 @@ export function PagesTab() {
     <div className="flex h-full flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-          Pages
-        </h3>
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"> {ui("Pages")} </h3>
         <button
           onClick={() => setShowAddDialog(!showAddDialog)}
           disabled={isStreaming}
@@ -221,11 +219,9 @@ export function PagesTab() {
             "flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors",
             isStreaming && "opacity-50 cursor-not-allowed"
           )}
-          title="Add a new page"
+          title={ui("Add a new page")}
         >
-          <Plus className="h-3 w-3" />
-          Add
-        </button>
+          <Plus className="h-3 w-3" /> {ui("Add")} </button>
       </div>
 
       {/* Add Page Dialog */}
@@ -244,7 +240,7 @@ export function PagesTab() {
             <input
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search pages..."
+              placeholder={ui("Search pages...")}
               className="w-full bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none"
             />
           </div>
@@ -257,7 +253,7 @@ export function PagesTab() {
           <div className="flex flex-col items-center justify-center py-8 px-3">
             <FileText className="h-6 w-6 text-muted-foreground/50" />
             <p className="mt-2 text-xs text-muted-foreground text-center">
-              {searchQuery ? "No pages match your search." : "No pages detected. Add files to src/pages/ to see them here."}
+              {searchQuery ? ui("No pages match your search.") : ui("No pages detected. Add files to src/pages/ to see them here.")}
             </p>
           </div>
         ) : (
@@ -305,7 +301,7 @@ export function PagesTab() {
       <div className="border-t border-border px-3 py-2">
         <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
           <Globe className="h-3 w-3" />
-          <span>{pages.length} page{pages.length !== 1 ? "s" : ""} detected</span>
+          <span>{pages.length} {ui("page")}{pages.length !== 1 ? ui("s") : ""} {ui("detected")}</span>
         </div>
       </div>
     </div>

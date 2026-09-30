@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { apiFetch } from "@/lib/api";
@@ -22,6 +24,8 @@ export const ContextPanel = ({
   workspaceId,
   apiBaseUrl = "/api",
 }: ContextPanelProps) => {
+  const ui = useUiText();
+
   const [files, setFiles] = useState<ContextFile[]>([]);
   const [stats, setStats] = useState<ContextStats | null>(null);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
@@ -76,11 +80,11 @@ export const ContextPanel = ({
       setFiles(json.data.files);
       setStats(json.data.stats);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load context files");
+      setError(err instanceof Error ? err.message : ui("Failed to load context files"));
     } finally {
       setLoading(false);
     }
-  }, [getListPath]);
+  }, [ui, getListPath]);
 
   useEffect(() => {
     void fetchFiles();
@@ -130,13 +134,13 @@ export const ContextPanel = ({
 
   const handleDelete = useCallback(
     async (filename: string) => {
-      if (!confirm(`Delete ${filename}? Default files will be reset.`)) return;
+      if (!confirm(ui("Delete {v0}? Default files will be reset.", {v0: (filename)}))) return;
 
       await apiFetch(getFilePath(filename), { method: "DELETE" });
       setSelectedFile(null);
       await fetchFiles();
     },
-    [getFilePath, fetchFiles]
+    [ui, getFilePath, fetchFiles]
   );
 
   const toggleCategory = useCallback((categoryKey: string) => {
@@ -212,14 +216,14 @@ export const ContextPanel = ({
           <button
             onClick={() => void fetchFiles()}
             className="p-1.5 rounded-md hover:bg-muted transition-colors"
-            title="Refresh"
+            title={ui("Refresh")}
           >
             <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
           </button>
           <button
             onClick={() => void handleCreate()}
             className="p-1.5 rounded-md hover:bg-muted transition-colors"
-            title="New file"
+            title={ui("New file")}
           >
             <Plus className="h-3.5 w-3.5" />
           </button>
@@ -230,8 +234,8 @@ export const ContextPanel = ({
       {stats && (
         <div className="px-4 py-2 border-b">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-            <span>{stats.estimatedTokens.toLocaleString()} tokens</span>
-            <span>{stats.budgetUsedPercent}% of budget</span>
+            <span>{stats.estimatedTokens.toLocaleString(ui.locale)} {ui("tokens")}</span>
+            <span>{stats.budgetUsedPercent}{ui("% of budget")}</span>
           </div>
           <div className="h-1.5 rounded-full bg-muted overflow-hidden">
             <div
@@ -252,16 +256,14 @@ export const ContextPanel = ({
       {/* Error */}
       {error && (
         <div className="px-4 py-2 text-xs text-red-600 bg-red-50 border-b">
-          {error}
+          {ui(error)}
         </div>
       )}
 
       {/* File list — grouped by category */}
       <div className="flex-1 overflow-auto">
         {loading && files.length === 0 ? (
-          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
-            Loading...
-          </div>
+          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground"> {ui("Loading...")} </div>
         ) : (
           <div className="p-2 space-y-1">
             {groupedFiles.map(({ category, files: catFiles }) => {
@@ -313,8 +315,8 @@ export const ContextPanel = ({
                               </p>
                               <p className="text-xs text-muted-foreground truncate">
                                 {hasContent
-                                  ? `${file.content.length} chars`
-                                  : "Empty — click to edit"}
+                                  ? ui("{v0} chars", {v0: (file.content.length)})
+                                  : ui("Empty — click to edit")}
                               </p>
                             </div>
                             <div

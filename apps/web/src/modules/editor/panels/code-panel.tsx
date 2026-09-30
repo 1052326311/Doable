@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import dynamic from "next/dynamic";
 import {
@@ -35,6 +37,8 @@ export function CodePanel({
   projectId: string;
   onClose: () => void;
 }) {
+  const ui = useUiText();
+
   const {
     fileTree,
     fileTreeLoading,
@@ -69,13 +73,11 @@ export function CodePanel({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2">
             <Code2 className="h-4 w-4 text-muted-foreground" />
-            <h2 className="text-sm font-semibold text-foreground">Code</h2>
+            <h2 className="text-sm font-semibold text-foreground">{ui("Code")}</h2>
           </div>
           {readOnly && (
             <span className="flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground border border-border">
-              <Lock className="h-3 w-3" />
-              Read only
-            </span>
+              <Lock className="h-3 w-3" /> {ui("Read only")} </span>
           )}
         </div>
 
@@ -86,7 +88,7 @@ export function CodePanel({
               <button
                 onClick={handleCopy}
                 className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                title="Copy file content"
+                title={ui("Copy file content")}
               >
                 {copied ? (
                   <Check className="h-3.5 w-3.5 text-green-400" />
@@ -97,7 +99,7 @@ export function CodePanel({
               <button
                 onClick={handleDownload}
                 className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-                title="Download file"
+                title={ui("Download file")}
               >
                 <Download className="h-3.5 w-3.5" />
               </button>
@@ -108,16 +110,14 @@ export function CodePanel({
           {readOnly && (
             // TODO: replace with brand token
             <button className="ml-2 flex h-7 items-center gap-1.5 rounded-md bg-[#5337CD] px-3 text-[11px] font-medium text-white hover:bg-[#5337CD]/90 transition-colors">
-              <Zap className="h-3 w-3" />
-              Upgrade
-            </button>
+              <Zap className="h-3 w-3" /> {ui("Upgrade")} </button>
           )}
 
           {/* Close button */}
           <button
             onClick={onClose}
             className="ml-1 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-            title="Close code panel"
+            title={ui("Close code panel")}
           >
             <X className="h-4 w-4" />
           </button>
@@ -134,7 +134,7 @@ export function CodePanel({
               <Search className="absolute left-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search code"
+                placeholder={ui("Search code")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="h-7 w-full rounded-md border border-input bg-background pl-7 pr-2 text-xs text-foreground placeholder:text-muted-foreground focus:border-border focus:outline-none focus:ring-1 focus:ring-border transition-colors"
@@ -155,7 +155,7 @@ export function CodePanel({
             {fileTreeLoading ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                <p className="mt-2 text-xs text-muted-foreground">Loading files...</p>
+                <p className="mt-2 text-xs text-muted-foreground">{ui("Loading files...")}</p>
               </div>
             ) : fileTreeError ? (
               <div className="flex flex-col items-center justify-center px-4 py-12">
@@ -166,14 +166,12 @@ export function CodePanel({
                 <button
                   onClick={loadFileTree}
                   className="mt-2 text-xs text-muted-foreground underline hover:text-foreground"
-                >
-                  Retry
-                </button>
+                > {ui("Retry")} </button>
               </div>
             ) : fileTree.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12">
                 <File className="h-5 w-5 text-muted-foreground" />
-                <p className="mt-2 text-xs text-muted-foreground">No files yet</p>
+                <p className="mt-2 text-xs text-muted-foreground">{ui("No files yet")}</p>
               </div>
             ) : (
               <div className="pb-4">
@@ -252,7 +250,7 @@ export function CodePanel({
             {fileLoading ? (
               <div className="flex h-full flex-col items-center justify-center">
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                <p className="mt-2 text-sm text-muted-foreground">Loading file...</p>
+                <p className="mt-2 text-sm text-muted-foreground">{ui("Loading file...")}</p>
               </div>
             ) : fileError ? (
               <div className="flex h-full flex-col items-center justify-center px-8">
@@ -306,12 +304,8 @@ export function CodePanel({
             ) : (
               <div className="flex h-full flex-col items-center justify-center">
                 <Code2 className="h-10 w-10 text-muted-foreground" />
-                <p className="mt-3 text-sm text-muted-foreground">
-                  Select a file to view its code
-                </p>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Browse the file tree on the left to open files
-                </p>
+                <p className="mt-3 text-sm text-muted-foreground"> {ui("Select a file to view its code")} </p>
+                <p className="mt-1 text-xs text-muted-foreground"> {ui("Browse the file tree on the left to open files")} </p>
               </div>
             )}
           </div>

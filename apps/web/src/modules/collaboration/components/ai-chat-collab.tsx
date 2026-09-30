@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useCollaboration } from "../collaboration-context";
 
@@ -14,6 +16,8 @@ interface AiStreamOverlayProps {
 }
 
 export function AiStreamOverlay({ onAbort }: AiStreamOverlayProps) {
+  const ui = useUiText();
+
   const { aiStreamChunks, members } = useCollaboration();
 
   if (aiStreamChunks.size === 0) return null;
@@ -43,16 +47,13 @@ export function AiStreamOverlay({ onAbort }: AiStreamOverlayProps) {
                   style={{ backgroundColor: color }}
                 />
                 <span className="text-xs font-medium text-foreground">
-                  {displayName} is chatting with AI...
-                </span>
+                  {displayName} {ui("is chatting with AI...")} </span>
               </div>
               <button
                 type="button"
                 onClick={() => onAbort?.(messageId)}
                 className="rounded px-2 py-0.5 text-[11px] font-medium text-red-400 hover:bg-red-500/10 transition-colors"
-              >
-                Abort
-              </button>
+              > {ui("Abort")} </button>
             </div>
 
             {/* Streaming content */}
@@ -79,6 +80,8 @@ export function AiStreamOverlay({ onAbort }: AiStreamOverlayProps) {
 // ---------------------------------------------------------------------------
 
 export function AiTypingIndicator() {
+  const ui = useUiText();
+
   const { aiTypingUsers, members } = useCollaboration();
 
   if (aiTypingUsers.size === 0) return null;
@@ -98,8 +101,7 @@ export function AiTypingIndicator() {
               style={{ backgroundColor: color }}
             />
             <span className="text-[11px] text-muted-foreground italic">
-              {displayName} is typing to AI
-            </span>
+              {displayName} {ui("is typing to AI")} </span>
             <span className="inline-flex items-center gap-0.5">
               <span
                 className="h-1 w-1 rounded-full bg-muted-foreground animate-bounce"
@@ -134,6 +136,8 @@ interface AiQueuePanelProps {
 }
 
 export function AiQueuePanel({ currentUserId, onCancel }: AiQueuePanelProps) {
+  const ui = useUiText();
+
   const { aiQueue, members } = useCollaboration();
 
   if (aiQueue.length === 0) return null;
@@ -144,19 +148,14 @@ export function AiQueuePanel({ currentUserId, onCancel }: AiQueuePanelProps) {
     <div className="rounded-lg border border-border bg-secondary/80 mx-4 my-2 p-3">
       {/* Header */}
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-medium text-foreground">
-          AI Message Queue
-        </span>
+        <span className="text-xs font-medium text-foreground"> {ui("AI Message Queue")} </span>
         <span className="text-[11px] text-muted-foreground">
-          {aiQueue.length} pending
-        </span>
+          {aiQueue.length} {ui("pending")} </span>
       </div>
 
       {/* Position callout for current user */}
       {ownItem && (
-        <div className="mb-2 rounded bg-blue-600/10 px-2.5 py-1.5 text-[11px] font-medium text-blue-300">
-          Your message is #{ownItem.position} in queue
-        </div>
+        <div className="mb-2 rounded bg-blue-600/10 px-2.5 py-1.5 text-[11px] font-medium text-blue-300"> {ui("Your message is #")}{ownItem.position} {ui("in queue")} </div>
       )}
 
       {/* Queue list */}
@@ -197,9 +196,7 @@ export function AiQueuePanel({ currentUserId, onCancel }: AiQueuePanelProps) {
                   type="button"
                   onClick={() => onCancel?.(item.id)}
                   className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium text-red-400 hover:bg-red-500/10 transition-colors"
-                >
-                  Cancel
-                </button>
+                > {ui("Cancel")} </button>
               )}
             </div>
           );
@@ -224,6 +221,8 @@ export function AiMessageAttribution({
   userId,
   currentUserId,
 }: AiMessageAttributionProps) {
+  const ui = useUiText();
+
   const { members } = useCollaboration();
   const member = members.find((m) => m.userId === userId);
 
@@ -248,7 +247,7 @@ export function AiMessageAttribution({
           isOwn ? "text-blue-300" : "text-muted-foreground"
         }`}
       >
-        {isOwn ? "You" : displayName}
+        {isOwn ? ui("You") : displayName}
       </span>
     </div>
   );

@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback } from "react";
 import {
@@ -23,6 +25,8 @@ import { EditMetaForm, InstructionsSection } from "./env-forms";
 // ─── Default Environment Card ───────────────────────────────
 
 export function DefaultEnvironmentCard({ workspaceId }: { workspaceId: string }) {
+  const ui = useUiText();
+
   const [expanded, setExpanded] = useState(false);
   const [items, setItems] = useState<DefaultItems | null>(null);
   const [loading, setLoading] = useState(false);
@@ -48,12 +52,12 @@ export function DefaultEnvironmentCard({ workspaceId }: { workspaceId: string })
         <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/20 text-lg">🌐</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">Workspace Defaults</span>
-            <Badge variant="default" className="text-[10px] px-1.5 py-0 bg-primary/20 text-primary border-primary/30">Auto</Badge>
+            <span className="text-sm font-semibold">{ui("Workspace Defaults")}</span>
+            <Badge variant="default" className="text-[10px] px-1.5 py-0 bg-primary/20 text-primary border-primary/30">{ui("Auto")}</Badge>
           </div>
-          <p className="text-xs text-muted-foreground">Items available to all environments</p>
+          <p className="text-xs text-muted-foreground">{ui("Items available to all environments")}</p>
         </div>
-        {totalCount !== null && <span className="text-xs text-muted-foreground whitespace-nowrap">{totalCount} items</span>}
+        {totalCount !== null && <span className="text-xs text-muted-foreground whitespace-nowrap">{totalCount} {ui("items")}</span>}
       </button>
       {expanded && (
         <div className="border-t px-3 pb-3 pt-2">
@@ -61,11 +65,11 @@ export function DefaultEnvironmentCard({ workspaceId }: { workspaceId: string })
             <div className="flex items-center justify-center py-4"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
           ) : items ? (
             <div className="space-y-3">
-              <p className="text-[11px] text-muted-foreground">Workspace-level items automatically included in all projects unless overridden by a project environment.</p>
-              <ItemList title="Skills" icon={<Sparkles className="h-3.5 w-3.5" />} items={items.skills.map((s) => ({ name: s.skill_name, sub: s.skill_content.slice(0, 50) }))} />
-              <ItemList title="Rules" icon={<BookOpen className="h-3.5 w-3.5" />} items={items.rules.map((r) => ({ name: r.rule_name, sub: r.content.slice(0, 50) }))} />
-              <ItemList title="Knowledge" icon={<Brain className="h-3.5 w-3.5" />} items={items.knowledge.map((k) => ({ name: k.filename, sub: k.content.slice(0, 50) }))} emptyMessage="None — add workspace knowledge in Workspace Settings" />
-              <ItemList title="Connectors" icon={<Plug className="h-3.5 w-3.5" />} items={items.connectors.map((c) => ({ name: c.name, sub: c.transport_type }))} />
+              <p className="text-[11px] text-muted-foreground">{ui("Workspace-level items automatically included in all projects unless overridden by a project environment.")}</p>
+              <ItemList title={ui("Skills")} icon={<Sparkles className="h-3.5 w-3.5" />} items={items.skills.map((s) => ({ name: s.skill_name, sub: s.skill_content.slice(0, 50) }))} />
+              <ItemList title={ui("Rules")} icon={<BookOpen className="h-3.5 w-3.5" />} items={items.rules.map((r) => ({ name: r.rule_name, sub: r.content.slice(0, 50) }))} />
+              <ItemList title={ui("Knowledge")} icon={<Brain className="h-3.5 w-3.5" />} items={items.knowledge.map((k) => ({ name: k.filename, sub: k.content.slice(0, 50) }))} emptyMessage={ui("None — add workspace knowledge in Workspace Settings")} />
+              <ItemList title={ui("Connectors")} icon={<Plug className="h-3.5 w-3.5" />} items={items.connectors.map((c) => ({ name: c.name, sub: c.transport_type }))} />
             </div>
           ) : null}
         </div>
@@ -83,6 +87,8 @@ export function EnvironmentCard({
   onDelete: () => void; onClone: () => void; onSetDefault: () => void;
   hooks: ReturnType<typeof useEnvironments>;
 }) {
+  const ui = useUiText();
+
   const [expanded, setExpanded] = useState(false);
   const [detail, setDetail] = useState<EnvironmentWithItems | null>(null);
   const [loadingDetail, setLoadingDetail] = useState(false);
@@ -118,12 +124,12 @@ export function EnvironmentCard({
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold truncate">{env.name}</span>
             <ScopeBadge scope={env.scope} />
-            {isDefault && <Badge variant="default" className="text-[10px] px-1.5 py-0 bg-primary/20 text-primary border-primary/30">Default</Badge>}
-            {env.is_template && <Badge variant="secondary" className="text-[10px] px-1.5 py-0">Template</Badge>}
+            {isDefault && <Badge variant="default" className="text-[10px] px-1.5 py-0 bg-primary/20 text-primary border-primary/30">{ui("Default")}</Badge>}
+            {env.is_template && <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{ui("Template")}</Badge>}
           </div>
           {env.description && <p className="text-xs text-muted-foreground truncate">{env.description}</p>}
         </div>
-        {itemCount !== null && <span className="text-xs text-muted-foreground whitespace-nowrap">{itemCount} items</span>}
+        {itemCount !== null && <span className="text-xs text-muted-foreground whitespace-nowrap">{itemCount} {ui("items")}</span>}
       </button>
       {expanded && (
         <div className="border-t px-3 pb-3">
@@ -135,21 +141,20 @@ export function EnvironmentCard({
                 <EditMetaForm env={env} onSave={async (data) => { await hooks.updateEnvironment(env.id, data); setEditingMeta(false); }} onCancel={() => setEditingMeta(false)} />
               ) : (
                 <button onClick={() => setEditingMeta(true)} className="flex items-center gap-1.5 text-[10px] text-muted-foreground hover:text-foreground">
-                  <Pencil className="h-3 w-3" /> Edit name, icon & color
-                </button>
+                  <Pencil className="h-3 w-3" /> {ui("Edit name, icon & color")} </button>
               )}
-              <RefPicker<ContextSkill> title="Skills" icon={<Sparkles className="h-3.5 w-3.5" />}
+              <RefPicker<ContextSkill> title={ui("Skills")} icon={<Sparkles className="h-3.5 w-3.5" />}
                 available={availableSkills} included={detail.skills} getLabel={(s) => s.skill_name} getSubLabel={(s) => s.skill_content.slice(0, 40)}
                 onAdd={async (id) => { await hooks.addSkillRef(env.id, id); await reloadDetail(); }}
                 onRemove={async (id) => { await hooks.removeSkillRef(env.id, id); await reloadDetail(); }} />
-              <RefPicker<ContextRule> title="Rules" icon={<BookOpen className="h-3.5 w-3.5" />}
+              <RefPicker<ContextRule> title={ui("Rules")} icon={<BookOpen className="h-3.5 w-3.5" />}
                 available={availableRules} included={detail.rules} getLabel={(r) => r.rule_name} getSubLabel={(r) => r.content.slice(0, 40)}
                 onAdd={async (id) => { await hooks.addRuleRef(env.id, id); await reloadDetail(); }}
                 onRemove={async (id) => { await hooks.removeRuleRef(env.id, id); await reloadDetail(); }} />
-              <ItemList title="Knowledge" icon={<Brain className="h-3.5 w-3.5" />}
-                items={detail.knowledge.map((k) => ({ name: k.filename, sub: `${k.content.length} chars` }))} emptyMessage="No knowledge files"
+              <ItemList title={ui("Knowledge")} icon={<Brain className="h-3.5 w-3.5" />}
+                items={detail.knowledge.map((k) => ({ name: k.filename, sub: `${k.content.length} chars` }))} emptyMessage={ui("No knowledge files")}
                 onRemove={async (i) => { const k = detail.knowledge[i]; if (k) { await hooks.removeKnowledge(env.id, k.filename); await reloadDetail(); } }} />
-              <RefPicker<Connector> title="Connectors" icon={<Plug className="h-3.5 w-3.5" />}
+              <RefPicker<Connector> title={ui("Connectors")} icon={<Plug className="h-3.5 w-3.5" />}
                 available={availableConnectors} included={detail.connectors} getLabel={(c) => c.name} getSubLabel={(c) => c.transport_type}
                 onAdd={async (id) => { await hooks.addConnectorRef(env.id, id); await reloadDetail(); }}
                 onRemove={async (id) => { await hooks.removeConnectorRef(env.id, id); await reloadDetail(); }} />
@@ -157,12 +162,10 @@ export function EnvironmentCard({
               <div className="flex flex-wrap items-center gap-2 border-t pt-3">
                 {!isDefault && (
                   <button onClick={onSetDefault} className="flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-primary/10 hover:border-primary/30">
-                    <Star className="h-3 w-3" /> Set as Default
-                  </button>
+                    <Star className="h-3 w-3" /> {ui("Set as Default")} </button>
                 )}
                 <button onClick={onClone} className="flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted">
-                  <Copy className="h-3 w-3" /> Clone
-                </button>
+                  <Copy className="h-3 w-3" /> {ui("Clone")} </button>
                 <button
                   onClick={async () => {
                     try {
@@ -176,17 +179,15 @@ export function EnvironmentCard({
                   }}
                   className="flex items-center gap-1.5 rounded-md border px-2.5 py-1.5 text-xs hover:bg-muted"
                 >
-                  <FileText className="h-3 w-3" /> Export
-                </button>
+                  <FileText className="h-3 w-3" /> {ui("Export")} </button>
                 {!confirmDelete ? (
                   <button onClick={() => setConfirmDelete(true)} className="flex items-center gap-1.5 rounded-md border border-destructive/30 px-2.5 py-1.5 text-xs text-destructive hover:bg-destructive/10">
-                    <Trash2 className="h-3 w-3" /> Delete
-                  </button>
+                    <Trash2 className="h-3 w-3" /> {ui("Delete")} </button>
                 ) : (
                   <div className="flex items-center gap-1">
-                    <span className="text-xs text-destructive">Sure?</span>
-                    <button onClick={onDelete} className="rounded bg-destructive px-2 py-1 text-xs text-destructive-foreground">Yes</button>
-                    <button onClick={() => setConfirmDelete(false)} className="rounded border px-2 py-1 text-xs">No</button>
+                    <span className="text-xs text-destructive">{ui("Sure?")}</span>
+                    <button onClick={onDelete} className="rounded bg-destructive px-2 py-1 text-xs text-destructive-foreground">{ui("Yes")}</button>
+                    <button onClick={() => setConfirmDelete(false)} className="rounded border px-2 py-1 text-xs">{ui("No")}</button>
                   </div>
                 )}
               </div>

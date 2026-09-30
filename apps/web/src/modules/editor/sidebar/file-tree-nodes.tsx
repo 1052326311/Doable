@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useEffect, useRef } from "react";
 import { type FileNode } from "../hooks/use-editor-store";
@@ -53,6 +55,8 @@ export function DeleteConfirmation({
   onConfirm: () => void;
   onCancel: () => void;
 }) {
+  const ui = useUiText();
+
   const name = path.split("/").pop() ?? path;
 
   return (
@@ -62,27 +66,20 @@ export function DeleteConfirmation({
         <div className="flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-destructive flex-none mt-0.5" />
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-semibold text-foreground">Delete file?</h4>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Are you sure you want to delete{" "}
-              <span className="font-mono font-medium text-foreground">{name}</span>?
-              This cannot be undone.
-            </p>
+            <h4 className="text-sm font-semibold text-foreground">{ui("Delete file?")}</h4>
+            <p className="mt-1 text-xs text-muted-foreground"> {ui("Are you sure you want to delete")}{" "}
+              <span className="font-mono font-medium text-foreground">{name}</span>{ui("? This cannot be undone.")} </p>
           </div>
         </div>
         <div className="mt-4 flex items-center justify-end gap-2">
           <button
             onClick={onCancel}
             className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-          >
-            Cancel
-          </button>
+          > {ui("Cancel")} </button>
           <button
             onClick={onConfirm}
             className="rounded-md bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors"
-          >
-            Delete
-          </button>
+          > {ui("Delete")} </button>
         </div>
       </div>
     </>
@@ -187,22 +184,24 @@ export function ContextMenu({
   onNewFile: (parentPath: string) => void;
   onNewFolder: (parentPath: string) => void;
 }) {
+  const ui = useUiText();
+
   const isDir = state.node.type === "directory";
 
   const items: ContextMenuAction[] = [];
 
   if (isDir) {
     items.push(
-      { label: "New File", icon: FilePlus, action: () => { onNewFile(state.node.path); onClose(); } },
-      { label: "New Folder", icon: FolderPlus, action: () => { onNewFolder(state.node.path); onClose(); } },
+      { label: ui("New File"), icon: FilePlus, action: () => { onNewFile(state.node.path); onClose(); } },
+      { label: ui("New Folder"), icon: FolderPlus, action: () => { onNewFolder(state.node.path); onClose(); } },
     );
   }
 
   items.push(
-    { label: "Rename", icon: Pencil, action: () => { onRename(state.node); onClose(); }, separator: isDir },
-    { label: "Copy Path", icon: ClipboardCopy, action: () => { onCopyPath(state.node.path); onClose(); } },
+    { label: ui("Rename"), icon: Pencil, action: () => { onRename(state.node); onClose(); }, separator: isDir },
+    { label: ui("Copy Path"), icon: ClipboardCopy, action: () => { onCopyPath(state.node.path); onClose(); } },
     {
-      label: "Delete",
+      label: ui("Delete"),
       icon: Trash2,
       action: () => {
         onDelete(state.node.path);

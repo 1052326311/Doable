@@ -1,4 +1,6 @@
 "use client";
+import {useUiText} from "@/i18n/use-ui-text";
+
 
 import { useState, useCallback } from "react";
 import {
@@ -62,6 +64,8 @@ export function BuiltInCard({
   onDisconnect?: () => void;
   children?: React.ReactNode;
 }) {
+  const ui = useUiText();
+
   const [expanded, setExpanded] = useState(false);
   const hasDetails = connected && children;
 
@@ -108,7 +112,7 @@ export function BuiltInCard({
                 : "bg-primary text-primary-foreground hover:bg-primary/90"
             )}
           >
-            {connected ? "Disconnect" : "Connect"}
+            {connected ? ui("Disconnect") : ui("Connect")}
           </button>
         </div>
       </div>
@@ -136,6 +140,8 @@ export function CustomCard({
   onDelete: () => void;
   readOnly?: boolean;
 }) {
+  const ui = useUiText();
+
   const [testing, setTesting] = useState(false);
   const [testResult, setTestResult] = useState<{
     ok: boolean;
@@ -190,7 +196,7 @@ export function CustomCard({
             {toolCount > 0 && (
               <>
                 <span className="text-muted-foreground/40 mx-1.5">&middot;</span>
-                {toolCount} {toolCount === 1 ? "capability" : "capabilities"}
+                {toolCount} {toolCount === 1 ? ui("capability") : ui("capabilities")}
               </>
             )}
           </p>
@@ -210,9 +216,7 @@ export function CustomCard({
           {/* Capabilities list */}
           {toolCount > 0 && (
             <div className="px-4 py-3 border-b">
-              <p className="text-xs font-medium text-muted-foreground mb-2">
-                Available Capabilities
-              </p>
+              <p className="text-xs font-medium text-muted-foreground mb-2"> {ui("Available Capabilities")} </p>
               <div className="space-y-1.5">
                 {(integration.tools ?? []).map((tool) => (
                   <div
@@ -236,9 +240,7 @@ export function CustomCard({
 
           {toolCount === 0 && (
             <div className="px-4 py-3 border-b">
-              <p className="text-xs text-muted-foreground">
-                No capabilities discovered yet. Test the connection to discover what&apos;s available.
-              </p>
+              <p className="text-xs text-muted-foreground"> {ui("No capabilities discovered yet. Test the connection to discover what's available.")} </p>
             </div>
           )}
 
@@ -289,9 +291,7 @@ export function CustomCard({
                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
               ) : (
                 <RefreshCw className="h-3.5 w-3.5" />
-              )}
-              Test Connection
-            </button>
+              )} {ui("Test Connection")} </button>
             {!readOnly && <button
               onClick={handleDelete}
               onBlur={() => setConfirmDelete(false)}
@@ -304,14 +304,10 @@ export function CustomCard({
             >
               {confirmDelete ? (
                 <>
-                  <AlertCircle className="h-3.5 w-3.5" />
-                  Confirm Remove
-                </>
+                  <AlertCircle className="h-3.5 w-3.5" /> {ui("Confirm Remove")} </>
               ) : (
                 <>
-                  <Trash2 className="h-3.5 w-3.5" />
-                  Remove
-                </>
+                  <Trash2 className="h-3.5 w-3.5" /> {ui("Remove")} </>
               )}
             </button>}
           </div>
