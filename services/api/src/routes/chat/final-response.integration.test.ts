@@ -122,3 +122,21 @@ test("thinking markers split across deltas stay out of the answer", () => {
   assert.equal(state.assistantContent, "Answer.");
   assert.equal(state.assistantThinking, "Reasoning");
 });
+
+
+test("catch-up uses raw offsets when sanitization expands split jargon", () => {
+  const { state, emit } = fixture();
+  const content = "Read package.json. Final answer.";
+  for (const deltaContent of ["Read pack", "age.json. Final answer."]) {
+    emit("assistant.message_delta", { messageId: "final", deltaContent });
+  }
+  emit("assistant.message", { messageId: "final", content });
+  assert.equal(finalizeLeadingResponse(state), content);
+});
+
+test("catch-up sanitizes only a genuinely missing raw suffix", () => {
+  const { state, emit } = fixture();
+  emit("assistant.message_delta", { messageId: "final", deltaContent: "Read package.json." });
+  emit("assistant.message", { messageId: "final", content: "Read package.json. Final answer." });
+  assert.equal(finalizeLeadingResponse(state), "Read project configuration. Final answer.");
+});

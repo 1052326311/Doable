@@ -84,7 +84,7 @@ export function createProcessEvent(
         state.lastMsgIdSepEmitted = true;
       }
       const rawText = String(evtData?.deltaContent ?? evtData?.content ?? evtData?.delta ?? "");
-      state.currentMessageTextLength += sanitizeText(rawText, { preserveThinkingMarkers: true }).length;
+      state.currentMessageTextLength += rawText.length;
     }
 
     // assistant.message catch-up (BUG-119)
@@ -153,14 +153,14 @@ function handleAssistantMessageCatchUp(
   // Reset the flag after catch-up so the next transition works fresh
   state.lastMsgIdSepEmitted = false;
   if (!content) return;
-  const sanitizedContent = sanitizeText(content, { preserveThinkingMarkers: true });
   // Count only deltas from THIS message, including markers. Session-wide
   // thinking length can hide a complete final answer from a non-streaming
-  // provider, while stripped tag lengths can cause duplicated catch-up text.
-  const missing = sanitizedContent.slice(state.currentMessageTextLength);
+  // provider. Slice raw text BEFORE sanitizing: jargon replacements can change
+  // lengths differently for partial deltas and complete messages.
+  const missing = sanitizeText(content.slice(state.currentMessageTextLength), { preserveThinkingMarkers: true });
   if (missing) {
     routeSseEvent(stream, state, channelRouter, { type: "text_delta", data: missing }, evtData, projectId, userId, messageId);
-    state.currentMessageTextLength = sanitizedContent.length;
+    state.currentMessageTextLength = content.length;
   }
 
 }
