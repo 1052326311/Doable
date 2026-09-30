@@ -40,7 +40,7 @@ export function translateProgress(value: string, ui: UiTranslator): string {
           migrate: "Data Migrate",
           exec: "Running command",
         } as Record<string, string>
-      )[mcp[1].toLowerCase()],
+      )[mcp[1]!.toLowerCase()] ?? value,
     );
   const operation =
     /^(Running:|Refining|Reviewing|Searching for|Cleaning up|Running) (.+)$/.exec(
@@ -105,7 +105,7 @@ export function translateThinkingPrefix(
   for (;;) {
     const match = pattern.exec(remaining);
     if (!match) break;
-    prefix += match[1] + ui(match[2]);
+    prefix += match[1]! + ui(match[2]!);
     remaining = remaining.slice(match[0].length);
   }
   return prefix + remaining;
