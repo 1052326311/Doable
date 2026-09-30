@@ -90,6 +90,10 @@ COPY . .
 # Build packages that compile cleanly (docore, dovault, web)
 RUN pnpm --filter=docore run build || true
 RUN pnpm --filter=dovault run build || true
+# Only the web image needs Next.js output. API/WS/migrate copy the shared
+# packages without recompiling the frontend on every backend source change.
+FROM build AS web-build
+
 # Optional budget for source builds on memory-constrained hosts.
 # Leave empty to retain the existing Node/Next.js defaults.
 ARG WEB_BUILD_MEMORY_MB=
@@ -191,8 +195,8 @@ CMD ["ws", "npx", "tsx", "services/ws/src/index.ts"]
 # --- Web (Next.js standalone) ---
 FROM base AS web
 WORKDIR /app
-COPY --from=build --chown=node:node /app/apps/web/.next/standalone ./
-COPY --from=build --chown=node:node /app/apps/web/.next/static ./apps/web/.next/static
+COPY --from=web-build --chown=node:node /app/apps/web/.next/standalone ./
+COPY --from=web-build --chown=node:node /app/apps/web/.next/static ./apps/web/.next/static
 # Runtime placeholder rewriter — replaces __DOABLE_*_URL__ placeholders
 # baked at build time with the operator's actual NEXT_PUBLIC_* values from
 # container env. Lets one image work for any deployment URL.
