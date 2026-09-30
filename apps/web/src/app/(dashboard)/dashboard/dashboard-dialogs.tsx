@@ -1,10 +1,13 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import {
-  Dialog, DialogContent, DialogHeader,
-  DialogTitle, DialogDescription, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -50,50 +53,110 @@ interface DashboardDialogsProps {
 }
 
 export function DashboardDialogs({
-  deleteConfirmId, setDeleteConfirmId, projects, recentProjects, onDelete,
-  bulkDeleteConfirm, setBulkDeleteConfirm, selectedIds, onBulkDelete,
-  renamingProject, setRenamingProject, renameValue, setRenameValue, onRename,
-  moveToFolderProject, setMoveToFolderProject, folders, onMoveToFolder,
-  previewTemplate, setPreviewTemplate, remixTemplate, setRemixTemplate, onTemplateCreated,
-  showImportGitHub, setShowImportGitHub,
+  deleteConfirmId,
+  setDeleteConfirmId,
+  projects,
+  recentProjects,
+  onDelete,
+  bulkDeleteConfirm,
+  setBulkDeleteConfirm,
+  selectedIds,
+  onBulkDelete,
+  renamingProject,
+  setRenamingProject,
+  renameValue,
+  setRenameValue,
+  onRename,
+  moveToFolderProject,
+  setMoveToFolderProject,
+  folders,
+  onMoveToFolder,
+  previewTemplate,
+  setPreviewTemplate,
+  remixTemplate,
+  setRemixTemplate,
+  onTemplateCreated,
+  showImportGitHub,
+  setShowImportGitHub,
 }: DashboardDialogsProps) {
   const ui = useUiText();
 
-  const deleteName = projects.find((p) => p.id === deleteConfirmId)?.name
-    ?? recentProjects.find((p) => p.id === deleteConfirmId)?.name;
+  const deleteName =
+    projects.find((p) => p.id === deleteConfirmId)?.name ??
+    recentProjects.find((p) => p.id === deleteConfirmId)?.name;
 
   return (
     <>
       {/* Delete Confirmation */}
-      <Dialog open={!!deleteConfirmId} onOpenChange={(open) => !open && setDeleteConfirmId(null)}>
+      <Dialog
+        open={!!deleteConfirmId}
+        onOpenChange={(open) => !open && setDeleteConfirmId(null)}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{ui("Delete project")}</DialogTitle>
-            <DialogDescription> {ui("Are you sure you want to delete “")}{deleteName}{ui("”? This action cannot be undone.")} </DialogDescription>
+            <DialogDescription>
+              {" "}
+              {ui("Are you sure you want to delete “")}
+              {deleteName}
+              {ui("”? This action cannot be undone.")}{" "}
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>{ui("Cancel")}</Button>
-            <Button onClick={() => deleteConfirmId && onDelete(deleteConfirmId)} className="bg-red-600 text-white hover:bg-red-500">{ui("Delete")}</Button>
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>
+              {ui("Cancel")}
+            </Button>
+            <Button
+              onClick={() => deleteConfirmId && onDelete(deleteConfirmId)}
+              className="bg-red-600 text-white hover:bg-red-500"
+            >
+              {ui("Delete")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Bulk Delete */}
-      <Dialog open={bulkDeleteConfirm} onOpenChange={(open) => !open && setBulkDeleteConfirm(false)}>
+      <Dialog
+        open={bulkDeleteConfirm}
+        onOpenChange={(open) => !open && setBulkDeleteConfirm(false)}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>{ui("Delete {count} projects", {count:selectedIds.size})}</DialogTitle>
-            <DialogDescription> {ui("Are you sure you want to delete")} {selectedIds.size} {ui("selected project")}{selectedIds.size !== 1 ? ui("s") : ""}{ui("? This action cannot be undone.")} </DialogDescription>
+            <DialogTitle>
+              {ui("Delete {count} projects", { count: selectedIds.size })}
+            </DialogTitle>
+            <DialogDescription>
+              {" "}
+              {ui("Are you sure you want to delete")} {selectedIds.size}{" "}
+              {ui("selected project")}
+              {selectedIds.size !== 1 ? ui("s") : ""}
+              {ui("? This action cannot be undone.")}{" "}
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBulkDeleteConfirm(false)}>{ui("Cancel")}</Button>
-            <Button onClick={onBulkDelete} className="bg-red-600 text-white hover:bg-red-500">{ui("Delete")} {selectedIds.size} {ui("project")}{selectedIds.size !== 1 ? ui("s") : ""}</Button>
+            <Button
+              variant="outline"
+              onClick={() => setBulkDeleteConfirm(false)}
+            >
+              {ui("Cancel")}
+            </Button>
+            <Button
+              onClick={onBulkDelete}
+              className="bg-red-600 text-white hover:bg-red-500"
+            >
+              {ui("Delete")} {selectedIds.size} {ui("project")}
+              {selectedIds.size !== 1 ? ui("s") : ""}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Rename */}
-      <Dialog open={!!renamingProject} onOpenChange={(open) => !open && setRenamingProject(null)}>
+      <Dialog
+        open={!!renamingProject}
+        onOpenChange={(open) => !open && setRenamingProject(null)}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{ui("Rename project")}</DialogTitle>
@@ -108,36 +171,59 @@ export function DashboardDialogs({
             />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRenamingProject(null)}>{ui("Cancel")}</Button>
-            <Button onClick={onRename} disabled={!renameValue.trim()} className="bg-brand-600 text-white hover:bg-brand-500">{ui("Rename")}</Button>
+            <Button variant="outline" onClick={() => setRenamingProject(null)}>
+              {ui("Cancel")}
+            </Button>
+            <Button
+              onClick={onRename}
+              disabled={!renameValue.trim()}
+              className="bg-brand-600 text-white hover:bg-brand-500"
+            >
+              {ui("Rename")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Move to Folder */}
-      <Dialog open={!!moveToFolderProject} onOpenChange={(open) => !open && setMoveToFolderProject(null)}>
+      <Dialog
+        open={!!moveToFolderProject}
+        onOpenChange={(open) => !open && setMoveToFolderProject(null)}
+      >
         <DialogContent className="max-w-sm">
           <DialogHeader>
             <DialogTitle>{ui("Move to folder")}</DialogTitle>
-            <DialogDescription>{ui("Choose a folder for this project.")}</DialogDescription>
+            <DialogDescription>
+              {ui("Choose a folder for this project.")}
+            </DialogDescription>
           </DialogHeader>
           <div className="space-y-1 max-h-60 overflow-y-auto">
             <button
-              onClick={() => moveToFolderProject && onMoveToFolder(moveToFolderProject, null)}
+              onClick={() =>
+                moveToFolderProject && onMoveToFolder(moveToFolderProject, null)
+              }
               className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
             >
-              <FolderOpen className="h-4 w-4 text-muted-foreground" /> {ui("Root (no folder)")} </button>
+              <FolderOpen className="h-4 w-4 text-muted-foreground" />{" "}
+              {ui("Root (no folder)")}{" "}
+            </button>
             {folders.map((f) => (
               <button
                 key={f.id}
-                onClick={() => moveToFolderProject && onMoveToFolder(moveToFolderProject, f.id)}
+                onClick={() =>
+                  moveToFolderProject &&
+                  onMoveToFolder(moveToFolderProject, f.id)
+                }
                 className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-foreground hover:bg-accent transition-colors"
               >
-                <FolderIcon className="h-4 w-4 text-muted-foreground" /> {f.name}
+                <FolderIcon className="h-4 w-4 text-muted-foreground" />{" "}
+                {f.name}
               </button>
             ))}
             {folders.length === 0 && (
-              <p className="text-sm text-muted-foreground text-center py-4">{ui("No folders yet. Create one in the sidebar.")}</p>
+              <p className="text-sm text-muted-foreground text-center py-4">
+                {ui("No folders yet. Create one in the sidebar.")}
+              </p>
             )}
           </div>
         </DialogContent>
@@ -147,7 +233,10 @@ export function DashboardDialogs({
       <TemplatePreviewModal
         template={previewTemplate}
         onClose={() => setPreviewTemplate(null)}
-        onUseTemplate={() => { setRemixTemplate(previewTemplate); setPreviewTemplate(null); }}
+        onUseTemplate={() => {
+          setRemixTemplate(previewTemplate);
+          setPreviewTemplate(null);
+        }}
       />
 
       {/* Use Template / Remix */}
@@ -158,7 +247,10 @@ export function DashboardDialogs({
       />
 
       {/* Import from GitHub */}
-      <ImportGitHubProjectDialog open={showImportGitHub} onOpenChange={setShowImportGitHub} />
+      <ImportGitHubProjectDialog
+        open={showImportGitHub}
+        onOpenChange={setShowImportGitHub}
+      />
     </>
   );
 }

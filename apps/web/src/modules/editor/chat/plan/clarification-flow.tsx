@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { memo, useState, useCallback } from "react";
 import { HelpCircle, Check, ChevronRight } from "lucide-react";
@@ -120,7 +119,7 @@ export const ClarificationFlow = memo(function ClarificationFlow({
         setTimeout(() => setCurrentIndex(nextIndex), 320);
       }
     },
-    [answers, currentIndex, questions.length, onComplete]
+    [answers, currentIndex, questions.length, onComplete],
   );
 
   const handleSkipAll = useCallback(() => {
@@ -141,7 +140,9 @@ export const ClarificationFlow = memo(function ClarificationFlow({
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/10">
             <Check className="h-3.5 w-3.5 text-blue-500" />
           </div>
-          <span className="text-sm font-medium text-foreground">{ui("Answers submitted")}</span>
+          <span className="text-sm font-medium text-foreground">
+            {ui("Answers submitted")}
+          </span>
         </div>
         <div className="space-y-1.5">
           {questions.map((q) => (
@@ -171,7 +172,9 @@ export const ClarificationFlow = memo(function ClarificationFlow({
         <div className="flex h-6 w-6 items-center justify-center rounded-full bg-blue-500/10">
           <HelpCircle className="h-3.5 w-3.5 text-blue-500" />
         </div>
-        <span className="text-sm font-medium text-foreground">{ui("Before we start…")}</span>
+        <span className="text-sm font-medium text-foreground">
+          {ui("Before we start…")}
+        </span>
       </div>
 
       {/* Progress bar strips */}
@@ -184,8 +187,8 @@ export const ClarificationFlow = memo(function ClarificationFlow({
                 i < currentIndex
                   ? "bg-blue-500"
                   : i === currentIndex
-                  ? "bg-blue-400 animate-pulse"
-                  : "bg-muted-foreground/20"
+                    ? "bg-blue-400 animate-pulse"
+                    : "bg-muted-foreground/20"
               }`}
             />
           ))}
@@ -198,7 +201,10 @@ export const ClarificationFlow = memo(function ClarificationFlow({
             onClick={handleSkipAll}
             disabled={disabled}
             className="ml-3 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors disabled:opacity-50 shrink-0"
-          > {ui("Skip all")} </button>
+          >
+            {" "}
+            {ui("Skip all")}{" "}
+          </button>
         )}
       </div>
 
@@ -244,7 +250,10 @@ export const ClarificationFlow = memo(function ClarificationFlow({
               onClick={() => advance(currentQuestion.id, "")}
               disabled={disabled}
               className="mt-2 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-            > {ui("Skip this question")} </button>
+            >
+              {" "}
+              {ui("Skip this question")}{" "}
+            </button>
           </>
         ) : (
           <>
@@ -256,7 +265,10 @@ export const ClarificationFlow = memo(function ClarificationFlow({
               onClick={() => advance(currentQuestion.id, "")}
               disabled={disabled}
               className="mt-1.5 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-            > {ui("Skip")} </button>
+            >
+              {" "}
+              {ui("Skip")}{" "}
+            </button>
           </>
         )}
       </div>

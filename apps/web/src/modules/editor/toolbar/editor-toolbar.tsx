@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useCallback, useState } from "react";
 import { useEditorStore, type ViewMode } from "../hooks/use-editor-store";
@@ -26,7 +25,10 @@ interface EditorToolbarProps {
   projectId?: string | null;
 }
 
-export function EditorToolbar({ workspaceId: workspaceIdProp, projectId }: EditorToolbarProps = {}) {
+export function EditorToolbar({
+  workspaceId: workspaceIdProp,
+  projectId,
+}: EditorToolbarProps = {}) {
   const ui = useUiText();
 
   const {
@@ -39,9 +41,12 @@ export function EditorToolbar({ workspaceId: workspaceIdProp, projectId }: Edito
   } = useEditorStore();
 
   // Resolve workspace ID from prop or localStorage
-  const resolvedWorkspaceId = workspaceIdProp ?? (
-    typeof window !== "undefined" ? localStorage.getItem("doable_active_workspace_id") : null
-  ) ?? undefined;
+  const resolvedWorkspaceId =
+    workspaceIdProp ??
+    (typeof window !== "undefined"
+      ? localStorage.getItem("doable_active_workspace_id")
+      : null) ??
+    undefined;
   const { credits, loading: creditsLoading } = useCredits(resolvedWorkspaceId);
 
   const [isEditingName, setIsEditingName] = useState(false);

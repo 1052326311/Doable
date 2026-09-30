@@ -1,10 +1,22 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState } from "react";
-import { Users, DollarSign, Zap, Globe, Building2, Github, ChevronDown, ChevronRight, Crown, Cpu, Key, AlertTriangle } from "lucide-react";
+import {
+  Users,
+  DollarSign,
+  Zap,
+  Globe,
+  Building2,
+  Github,
+  ChevronDown,
+  ChevronRight,
+  Crown,
+  Cpu,
+  Key,
+  AlertTriangle,
+} from "lucide-react";
 import {
   usePlatformUsageSummary,
   usePlatformUsers,
@@ -51,15 +63,23 @@ function StatCard({
   return (
     <div className="rounded-xl bg-card border border-border p-4 flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <div className={`p-1.5 rounded-md ${ACCENT_CLASSES[accent]}`}>{icon}</div>
-        <span className="text-xs text-muted-foreground uppercase tracking-wider">{label}</span>
+        <div className={`p-1.5 rounded-md ${ACCENT_CLASSES[accent]}`}>
+          {icon}
+        </div>
+        <span className="text-xs text-muted-foreground uppercase tracking-wider">
+          {label}
+        </span>
       </div>
       {loading ? (
         <Skeleton className="h-6 w-20" />
       ) : (
         <div>
-          <p className="text-lg font-semibold text-foreground tabular-nums">{value ?? "-"}</p>
-          {subValue && <p className="text-xs text-muted-foreground">{subValue}</p>}
+          <p className="text-lg font-semibold text-foreground tabular-nums">
+            {value ?? "-"}
+          </p>
+          {subValue && (
+            <p className="text-xs text-muted-foreground">{subValue}</p>
+          )}
         </div>
       )}
     </div>
@@ -70,9 +90,21 @@ function StatCard({
 type SubTab = "overview" | "copilot" | "providers" | "models";
 
 const SUB_TABS: Array<{ id: SubTab; label: string; icon: React.ReactNode }> = [
-  { id: "overview", label: "Overview", icon: <Crown className="h-3.5 w-3.5" /> },
-  { id: "copilot", label: "Copilot Subscriptions", icon: <Github className="h-3.5 w-3.5" /> },
-  { id: "providers", label: "Custom Providers", icon: <Key className="h-3.5 w-3.5" /> },
+  {
+    id: "overview",
+    label: "Overview",
+    icon: <Crown className="h-3.5 w-3.5" />,
+  },
+  {
+    id: "copilot",
+    label: "Copilot Subscriptions",
+    icon: <Github className="h-3.5 w-3.5" />,
+  },
+  {
+    id: "providers",
+    label: "Custom Providers",
+    icon: <Key className="h-3.5 w-3.5" />,
+  },
   { id: "models", label: "Models", icon: <Cpu className="h-3.5 w-3.5" /> },
 ];
 
@@ -94,7 +126,9 @@ export function PlatformUsageTab() {
     return (
       <div className="rounded-2xl border border-dashed border-border py-12 text-center">
         <Globe className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-        <p className="text-sm text-muted-foreground">{ui("No platform-wide usage data yet")}</p>
+        <p className="text-sm text-muted-foreground">
+          {ui("No platform-wide usage data yet")}
+        </p>
       </div>
     );
   }
@@ -103,7 +137,11 @@ export function PlatformUsageTab() {
     <div className="space-y-6">
       {/* Description */}
       <p className="text-xs text-muted-foreground bg-card border border-border rounded-lg px-4 py-2">
-        <Globe className="h-3.5 w-3.5 inline mr-1.5 text-violet-400" /> {ui("Platform-wide view — showing usage across all workspaces and users.")} </p>
+        <Globe className="h-3.5 w-3.5 inline mr-1.5 text-violet-400" />{" "}
+        {ui(
+          "Platform-wide view — showing usage across all workspaces and users.",
+        )}{" "}
+      </p>
 
       {/* Sub-tab nav */}
       <div className="flex gap-1 border-b border-border overflow-x-auto">
@@ -130,7 +168,9 @@ export function PlatformUsageTab() {
             <StatCard
               icon={<Zap className="h-3.5 w-3.5" />}
               label={ui("Total Tokens")}
-              value={summary ? formatTokenCount(summary.totalTokens) : undefined}
+              value={
+                summary ? formatTokenCount(summary.totalTokens) : undefined
+              }
               loading={summaryLoading}
               accent="blue"
             />
@@ -144,14 +184,22 @@ export function PlatformUsageTab() {
             <StatCard
               icon={<Building2 className="h-3.5 w-3.5" />}
               label={ui("Workspaces")}
-              value={summary ? summary.workspaceCount.toLocaleString(ui.locale) : undefined}
+              value={
+                summary
+                  ? summary.workspaceCount.toLocaleString(ui.locale)
+                  : undefined
+              }
               loading={summaryLoading}
               accent="violet"
             />
             <StatCard
               icon={<Users className="h-3.5 w-3.5" />}
               label={ui("Active Users")}
-              value={summary ? summary.userCount.toLocaleString(ui.locale) : undefined}
+              value={
+                summary
+                  ? summary.userCount.toLocaleString(ui.locale)
+                  : undefined
+              }
               loading={summaryLoading}
               accent="amber"
             />
@@ -159,7 +207,9 @@ export function PlatformUsageTab() {
 
           <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
             <h3 className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
-              <Crown className="h-4 w-4 text-amber-400" /> {ui("All Users Ranked by Tokens")} </h3>
+              <Crown className="h-4 w-4 text-amber-400" />{" "}
+              {ui("All Users Ranked by Tokens")}{" "}
+            </h3>
             {usersLoading ? (
               <div className="space-y-3">
                 {Array.from({ length: 5 }).map((_, i) => (
@@ -167,7 +217,9 @@ export function PlatformUsageTab() {
                 ))}
               </div>
             ) : users.length === 0 ? (
-              <p className="text-xs text-muted-foreground">{ui("No users with usage data.")}</p>
+              <p className="text-xs text-muted-foreground">
+                {ui("No users with usage data.")}
+              </p>
             ) : (
               <PlatformUsersList users={users} />
             )}
@@ -178,8 +230,15 @@ export function PlatformUsageTab() {
       {active === "copilot" && (
         <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
           <h3 className="text-sm font-medium text-foreground mb-1 flex items-center gap-2">
-            <Github className="h-4 w-4 text-blue-400" /> {ui("Copilot Subscriptions")} </h3>
-          <p className="text-xs text-muted-foreground mb-5"> {ui("One row per GitHub Copilot subscription. Expand to see which users are assigned and which models each user called.")} </p>
+            <Github className="h-4 w-4 text-blue-400" />{" "}
+            {ui("Copilot Subscriptions")}{" "}
+          </h3>
+          <p className="text-xs text-muted-foreground mb-5">
+            {" "}
+            {ui(
+              "One row per GitHub Copilot subscription. Expand to see which users are assigned and which models each user called.",
+            )}{" "}
+          </p>
           {accountsLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -187,24 +246,30 @@ export function PlatformUsageTab() {
               ))}
             </div>
           ) : accounts.length === 0 ? (
-            <p className="text-xs text-muted-foreground">{ui("No Copilot accounts configured.")}</p>
+            <p className="text-xs text-muted-foreground">
+              {ui("No Copilot accounts configured.")}
+            </p>
           ) : (
             <SubscriptionsList
-              items={accounts.map((a): SubscriptionRow => ({
-                id: `copilot:${a.githubLogin}`,
-                title: a.label || a.githubLogin,
-                subtitle: `@${a.githubLogin}`,
-                icon: <Github className="h-3.5 w-3.5 text-muted-foreground shrink-0" />,
-                workspaceNames: a.workspaceNames,
-                workspaceCount: a.workspaceCount,
-                userCount: a.userCount,
-                addedAt: a.addedAt,
-                owners: a.owners,
-                users: a.users,
-                totalTokens: a.totalTokens,
-                totalCostUsd: a.totalCostUsd,
-                requestCount: a.requestCount,
-              }))}
+              items={accounts.map(
+                (a): SubscriptionRow => ({
+                  id: `copilot:${a.githubLogin}`,
+                  title: a.label || a.githubLogin,
+                  subtitle: `@${a.githubLogin}`,
+                  icon: (
+                    <Github className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  ),
+                  workspaceNames: a.workspaceNames,
+                  workspaceCount: a.workspaceCount,
+                  userCount: a.userCount,
+                  addedAt: a.addedAt,
+                  owners: a.owners,
+                  users: a.users,
+                  totalTokens: a.totalTokens,
+                  totalCostUsd: a.totalCostUsd,
+                  requestCount: a.requestCount,
+                }),
+              )}
             />
           )}
         </div>
@@ -213,8 +278,15 @@ export function PlatformUsageTab() {
       {active === "providers" && (
         <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
           <h3 className="text-sm font-medium text-foreground mb-1 flex items-center gap-2">
-            <Key className="h-4 w-4 text-emerald-400" /> {ui("Custom Providers (BYOK)")} </h3>
-          <p className="text-xs text-muted-foreground mb-5"> {ui("Custom providers like OpenAI, Anthropic, Azure. Expand to see users and per-user model usage.")} </p>
+            <Key className="h-4 w-4 text-emerald-400" />{" "}
+            {ui("Custom Providers (BYOK)")}{" "}
+          </h3>
+          <p className="text-xs text-muted-foreground mb-5">
+            {" "}
+            {ui(
+              "Custom providers like OpenAI, Anthropic, Azure. Expand to see users and per-user model usage.",
+            )}{" "}
+          </p>
           {providersLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -222,24 +294,30 @@ export function PlatformUsageTab() {
               ))}
             </div>
           ) : providers.length === 0 ? (
-            <p className="text-xs text-muted-foreground">{ui("No custom providers configured.")}</p>
+            <p className="text-xs text-muted-foreground">
+              {ui("No custom providers configured.")}
+            </p>
           ) : (
             <SubscriptionsList
-              items={providers.map((p): SubscriptionRow => ({
-                id: `prov:${p.providerType}:${p.label}`,
-                title: p.label,
-                subtitle: p.providerType,
-                icon: <Key className="h-3.5 w-3.5 text-emerald-400 shrink-0" />,
-                workspaceNames: p.workspaceNames,
-                workspaceCount: p.workspaceCount,
-                userCount: p.userCount,
-                addedAt: p.addedAt,
-                owners: p.owners,
-                users: p.users,
-                totalTokens: p.totalTokens,
-                totalCostUsd: p.totalCostUsd,
-                requestCount: p.requestCount,
-              }))}
+              items={providers.map(
+                (p): SubscriptionRow => ({
+                  id: `prov:${p.providerType}:${p.label}`,
+                  title: p.label,
+                  subtitle: p.providerType,
+                  icon: (
+                    <Key className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
+                  ),
+                  workspaceNames: p.workspaceNames,
+                  workspaceCount: p.workspaceCount,
+                  userCount: p.userCount,
+                  addedAt: p.addedAt,
+                  owners: p.owners,
+                  users: p.users,
+                  totalTokens: p.totalTokens,
+                  totalCostUsd: p.totalCostUsd,
+                  requestCount: p.requestCount,
+                }),
+              )}
             />
           )}
         </div>
@@ -248,7 +326,9 @@ export function PlatformUsageTab() {
       {active === "models" && (
         <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
           <h3 className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
-            <Cpu className="h-4 w-4 text-violet-400" /> {ui("Model Usage Breakdown")} </h3>
+            <Cpu className="h-4 w-4 text-violet-400" />{" "}
+            {ui("Model Usage Breakdown")}{" "}
+          </h3>
           {modelsLoading ? (
             <div className="space-y-3">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -256,7 +336,9 @@ export function PlatformUsageTab() {
               ))}
             </div>
           ) : models.length === 0 ? (
-            <p className="text-xs text-muted-foreground">{ui("No model usage data.")}</p>
+            <p className="text-xs text-muted-foreground">
+              {ui("No model usage data.")}
+            </p>
           ) : (
             <PlatformModelsList models={models} />
           )}
@@ -277,7 +359,8 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
       {users.map((u, i) => {
         const pct = (u.totalTokens / maxTokens) * 100;
         const rank = i + 1;
-        const medal = rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : null;
+        const medal =
+          rank === 1 ? "🥇" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : null;
 
         return (
           <div
@@ -289,14 +372,18 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
                 {medal ? (
                   <span className="text-sm shrink-0">{medal}</span>
                 ) : (
-                  <span className="text-xs text-muted-foreground w-5 shrink-0 tabular-nums">#{rank}</span>
+                  <span className="text-xs text-muted-foreground w-5 shrink-0 tabular-nums">
+                    #{rank}
+                  </span>
                 )}
                 <div className="min-w-0">
                   <div className="text-sm text-foreground font-medium truncate">
                     {u.displayName || u.email}
                   </div>
                   <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                    <span className="truncate">{u.displayName ? u.email : ""}</span>
+                    <span className="truncate">
+                      {u.displayName ? u.email : ""}
+                    </span>
                     <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground truncate max-w-[120px]">
                       {u.workspaceName}
                     </span>
@@ -304,9 +391,15 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
                 </div>
               </div>
               <div className="flex items-center gap-4 shrink-0">
-                <span className="text-xs text-muted-foreground tabular-nums">{u.requestCount} {ui("reqs")}</span>
-                <span className="text-xs text-blue-400 font-medium tabular-nums">{formatTokenCount(u.totalTokens)}</span>
-                <span className="text-xs text-foreground font-medium tabular-nums">{formatCost(u.totalCostUsd)}</span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {u.requestCount} {ui("reqs")}
+                </span>
+                <span className="text-xs text-blue-400 font-medium tabular-nums">
+                  {formatTokenCount(u.totalTokens)}
+                </span>
+                <span className="text-xs text-foreground font-medium tabular-nums">
+                  {formatCost(u.totalCostUsd)}
+                </span>
               </div>
             </div>
             <div className="h-1.5 rounded-full bg-muted overflow-hidden">
@@ -320,11 +413,16 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
             {u.sources && u.sources.length > 0 && (
               <div className="pointer-events-none absolute left-1/2 top-full z-50 mt-2 hidden w-[420px] max-w-[90vw] -translate-x-1/2 group-hover:block">
                 <div className="rounded-xl border border-border bg-popover shadow-2xl p-3 max-h-[400px] overflow-y-auto pointer-events-auto">
-                  <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider"> {ui("Usage breakdown —")} {u.displayName || u.email}
+                  <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider">
+                    {" "}
+                    {ui("Usage breakdown —")} {u.displayName || u.email}
                   </div>
                   <div className="space-y-2">
                     {u.sources.map((s, idx) => (
-                      <div key={`${s.kind}-${s.label}-${idx}`} className="rounded-lg bg-muted p-2">
+                      <div
+                        key={`${s.kind}-${s.label}-${idx}`}
+                        className="rounded-lg bg-muted p-2"
+                      >
                         <div className="flex items-center justify-between gap-2 mb-1.5">
                           <div className="flex items-center gap-1.5 min-w-0">
                             {s.kind === "copilot" ? (
@@ -334,12 +432,18 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
                             ) : (
                               <Cpu className="h-3 w-3 text-muted-foreground shrink-0" />
                             )}
-                            <span className="text-xs text-foreground font-medium truncate">{s.label}</span>
+                            <span className="text-xs text-foreground font-medium truncate">
+                              {s.label}
+                            </span>
                             {s.githubLogin && (
-                              <span className="text-[10px] text-muted-foreground truncate">@{s.githubLogin}</span>
+                              <span className="text-[10px] text-muted-foreground truncate">
+                                @{s.githubLogin}
+                              </span>
                             )}
                             {s.providerType && (
-                              <span className="text-[10px] text-muted-foreground uppercase">{s.providerType}</span>
+                              <span className="text-[10px] text-muted-foreground uppercase">
+                                {s.providerType}
+                              </span>
                             )}
                           </div>
                           <span className="text-[10px] text-blue-400 tabular-nums shrink-0">
@@ -348,11 +452,23 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
                         </div>
                         <div className="text-[10px] text-muted-foreground mb-1.5">
                           {s.ownerEmail ? (
-                            <> {ui("Owned by")} <span className="text-muted-foreground">{s.ownerDisplayName || s.ownerEmail}</span>
-                              {s.ownerDisplayName && <span className="text-muted-foreground"> ({s.ownerEmail})</span>}
+                            <>
+                              {" "}
+                              {ui("Owned by")}{" "}
+                              <span className="text-muted-foreground">
+                                {s.ownerDisplayName || s.ownerEmail}
+                              </span>
+                              {s.ownerDisplayName && (
+                                <span className="text-muted-foreground">
+                                  {" "}
+                                  ({s.ownerEmail})
+                                </span>
+                              )}
                             </>
                           ) : (
-                            <span className="text-muted-foreground">{ui("No owner record")}</span>
+                            <span className="text-muted-foreground">
+                              {ui("No owner record")}
+                            </span>
                           )}
                         </div>
                         <div className="space-y-0.5">
@@ -361,10 +477,16 @@ function PlatformUsersList({ users }: { users: PlatformUser[] }) {
                               key={`${s.label}-${m.model}`}
                               className="flex items-center justify-between text-[11px] py-0.5"
                             >
-                              <span className="text-foreground truncate">{m.model}</span>
+                              <span className="text-foreground truncate">
+                                {m.model}
+                              </span>
                               <div className="flex items-center gap-2 shrink-0">
-                                <span className="text-[10px] text-muted-foreground tabular-nums">{m.requestCount} {ui("reqs")}</span>
-                                <span className="text-violet-400 tabular-nums">{formatTokenCount(m.totalTokens)}</span>
+                                <span className="text-[10px] text-muted-foreground tabular-nums">
+                                  {m.requestCount} {ui("reqs")}
+                                </span>
+                                <span className="text-violet-400 tabular-nums">
+                                  {formatTokenCount(m.totalTokens)}
+                                </span>
                               </div>
                             </div>
                           ))}
@@ -462,39 +584,66 @@ function SubscriptionsList({ items }: { items: SubscriptionRow[] }) {
               <div className="flex items-center gap-3 min-w-0">
                 {hasUsers && (
                   <span className="text-muted-foreground">
-                    {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                    {isExpanded ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
                   </span>
                 )}
                 <div className="min-w-0">
                   <div className="text-sm text-foreground font-medium truncate flex items-center gap-2">
                     {row.icon}
                     {row.title}
-                    <span className="text-[10px] text-muted-foreground">{row.subtitle}</span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {row.subtitle}
+                    </span>
                   </div>
                   <div className="text-[10px] text-muted-foreground flex flex-wrap items-center gap-x-3 gap-y-0.5 mt-0.5">
                     <span className="flex items-center gap-1">
                       <Building2 className="h-3 w-3" />
-                      <span className="truncate max-w-[260px]" title={row.workspaceNames.join(", ")}>
+                      <span
+                        className="truncate max-w-[260px]"
+                        title={row.workspaceNames.join(", ")}
+                      >
                         {row.workspaceCount === 0
                           ? ui("no workspaces")
                           : row.workspaceCount === 1
                             ? row.workspaceNames[0]
-                            : ui("{v0} workspaces: {v1}{v2}", {v0: (row.workspaceCount), v1: (row.workspaceNames.slice(0, 3).join(", ")), v2: (row.workspaceCount > 3 ? ", …" : "")})}
+                            : ui("{v0} workspaces: {v1}{v2}", {
+                                v0: row.workspaceCount,
+                                v1: row.workspaceNames.slice(0, 3).join(", "),
+                                v2: row.workspaceCount > 3 ? ", …" : "",
+                              })}
                       </span>
                     </span>
                     <span>
-                      {row.userCount} {ui("user")}{row.userCount !== 1 ? ui("s") : ""}
+                      {row.userCount} {ui("user")}
+                      {row.userCount !== 1 ? ui("s") : ""}
                     </span>
-                    <span title={row.owners.map((o) => o.email).join(", ")}> {ui("added by")} <span className="text-muted-foreground">{formatOwners(row.owners)}</span>
+                    <span title={row.owners.map((o) => o.email).join(", ")}>
+                      {" "}
+                      {ui("added by")}{" "}
+                      <span className="text-muted-foreground">
+                        {formatOwners(row.owners)}
+                      </span>
                     </span>
-                    <span>{ui("on")} {formatAddedAt(row.addedAt)}</span>
+                    <span>
+                      {ui("on")} {formatAddedAt(row.addedAt)}
+                    </span>
                   </div>
                 </div>
               </div>
               <div className="flex items-center gap-4 shrink-0">
-                <span className="text-xs text-muted-foreground tabular-nums">{row.requestCount} {ui("reqs")}</span>
-                <span className="text-xs text-blue-400 font-medium tabular-nums">{formatTokenCount(row.totalTokens)}</span>
-                <span className="text-xs text-foreground font-medium tabular-nums">{formatCost(row.totalCostUsd)}</span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {row.requestCount} {ui("reqs")}
+                </span>
+                <span className="text-xs text-blue-400 font-medium tabular-nums">
+                  {formatTokenCount(row.totalTokens)}
+                </span>
+                <span className="text-xs text-foreground font-medium tabular-nums">
+                  {formatCost(row.totalCostUsd)}
+                </span>
               </div>
             </button>
 
@@ -505,12 +654,33 @@ function SubscriptionsList({ items }: { items: SubscriptionRow[] }) {
                   <div className="text-[11px] text-amber-100/90 leading-relaxed space-y-1">
                     <div className="font-medium text-amber-200">
                       {sharedActiveUsers
-                        ? ui("This Copilot subscription is being used by {v0} different users.", {v0: (row.userCount)})
-                        : ui("This GitHub account (@{v0}) was added by {v1} different people.", {v0: (row.title.replace(/'s GitHub$/, "")), v1: (row.owners.length)})}
-                      {" "}{ui("Risk: rate-limiting, abuse-detection flags, or subscription suspension.")} </div>
-                    <div className="text-amber-100/80"> {ui("GitHub's terms restrict Copilot Individual licenses to a single person — licenses are tied to one GitHub account and are not shareable. Sharing can cause GitHub to throttle or revoke Copilot access for that account.")} </div>
+                        ? ui(
+                            "This Copilot subscription is being used by {v0} different users.",
+                            { v0: row.userCount },
+                          )
+                        : ui(
+                            "This GitHub account (@{v0}) was added by {v1} different people.",
+                            {
+                              v0: row.title.replace(/'s GitHub$/, ""),
+                              v1: row.owners.length,
+                            },
+                          )}{" "}
+                      {ui(
+                        "Risk: rate-limiting, abuse-detection flags, or subscription suspension.",
+                      )}{" "}
+                    </div>
+                    <div className="text-amber-100/80">
+                      {" "}
+                      {ui(
+                        "GitHub's terms restrict Copilot Individual licenses to a single person — licenses are tied to one GitHub account and are not shareable. Sharing can cause GitHub to throttle or revoke Copilot access for that account.",
+                      )}{" "}
+                    </div>
                     <div className="text-amber-100/70">
-                      <span className="font-medium">{ui("What to do:")}</span> {ui("use one Copilot subscription per user, or move everyone to a Copilot Business / Enterprise plan with per-seat assignments. Consider adding each user's own GitHub Copilot account to Doable instead of reusing one.")} </div>
+                      <span className="font-medium">{ui("What to do:")}</span>{" "}
+                      {ui(
+                        "use one Copilot subscription per user, or move everyone to a Copilot Business / Enterprise plan with per-seat assignments. Consider adding each user's own GitHub Copilot account to Doable instead of reusing one.",
+                      )}{" "}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -518,7 +688,12 @@ function SubscriptionsList({ items }: { items: SubscriptionRow[] }) {
 
             {isExpanded && hasUsers && (
               <div className="px-4 pb-3 pt-1 border-t border-border/50">
-                <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider"> {ui("Users on this")} {row.id.startsWith("copilot:") ? ui("subscription") : ui("provider")}
+                <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider">
+                  {" "}
+                  {ui("Users on this")}{" "}
+                  {row.id.startsWith("copilot:")
+                    ? ui("subscription")
+                    : ui("provider")}
                 </div>
                 <div className="space-y-2">
                   {row.users.map((u) => (
@@ -534,7 +709,13 @@ function SubscriptionsList({ items }: { items: SubscriptionRow[] }) {
   );
 }
 
-function UserModelRow({ user, parentId }: { user: PlatformSubscriptionUser; parentId: string }) {
+function UserModelRow({
+  user,
+  parentId,
+}: {
+  user: PlatformSubscriptionUser;
+  parentId: string;
+}) {
   const ui = useUiText();
 
   const [open, setOpen] = useState(false);
@@ -552,20 +733,35 @@ function UserModelRow({ user, parentId }: { user: PlatformSubscriptionUser; pare
         <div className="flex items-center gap-2 min-w-0">
           {hasModels && (
             <span className="text-muted-foreground">
-              {open ? <ChevronDown className="h-3 w-3" /> : <ChevronRight className="h-3 w-3" />}
+              {open ? (
+                <ChevronDown className="h-3 w-3" />
+              ) : (
+                <ChevronRight className="h-3 w-3" />
+              )}
             </span>
           )}
           <div className="min-w-0">
-            <div className="text-xs text-foreground truncate">{user.displayName || user.email}</div>
-            {user.displayName && <div className="text-[10px] text-muted-foreground truncate">{user.email}</div>}
+            <div className="text-xs text-foreground truncate">
+              {user.displayName || user.email}
+            </div>
+            {user.displayName && (
+              <div className="text-[10px] text-muted-foreground truncate">
+                {user.email}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <span className="text-[10px] text-muted-foreground tabular-nums">
-            {user.models.length} {ui("model")}{user.models.length !== 1 ? ui("s") : ""}
+            {user.models.length} {ui("model")}
+            {user.models.length !== 1 ? ui("s") : ""}
           </span>
-          <span className="text-[10px] text-muted-foreground tabular-nums">{user.requestCount} {ui("reqs")}</span>
-          <span className="text-xs text-blue-400 tabular-nums">{formatTokenCount(user.totalTokens)}</span>
+          <span className="text-[10px] text-muted-foreground tabular-nums">
+            {user.requestCount} {ui("reqs")}
+          </span>
+          <span className="text-xs text-blue-400 tabular-nums">
+            {formatTokenCount(user.totalTokens)}
+          </span>
         </div>
       </button>
 
@@ -581,8 +777,12 @@ function UserModelRow({ user, parentId }: { user: PlatformSubscriptionUser; pare
                 <span className="text-foreground truncate">{m.model}</span>
               </div>
               <div className="flex items-center gap-3 shrink-0">
-                <span className="text-[10px] text-muted-foreground tabular-nums">{m.requestCount} {ui("reqs")}</span>
-                <span className="text-violet-400 tabular-nums">{formatTokenCount(m.totalTokens)}</span>
+                <span className="text-[10px] text-muted-foreground tabular-nums">
+                  {m.requestCount} {ui("reqs")}
+                </span>
+                <span className="text-violet-400 tabular-nums">
+                  {formatTokenCount(m.totalTokens)}
+                </span>
               </div>
             </div>
           ))}
@@ -626,24 +826,41 @@ function PlatformModelsList({ models }: { models: PlatformModelUsage[] }) {
                 <div className="flex items-center gap-2 min-w-0">
                   {hasUsers && (
                     <span className="text-muted-foreground">
-                      {isExpanded ? <ChevronDown className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+                      {isExpanded ? (
+                        <ChevronDown className="h-4 w-4" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4" />
+                      )}
                     </span>
                   )}
                   <Cpu className="h-3.5 w-3.5 text-violet-400 shrink-0" />
                   <div className="min-w-0">
-                    <div className="text-sm text-foreground font-medium truncate">{m.model}</div>
+                    <div className="text-sm text-foreground font-medium truncate">
+                      {m.model}
+                    </div>
                     <div className="text-[10px] text-muted-foreground flex items-center gap-2">
                       {m.provider && (
-                        <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground">{m.provider}</span>
+                        <span className="px-1.5 py-0.5 rounded bg-muted text-muted-foreground">
+                          {m.provider}
+                        </span>
                       )}
-                      <span>{m.userCount} {ui("user")}{m.userCount !== 1 ? ui("s") : ""}</span>
+                      <span>
+                        {m.userCount} {ui("user")}
+                        {m.userCount !== 1 ? ui("s") : ""}
+                      </span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-4 shrink-0">
-                  <span className="text-xs text-muted-foreground tabular-nums">{m.requestCount} {ui("reqs")}</span>
-                  <span className="text-xs text-blue-400 font-medium tabular-nums">{formatTokenCount(m.totalTokens)}</span>
-                  <span className="text-xs text-foreground font-medium tabular-nums">{formatCost(m.totalCostUsd)}</span>
+                  <span className="text-xs text-muted-foreground tabular-nums">
+                    {m.requestCount} {ui("reqs")}
+                  </span>
+                  <span className="text-xs text-blue-400 font-medium tabular-nums">
+                    {formatTokenCount(m.totalTokens)}
+                  </span>
+                  <span className="text-xs text-foreground font-medium tabular-nums">
+                    {formatCost(m.totalCostUsd)}
+                  </span>
                 </div>
               </div>
               <div className="h-1.5 rounded-full bg-muted overflow-hidden">
@@ -656,7 +873,9 @@ function PlatformModelsList({ models }: { models: PlatformModelUsage[] }) {
 
             {isExpanded && hasUsers && (
               <div className="px-4 pb-3 pt-1 border-t border-border/50">
-                <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider">{ui("Used by")}</div>
+                <div className="text-[10px] uppercase text-muted-foreground mb-2 tracking-wider">
+                  {ui("Used by")}
+                </div>
                 <div className="space-y-1.5">
                   {m.users.map((u) => (
                     <div
@@ -664,15 +883,23 @@ function PlatformModelsList({ models }: { models: PlatformModelUsage[] }) {
                       className="flex items-center justify-between py-1.5 px-2 rounded-lg bg-muted/40"
                     >
                       <div className="min-w-0">
-                        <div className="text-xs text-foreground truncate">{u.displayName || u.email}</div>
+                        <div className="text-xs text-foreground truncate">
+                          {u.displayName || u.email}
+                        </div>
                         <div className="text-[10px] text-muted-foreground truncate flex items-center gap-1.5">
                           {u.displayName && <span>{u.email}</span>}
-                          <span className="px-1.5 py-0.5 rounded bg-muted/60">{u.workspaceName}</span>
+                          <span className="px-1.5 py-0.5 rounded bg-muted/60">
+                            {u.workspaceName}
+                          </span>
                         </div>
                       </div>
                       <div className="flex items-center gap-3 shrink-0">
-                        <span className="text-[10px] text-muted-foreground tabular-nums">{u.requestCount} {ui("reqs")}</span>
-                        <span className="text-xs text-violet-400 tabular-nums">{formatTokenCount(u.totalTokens)}</span>
+                        <span className="text-[10px] text-muted-foreground tabular-nums">
+                          {u.requestCount} {ui("reqs")}
+                        </span>
+                        <span className="text-xs text-violet-400 tabular-nums">
+                          {formatTokenCount(u.totalTokens)}
+                        </span>
                       </div>
                     </div>
                   ))}

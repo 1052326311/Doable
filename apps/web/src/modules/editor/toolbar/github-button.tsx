@@ -1,8 +1,7 @@
 "use client";
-import {translateUiData} from "@/i18n/text";
+import { translateUiData } from "@/i18n/text";
 
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback } from "react";
 
@@ -10,7 +9,13 @@ import { useState, useCallback } from "react";
 
 interface SyncStatus {
   connected: boolean;
-  status: "synced" | "ahead" | "behind" | "diverged" | "conflict" | "disconnected";
+  status:
+    | "synced"
+    | "ahead"
+    | "behind"
+    | "diverged"
+    | "conflict"
+    | "disconnected";
   lastSyncedAt: string | null;
   repoUrl: string | null;
   branch: string;
@@ -101,16 +106,20 @@ export function GitHubButton({
   const indicator = translateUiData(getStatusIndicator(status), ui);
   const isConnected = status?.connected ?? false;
   const isBusy = pushing || pulling;
-  const isDiverged = status?.status === "diverged" || status?.status === "conflict";
+  const isDiverged =
+    status?.status === "diverged" || status?.status === "conflict";
 
-  const handlePush = useCallback(async (force = false) => {
-    if (!commitMessage.trim()) return;
-    await onPush(commitMessage, force);
-    setCommitMessage("");
-    setShowCommitInput(false);
-    setShowForceOption(false);
-    setMenuOpen(false);
-  }, [commitMessage, onPush]);
+  const handlePush = useCallback(
+    async (force = false) => {
+      if (!commitMessage.trim()) return;
+      await onPush(commitMessage, force);
+      setCommitMessage("");
+      setShowCommitInput(false);
+      setShowForceOption(false);
+      setMenuOpen(false);
+    },
+    [commitMessage, onPush],
+  );
 
   const handlePull = useCallback(async () => {
     await onPull();
@@ -182,11 +191,13 @@ export function GitHubButton({
               <div className="mt-1.5 flex items-center gap-2 text-xs">
                 {(status?.aheadCount ?? 0) > 0 && (
                   <span className="text-blue-600">
-                    {status?.aheadCount} {ui("ahead")} </span>
+                    {status?.aheadCount} {ui("ahead")}{" "}
+                  </span>
                 )}
                 {(status?.behindCount ?? 0) > 0 && (
                   <span className="text-amber-600">
-                    {status?.behindCount} {ui("behind")} </span>
+                    {status?.behindCount} {ui("behind")}{" "}
+                  </span>
                 )}
               </div>
             )}
@@ -202,7 +213,12 @@ export function GitHubButton({
           {/* Diverged warning */}
           {isDiverged && (
             <div className="mb-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2">
-              <p className="text-xs text-amber-800"> {ui("Remote has changes not in your local project. Pull first, or force push to overwrite.")} </p>
+              <p className="text-xs text-amber-800">
+                {" "}
+                {ui(
+                  "Remote has changes not in your local project. Pull first, or force push to overwrite.",
+                )}{" "}
+              </p>
             </div>
           )}
 
@@ -235,12 +251,18 @@ export function GitHubButton({
                     onClick={() => void handlePush(true)}
                     disabled={!commitMessage.trim() || pushing}
                     title={ui("Force push (overwrites remote)")}
-                  > {ui("Force")} </button>
+                  >
+                    {" "}
+                    {ui("Force")}{" "}
+                  </button>
                 )}
                 <button
                   className="rounded-md border px-3 py-1.5 text-xs font-medium hover:bg-accent"
                   onClick={() => setShowCommitInput(false)}
-                > {ui("Cancel")} </button>
+                >
+                  {" "}
+                  {ui("Cancel")}{" "}
+                </button>
               </div>
             </div>
           ) : (
@@ -249,7 +271,10 @@ export function GitHubButton({
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent"
                 onClick={() => setShowCommitInput(true)}
                 disabled={isBusy}
-              > {ui("Push to GitHub")} </button>
+              >
+                {" "}
+                {ui("Push to GitHub")}{" "}
+              </button>
               <button
                 className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-sm hover:bg-accent"
                 onClick={() => void handlePull()}
@@ -268,7 +293,10 @@ export function GitHubButton({
               onDisconnect();
               setMenuOpen(false);
             }}
-          > {ui("Disconnect")} </button>
+          >
+            {" "}
+            {ui("Disconnect")}{" "}
+          </button>
         </div>
       )}
 

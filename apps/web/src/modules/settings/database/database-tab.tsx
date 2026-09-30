@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -13,7 +12,13 @@ import { QueriesPane } from "./panes/queries-pane";
 import { MigrationsPane } from "./panes/migrations-pane";
 import { DangerPane } from "./panes/danger-pane";
 
-type Pane = "overview" | "schema" | "rows" | "queries" | "migrations" | "danger";
+type Pane =
+  | "overview"
+  | "schema"
+  | "rows"
+  | "queries"
+  | "migrations"
+  | "danger";
 
 const PANES: { id: Pane; label: string }[] = [
   { id: "overview", label: "Overview" },
@@ -34,7 +39,9 @@ export function DatabaseTab({ projectId }: DatabaseTabProps) {
 
   const [activePane, setActivePane] = useState<Pane>(() => {
     if (typeof window === "undefined") return "overview";
-    const p = new URLSearchParams(window.location.search).get("pane") as Pane | null;
+    const p = new URLSearchParams(window.location.search).get(
+      "pane",
+    ) as Pane | null;
     return i18n_PANES.some((x) => x.id === p) ? (p as Pane) : "overview";
   });
 
@@ -79,13 +86,23 @@ export function DatabaseTab({ projectId }: DatabaseTabProps) {
       {/* Pane content */}
       <div role="tabpanel">
         {activePane === "overview" && (
-          <OverviewPane projectId={projectId} tokenState={tokenState} onNavigate={navigate} />
+          <OverviewPane
+            projectId={projectId}
+            tokenState={tokenState}
+            onNavigate={navigate}
+          />
         )}
-        {activePane === "schema" && <SchemaPane projectId={projectId} tokenState={tokenState} />}
+        {activePane === "schema" && (
+          <SchemaPane projectId={projectId} tokenState={tokenState} />
+        )}
         {activePane === "rows" && <RowsPane tokenState={tokenState} />}
         {activePane === "queries" && <QueriesPane tokenState={tokenState} />}
-        {activePane === "migrations" && <MigrationsPane projectId={projectId} />}
-        {activePane === "danger" && <DangerPane projectId={projectId} tokenState={tokenState} />}
+        {activePane === "migrations" && (
+          <MigrationsPane projectId={projectId} />
+        )}
+        {activePane === "danger" && (
+          <DangerPane projectId={projectId} tokenState={tokenState} />
+        )}
       </div>
     </div>
   );

@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect } from "react";
 import type {
@@ -12,9 +11,22 @@ import type {
 } from "@/lib/api";
 import { Bot, Sparkles, Loader2, Check, Lock, User, Info } from "lucide-react";
 import { ProviderWizard } from "./provider-wizard";
-import { useCopilotModels, useProviderModels, deriveSource, EMPTY_MODEL_STATE } from "./model-config-hooks";
-import type { ModelSectionState, WorkspaceDefaultsUpdateData, UserPreferencesUpdateData } from "./model-config-hooks";
-import { HelpTooltip, InlineConfigFields, ModelSection } from "./model-config-fields";
+import {
+  useCopilotModels,
+  useProviderModels,
+  deriveSource,
+  EMPTY_MODEL_STATE,
+} from "./model-config-hooks";
+import type {
+  ModelSectionState,
+  WorkspaceDefaultsUpdateData,
+  UserPreferencesUpdateData,
+} from "./model-config-hooks";
+import {
+  HelpTooltip,
+  InlineConfigFields,
+  ModelSection,
+} from "./model-config-fields";
 
 interface Props {
   workspaceId: string | null;
@@ -25,7 +37,9 @@ interface Props {
   onUpdate: (data: WorkspaceDefaultsUpdateData) => Promise<void> | void;
   userPreferences: ApiUserAiPreferences | null;
   enforcement: ApiEnforcementStatus | null;
-  onUserPreferenceUpdate?: (data: UserPreferencesUpdateData) => Promise<void> | void;
+  onUserPreferenceUpdate?: (
+    data: UserPreferencesUpdateData,
+  ) => Promise<void> | void;
   onRefreshProviders: () => void;
   isPlatformAdmin: boolean;
 }
@@ -47,47 +61,105 @@ export function ModelConfigTab({
   const ui = useUiText();
 
   // ── Workspace default state ──
-  const [primary, setPrimary] = useState<ModelSectionState>(() => deriveSource(defaults, "default"));
-  const [suggestions, setSuggestions] = useState<ModelSectionState>(() => deriveSource(defaults, "suggestion"));
+  const [primary, setPrimary] = useState<ModelSectionState>(() =>
+    deriveSource(defaults, "default"),
+  );
+  const [suggestions, setSuggestions] = useState<ModelSectionState>(() =>
+    deriveSource(defaults, "suggestion"),
+  );
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
   // ── Copilot models per section ──
-  const activePrimaryCopilotId = primary.source === "copilot" ? primary.copilotAccountId : "";
-  const activeSuggestionCopilotId = suggestions.source === "copilot" ? suggestions.copilotAccountId : "";
-  const { models: primaryCopilotModels } = useCopilotModels(activePrimaryCopilotId || undefined);
-  const { models: suggestionCopilotModels } = useCopilotModels(activeSuggestionCopilotId || undefined);
+  const activePrimaryCopilotId =
+    primary.source === "copilot" ? primary.copilotAccountId : "";
+  const activeSuggestionCopilotId =
+    suggestions.source === "copilot" ? suggestions.copilotAccountId : "";
+  const { models: primaryCopilotModels } = useCopilotModels(
+    activePrimaryCopilotId || undefined,
+  );
+  const { models: suggestionCopilotModels } = useCopilotModels(
+    activeSuggestionCopilotId || undefined,
+  );
 
   // Resolve a provider's catalog preset id so useProviderModels can fall back
   // to catalog defaultModels when no models are cached/discovered.
   const presetIdFor = (providerId: string): string | null =>
-    providerId ? (providers.find((p) => p.id === providerId)?.preset_id ?? null) : null;
+    providerId
+      ? (providers.find((p) => p.id === providerId)?.preset_id ?? null)
+      : null;
 
   // ── Provider models per workspace section ──
-  const primaryCustomProviderId = primary.source === "custom" ? primary.providerId : "";
-  const suggestionCustomProviderId = suggestions.source === "custom" ? suggestions.providerId : "";
-  const { models: primaryProviderModels, loading: primaryProviderModelsLoading, refresh: refreshPrimaryModels } = useProviderModels(workspaceId, primaryCustomProviderId, presetIdFor(primaryCustomProviderId));
-  const { models: suggestionProviderModels, loading: suggestionProviderModelsLoading, refresh: refreshSuggestionModels } = useProviderModels(workspaceId, suggestionCustomProviderId, presetIdFor(suggestionCustomProviderId));
+  const primaryCustomProviderId =
+    primary.source === "custom" ? primary.providerId : "";
+  const suggestionCustomProviderId =
+    suggestions.source === "custom" ? suggestions.providerId : "";
+  const {
+    models: primaryProviderModels,
+    loading: primaryProviderModelsLoading,
+    refresh: refreshPrimaryModels,
+  } = useProviderModels(
+    workspaceId,
+    primaryCustomProviderId,
+    presetIdFor(primaryCustomProviderId),
+  );
+  const {
+    models: suggestionProviderModels,
+    loading: suggestionProviderModelsLoading,
+    refresh: refreshSuggestionModels,
+  } = useProviderModels(
+    workspaceId,
+    suggestionCustomProviderId,
+    presetIdFor(suggestionCustomProviderId),
+  );
 
   // ── User preferences (primary override) ──
-  const [userPrimary, setUserPrimary] = useState<ModelSectionState>(EMPTY_MODEL_STATE);
-  const activeUserCopilotId = userPrimary.source === "copilot" ? userPrimary.copilotAccountId : "";
-  const { models: userCopilotModels } = useCopilotModels(activeUserCopilotId || undefined);
-  const userCustomProviderId = userPrimary.source === "custom" ? userPrimary.providerId : "";
-  const { models: userProviderModels, loading: userProviderModelsLoading, refresh: refreshUserModels } = useProviderModels(workspaceId, userCustomProviderId, presetIdFor(userCustomProviderId));
+  const [userPrimary, setUserPrimary] =
+    useState<ModelSectionState>(EMPTY_MODEL_STATE);
+  const activeUserCopilotId =
+    userPrimary.source === "copilot" ? userPrimary.copilotAccountId : "";
+  const { models: userCopilotModels } = useCopilotModels(
+    activeUserCopilotId || undefined,
+  );
+  const userCustomProviderId =
+    userPrimary.source === "custom" ? userPrimary.providerId : "";
+  const {
+    models: userProviderModels,
+    loading: userProviderModelsLoading,
+    refresh: refreshUserModels,
+  } = useProviderModels(
+    workspaceId,
+    userCustomProviderId,
+    presetIdFor(userCustomProviderId),
+  );
 
   // ── User preferences (suggestion override) ──
-  const [userSuggestion, setUserSuggestion] = useState<ModelSectionState>(EMPTY_MODEL_STATE);
-  const activeUserSugCopilotId = userSuggestion.source === "copilot" ? userSuggestion.copilotAccountId : "";
-  const { models: userSugCopilotModels } = useCopilotModels(activeUserSugCopilotId || undefined);
-  const userSugCustomProviderId = userSuggestion.source === "custom" ? userSuggestion.providerId : "";
-  const { models: userSugProviderModels, loading: userSugProviderModelsLoading, refresh: refreshUserSugModels } = useProviderModels(workspaceId, userSugCustomProviderId, presetIdFor(userSugCustomProviderId));
+  const [userSuggestion, setUserSuggestion] =
+    useState<ModelSectionState>(EMPTY_MODEL_STATE);
+  const activeUserSugCopilotId =
+    userSuggestion.source === "copilot" ? userSuggestion.copilotAccountId : "";
+  const { models: userSugCopilotModels } = useCopilotModels(
+    activeUserSugCopilotId || undefined,
+  );
+  const userSugCustomProviderId =
+    userSuggestion.source === "custom" ? userSuggestion.providerId : "";
+  const {
+    models: userSugProviderModels,
+    loading: userSugProviderModelsLoading,
+    refresh: refreshUserSugModels,
+  } = useProviderModels(
+    workspaceId,
+    userSugCustomProviderId,
+    presetIdFor(userSugCustomProviderId),
+  );
 
   const [userSaving, setUserSaving] = useState(false);
   const [userSaved, setUserSaved] = useState(false);
 
   // ── Which user override sub-tab is active ──
-  const [userOverrideTab, setUserOverrideTab] = useState<"primary" | "suggestion">("primary");
+  const [userOverrideTab, setUserOverrideTab] = useState<
+    "primary" | "suggestion"
+  >("primary");
 
   // ── Provider wizard state ──
   const [wizardOpen, setWizardOpen] = useState(false);
@@ -198,13 +270,38 @@ export function ModelConfigTab({
           <div className="flex items-start gap-2.5">
             <Info className="h-4 w-4 text-blue-400 mt-0.5 shrink-0" />
             <div>
-              <p className="text-xs font-medium text-blue-300 mb-1">{ui("How model selection works")}</p>
+              <p className="text-xs font-medium text-blue-300 mb-1">
+                {ui("How model selection works")}
+              </p>
               <ol className="text-[11px] text-blue-300/80 space-y-0.5 list-decimal list-inside">
-                <li><strong className="text-blue-200">{ui("Enforcement")}</strong> {ui("(Access Control tab) — if active, everyone uses the enforced model. No exceptions.")}</li>
-                <li><strong className="text-blue-200">{ui("Personal Override")}</strong> {ui("— each member can pick their own model. Overrides workspace defaults for that member only.")}</li>
-                <li><strong className="text-blue-200">{ui("Workspace Defaults")}</strong> {ui("— the fallback for anyone who hasn't set a personal override.")}</li>
+                <li>
+                  <strong className="text-blue-200">{ui("Enforcement")}</strong>{" "}
+                  {ui(
+                    "(Access Control tab) — if active, everyone uses the enforced model. No exceptions.",
+                  )}
+                </li>
+                <li>
+                  <strong className="text-blue-200">
+                    {ui("Personal Override")}
+                  </strong>{" "}
+                  {ui(
+                    "— each member can pick their own model. Overrides workspace defaults for that member only.",
+                  )}
+                </li>
+                <li>
+                  <strong className="text-blue-200">
+                    {ui("Workspace Defaults")}
+                  </strong>{" "}
+                  {ui(
+                    "— the fallback for anyone who hasn't set a personal override.",
+                  )}
+                </li>
               </ol>
-              <p className="text-[11px] text-blue-300/60 mt-1.5">{ui("Higher-numbered rules are only used when the one above isn't set.")}</p>
+              <p className="text-[11px] text-blue-300/60 mt-1.5">
+                {ui(
+                  "Higher-numbered rules are only used when the one above isn't set.",
+                )}
+              </p>
             </div>
           </div>
         </div>
@@ -221,17 +318,33 @@ export function ModelConfigTab({
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-1.5">
-                <h3 className="text-sm font-semibold text-foreground">{ui("My Personal Override")}</h3>
-                <HelpTooltip text={ui("This only changes the AI model for you. It overrides the workspace defaults below. Other workspace members will still use the workspace defaults unless they set their own override. If you don't set anything here, you'll also use the workspace defaults.")} />
+                <h3 className="text-sm font-semibold text-foreground">
+                  {ui("My Personal Override")}
+                </h3>
+                <HelpTooltip
+                  text={ui(
+                    "This only changes the AI model for you. It overrides the workspace defaults below. Other workspace members will still use the workspace defaults unless they set their own override. If you don't set anything here, you'll also use the workspace defaults.",
+                  )}
+                />
               </div>
-              <p className="text-xs text-muted-foreground"> {ui("Override the workspace defaults below for yourself only — other members are not affected")} </p>
+              <p className="text-xs text-muted-foreground">
+                {" "}
+                {ui(
+                  "Override the workspace defaults below for yourself only — other members are not affected",
+                )}{" "}
+              </p>
             </div>
           </div>
 
           {isEnforced ? (
             <div className="flex items-center gap-2.5 rounded-lg border border-amber-600/30 bg-amber-600/5 px-4 py-3">
               <Lock className="h-4 w-4 text-amber-400 shrink-0" />
-              <p className="text-sm text-amber-300"> {ui("An enforcement policy is active (see Access Control tab). Personal overrides are locked for all members.")} </p>
+              <p className="text-sm text-amber-300">
+                {" "}
+                {ui(
+                  "An enforcement policy is active (see Access Control tab). Personal overrides are locked for all members.",
+                )}{" "}
+              </p>
             </div>
           ) : (
             <>
@@ -245,7 +358,8 @@ export function ModelConfigTab({
                       : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <Bot className="h-3.5 w-3.5" /> {ui("Primary Model")} </button>
+                  <Bot className="h-3.5 w-3.5" /> {ui("Primary Model")}{" "}
+                </button>
                 <button
                   onClick={() => setUserOverrideTab("suggestion")}
                   className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium transition-colors border-b-2 -mb-px ${
@@ -254,7 +368,9 @@ export function ModelConfigTab({
                       : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  <Sparkles className="h-3.5 w-3.5" /> {ui("Suggestion Model")} </button>
+                  <Sparkles className="h-3.5 w-3.5" />{" "}
+                  {ui("Suggestion Model")}{" "}
+                </button>
               </div>
 
               {/* Primary override fields */}
@@ -278,7 +394,12 @@ export function ModelConfigTab({
               {/* Suggestion override fields */}
               {userOverrideTab === "suggestion" && (
                 <div className="mb-4">
-                  <p className="text-[10px] text-muted-foreground mb-3"> {ui("Override which model generates quick-action suggestion chips after each AI response.")} </p>
+                  <p className="text-[10px] text-muted-foreground mb-3">
+                    {" "}
+                    {ui(
+                      "Override which model generates quick-action suggestion chips after each AI response.",
+                    )}{" "}
+                  </p>
                   <InlineConfigFields
                     state={userSuggestion}
                     onChange={setUserSuggestion}
@@ -319,7 +440,10 @@ export function ModelConfigTab({
       {isPlatformAdmin && onUserPreferenceUpdate && (
         <div className="flex items-center gap-3">
           <div className="h-px flex-1 bg-border" />
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider"> {ui("Workspace Defaults — applies to all members")} </span>
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+            {" "}
+            {ui("Workspace Defaults — applies to all members")}{" "}
+          </span>
           <div className="h-px flex-1 bg-border" />
         </div>
       )}
@@ -327,42 +451,54 @@ export function ModelConfigTab({
       {/* ════════════════════════════════════════════════════════
            Primary Model — Workspace Default
          ════════════════════════════════════════════════════════ */}
-      {isPlatformAdmin && <ModelSection
-        title={ui("Primary Model — All Workspace Members")}
-        description={ui("Default model for code generation, editing, and agent tasks for everyone you've invited to this workspace")}
-        icon={Bot}
-        state={primary}
-        onChange={setPrimary}
-        accounts={accounts}
-        providers={providers}
-        copilotModels={primaryCopilotModels}
-        helpText={ui("This is the main AI model used for chat, code generation, and editing. It applies to every member you've invited to this workspace — not all users on the platform. If a member has set a personal override (above), their override takes priority over this default.")}
-        workspaceId={workspaceId}
-        providerModels={primaryProviderModels}
-        providerModelsLoading={primaryProviderModelsLoading}
-        onRefreshModels={refreshPrimaryModels}
-        onAddProviderClick={() => setWizardOpen(true)}
-      />}
+      {isPlatformAdmin && (
+        <ModelSection
+          title={ui("Primary Model — All Workspace Members")}
+          description={ui(
+            "Default model for code generation, editing, and agent tasks for everyone you've invited to this workspace",
+          )}
+          icon={Bot}
+          state={primary}
+          onChange={setPrimary}
+          accounts={accounts}
+          providers={providers}
+          copilotModels={primaryCopilotModels}
+          helpText={ui(
+            "This is the main AI model used for chat, code generation, and editing. It applies to every member you've invited to this workspace — not all users on the platform. If a member has set a personal override (above), their override takes priority over this default.",
+          )}
+          workspaceId={workspaceId}
+          providerModels={primaryProviderModels}
+          providerModelsLoading={primaryProviderModelsLoading}
+          onRefreshModels={refreshPrimaryModels}
+          onAddProviderClick={() => setWizardOpen(true)}
+        />
+      )}
 
       {/* ════════════════════════════════════════════════════════
            Suggestions Model — Workspace Default
          ════════════════════════════════════════════════════════ */}
-      {isPlatformAdmin && <ModelSection
-        title={ui("Suggestions Model — All Workspace Members")}
-        description={ui("Lighter model for suggestion chips, used by everyone you've invited to this workspace (saves cost vs primary model)")}
-        icon={Sparkles}
-        state={suggestions}
-        onChange={setSuggestions}
-        accounts={accounts}
-        providers={providers}
-        copilotModels={suggestionCopilotModels}
-        helpText={ui("Suggestion chips are the quick-action buttons shown after each AI response. This model handles only those suggestions — a lighter, cheaper model works well here. Like the primary model, this applies to every member you've invited to this workspace, not all users on the platform.")}
-        workspaceId={workspaceId}
-        providerModels={suggestionProviderModels}
-        providerModelsLoading={suggestionProviderModelsLoading}
-        onRefreshModels={refreshSuggestionModels}
-        onAddProviderClick={() => setWizardOpen(true)}
-      />}
+      {isPlatformAdmin && (
+        <ModelSection
+          title={ui("Suggestions Model — All Workspace Members")}
+          description={ui(
+            "Lighter model for suggestion chips, used by everyone you've invited to this workspace (saves cost vs primary model)",
+          )}
+          icon={Sparkles}
+          state={suggestions}
+          onChange={setSuggestions}
+          accounts={accounts}
+          providers={providers}
+          copilotModels={suggestionCopilotModels}
+          helpText={ui(
+            "Suggestion chips are the quick-action buttons shown after each AI response. This model handles only those suggestions — a lighter, cheaper model works well here. Like the primary model, this applies to every member you've invited to this workspace, not all users on the platform.",
+          )}
+          workspaceId={workspaceId}
+          providerModels={suggestionProviderModels}
+          providerModelsLoading={suggestionProviderModelsLoading}
+          onRefreshModels={refreshSuggestionModels}
+          onAddProviderClick={() => setWizardOpen(true)}
+        />
+      )}
 
       {isPlatformAdmin && (
         <button

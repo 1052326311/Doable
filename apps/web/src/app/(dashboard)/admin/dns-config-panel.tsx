@@ -1,9 +1,18 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useEffect, useState } from "react";
-import { Globe, Loader2, CheckCircle2, AlertCircle, Sparkles, Trash2, KeyRound, ChevronDown, ChevronRight } from "lucide-react";
+import {
+  Globe,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Sparkles,
+  Trash2,
+  KeyRound,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
 interface CfTokenStatus {
@@ -66,11 +75,16 @@ interface AutoWildcardResponse {
 
 function planLabel(plan: string): string {
   switch (plan) {
-    case "free": return "Free";
-    case "pro": return "Pro";
-    case "business": return "Business";
-    case "enterprise": return "Enterprise";
-    default: return "Unknown";
+    case "free":
+      return "Free";
+    case "pro":
+      return "Pro";
+    case "business":
+      return "Business";
+    case "enterprise":
+      return "Enterprise";
+    default:
+      return "Unknown";
   }
 }
 
@@ -101,7 +115,8 @@ export function DnsConfigPanel() {
   const [diagnostics, setDiagnostics] = useState<DnsDiagnostics | null>(null);
   const [diagnosticsError, setDiagnosticsError] = useState<string | null>(null);
   const [autoSetupRunning, setAutoSetupRunning] = useState(false);
-  const [autoSetupResult, setAutoSetupResult] = useState<AutoWildcardResponse | null>(null);
+  const [autoSetupResult, setAutoSetupResult] =
+    useState<AutoWildcardResponse | null>(null);
 
   // Custom-wildcard inputs (US-002).
   const [wildcardHostname, setWildcardHostname] = useState<string>("");
@@ -112,7 +127,9 @@ export function DnsConfigPanel() {
   const [deleting, setDeleting] = useState<string | null>(null);
 
   // Optional CF token override (R5).
-  const [cfTokenStatus, setCfTokenStatus] = useState<CfTokenStatus | null>(null);
+  const [cfTokenStatus, setCfTokenStatus] = useState<CfTokenStatus | null>(
+    null,
+  );
   const [tokenSectionOpen, setTokenSectionOpen] = useState(false);
   const [pastedToken, setPastedToken] = useState("");
   const [tokenSaving, setTokenSaving] = useState(false);
@@ -132,7 +149,11 @@ export function DnsConfigPanel() {
           setMode(modeRes.value.mode);
           setDefaulted(modeRes.value.defaulted);
         } else {
-          setError(modeRes.reason instanceof Error ? modeRes.reason.message : ui("Failed to load DNS config"));
+          setError(
+            modeRes.reason instanceof Error
+              ? modeRes.reason.message
+              : ui("Failed to load DNS config"),
+          );
         }
         if (diagRes.status === "fulfilled") {
           setDiagnostics(diagRes.value);
@@ -141,10 +162,15 @@ export function DnsConfigPanel() {
           // otherwise fall back to the server-recommended *.${DOABLE_DOMAIN}
           // so first-time users on free + apex still get a one-click experience.
           setWildcardHostname(
-            diagRes.value.configuredWildcard ?? diagRes.value.recommendedWildcard,
+            diagRes.value.configuredWildcard ??
+              diagRes.value.recommendedWildcard,
           );
         } else {
-          setDiagnosticsError(diagRes.reason instanceof Error ? diagRes.reason.message : ui("Failed to load DNS diagnostics"));
+          setDiagnosticsError(
+            diagRes.reason instanceof Error
+              ? diagRes.reason.message
+              : ui("Failed to load DNS diagnostics"),
+          );
         }
         if (tokenRes.status === "fulfilled") {
           setCfTokenStatus(tokenRes.value);
@@ -156,7 +182,9 @@ export function DnsConfigPanel() {
         if (!cancelled) setLoading(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [ui]);
 
   async function refreshTokenStatus() {
@@ -182,7 +210,9 @@ export function DnsConfigPanel() {
       setPastedToken("");
       await Promise.all([refreshTokenStatus(), refreshDiagnostics()]);
     } catch (err) {
-      setTokenError(err instanceof Error ? err.message : ui("Failed to save token"));
+      setTokenError(
+        err instanceof Error ? err.message : ui("Failed to save token"),
+      );
     } finally {
       setTokenSaving(false);
     }
@@ -195,7 +225,9 @@ export function DnsConfigPanel() {
       await apiFetch("/admin/dns-mode/cf-token", { method: "DELETE" });
       await Promise.all([refreshTokenStatus(), refreshDiagnostics()]);
     } catch (err) {
-      setTokenError(err instanceof Error ? err.message : ui("Failed to remove token"));
+      setTokenError(
+        err instanceof Error ? err.message : ui("Failed to remove token"),
+      );
     } finally {
       setTokenSaving(false);
     }
@@ -215,7 +247,8 @@ export function DnsConfigPanel() {
     if (autoSetupRunning || saving) return false;
     if (hostnameError) return false;
     if (diagnostics.canAutoSetup) return true;
-    if (diagnostics.reason === "free-plan-multilevel" && acmOverride) return true;
+    if (diagnostics.reason === "free-plan-multilevel" && acmOverride)
+      return true;
     return false;
   })();
 
@@ -242,10 +275,16 @@ export function DnsConfigPanel() {
 
   async function refreshDiagnostics() {
     try {
-      const fresh = await apiFetch<DnsDiagnostics>("/admin/dns-mode/diagnostics");
+      const fresh = await apiFetch<DnsDiagnostics>(
+        "/admin/dns-mode/diagnostics",
+      );
       setDiagnostics(fresh);
     } catch (err) {
-      setDiagnosticsError(err instanceof Error ? err.message : ui("Failed to refresh diagnostics"));
+      setDiagnosticsError(
+        err instanceof Error
+          ? err.message
+          : ui("Failed to refresh diagnostics"),
+      );
     }
   }
 
@@ -259,10 +298,13 @@ export function DnsConfigPanel() {
       if (wildcardHostname) body.wildcardHostname = wildcardHostname;
       if (acmOverride) body.acmOverride = true;
 
-      const res = await apiFetch<AutoWildcardResponse>("/admin/dns-mode/auto-wildcard", {
-        method: "POST",
-        body: JSON.stringify(body),
-      });
+      const res = await apiFetch<AutoWildcardResponse>(
+        "/admin/dns-mode/auto-wildcard",
+        {
+          method: "POST",
+          body: JSON.stringify(body),
+        },
+      );
       setAutoSetupResult(res);
       setMode("wildcard");
       setDefaulted(false);
@@ -288,7 +330,11 @@ export function DnsConfigPanel() {
       await refreshDiagnostics();
       setConfirmingDelete(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : ui("Failed to delete {v0}", {v0: (hostname)}));
+      setError(
+        err instanceof Error
+          ? err.message
+          : ui("Failed to delete {v0}", { v0: hostname }),
+      );
     } finally {
       setDeleting(null);
     }
@@ -310,13 +356,23 @@ export function DnsConfigPanel() {
       <div className="flex items-center gap-3 border-b border-border px-4 py-3">
         <Globe className="h-4 w-4 text-blue-400" />
         <div className="flex-1">
-          <h3 className="text-sm font-semibold text-foreground">{ui("DNS for Published Sites")}</h3>
-          <p className="text-[11px] text-muted-foreground"> {ui("Each publish either gets its own Cloudflare CNAME, or rides on a wildcard CNAME we set up for you.")} </p>
+          <h3 className="text-sm font-semibold text-foreground">
+            {ui("DNS for Published Sites")}
+          </h3>
+          <p className="text-[11px] text-muted-foreground">
+            {" "}
+            {ui(
+              "Each publish either gets its own Cloudflare CNAME, or rides on a wildcard CNAME we set up for you.",
+            )}{" "}
+          </p>
         </div>
-        {saving && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+        {saving && (
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+        )}
         {savedAt && !saving && !error && (
           <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400">
-            <CheckCircle2 className="h-3.5 w-3.5" /> {ui("Saved")} </span>
+            <CheckCircle2 className="h-3.5 w-3.5" /> {ui("Saved")}{" "}
+          </span>
         )}
       </div>
 
@@ -324,8 +380,12 @@ export function DnsConfigPanel() {
         <div className="border-b border-border bg-secondary/40 px-4 py-2.5">
           <div className="flex flex-wrap items-center gap-2 text-[11px]">
             <span className="text-muted-foreground">{ui("Zone:")}</span>
-            <code className="font-mono text-foreground">{diagnostics.zoneName || "—"}</code>
-            <span className="rounded bg-secondary px-1.5 py-0.5 text-foreground/80">{planLabel(diagnostics.plan)}</span>
+            <code className="font-mono text-foreground">
+              {diagnostics.zoneName || "—"}
+            </code>
+            <span className="rounded bg-secondary px-1.5 py-0.5 text-foreground/80">
+              {planLabel(diagnostics.plan)}
+            </span>
             <span
               className={`rounded px-1.5 py-0.5 ${
                 diagnostics.acmStatus === "enabled"
@@ -336,7 +396,9 @@ export function DnsConfigPanel() {
               }`}
               title={
                 diagnostics.acmStatus === "undetectable"
-                  ? ui("The cloudflared OAuth token has DNS:Edit scope but not SSL/Certificates:Read — we can't see ACM packs. If you have ACM, tick the override below to bypass detection.")
+                  ? ui(
+                      "The cloudflared OAuth token has DNS:Edit scope but not SSL/Certificates:Read — we can't see ACM packs. If you have ACM, tick the override below to bypass detection.",
+                    )
                   : undefined
               }
             >
@@ -346,14 +408,22 @@ export function DnsConfigPanel() {
                   ? ui("No ACM")
                   : ui("ACM status unknown")}
             </span>
-            <span className="text-muted-foreground">{ui("Publish domain:")}</span>
-            <code className="font-mono text-foreground">{diagnostics.publishDomain || "—"}</code>
+            <span className="text-muted-foreground">
+              {ui("Publish domain:")}
+            </span>
+            <code className="font-mono text-foreground">
+              {diagnostics.publishDomain || "—"}
+            </code>
             {diagnostics.existingWildcard && (
               <span className="inline-flex items-center gap-1 text-emerald-400">
                 <CheckCircle2 className="h-3.5 w-3.5" />
-                <code className="font-mono">{diagnostics.existingWildcard.hostname}</code>
+                <code className="font-mono">
+                  {diagnostics.existingWildcard.hostname}
+                </code>
                 {" → "}
-                <code className="font-mono">{diagnostics.existingWildcard.target}</code>
+                <code className="font-mono">
+                  {diagnostics.existingWildcard.target}
+                </code>
               </span>
             )}
           </div>
@@ -361,7 +431,9 @@ export function DnsConfigPanel() {
       )}
 
       {diagnosticsError && (
-        <div className="border-b border-border px-4 py-2.5 text-[11px] text-amber-400"> {ui("Could not load Cloudflare zone diagnostics:")} {diagnosticsError}
+        <div className="border-b border-border px-4 py-2.5 text-[11px] text-amber-400">
+          {" "}
+          {ui("Could not load Cloudflare zone diagnostics:")} {diagnosticsError}
         </div>
       )}
 
@@ -376,11 +448,30 @@ export function DnsConfigPanel() {
           }`}
         >
           <div className="flex items-center gap-2 mb-1.5">
-            <input type="radio" checked={mode === "per_publish"} readOnly className="h-3.5 w-3.5 text-blue-500" />
-            <span className="text-sm font-medium text-foreground">{ui("Per-publish CNAME")}</span>
-            <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">{ui("Default")}</span>
+            <input
+              type="radio"
+              checked={mode === "per_publish"}
+              readOnly
+              className="h-3.5 w-3.5 text-blue-500"
+            />
+            <span className="text-sm font-medium text-foreground">
+              {ui("Per-publish CNAME")}
+            </span>
+            <span className="ml-auto text-[10px] uppercase tracking-wider text-muted-foreground">
+              {ui("Default")}
+            </span>
           </div>
-          <p className="text-[11px] text-muted-foreground leading-relaxed"> {ui("Every publish calls the Cloudflare API to create one CNAME per subdomain. Lets multiple doable servers coexist under the same zone using")} {" "}<code className="font-mono">{`<env>-<slug>.${zoneName}`}</code> {ui("hostnames covered by Universal SSL. Requires")} <code className="font-mono">CF_API_TOKEN</code>, <code className="font-mono">CF_ZONE_ID</code>{ui(", and")} <code className="font-mono">CLOUDFLARED_TUNNEL_ID</code>.
+          <p className="text-[11px] text-muted-foreground leading-relaxed">
+            {" "}
+            {ui(
+              "Every publish calls the Cloudflare API to create one CNAME per subdomain. Lets multiple doable servers coexist under the same zone using",
+            )}{" "}
+            <code className="font-mono">{`<env>-<slug>.${zoneName}`}</code>{" "}
+            {ui("hostnames covered by Universal SSL. Requires")}{" "}
+            <code className="font-mono">CF_API_TOKEN</code>,{" "}
+            <code className="font-mono">CF_ZONE_ID</code>
+            {ui(", and")}{" "}
+            <code className="font-mono">CLOUDFLARED_TUNNEL_ID</code>.
           </p>
         </button>
 
@@ -392,30 +483,56 @@ export function DnsConfigPanel() {
           }`}
         >
           <div className="flex items-center gap-2 mb-1.5">
-            <input type="radio" checked={mode === "wildcard"} readOnly className="h-3.5 w-3.5 text-blue-500" />
-            <span className="text-sm font-medium text-foreground">{ui("Wildcard CNAME (auto-configured)")}</span>
+            <input
+              type="radio"
+              checked={mode === "wildcard"}
+              readOnly
+              className="h-3.5 w-3.5 text-blue-500"
+            />
+            <span className="text-sm font-medium text-foreground">
+              {ui("Wildcard CNAME (auto-configured)")}
+            </span>
           </div>
-          <p className="text-[11px] text-muted-foreground leading-relaxed mb-2"> {ui("Skip the per-publish API call — all publishes resolve via one wildcard CNAME pointing to your tunnel. We'll create the record on your zone with the Cloudflare token from")}{" "}
+          <p className="text-[11px] text-muted-foreground leading-relaxed mb-2">
+            {" "}
+            {ui(
+              "Skip the per-publish API call — all publishes resolve via one wildcard CNAME pointing to your tunnel. We'll create the record on your zone with the Cloudflare token from",
+            )}{" "}
             <code className="font-mono">cloudflared tunnel login</code>.
           </p>
 
           <ul className="mb-2 space-y-1 text-[11px] text-muted-foreground leading-relaxed">
             <li>
               <span className="text-foreground">{ui("Free plan + apex:")}</span>{" "}
-              <code className="font-mono">*.{zoneName}</code> {ui("works out of the box (Universal SSL).")} </li>
+              <code className="font-mono">*.{zoneName}</code>{" "}
+              {ui("works out of the box (Universal SSL).")}{" "}
+            </li>
             <li>
-              <span className="text-foreground">{ui("Free plan + multi-level:")}</span>{" "}
-              <code className="font-mono">*.&lt;sub&gt;.{zoneName}</code> {ui("needs Advanced Certificate Manager.")} </li>
+              <span className="text-foreground">
+                {ui("Free plan + multi-level:")}
+              </span>{" "}
+              <code className="font-mono">*.&lt;sub&gt;.{zoneName}</code>{" "}
+              {ui("needs Advanced Certificate Manager.")}{" "}
+            </li>
             <li>
-              <span className="text-foreground">{ui("Paid ACM:")}</span> {ui("pick any")}{" "}
-              <code className="font-mono">*.&lt;anything&gt;.{zoneName}</code> {ui("and tick the override below if our token can't see your ACM packs.")} </li>
+              <span className="text-foreground">{ui("Paid ACM:")}</span>{" "}
+              {ui("pick any")}{" "}
+              <code className="font-mono">*.&lt;anything&gt;.{zoneName}</code>{" "}
+              {ui(
+                "and tick the override below if our token can't see your ACM packs.",
+              )}{" "}
+            </li>
           </ul>
 
-          <label className="block mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">{ui("Wildcard hostname")}</label>
+          <label className="block mb-1 text-[10px] uppercase tracking-wider text-muted-foreground">
+            {ui("Wildcard hostname")}
+          </label>
           <input
             type="text"
             value={wildcardHostname}
-            onChange={(e) => setWildcardHostname(e.target.value.toLowerCase().trim())}
+            onChange={(e) =>
+              setWildcardHostname(e.target.value.toLowerCase().trim())
+            }
             placeholder={`*.${zoneName}`}
             disabled={autoSetupRunning}
             className="mb-1 w-full rounded-md border border-border bg-background px-2 py-1 font-mono text-[11px] text-foreground focus:border-blue-500 focus:outline-none disabled:opacity-50"
@@ -434,7 +551,13 @@ export function DnsConfigPanel() {
                 className="mt-0.5 h-3.5 w-3.5"
               />
               <span>
-                <span className="font-medium text-foreground">{ui("I have Advanced Certificate Manager")}</span> {ui("on this zone. Auto-detection can't read ACM status with the tunnel OAuth token, so tick this if you've already enabled ACM and want to create a multi-level wildcard.")} </span>
+                <span className="font-medium text-foreground">
+                  {ui("I have Advanced Certificate Manager")}
+                </span>{" "}
+                {ui(
+                  "on this zone. Auto-detection can't read ACM status with the tunnel OAuth token, so tick this if you've already enabled ACM and want to create a multi-level wildcard.",
+                )}{" "}
+              </span>
             </label>
           )}
 
@@ -444,7 +567,11 @@ export function DnsConfigPanel() {
             disabled={!buttonEnabled}
             className="inline-flex items-center gap-1.5 rounded-md border border-blue-500 bg-blue-500/10 px-2.5 py-1 text-[11px] font-medium text-blue-300 hover:bg-blue-500/20 disabled:cursor-not-allowed disabled:border-border disabled:bg-secondary disabled:text-muted-foreground"
           >
-            {autoSetupRunning ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3" />}
+            {autoSetupRunning ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <Sparkles className="h-3 w-3" />
+            )}
             {autoSetupRunning
               ? ui("Configuring…")
               : mode === "wildcard" && diagnostics?.existingWildcard
@@ -452,38 +579,59 @@ export function DnsConfigPanel() {
                 : ui("Auto-configure wildcard")}
           </button>
 
-          {diagnostics && !diagnostics.canAutoSetup && !(isFreePlanMultilevel && acmOverride) && (
-            <p className="mt-2 flex items-start gap-1.5 text-[11px] text-amber-400">
-              <AlertCircle className="h-3.5 w-3.5 mt-px shrink-0" />
-              <span>{diagnostics.message}</span>
-            </p>
-          )}
+          {diagnostics &&
+            !diagnostics.canAutoSetup &&
+            !(isFreePlanMultilevel && acmOverride) && (
+              <p className="mt-2 flex items-start gap-1.5 text-[11px] text-amber-400">
+                <AlertCircle className="h-3.5 w-3.5 mt-px shrink-0" />
+                <span>{diagnostics.message}</span>
+              </p>
+            )}
           {autoSetupResult && (
             <p className="mt-2 flex items-start gap-1.5 text-[11px] text-emerald-400">
               <CheckCircle2 className="h-3.5 w-3.5 mt-px shrink-0" />
               <span>
-                {autoSetupResult.created ? ui("Created") : autoSetupResult.updated ? ui("Updated") : ui("Confirmed")}
-                {" "}<code className="font-mono">{autoSetupResult.wildcardHostname}</code> → <code className="font-mono">{autoSetupResult.target}</code>
-                {autoSetupResult.acmOverrideApplied && " (ACM override applied)"}
+                {autoSetupResult.created
+                  ? ui("Created")
+                  : autoSetupResult.updated
+                    ? ui("Updated")
+                    : ui("Confirmed")}{" "}
+                <code className="font-mono">
+                  {autoSetupResult.wildcardHostname}
+                </code>{" "}
+                → <code className="font-mono">{autoSetupResult.target}</code>
+                {autoSetupResult.acmOverrideApplied &&
+                  " (ACM override applied)"}
               </span>
             </p>
           )}
         </div>
       </div>
 
-      {mode === "wildcard" && diagnostics && diagnostics.allWildcards.length === 0 && (
-        <div className="border-t border-border bg-amber-500/10 px-4 py-2.5">
-          <p className="flex items-start gap-1.5 text-[11px] text-amber-400 leading-relaxed">
-            <AlertCircle className="h-3.5 w-3.5 mt-px shrink-0" />
-            <span>
-              <span className="font-medium">{ui("No wildcard CNAME currently active on this zone.")}</span>{" "} {ui("Publishes will fail until you auto-configure one above, or switch back to per-publish mode.")} </span>
-          </p>
-        </div>
-      )}
+      {mode === "wildcard" &&
+        diagnostics &&
+        diagnostics.allWildcards.length === 0 && (
+          <div className="border-t border-border bg-amber-500/10 px-4 py-2.5">
+            <p className="flex items-start gap-1.5 text-[11px] text-amber-400 leading-relaxed">
+              <AlertCircle className="h-3.5 w-3.5 mt-px shrink-0" />
+              <span>
+                <span className="font-medium">
+                  {ui("No wildcard CNAME currently active on this zone.")}
+                </span>{" "}
+                {ui(
+                  "Publishes will fail until you auto-configure one above, or switch back to per-publish mode.",
+                )}{" "}
+              </span>
+            </p>
+          </div>
+        )}
 
       {diagnostics && diagnostics.allWildcards.length > 0 && (
         <div className="border-t border-border px-4 py-3">
-          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground"> {ui("Existing wildcards on")} {diagnostics.zoneName || ui("this zone")}
+          <h4 className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {" "}
+            {ui("Existing wildcards on")}{" "}
+            {diagnostics.zoneName || ui("this zone")}
           </h4>
           <ul className="space-y-1.5">
             {diagnostics.allWildcards.map((w) => {
@@ -494,27 +642,43 @@ export function DnsConfigPanel() {
                   key={w.hostname}
                   className="flex flex-wrap items-center gap-2 rounded-md border border-border bg-secondary/30 px-2.5 py-1.5 text-[11px]"
                 >
-                  <code className="font-mono text-foreground">{w.hostname}</code>
+                  <code className="font-mono text-foreground">
+                    {w.hostname}
+                  </code>
                   <span className="text-muted-foreground">→</span>
-                  <code className="font-mono text-muted-foreground">{w.target}</code>
-                  <span className="text-[10px] text-muted-foreground">{w.modifiedOn.slice(0, 10)}</span>
+                  <code className="font-mono text-muted-foreground">
+                    {w.target}
+                  </code>
+                  <span className="text-[10px] text-muted-foreground">
+                    {w.modifiedOn.slice(0, 10)}
+                  </span>
                   <div className="ml-auto flex items-center gap-1.5">
                     {isConfirming ? (
                       <>
-                        <span className="text-amber-400">{ui("Delete")} {w.hostname}{ui("? Publishes pointing to it stop resolving.")}</span>
+                        <span className="text-amber-400">
+                          {ui("Delete")} {w.hostname}
+                          {ui("? Publishes pointing to it stop resolving.")}
+                        </span>
                         <button
                           type="button"
                           onClick={() => deleteWildcard(w.hostname)}
                           disabled={isDeleting}
                           className="inline-flex items-center gap-1 rounded-md border border-red-500 bg-red-500/10 px-2 py-0.5 text-[11px] font-medium text-red-300 hover:bg-red-500/20 disabled:cursor-not-allowed"
                         >
-                          {isDeleting ? <Loader2 className="h-3 w-3 animate-spin" /> : null} {ui("Confirm")} </button>
+                          {isDeleting ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : null}{" "}
+                          {ui("Confirm")}{" "}
+                        </button>
                         <button
                           type="button"
                           onClick={() => setConfirmingDelete(null)}
                           disabled={isDeleting}
                           className="inline-flex items-center rounded-md border border-border bg-secondary px-2 py-0.5 text-[11px] font-medium text-foreground hover:bg-secondary/70 disabled:cursor-not-allowed"
-                        > {ui("Cancel")} </button>
+                        >
+                          {" "}
+                          {ui("Cancel")}{" "}
+                        </button>
                       </>
                     ) : (
                       <button
@@ -523,7 +687,8 @@ export function DnsConfigPanel() {
                         disabled={deleting !== null}
                         className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary px-2 py-0.5 text-[11px] font-medium text-muted-foreground hover:border-red-500 hover:text-red-300 disabled:cursor-not-allowed"
                       >
-                        <Trash2 className="h-3 w-3" /> {ui("Delete")} </button>
+                        <Trash2 className="h-3 w-3" /> {ui("Delete")}{" "}
+                      </button>
                     )}
                   </div>
                 </li>
@@ -539,19 +704,30 @@ export function DnsConfigPanel() {
           onClick={() => setTokenSectionOpen((v) => !v)}
           className="flex w-full items-center gap-2 text-left text-[11px] text-muted-foreground hover:text-foreground"
         >
-          {tokenSectionOpen ? <ChevronDown className="h-3.5 w-3.5" /> : <ChevronRight className="h-3.5 w-3.5" />}
+          {tokenSectionOpen ? (
+            <ChevronDown className="h-3.5 w-3.5" />
+          ) : (
+            <ChevronRight className="h-3.5 w-3.5" />
+          )}
           <KeyRound className="h-3.5 w-3.5" />
-          <span className="font-medium">{ui("Cloudflare API token (optional)")}</span>
+          <span className="font-medium">
+            {ui("Cloudflare API token (optional)")}
+          </span>
           <span className="ml-2 text-muted-foreground">
             {cfTokenStatus?.source === "platform_settings"
-              ? ui("Using custom token ****{v0}", {v0: (cfTokenStatus.tokenSuffix)})
+              ? ui("Using custom token ****{v0}", {
+                  v0: cfTokenStatus.tokenSuffix,
+                })
               : cfTokenStatus?.source === "env"
-                ? ui("Using cert.pem OAuth token ****{v0}", {v0: (cfTokenStatus.tokenSuffix)})
+                ? ui("Using cert.pem OAuth token ****{v0}", {
+                    v0: cfTokenStatus.tokenSuffix,
+                  })
                 : ui("No CF token configured")}
           </span>
           {cfTokenStatus?.hasSslScope && (
             <span className="ml-auto inline-flex items-center gap-1 text-emerald-400">
-              <CheckCircle2 className="h-3.5 w-3.5" /> {ui("ACM scope OK")} </span>
+              <CheckCircle2 className="h-3.5 w-3.5" /> {ui("ACM scope OK")}{" "}
+            </span>
           )}
         </button>
 
@@ -561,15 +737,34 @@ export function DnsConfigPanel() {
               <p className="flex items-start gap-1.5 rounded-md border border-amber-500/30 bg-amber-500/10 px-2 py-1.5 text-[11px] text-amber-400 leading-relaxed">
                 <AlertCircle className="h-3.5 w-3.5 mt-px shrink-0" />
                 <span>
-                  <span className="font-medium">{ui("KEK mismatch.")}</span>{" "} {ui("The stored token can't be decrypted under the current")}{" "}
-                  <code className="font-mono">DOABLE_KEK</code> {ui("(likely a backup restore with a stale")}{" "}
-                  <code className="font-mono">.env</code>{ui("). The cert.pem fallback is keeping DNS ops working, but ACM detection is degraded. Re-paste the token below, or click")} <span className="font-medium">{ui("Remove override")}</span> {ui("to drop the stale row.")} </span>
+                  <span className="font-medium">{ui("KEK mismatch.")}</span>{" "}
+                  {ui("The stored token can't be decrypted under the current")}{" "}
+                  <code className="font-mono">DOABLE_KEK</code>{" "}
+                  {ui("(likely a backup restore with a stale")}{" "}
+                  <code className="font-mono">.env</code>
+                  {ui(
+                    "). The cert.pem fallback is keeping DNS ops working, but ACM detection is degraded. Re-paste the token below, or click",
+                  )}{" "}
+                  <span className="font-medium">{ui("Remove override")}</span>{" "}
+                  {ui("to drop the stale row.")}{" "}
+                </span>
               </p>
             )}
             <p className="text-[11px] text-muted-foreground leading-relaxed">
-              <span className="font-medium text-foreground">{ui("Strictly optional.")}</span>{" "} {ui("DNS auto-configure, wildcard create/delete, and per-publish CNAMEs all work fine with the cert.pem token from")}{" "}
-              <code className="font-mono">cloudflared tunnel login</code> {ui("alone. Adding a custom token only unlocks accurate ACM detection so the badge above can flip from")}{" "}
-              <span className="text-amber-400">{ui("ACM status unknown")}</span> {ui("to")} <span className="text-emerald-400">{ui("ACM enabled")}</span> {ui("or")}{" "}
+              <span className="font-medium text-foreground">
+                {ui("Strictly optional.")}
+              </span>{" "}
+              {ui(
+                "DNS auto-configure, wildcard create/delete, and per-publish CNAMEs all work fine with the cert.pem token from",
+              )}{" "}
+              <code className="font-mono">cloudflared tunnel login</code>{" "}
+              {ui(
+                "alone. Adding a custom token only unlocks accurate ACM detection so the badge above can flip from",
+              )}{" "}
+              <span className="text-amber-400">{ui("ACM status unknown")}</span>{" "}
+              {ui("to")}{" "}
+              <span className="text-emerald-400">{ui("ACM enabled")}</span>{" "}
+              {ui("or")}{" "}
               <span className="text-muted-foreground">{ui("No ACM")}</span>.
             </p>
             <p className="text-[11px] text-muted-foreground leading-relaxed">
@@ -578,14 +773,34 @@ export function DnsConfigPanel() {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-blue-300 underline hover:text-blue-200"
-              > {ui("Open Cloudflare API Tokens")} </a>
-              {" "}{ui("→ Create Token → Create Custom Token. Add exactly these zone permissions:")} </p>
+              >
+                {" "}
+                {ui("Open Cloudflare API Tokens")}{" "}
+              </a>{" "}
+              {ui(
+                "→ Create Token → Create Custom Token. Add exactly these zone permissions:",
+              )}{" "}
+            </p>
             <ul className="ml-4 list-disc text-[11px] text-muted-foreground leading-relaxed">
-              <li>{ui("Zone → DNS →")} <span className="text-foreground">{ui("Edit")}</span></li>
-              <li>{ui("Zone → Zone →")} <span className="text-foreground">{ui("Read")}</span></li>
-              <li>{ui("Zone → SSL and Certificates →")} <span className="text-foreground">{ui("Read")}</span></li>
+              <li>
+                {ui("Zone → DNS →")}{" "}
+                <span className="text-foreground">{ui("Edit")}</span>
+              </li>
+              <li>
+                {ui("Zone → Zone →")}{" "}
+                <span className="text-foreground">{ui("Read")}</span>
+              </li>
+              <li>
+                {ui("Zone → SSL and Certificates →")}{" "}
+                <span className="text-foreground">{ui("Read")}</span>
+              </li>
             </ul>
-            <p className="text-[11px] text-muted-foreground leading-relaxed"> {ui("Scope to your specific zone (")}<code className="font-mono">{zoneName}</code>{ui(") under \"Zone Resources\". Then paste the token here.")} </p>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              {" "}
+              {ui("Scope to your specific zone (")}
+              <code className="font-mono">{zoneName}</code>
+              {ui(') under "Zone Resources". Then paste the token here.')}{" "}
+            </p>
 
             <div className="flex items-center gap-2">
               <input
@@ -602,14 +817,22 @@ export function DnsConfigPanel() {
                 disabled={!pastedToken.trim() || tokenSaving}
                 className="inline-flex items-center gap-1 rounded-md border border-blue-500 bg-blue-500/10 px-2.5 py-1 text-[11px] font-medium text-blue-300 hover:bg-blue-500/20 disabled:cursor-not-allowed disabled:border-border disabled:bg-secondary disabled:text-muted-foreground"
               >
-                {tokenSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : null} {ui("Verify & save")} </button>
-              {(cfTokenStatus?.source === "platform_settings" || cfTokenStatus?.decryptFailed) && (
+                {tokenSaving ? (
+                  <Loader2 className="h-3 w-3 animate-spin" />
+                ) : null}{" "}
+                {ui("Verify & save")}{" "}
+              </button>
+              {(cfTokenStatus?.source === "platform_settings" ||
+                cfTokenStatus?.decryptFailed) && (
                 <button
                   type="button"
                   onClick={removeCfToken}
                   disabled={tokenSaving}
                   className="inline-flex items-center gap-1 rounded-md border border-border bg-secondary px-2.5 py-1 text-[11px] font-medium text-muted-foreground hover:border-red-500 hover:text-red-300 disabled:cursor-not-allowed"
-                > {ui("Remove override")} </button>
+                >
+                  {" "}
+                  {ui("Remove override")}{" "}
+                </button>
               )}
             </div>
             {tokenError && (
@@ -625,7 +848,14 @@ export function DnsConfigPanel() {
       {diagnostics && (
         <div className="border-t border-border bg-secondary/30 px-4 py-2.5">
           <p className="text-[11px] text-muted-foreground leading-relaxed">
-            <span className="font-medium text-foreground">{ui("Heads up:")}</span>{" "} {ui("A")} <code className="font-mono">*.{zoneName}</code> {ui("CNAME can point to exactly one tunnel — running multiple doable servers on the same zone requires Cloudflare Advanced Certificate Manager so each environment can have its own multi-level wildcard (e.g.")} <code className="font-mono">*.staging.{zoneName}</code> {ui("and")}{" "}
+            <span className="font-medium text-foreground">
+              {ui("Heads up:")}
+            </span>{" "}
+            {ui("A")} <code className="font-mono">*.{zoneName}</code>{" "}
+            {ui(
+              "CNAME can point to exactly one tunnel — running multiple doable servers on the same zone requires Cloudflare Advanced Certificate Manager so each environment can have its own multi-level wildcard (e.g.",
+            )}{" "}
+            <code className="font-mono">*.staging.{zoneName}</code> {ui("and")}{" "}
             <code className="font-mono">*.prod.{zoneName}</code>).
           </p>
         </div>
@@ -634,7 +864,15 @@ export function DnsConfigPanel() {
       {(defaulted || error) && (
         <div className="border-t border-border px-4 py-2.5">
           {defaulted && !error && !autoSetupResult && (
-            <p className="text-[11px] text-muted-foreground"> {ui("No setting persisted yet — using the per-publish default.")} {" "}{ui("Selecting an option or auto-configuring wildcard will save it for future publishes.")} </p>
+            <p className="text-[11px] text-muted-foreground">
+              {" "}
+              {ui(
+                "No setting persisted yet — using the per-publish default.",
+              )}{" "}
+              {ui(
+                "Selecting an option or auto-configuring wildcard will save it for future publishes.",
+              )}{" "}
+            </p>
           )}
           {error && (
             <p className="flex items-start gap-1.5 text-[11px] text-red-400">
@@ -642,7 +880,14 @@ export function DnsConfigPanel() {
               <span>
                 {ui(error)}
                 {error.includes("migration 081") && (
-                  <> {ui("Run")} <code className="font-mono">migration 081_platform_settings.sql</code> {ui("against the DB.")}</>
+                  <>
+                    {" "}
+                    {ui("Run")}{" "}
+                    <code className="font-mono">
+                      migration 081_platform_settings.sql
+                    </code>{" "}
+                    {ui("against the DB.")}
+                  </>
                 )}
               </span>
             </p>

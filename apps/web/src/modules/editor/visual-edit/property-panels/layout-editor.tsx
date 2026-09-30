@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import {
   LayoutGrid,
@@ -72,13 +71,23 @@ export function LayoutEditor({
         {/* Section Header */}
         <div className="flex items-center gap-2 px-3 py-2">
           <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-xs font-medium text-foreground">{ui("Layout")}</span>
+          <span className="text-xs font-medium text-foreground">
+            {ui("Layout")}
+          </span>
         </div>
 
         <div className="px-3 pb-3">
-          <p className="text-[11px] text-muted-foreground"> {ui("Display:")} <span className="font-mono text-muted-foreground">{display}</span>
+          <p className="text-[11px] text-muted-foreground">
+            {" "}
+            {ui("Display:")}{" "}
+            <span className="font-mono text-muted-foreground">{display}</span>
           </p>
-          <p className="mt-1 text-[10px] text-muted-foreground"> {ui("Layout controls are available for flex and grid elements.")} </p>
+          <p className="mt-1 text-[10px] text-muted-foreground">
+            {" "}
+            {ui(
+              "Layout controls are available for flex and grid elements.",
+            )}{" "}
+          </p>
         </div>
       </div>
     );
@@ -89,7 +98,9 @@ export function LayoutEditor({
       {/* Section Header */}
       <div className="flex items-center gap-2 px-3 py-2">
         <LayoutGrid className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="flex-1 text-xs font-medium text-foreground">{ui("Layout")}</span>
+        <span className="flex-1 text-xs font-medium text-foreground">
+          {ui("Layout")}
+        </span>
         <span className="rounded bg-secondary px-1.5 py-0.5 text-[10px] font-mono text-muted-foreground">
           {display}
         </span>
@@ -99,7 +110,9 @@ export function LayoutEditor({
       <div className="space-y-2.5 px-3 pb-3">
         {/* Direction */}
         <div className="flex items-center gap-2">
-          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">{ui("Direction")}</label>
+          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">
+            {ui("Direction")}
+          </label>
           <div className="flex gap-0.5 rounded-md border border-input bg-background p-0.5">
             {i18n_DIRECTION_OPTIONS.map(({ value, icon: Icon, label }) => (
               <button
@@ -110,7 +123,7 @@ export function LayoutEditor({
                   "flex items-center gap-1 rounded px-2 py-1.5 text-[11px] transition-colors",
                   flexDirection === value
                     ? "bg-brand-500/20 text-brand-400"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -122,7 +135,9 @@ export function LayoutEditor({
 
         {/* Align Items */}
         <div className="flex items-center gap-2">
-          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">{ui("Align")}</label>
+          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">
+            {ui("Align")}
+          </label>
           <div className="flex gap-0.5 rounded-md border border-input bg-background p-0.5">
             {i18n_ALIGN_OPTIONS.map(({ value, icon: Icon, label }) => (
               <button
@@ -133,7 +148,7 @@ export function LayoutEditor({
                   "rounded p-1.5 transition-colors",
                   alignItems === value
                     ? "bg-brand-500/20 text-brand-400"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    : "text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -144,7 +159,9 @@ export function LayoutEditor({
 
         {/* Gap */}
         <div className="flex items-center gap-2">
-          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">{ui("Gap")}</label>
+          <label className="w-20 shrink-0 text-[11px] text-muted-foreground">
+            {ui("Gap")}
+          </label>
           <input
             type="text"
             value={gap}

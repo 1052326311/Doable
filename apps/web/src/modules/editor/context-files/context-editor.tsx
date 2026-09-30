@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import { ArrowLeft, Save, Trash2, Eye, Pencil } from "lucide-react";
@@ -68,8 +67,8 @@ export const ContextEditor = ({
         void doSave(newContent);
       }, AUTO_SAVE_DELAY);
     },
-     
-    [onSave]
+
+    [onSave],
   );
 
   const doSave = async (contentToSave: string) => {
@@ -132,7 +131,9 @@ export const ContextEditor = ({
           </button>
           <span className="text-sm font-medium">{file.filename}</span>
           {dirty && (
-            <span className="text-xs text-muted-foreground">{ui("(unsaved)")}</span>
+            <span className="text-xs text-muted-foreground">
+              {ui("(unsaved)")}
+            </span>
           )}
         </div>
 
@@ -145,7 +146,7 @@ export const ContextEditor = ({
                 "p-1 rounded-sm transition-colors",
                 viewMode === "edit"
                   ? "bg-background shadow-sm"
-                  : "hover:bg-background/50"
+                  : "hover:bg-background/50",
               )}
               title={ui("Edit")}
             >
@@ -157,7 +158,7 @@ export const ContextEditor = ({
                 "p-1 rounded-sm transition-colors",
                 viewMode === "preview"
                   ? "bg-background shadow-sm"
-                  : "hover:bg-background/50"
+                  : "hover:bg-background/50",
               )}
               title={ui("Preview")}
             >
@@ -173,7 +174,7 @@ export const ContextEditor = ({
               "p-1.5 rounded-md transition-colors",
               dirty
                 ? "hover:bg-muted text-foreground"
-                : "text-muted-foreground"
+                : "text-muted-foreground",
             )}
             title={ui("Save (Ctrl+S)")}
           >
@@ -193,9 +194,13 @@ export const ContextEditor = ({
 
       {/* Status bar */}
       <div className="flex items-center justify-between px-3 py-1 border-b text-xs text-muted-foreground">
-        <span>{content.length} {ui("chars")}</span>
+        <span>
+          {content.length} {ui("chars")}
+        </span>
         {lastSaved && (
-          <span>{ui("Saved")} {formatTimeAgo(lastSaved)}</span>
+          <span>
+            {ui("Saved")} {formatTimeAgo(lastSaved)}
+          </span>
         )}
         {saving && <span>{ui("Saving...")}</span>}
       </div>
@@ -227,12 +232,24 @@ const MarkdownPreview = ({ content }: { content: string }) => {
   // Lightweight markdown rendering — headings, bold, italic, code, lists
   const html = content
     // Code blocks
-    .replace(/```(\w*)\n([\s\S]*?)```/g, '<pre><code class="language-$1">$2</code></pre>')
+    .replace(
+      /```(\w*)\n([\s\S]*?)```/g,
+      '<pre><code class="language-$1">$2</code></pre>',
+    )
     // Inline code
-    .replace(/`([^`]+)`/g, '<code class="bg-muted px-1 py-0.5 rounded text-xs">$1</code>')
+    .replace(
+      /`([^`]+)`/g,
+      '<code class="bg-muted px-1 py-0.5 rounded text-xs">$1</code>',
+    )
     // Headings
-    .replace(/^### (.+)$/gm, '<h3 class="text-base font-semibold mt-4 mb-2">$1</h3>')
-    .replace(/^## (.+)$/gm, '<h2 class="text-lg font-semibold mt-6 mb-2">$1</h2>')
+    .replace(
+      /^### (.+)$/gm,
+      '<h3 class="text-base font-semibold mt-4 mb-2">$1</h3>',
+    )
+    .replace(
+      /^## (.+)$/gm,
+      '<h2 class="text-lg font-semibold mt-6 mb-2">$1</h2>',
+    )
     .replace(/^# (.+)$/gm, '<h1 class="text-xl font-bold mt-6 mb-3">$1</h1>')
     // Bold and italic
     .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
@@ -242,7 +259,10 @@ const MarkdownPreview = ({ content }: { content: string }) => {
     // Ordered lists
     .replace(/^\d+\. (.+)$/gm, '<li class="ml-4 list-decimal text-sm">$1</li>')
     // Comments (HTML-style)
-    .replace(/<!--[\s\S]*?-->/g, '<span class="text-muted-foreground/50 italic text-xs">[placeholder]</span>')
+    .replace(
+      /<!--[\s\S]*?-->/g,
+      '<span class="text-muted-foreground/50 italic text-xs">[placeholder]</span>',
+    )
     // Paragraphs (double newline)
     .replace(/\n\n/g, '</p><p class="text-sm mb-3">')
     // Single newlines
@@ -251,7 +271,9 @@ const MarkdownPreview = ({ content }: { content: string }) => {
   return (
     <div
       className="text-sm"
-      dangerouslySetInnerHTML={{ __html: `<p class="text-sm mb-3">${html}</p>` }}
+      dangerouslySetInnerHTML={{
+        __html: `<p class="text-sm mb-3">${html}</p>`,
+      }}
     />
   );
 };

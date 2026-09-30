@@ -1,7 +1,5 @@
 "use client";
 
-
-
 /**
  * App Router global error boundary. Replaces the root layout when an error
  * escapes every other boundary; must therefore include <html lang="zh-CN"> and <body>.
@@ -27,24 +25,67 @@ export default function GlobalError({
   error: Error & { digest?: string };
   reset: () => void;
 }) {
-
-
   return (
     <html lang="zh-CN">
       <body>
-        <div style={{ display: "flex", minHeight: "100vh", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "1rem", fontFamily: "system-ui, sans-serif" }}>
-          <h2 style={{ fontSize: "1.25rem", fontWeight: 600, marginBottom: "0.5rem" }}>{"出现错误 · Something went wrong"}</h2>
-          <p style={{ fontSize: "0.875rem", color: "#71717a", marginBottom: "1.5rem", textAlign: "center", maxWidth: "32rem" }}>
+        <div
+          style={{
+            display: "flex",
+            minHeight: "100vh",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: "1rem",
+            fontFamily: "system-ui, sans-serif",
+          }}
+        >
+          <h2
+            style={{
+              fontSize: "1.25rem",
+              fontWeight: 600,
+              marginBottom: "0.5rem",
+            }}
+          >
+            {"出现错误 · Something went wrong"}
+          </h2>
+          <p
+            style={{
+              fontSize: "0.875rem",
+              color: "#71717a",
+              marginBottom: "1.5rem",
+              textAlign: "center",
+              maxWidth: "32rem",
+            }}
+          >
             {error.message || "发生了意外错误。An unexpected error occurred."}
           </p>
           {error.digest ? (
-            <p style={{ fontSize: "0.75rem", color: "#a1a1aa", marginBottom: "1rem" }}> {"参考编号 / Reference:"} {error.digest}
+            <p
+              style={{
+                fontSize: "0.75rem",
+                color: "#a1a1aa",
+                marginBottom: "1rem",
+              }}
+            >
+              {" "}
+              {"参考编号 / Reference:"} {error.digest}
             </p>
           ) : null}
           <button
             onClick={reset}
-            style={{ borderRadius: "0.5rem", background: "#3b82f6", padding: "0.625rem 1.25rem", fontSize: "0.875rem", color: "white", border: "none", cursor: "pointer" }}
-          > {"重试 / Try again"} </button>
+            style={{
+              borderRadius: "0.5rem",
+              background: "#3b82f6",
+              padding: "0.625rem 1.25rem",
+              fontSize: "0.875rem",
+              color: "white",
+              border: "none",
+              cursor: "pointer",
+            }}
+          >
+            {" "}
+            {"重试 / Try again"}{" "}
+          </button>
         </div>
       </body>
     </html>

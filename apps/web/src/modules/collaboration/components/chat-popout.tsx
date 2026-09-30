@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect } from "react";
 import { Minus, X, MessageCircle } from "lucide-react";
@@ -70,18 +69,28 @@ export function ChatPopout({ currentUserId }: Props) {
       >
         <div className="flex items-center gap-2">
           <MessageCircle className="h-3.5 w-3.5 text-muted-foreground" />
-          <span className="text-xs font-medium text-foreground">{ui("Team Chat")}</span>
-          <span className="text-[10px] text-muted-foreground">{members.length} {ui("online")}</span>
+          <span className="text-xs font-medium text-foreground">
+            {ui("Team Chat")}
+          </span>
+          <span className="text-[10px] text-muted-foreground">
+            {members.length} {ui("online")}
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={(e) => { e.stopPropagation(); handleMinimize(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleMinimize();
+            }}
             className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
           >
             <Minus className="h-3.5 w-3.5" />
           </button>
           <button
-            onClick={(e) => { e.stopPropagation(); handleClose(); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClose();
+            }}
             className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
           >
             <X className="h-3.5 w-3.5" />

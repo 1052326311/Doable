@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useCallback, useEffect, useState, type FormEvent } from "react";
 import QRCode from "qrcode";
@@ -82,13 +81,20 @@ export function MfaSection() {
             <Shield className="h-4 w-4 text-muted-foreground" />
           )}
           <div>
-            <p className="text-sm font-medium text-foreground">{ui("Two-factor authentication")}</p>
+            <p className="text-sm font-medium text-foreground">
+              {ui("Two-factor authentication")}
+            </p>
             <p className="text-xs text-muted-foreground">
               {loading
                 ? ui("Loading…")
                 : status?.enabled
-                  ? ui("Enabled · {v0} recovery code{v1} remaining", {v0: (status.unusedRecoveryCodes ?? 0), v1: (status.unusedRecoveryCodes === 1 ? "" : "s")})
-                  : ui("Add a code from your authenticator app on top of your password")}
+                  ? ui("Enabled · {v0} recovery code{v1} remaining", {
+                      v0: status.unusedRecoveryCodes ?? 0,
+                      v1: status.unusedRecoveryCodes === 1 ? "" : "s",
+                    })
+                  : ui(
+                      "Add a code from your authenticator app on top of your password",
+                    )}
             </p>
           </div>
         </div>
@@ -98,7 +104,10 @@ export function MfaSection() {
               size="sm"
               className="rounded-lg bg-brand-700 text-white hover:bg-brand-800"
               onClick={() => setEnrollOpen(true)}
-            > {ui("Set up")} </Button>
+            >
+              {" "}
+              {ui("Set up")}{" "}
+            </Button>
           )}
           {!loading && status?.enabled && (
             <>
@@ -108,20 +117,33 @@ export function MfaSection() {
                 className="rounded-lg"
                 onClick={() => setRegenerateOpen(true)}
               >
-                <Key className="mr-1.5 h-3.5 w-3.5" /> {ui("New recovery codes")} </Button>
+                <Key className="mr-1.5 h-3.5 w-3.5" />{" "}
+                {ui("New recovery codes")}{" "}
+              </Button>
               <Button
                 size="sm"
                 variant="destructive"
                 className="rounded-lg"
                 onClick={() => setDisableOpen(true)}
-              > {ui("Disable")} </Button>
+              >
+                {" "}
+                {ui("Disable")}{" "}
+              </Button>
             </>
           )}
         </div>
       </div>
 
-      <EnrollDialog open={enrollOpen} onOpenChange={setEnrollOpen} onDone={refresh} />
-      <DisableDialog open={disableOpen} onOpenChange={setDisableOpen} onDone={refresh} />
+      <EnrollDialog
+        open={enrollOpen}
+        onOpenChange={setEnrollOpen}
+        onDone={refresh}
+      />
+      <DisableDialog
+        open={disableOpen}
+        onOpenChange={setDisableOpen}
+        onDone={refresh}
+      />
       <RegenerateDialog
         open={regenerateOpen}
         onOpenChange={setRegenerateOpen}
@@ -231,7 +253,12 @@ function EnrollDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{ui("Set up two-factor authentication")}</DialogTitle>
-          <DialogDescription> {ui("Scan the QR code with an authenticator app like 1Password, Authy, or Google Authenticator.")} </DialogDescription>
+          <DialogDescription>
+            {" "}
+            {ui(
+              "Scan the QR code with an authenticator app like 1Password, Authy, or Google Authenticator.",
+            )}{" "}
+          </DialogDescription>
         </DialogHeader>
 
         {error && (
@@ -257,7 +284,9 @@ function EnrollDialog({
               )}
             </div>
             <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">{ui("Or enter this code manually")}</Label>
+              <Label className="text-xs text-muted-foreground">
+                {ui("Or enter this code manually")}
+              </Label>
               <div className="flex items-center gap-2">
                 <code className="flex-1 truncate rounded-md border border-border bg-secondary px-2.5 py-1.5 font-mono text-xs">
                   {enroll?.secret ?? "—"}
@@ -269,22 +298,33 @@ function EnrollDialog({
                   className="rounded-md"
                   onClick={() => {
                     if (!enroll) return;
-                    navigator.clipboard.writeText(enroll.secret).catch(() => {});
+                    navigator.clipboard
+                      .writeText(enroll.secret)
+                      .catch(() => {});
                     setSecretCopied(true);
                     setTimeout(() => setSecretCopied(false), 1500);
                   }}
                 >
-                  {secretCopied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+                  {secretCopied ? (
+                    <Check className="h-3.5 w-3.5" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
                 </Button>
               </div>
             </div>
             <DialogFooter>
-              <Button variant="ghost" onClick={() => onOpenChange(false)}>{ui("Cancel")}</Button>
+              <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                {ui("Cancel")}
+              </Button>
               <Button
                 disabled={!enroll}
                 onClick={() => setStep("verify")}
                 className="bg-brand-700 text-white hover:bg-brand-800"
-              > {ui("I've added it — next")} </Button>
+              >
+                {" "}
+                {ui("I've added it — next")}{" "}
+              </Button>
             </DialogFooter>
           </div>
         )}
@@ -292,7 +332,9 @@ function EnrollDialog({
         {step === "verify" && (
           <form onSubmit={handleVerify} className="space-y-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="enrollCode">{ui("Enter the 6-digit code from your app")}</Label>
+              <Label htmlFor="enrollCode">
+                {ui("Enter the 6-digit code from your app")}
+              </Label>
               <Input
                 id="enrollCode"
                 autoFocus
@@ -305,13 +347,23 @@ function EnrollDialog({
               />
             </div>
             <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => setStep("scan")}>{ui("Back")}</Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setStep("scan")}
+              >
+                {ui("Back")}
+              </Button>
               <Button
                 type="submit"
                 disabled={busy || code.length !== 6}
                 className="bg-brand-700 text-white hover:bg-brand-800"
               >
-                {busy ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null} {ui("Verify")} </Button>
+                {busy ? (
+                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                ) : null}{" "}
+                {ui("Verify")}{" "}
+              </Button>
             </DialogFooter>
           </form>
         )}
@@ -319,12 +371,21 @@ function EnrollDialog({
         {step === "codes" && recoveryCodes && (
           <div className="space-y-4 py-2">
             <div className="rounded-lg border border-amber-700/40 bg-amber-950/30 p-3 text-xs text-amber-200">
-              <p className="font-medium">{ui("Save these recovery codes now.")}</p>
-              <p className="mt-1 text-amber-200/80"> {ui("Each code can be used once if you lose access to your authenticator. We won't show them again.")} </p>
+              <p className="font-medium">
+                {ui("Save these recovery codes now.")}
+              </p>
+              <p className="mt-1 text-amber-200/80">
+                {" "}
+                {ui(
+                  "Each code can be used once if you lose access to your authenticator. We won't show them again.",
+                )}{" "}
+              </p>
             </div>
             <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-secondary p-3 font-mono text-xs">
               {recoveryCodes.map((c) => (
-                <div key={c} className="truncate">{c}</div>
+                <div key={c} className="truncate">
+                  {c}
+                </div>
               ))}
             </div>
             <div className="flex items-center gap-2">
@@ -333,9 +394,14 @@ function EnrollDialog({
                 variant="outline"
                 type="button"
                 className="rounded-lg"
-                onClick={() => navigator.clipboard.writeText(recoveryCodes.join("\n")).catch(() => {})}
+                onClick={() =>
+                  navigator.clipboard
+                    .writeText(recoveryCodes.join("\n"))
+                    .catch(() => {})
+                }
               >
-                <Copy className="mr-1.5 h-3.5 w-3.5" /> {ui("Copy")} </Button>
+                <Copy className="mr-1.5 h-3.5 w-3.5" /> {ui("Copy")}{" "}
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
@@ -343,10 +409,18 @@ function EnrollDialog({
                 className="rounded-lg"
                 onClick={handleDownload}
               >
-                <Download className="mr-1.5 h-3.5 w-3.5" /> {ui("Download")} </Button>
+                <Download className="mr-1.5 h-3.5 w-3.5" />{" "}
+                {ui("Download")}{" "}
+              </Button>
             </div>
             <DialogFooter>
-              <Button onClick={handleFinish} className="bg-brand-700 text-white hover:bg-brand-800"> {ui("Done")} </Button>
+              <Button
+                onClick={handleFinish}
+                className="bg-brand-700 text-white hover:bg-brand-800"
+              >
+                {" "}
+                {ui("Done")}{" "}
+              </Button>
             </DialogFooter>
           </div>
         )}
@@ -405,7 +479,12 @@ function DisableDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{ui("Disable two-factor authentication")}</DialogTitle>
-          <DialogDescription> {ui("Confirm your password and a current code (or recovery code) to turn off MFA.")} </DialogDescription>
+          <DialogDescription>
+            {" "}
+            {ui(
+              "Confirm your password and a current code (or recovery code) to turn off MFA.",
+            )}{" "}
+          </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-3 py-2">
           {error && (
@@ -427,7 +506,9 @@ function DisableDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="disableCode">{ui("6-digit code or recovery code")}</Label>
+            <Label htmlFor="disableCode">
+              {ui("6-digit code or recovery code")}
+            </Label>
             <Input
               id="disableCode"
               required
@@ -438,9 +519,24 @@ function DisableDialog({
             />
           </div>
           <DialogFooter>
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>{ui("Cancel")}</Button>
-            <Button type="submit" variant="destructive" disabled={busy} className="rounded-lg">
-              {busy ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null} {ui("Disable MFA")} </Button>
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => onOpenChange(false)}
+            >
+              {ui("Cancel")}
+            </Button>
+            <Button
+              type="submit"
+              variant="destructive"
+              disabled={busy}
+              className="rounded-lg"
+            >
+              {busy ? (
+                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+              ) : null}{" "}
+              {ui("Disable MFA")}{" "}
+            </Button>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -481,7 +577,10 @@ function RegenerateDialog({
     setBusy(true);
     setError(null);
     try {
-      const res = await apiMfaRegenerateRecoveryCodes({ password, code: code.trim() });
+      const res = await apiMfaRegenerateRecoveryCodes({
+        password,
+        code: code.trim(),
+      });
       setNewCodes(res.recoveryCodes);
     } catch (err) {
       setError(
@@ -504,7 +603,12 @@ function RegenerateDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{ui("Regenerate recovery codes")}</DialogTitle>
-          <DialogDescription> {ui("Your existing recovery codes will stop working immediately.")} </DialogDescription>
+          <DialogDescription>
+            {" "}
+            {ui(
+              "Your existing recovery codes will stop working immediately.",
+            )}{" "}
+          </DialogDescription>
         </DialogHeader>
 
         {!newCodes ? (
@@ -539,17 +643,36 @@ function RegenerateDialog({
               />
             </div>
             <DialogFooter>
-              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>{ui("Cancel")}</Button>
-              <Button type="submit" disabled={busy} className="rounded-lg bg-brand-700 text-white hover:bg-brand-800">
-                {busy ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : null} {ui("Generate new codes")} </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => onOpenChange(false)}
+              >
+                {ui("Cancel")}
+              </Button>
+              <Button
+                type="submit"
+                disabled={busy}
+                className="rounded-lg bg-brand-700 text-white hover:bg-brand-800"
+              >
+                {busy ? (
+                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                ) : null}{" "}
+                {ui("Generate new codes")}{" "}
+              </Button>
             </DialogFooter>
           </form>
         ) : (
           <div className="space-y-4 py-2">
-            <div className="rounded-lg border border-amber-700/40 bg-amber-950/30 p-3 text-xs text-amber-200"> {ui("Save these now — we won't show them again.")} </div>
+            <div className="rounded-lg border border-amber-700/40 bg-amber-950/30 p-3 text-xs text-amber-200">
+              {" "}
+              {ui("Save these now — we won't show them again.")}{" "}
+            </div>
             <div className="grid grid-cols-2 gap-2 rounded-lg border border-border bg-secondary p-3 font-mono text-xs">
               {newCodes.map((c) => (
-                <div key={c} className="truncate">{c}</div>
+                <div key={c} className="truncate">
+                  {c}
+                </div>
               ))}
             </div>
             <Button
@@ -557,11 +680,22 @@ function RegenerateDialog({
               variant="outline"
               type="button"
               className="rounded-lg"
-              onClick={() => navigator.clipboard.writeText(newCodes.join("\n")).catch(() => {})}
+              onClick={() =>
+                navigator.clipboard
+                  .writeText(newCodes.join("\n"))
+                  .catch(() => {})
+              }
             >
-              <Copy className="mr-1.5 h-3.5 w-3.5" /> {ui("Copy")} </Button>
+              <Copy className="mr-1.5 h-3.5 w-3.5" /> {ui("Copy")}{" "}
+            </Button>
             <DialogFooter>
-              <Button onClick={handleClose} className="bg-brand-700 text-white hover:bg-brand-800"> {ui("Done")} </Button>
+              <Button
+                onClick={handleClose}
+                className="bg-brand-700 text-white hover:bg-brand-800"
+              >
+                {" "}
+                {ui("Done")}{" "}
+              </Button>
             </DialogFooter>
           </div>
         )}

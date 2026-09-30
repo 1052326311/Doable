@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback } from "react";
 import {
@@ -15,10 +14,7 @@ import {
   Shield,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import {
-  apiUpdateProject,
-  type ApiProject,
-} from "@/lib/api";
+import { apiUpdateProject, type ApiProject } from "@/lib/api";
 import { IntegrationsPanel } from "@/modules/integrations/integrations-panel";
 import { GitHubSettings } from "@/modules/settings/components/github-settings";
 import { useAuth } from "@/hooks/use-auth";
@@ -61,7 +57,10 @@ export function GeneralTab({
       onUpdate(data);
       addToast("success", ui("Project settings saved"));
     } catch (err) {
-      addToast("error", err instanceof Error ? err.message : ui("Failed to save"));
+      addToast(
+        "error",
+        err instanceof Error ? err.message : ui("Failed to save"),
+      );
     } finally {
       setSaving(false);
     }
@@ -73,7 +72,10 @@ export function GeneralTab({
       <SectionCard title={ui("Project Details")}>
         <div className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="settings-name" className="text-sm font-medium"> {ui("Project Name")} </label>
+            <label htmlFor="settings-name" className="text-sm font-medium">
+              {" "}
+              {ui("Project Name")}{" "}
+            </label>
             <input
               id="settings-name"
               type="text"
@@ -85,7 +87,13 @@ export function GeneralTab({
           </div>
 
           <div className="space-y-2">
-            <label htmlFor="settings-description" className="text-sm font-medium"> {ui("Description")} </label>
+            <label
+              htmlFor="settings-description"
+              className="text-sm font-medium"
+            >
+              {" "}
+              {ui("Description")}{" "}
+            </label>
             <textarea
               id="settings-description"
               value={description}
@@ -105,13 +113,15 @@ export function GeneralTab({
                   "flex items-center gap-2 rounded-lg border px-4 py-3 text-sm transition-colors flex-1",
                   visibility === "public"
                     ? "border-primary bg-primary/5 text-foreground"
-                    : "border-input text-muted-foreground hover:text-foreground"
+                    : "border-input text-muted-foreground hover:text-foreground",
                 )}
               >
                 <Eye className="h-4 w-4" />
                 <div className="text-left">
                   <div className="font-medium">{ui("Public")}</div>
-                  <div className="text-xs text-muted-foreground">{ui("Anyone can view")}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {ui("Anyone can view")}
+                  </div>
                 </div>
               </button>
               <button
@@ -120,13 +130,15 @@ export function GeneralTab({
                   "flex items-center gap-2 rounded-lg border px-4 py-3 text-sm transition-colors flex-1",
                   visibility === "private"
                     ? "border-primary bg-primary/5 text-foreground"
-                    : "border-input text-muted-foreground hover:text-foreground"
+                    : "border-input text-muted-foreground hover:text-foreground",
                 )}
               >
                 <EyeOff className="h-4 w-4" />
                 <div className="text-left">
                   <div className="font-medium">{ui("Private")}</div>
-                  <div className="text-xs text-muted-foreground">{ui("Only you can access")}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {ui("Only you can access")}
+                  </div>
                 </div>
               </button>
             </div>
@@ -143,7 +155,7 @@ export function GeneralTab({
                 "inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition-colors",
                 hasChanges
                   ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                  : "bg-muted text-muted-foreground cursor-not-allowed"
+                  : "bg-muted text-muted-foreground cursor-not-allowed",
               )}
             >
               {saving ? (
@@ -158,7 +170,10 @@ export function GeneralTab({
       </SectionCard>
 
       {/* Project Info */}
-      <SectionCard title={ui("Project Information")} description={ui("Read-only metadata about your project.")}>
+      <SectionCard
+        title={ui("Project Information")}
+        description={ui("Read-only metadata about your project.")}
+      >
         <div className="grid gap-4 sm:grid-cols-2">
           <InfoItem
             icon={Hash}
@@ -221,7 +236,7 @@ export function IntegrationsPanelWrapper({ projectId }: { projectId: string }) {
   const { accessToken } = getStoredTokens();
   const workspaceId =
     typeof window !== "undefined"
-      ? localStorage.getItem("doable_active_workspace_id") ?? ""
+      ? (localStorage.getItem("doable_active_workspace_id") ?? "")
       : "";
 
   const handleGitHubConnect = useCallback(() => {
@@ -234,7 +249,9 @@ export function IntegrationsPanelWrapper({ projectId }: { projectId: string }) {
     <div className="space-y-4">
       <SectionCard
         title={ui("Integrations")}
-        description={ui("Connect third-party services and AI tools to extend your project.")}
+        description={ui(
+          "Connect third-party services and AI tools to extend your project.",
+        )}
       >
         <IntegrationsPanel
           workspaceId={workspaceId}
@@ -248,12 +265,11 @@ export function IntegrationsPanelWrapper({ projectId }: { projectId: string }) {
       {accessToken && (
         <SectionCard
           title={ui("GitHub Sync")}
-          description={ui("Push and pull code changes to keep your project in sync.")}
+          description={ui(
+            "Push and pull code changes to keep your project in sync.",
+          )}
         >
-          <GitHubSettings
-            projectId={projectId}
-            accessToken={accessToken}
-          />
+          <GitHubSettings projectId={projectId} accessToken={accessToken} />
         </SectionCard>
       )}
     </div>

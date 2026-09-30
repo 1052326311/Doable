@@ -1,7 +1,6 @@
 "use client";
-import {UiText} from "@/i18n/ui-text";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { UiText } from "@/i18n/ui-text";
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { memo, useState, useCallback, useRef } from "react";
 import {
@@ -18,7 +17,11 @@ import type { PlanStep as PlanStepType } from "@doable/shared/types/ai";
 interface PlanStepProps {
   step: PlanStepType;
   index?: number;
-  onEdit?: (stepId: string, field: "title" | "description", value: string) => void;
+  onEdit?: (
+    stepId: string,
+    field: "title" | "description",
+    value: string,
+  ) => void;
   onRemove?: (stepId: string) => void;
   isEditable?: boolean;
   isDragging?: boolean;
@@ -72,11 +75,14 @@ export const PlanStepCard = memo(function PlanStepCard({
   const ui = useUiText();
 
   const [expanded, setExpanded] = useState(false);
-  const [editingField, setEditingField] = useState<"title" | "description" | null>(null);
+  const [editingField, setEditingField] = useState<
+    "title" | "description" | null
+  >(null);
   const [editValue, setEditValue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const hasDetails = step.details || (step.filePaths && step.filePaths.length > 0);
+  const hasDetails =
+    step.details || (step.filePaths && step.filePaths.length > 0);
   const cfg = STATUS_CONFIG[step.status] ?? STATUS_CONFIG.pending;
 
   const startEdit = useCallback(
@@ -86,7 +92,7 @@ export const PlanStepCard = memo(function PlanStepCard({
       setEditValue(step[field]);
       setTimeout(() => inputRef.current?.focus(), 0);
     },
-    [isEditable, onEdit, step]
+    [isEditable, onEdit, step],
   );
 
   const commitEdit = useCallback(() => {
@@ -101,10 +107,15 @@ export const PlanStepCard = memo(function PlanStepCard({
 
   const handleEditKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "Enter") { e.preventDefault(); commitEdit(); }
-      else if (e.key === "Escape") { setEditingField(null); setEditValue(""); }
+      if (e.key === "Enter") {
+        e.preventDefault();
+        commitEdit();
+      } else if (e.key === "Escape") {
+        setEditingField(null);
+        setEditValue("");
+      }
     },
-    [commitEdit]
+    [commitEdit],
   );
 
   return (
@@ -118,7 +129,9 @@ export const PlanStepCard = memo(function PlanStepCard({
       style={{ animationDelay: `${index * 60}ms` }}
     >
       {/* Colored left border strip */}
-      <div className={`w-0.5 self-stretch shrink-0 ${cfg.leftBorder} transition-all duration-300`} />
+      <div
+        className={`w-0.5 self-stretch shrink-0 ${cfg.leftBorder} transition-all duration-300`}
+      />
 
       {/* Content */}
       <div className="flex min-w-0 flex-1 items-start gap-2 px-3 py-2">
@@ -150,13 +163,17 @@ export const PlanStepCard = memo(function PlanStepCard({
             ) : (
               <span
                 className={`text-xs font-medium leading-snug ${
-                  step.status === "in_progress" ? "text-brand-400" :
-                  step.status === "completed" ? "text-muted-foreground line-through" :
-                  "text-foreground"
+                  step.status === "in_progress"
+                    ? "text-brand-400"
+                    : step.status === "completed"
+                      ? "text-muted-foreground line-through"
+                      : "text-foreground"
                 } ${isEditable ? "cursor-pointer hover:text-brand-400 transition-colors" : ""}`}
                 onClick={() => startEdit("title")}
               >
-                <span className="text-muted-foreground/40 mr-1.5 text-[10px] font-mono">{step.order}.</span>
+                <span className="text-muted-foreground/40 mr-1.5 text-[10px] font-mono">
+                  {step.order}.
+                </span>
                 {step.title}
               </span>
             )}
@@ -176,7 +193,9 @@ export const PlanStepCard = memo(function PlanStepCard({
           ) : (
             <p
               className={`mt-0.5 text-xs text-muted-foreground leading-relaxed ${
-                isEditable ? "cursor-pointer hover:text-foreground transition-colors" : ""
+                isEditable
+                  ? "cursor-pointer hover:text-foreground transition-colors"
+                  : ""
               }`}
               onClick={() => startEdit("description")}
             >
@@ -191,19 +210,28 @@ export const PlanStepCard = memo(function PlanStepCard({
                 onClick={() => setExpanded(!expanded)}
                 className="flex items-center gap-1 text-[10px] text-muted-foreground/50 hover:text-muted-foreground transition-colors"
               >
-                <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-0" : "-rotate-90"}`} />
-                {expanded ? ui("Hide") : ui("Show")} {ui("details")} </button>
+                <ChevronDown
+                  className={`h-3 w-3 transition-transform ${expanded ? "rotate-0" : "-rotate-90"}`}
+                />
+                {expanded ? ui("Hide") : ui("Show")} {ui("details")}{" "}
+              </button>
               {expanded && (
                 <div className="mt-1.5 rounded-md border border-border/50 bg-muted/20 px-2.5 py-2 text-xs text-muted-foreground space-y-1.5">
                   {step.details && (
-                    <p className="leading-relaxed whitespace-pre-wrap">{step.details}</p>
+                    <p className="leading-relaxed whitespace-pre-wrap">
+                      {step.details}
+                    </p>
                   )}
                   {step.filePaths && step.filePaths.length > 0 && (
                     <div>
-                      <span className="font-medium text-foreground">{ui("Files:")}</span>
+                      <span className="font-medium text-foreground">
+                        {ui("Files:")}
+                      </span>
                       <ul className="mt-0.5 space-y-0.5">
                         {step.filePaths.map((fp) => (
-                          <li key={fp} className="font-mono text-[11px]">{fp}</li>
+                          <li key={fp} className="font-mono text-[11px]">
+                            {fp}
+                          </li>
                         ))}
                       </ul>
                     </div>

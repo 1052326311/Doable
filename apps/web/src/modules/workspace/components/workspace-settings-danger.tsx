@@ -1,13 +1,8 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState } from "react";
-import {
-  Loader2,
-  Trash2,
-  ArrowRightLeft,
-} from "lucide-react";
+import { Loader2, Trash2, ArrowRightLeft } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 
 // ─── Danger Tab ─────────────────────────────────────────────
@@ -40,9 +35,7 @@ export function DangerTab({
     } catch (err) {
       addToast(
         "error",
-        err instanceof Error
-          ? err.message
-          : ui("Failed to delete workspace")
+        err instanceof Error ? err.message : ui("Failed to delete workspace"),
       );
       setDeleting(false);
     }
@@ -55,14 +48,22 @@ export function DangerTab({
         <div className="flex items-start gap-3">
           <ArrowRightLeft className="mt-0.5 h-5 w-5 text-amber-600 dark:text-amber-400" />
           <div className="flex-1">
-            <h2 className="text-lg font-semibold"> {ui("Transfer Ownership")} </h2>
-            <p className="mt-1 text-sm text-muted-foreground"> {ui("Transfer ownership of this workspace to another member. You will be demoted to admin.")} </p>
+            <h2 className="text-lg font-semibold">
+              {" "}
+              {ui("Transfer Ownership")}{" "}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {" "}
+              {ui(
+                "Transfer ownership of this workspace to another member. You will be demoted to admin.",
+              )}{" "}
+            </p>
             <div className="mt-4 space-y-3">
               <div className="space-y-2">
-                <label
-                  htmlFor="transfer-email"
-                  className="text-sm font-medium"
-                > {ui("New owner email")} </label>
+                <label htmlFor="transfer-email" className="text-sm font-medium">
+                  {" "}
+                  {ui("New owner email")}{" "}
+                </label>
                 <input
                   id="transfer-email"
                   type="email"
@@ -73,18 +74,15 @@ export function DangerTab({
                 />
               </div>
               <button
-                disabled={
-                  !transferEmail.trim() || !transferEmail.includes("@")
-                }
+                disabled={!transferEmail.trim() || !transferEmail.includes("@")}
                 onClick={() =>
-                  addToast(
-                    "success",
-                    ui("Transfer request sent.")
-                  )
+                  addToast("success", ui("Transfer request sent."))
                 }
                 className="inline-flex items-center gap-2 rounded-md border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700 transition-colors hover:bg-amber-100 disabled:pointer-events-none disabled:opacity-50 dark:border-amber-700 dark:bg-amber-950 dark:text-amber-300 dark:hover:bg-amber-900"
               >
-                <ArrowRightLeft className="h-4 w-4" /> {ui("Transfer Ownership")} </button>
+                <ArrowRightLeft className="h-4 w-4" />{" "}
+                {ui("Transfer Ownership")}{" "}
+              </button>
             </div>
           </div>
         </div>
@@ -95,22 +93,39 @@ export function DangerTab({
         <div className="flex items-start gap-3">
           <Trash2 className="mt-0.5 h-5 w-5 text-destructive" />
           <div className="flex-1">
-            <h2 className="text-lg font-semibold text-destructive"> {ui("Delete Workspace")} </h2>
-            <p className="mt-1 text-sm text-muted-foreground"> {ui("Permanently delete this workspace, all its projects, files, and member associations. This action cannot be undone.")} </p>
+            <h2 className="text-lg font-semibold text-destructive">
+              {" "}
+              {ui("Delete Workspace")}{" "}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {" "}
+              {ui(
+                "Permanently delete this workspace, all its projects, files, and member associations. This action cannot be undone.",
+              )}{" "}
+            </p>
 
             {!showDeleteDialog ? (
               <button
                 onClick={() => setShowDeleteDialog(true)}
                 className="mt-4 inline-flex items-center gap-2 rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90"
               >
-                <Trash2 className="h-4 w-4" /> {ui("Delete This Workspace")} </button>
+                <Trash2 className="h-4 w-4" />{" "}
+                {ui("Delete This Workspace")}{" "}
+              </button>
             ) : (
               <div className="mt-4 rounded-lg border border-destructive/20 bg-destructive/5 p-4">
-                <p className="text-sm font-medium text-destructive"> {ui("Are you absolutely sure?")} </p>
-                <p className="mt-1 text-sm text-muted-foreground"> {ui("Type")}{" "}
+                <p className="text-sm font-medium text-destructive">
+                  {" "}
+                  {ui("Are you absolutely sure?")}{" "}
+                </p>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {" "}
+                  {ui("Type")}{" "}
                   <span className="font-mono text-destructive">
                     {workspace.name}
-                  </span>{" "} {ui("to confirm.")} </p>
+                  </span>{" "}
+                  {ui("to confirm.")}{" "}
+                </p>
 
                 <div className="mt-3 space-y-3">
                   <input
@@ -124,9 +139,7 @@ export function DangerTab({
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => void handleDelete()}
-                      disabled={
-                        deleteConfirm !== workspace.name || deleting
-                      }
+                      disabled={deleteConfirm !== workspace.name || deleting}
                       className="inline-flex items-center gap-2 rounded-md bg-destructive px-4 py-2 text-sm font-medium text-destructive-foreground transition-colors hover:bg-destructive/90 disabled:pointer-events-none disabled:opacity-50"
                     >
                       {deleting ? (
@@ -144,7 +157,10 @@ export function DangerTab({
                         setDeleteConfirm("");
                       }}
                       className="rounded-md border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent"
-                    > {ui("Cancel")} </button>
+                    >
+                      {" "}
+                      {ui("Cancel")}{" "}
+                    </button>
                   </div>
                 </div>
               </div>

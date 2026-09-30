@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useRef } from "react";
 import { type FileNode } from "../hooks/use-editor-store";
@@ -66,20 +65,34 @@ export function DeleteConfirmation({
         <div className="flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-destructive flex-none mt-0.5" />
           <div className="flex-1 min-w-0">
-            <h4 className="text-sm font-semibold text-foreground">{ui("Delete file?")}</h4>
-            <p className="mt-1 text-xs text-muted-foreground"> {ui("Are you sure you want to delete")}{" "}
-              <span className="font-mono font-medium text-foreground">{name}</span>{ui("? This cannot be undone.")} </p>
+            <h4 className="text-sm font-semibold text-foreground">
+              {ui("Delete file?")}
+            </h4>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {" "}
+              {ui("Are you sure you want to delete")}{" "}
+              <span className="font-mono font-medium text-foreground">
+                {name}
+              </span>
+              {ui("? This cannot be undone.")}{" "}
+            </p>
           </div>
         </div>
         <div className="mt-4 flex items-center justify-end gap-2">
           <button
             onClick={onCancel}
             className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-          > {ui("Cancel")} </button>
+          >
+            {" "}
+            {ui("Cancel")}{" "}
+          </button>
           <button
             onClick={onConfirm}
             className="rounded-md bg-destructive px-3 py-1.5 text-xs font-medium text-destructive-foreground hover:bg-destructive/90 transition-colors"
-          > {ui("Delete")} </button>
+          >
+            {" "}
+            {ui("Delete")}{" "}
+          </button>
         </div>
       </div>
     </>
@@ -192,14 +205,43 @@ export function ContextMenu({
 
   if (isDir) {
     items.push(
-      { label: ui("New File"), icon: FilePlus, action: () => { onNewFile(state.node.path); onClose(); } },
-      { label: ui("New Folder"), icon: FolderPlus, action: () => { onNewFolder(state.node.path); onClose(); } },
+      {
+        label: ui("New File"),
+        icon: FilePlus,
+        action: () => {
+          onNewFile(state.node.path);
+          onClose();
+        },
+      },
+      {
+        label: ui("New Folder"),
+        icon: FolderPlus,
+        action: () => {
+          onNewFolder(state.node.path);
+          onClose();
+        },
+      },
     );
   }
 
   items.push(
-    { label: ui("Rename"), icon: Pencil, action: () => { onRename(state.node); onClose(); }, separator: isDir },
-    { label: ui("Copy Path"), icon: ClipboardCopy, action: () => { onCopyPath(state.node.path); onClose(); } },
+    {
+      label: ui("Rename"),
+      icon: Pencil,
+      action: () => {
+        onRename(state.node);
+        onClose();
+      },
+      separator: isDir,
+    },
+    {
+      label: ui("Copy Path"),
+      icon: ClipboardCopy,
+      action: () => {
+        onCopyPath(state.node.path);
+        onClose();
+      },
+    },
     {
       label: ui("Delete"),
       icon: Trash2,
@@ -225,23 +267,27 @@ export function ContextMenu({
         className="fixed z-50 min-w-[180px] rounded-md border border-border bg-popover py-1 shadow-lg"
         style={{ left: x, top: y }}
       >
-        {items.map(({ label, icon: Icon, action, destructive, separator }, i) => (
-          <div key={label}>
-            {separator && i > 0 && <div className="my-1 border-t border-border" />}
-            <button
-              onClick={action}
-              className={cn(
-                "flex w-full items-center gap-2 px-3 py-1.5 text-sm transition-colors",
-                destructive
-                  ? "text-destructive hover:bg-destructive/10"
-                  : "text-foreground hover:bg-accent"
+        {items.map(
+          ({ label, icon: Icon, action, destructive, separator }, i) => (
+            <div key={label}>
+              {separator && i > 0 && (
+                <div className="my-1 border-t border-border" />
               )}
-            >
-              <Icon className="h-3.5 w-3.5" />
-              {label}
-            </button>
-          </div>
-        ))}
+              <button
+                onClick={action}
+                className={cn(
+                  "flex w-full items-center gap-2 px-3 py-1.5 text-sm transition-colors",
+                  destructive
+                    ? "text-destructive hover:bg-destructive/10"
+                    : "text-foreground hover:bg-accent",
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                {label}
+              </button>
+            </div>
+          ),
+        )}
       </div>
     </>
   );
@@ -328,7 +374,7 @@ export function TreeNode({
           "group flex w-full items-center gap-1 rounded-sm py-1 pr-2 text-sm transition-colors",
           isActive
             ? "bg-accent text-accent-foreground"
-            : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+            : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
         )}
         style={{ paddingLeft: `${depth * 12 + 8}px` }}
       >
@@ -344,7 +390,7 @@ export function TreeNode({
         <Icon
           className={cn(
             "h-3.5 w-3.5 flex-none",
-            isDir ? "text-blue-400" : "text-muted-foreground"
+            isDir ? "text-blue-400" : "text-muted-foreground",
           )}
         />
         <span className="truncate">{node.name}</span>
@@ -358,7 +404,11 @@ export function TreeNode({
               initialValue=""
               depth={depth + 1}
               icon={inlineNew.type === "folder" ? Folder : File}
-              iconColor={inlineNew.type === "folder" ? "text-blue-400" : "text-muted-foreground"}
+              iconColor={
+                inlineNew.type === "folder"
+                  ? "text-blue-400"
+                  : "text-muted-foreground"
+              }
               onSubmit={onInlineNewSubmit}
               onCancel={onInlineNewCancel}
             />

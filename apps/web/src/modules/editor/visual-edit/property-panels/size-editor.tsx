@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { Scaling, MoveHorizontal, MoveVertical } from "lucide-react";
 
@@ -28,7 +27,9 @@ export function SizeEditor({
       {/* Section Header */}
       <div className="flex items-center gap-2 px-3 py-2">
         <Scaling className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-xs font-medium text-foreground">{ui("Size")}</span>
+        <span className="text-xs font-medium text-foreground">
+          {ui("Size")}
+        </span>
       </div>
 
       {/* Content */}
@@ -37,7 +38,9 @@ export function SizeEditor({
         <div className="flex items-center gap-2">
           <div className="flex w-20 shrink-0 items-center gap-1.5">
             <MoveHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
-            <label className="text-[11px] text-muted-foreground">{ui("Width")}</label>
+            <label className="text-[11px] text-muted-foreground">
+              {ui("Width")}
+            </label>
           </div>
           <input
             type="text"
@@ -52,7 +55,9 @@ export function SizeEditor({
         <div className="flex items-center gap-2">
           <div className="flex w-20 shrink-0 items-center gap-1.5">
             <MoveVertical className="h-3.5 w-3.5 text-muted-foreground" />
-            <label className="text-[11px] text-muted-foreground">{ui("Height")}</label>
+            <label className="text-[11px] text-muted-foreground">
+              {ui("Height")}
+            </label>
           </div>
           <input
             type="text"

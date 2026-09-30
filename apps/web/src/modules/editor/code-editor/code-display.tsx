@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useCallback, useMemo, useState } from "react";
 import { Copy, Check } from "lucide-react";
@@ -122,7 +121,7 @@ export function CodeDisplay({ code, language, fileName }: CodeDisplayProps) {
 
   const tokenizedLines = useMemo(
     () => tokenize(code, language),
-    [code, language]
+    [code, language],
   );
 
   const handleCopy = useCallback(async () => {
@@ -143,10 +142,12 @@ export function CodeDisplay({ code, language, fileName }: CodeDisplayProps) {
       >
         {copied ? (
           <>
-            <Check className="h-3 w-3 text-green-500" /> {ui("Copied")} </>
+            <Check className="h-3 w-3 text-green-500" /> {ui("Copied")}{" "}
+          </>
         ) : (
           <>
-            <Copy className="h-3 w-3" /> {ui("Copy")} </>
+            <Copy className="h-3 w-3" /> {ui("Copy")}{" "}
+          </>
         )}
       </button>
 
@@ -154,10 +155,7 @@ export function CodeDisplay({ code, language, fileName }: CodeDisplayProps) {
       <table className="w-full border-collapse">
         <tbody>
           {tokenizedLines.map((tokens, lineIndex) => (
-            <tr
-              key={lineIndex}
-              className="hover:bg-muted/30 transition-colors"
-            >
+            <tr key={lineIndex} className="hover:bg-muted/30 transition-colors">
               {/* Line number */}
               <td
                 className="sticky left-0 select-none bg-[hsl(var(--background))] px-3 text-right text-muted-foreground/50 align-top"

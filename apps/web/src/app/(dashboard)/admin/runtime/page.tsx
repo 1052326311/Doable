@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
@@ -125,12 +124,14 @@ function StateBadge({ state }: { state: string }) {
     state === "running"
       ? "bg-emerald-500/15 text-emerald-300 border-emerald-500/30"
       : state === "failed"
-      ? "bg-red-500/15 text-red-300 border-red-500/30"
-      : state === "stopped"
-      ? "bg-zinc-500/15 text-zinc-300 border-zinc-500/30"
-      : "bg-amber-500/15 text-amber-300 border-amber-500/30";
+        ? "bg-red-500/15 text-red-300 border-red-500/30"
+        : state === "stopped"
+          ? "bg-zinc-500/15 text-zinc-300 border-zinc-500/30"
+          : "bg-amber-500/15 text-amber-300 border-amber-500/30";
   return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${cls}`}>
+    <span
+      className={`inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium border ${cls}`}
+    >
       {state}
     </span>
   );
@@ -147,7 +148,9 @@ export default function RuntimeAdminPage() {
 
   // Published apps state
   const [instances, setInstances] = useState<Instance[]>([]);
-  const [runtimeSummary, setRuntimeSummary] = useState<RuntimeSummary | null>(null);
+  const [runtimeSummary, setRuntimeSummary] = useState<RuntimeSummary | null>(
+    null,
+  );
   const [runtimeLoading, setRuntimeLoading] = useState(true);
   const [runtimeError, setRuntimeError] = useState<string | null>(null);
   const [restarting, setRestarting] = useState<string | null>(null);
@@ -167,14 +170,16 @@ export default function RuntimeAdminPage() {
   // ─── Load functions ───
   const loadRuntime = useCallback(async () => {
     try {
-      const r = await apiFetch<{ data: { instances: Instance[]; summary: RuntimeSummary } }>(
-        "/admin/runtime/instances",
-      );
+      const r = await apiFetch<{
+        data: { instances: Instance[]; summary: RuntimeSummary };
+      }>("/admin/runtime/instances");
       setInstances(r.data.instances);
       setRuntimeSummary(r.data.summary);
       setRuntimeError(null);
     } catch (e) {
-      setRuntimeError(e instanceof Error ? e.message : ui("Failed to load runtime instances"));
+      setRuntimeError(
+        e instanceof Error ? e.message : ui("Failed to load runtime instances"),
+      );
     } finally {
       setRuntimeLoading(false);
     }
@@ -182,14 +187,16 @@ export default function RuntimeAdminPage() {
 
   const loadDevServers = useCallback(async () => {
     try {
-      const r = await apiFetch<{ data: { servers: DevServer[]; summary: DevSummary } }>(
-        "/admin/dev-servers",
-      );
+      const r = await apiFetch<{
+        data: { servers: DevServer[]; summary: DevSummary };
+      }>("/admin/dev-servers");
       setServers(r.data.servers);
       setDevSummary(r.data.summary);
       setDevError(null);
     } catch (e) {
-      setDevError(e instanceof Error ? e.message : ui("Failed to load dev servers"));
+      setDevError(
+        e instanceof Error ? e.message : ui("Failed to load dev servers"),
+      );
     } finally {
       setDevLoading(false);
     }
@@ -215,7 +222,9 @@ export default function RuntimeAdminPage() {
   const restart = async (projectId: string) => {
     setRestarting(projectId);
     try {
-      await apiFetch(`/projects/${projectId}/runtime/restart`, { method: "POST" });
+      await apiFetch(`/projects/${projectId}/runtime/restart`, {
+        method: "POST",
+      });
       await loadRuntime();
     } catch (e) {
       setRuntimeError(e instanceof Error ? e.message : "Restart failed");
@@ -225,7 +234,15 @@ export default function RuntimeAdminPage() {
   };
 
   const stop = async (projectId: string, projectName: string) => {
-    if (!confirm(ui("Stop \"{v0}\"?\n\nThe app's systemd unit will be terminated. The user can restart it from their editor.", {v0: (projectName)}))) return;
+    if (
+      !confirm(
+        ui(
+          'Stop "{v0}"?\n\nThe app\'s systemd unit will be terminated. The user can restart it from their editor.',
+          { v0: projectName },
+        ),
+      )
+    )
+      return;
     setStopping(projectId);
     try {
       await apiFetch(`/admin/runtime/${projectId}/stop`, { method: "POST" });
@@ -238,7 +255,15 @@ export default function RuntimeAdminPage() {
   };
 
   const killDevServer = async (projectId: string, projectName: string) => {
-    if (!confirm(ui("Kill dev server for \"{v0}\"?\n\nThe Vite process will be terminated. The user can restart it from their editor.", {v0: (projectName)}))) return;
+    if (
+      !confirm(
+        ui(
+          'Kill dev server for "{v0}"?\n\nThe Vite process will be terminated. The user can restart it from their editor.',
+          { v0: projectName },
+        ),
+      )
+    )
+      return;
     setKilling(projectId);
     try {
       await apiFetch(`/admin/dev-servers/${projectId}`, { method: "DELETE" });
@@ -263,9 +288,18 @@ export default function RuntimeAdminPage() {
     return (
       <div className="max-w-2xl mx-auto p-8 text-center">
         <AlertTriangle className="h-8 w-8 text-amber-400 mx-auto mb-3" />
-        <h1 className="text-xl font-semibold mb-2">{ui("Platform admin required")}</h1>
-        <p className="text-sm text-muted-foreground mb-4"> {ui("This page shows runtime state for every project on the host.")} </p>
-        <Button onClick={() => router.push("/dashboard")}>{ui("Back to Dashboard")}</Button>
+        <h1 className="text-xl font-semibold mb-2">
+          {ui("Platform admin required")}
+        </h1>
+        <p className="text-sm text-muted-foreground mb-4">
+          {" "}
+          {ui(
+            "This page shows runtime state for every project on the host.",
+          )}{" "}
+        </p>
+        <Button onClick={() => router.push("/dashboard")}>
+          {ui("Back to Dashboard")}
+        </Button>
       </div>
     );
   }
@@ -290,15 +324,24 @@ export default function RuntimeAdminPage() {
     <div className="max-w-7xl mx-auto p-6">
       {/* Header */}
       <div className="mb-6">
-        <Link href="/admin" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-3">
-          <ArrowLeft className="h-4 w-4" /> {ui("Back to Admin")} </Link>
+        <Link
+          href="/admin"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-3"
+        >
+          <ArrowLeft className="h-4 w-4" /> {ui("Back to Admin")}{" "}
+        </Link>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600/20">
             <Server className="h-5 w-5 text-brand-400" />
           </div>
           <div className="flex-1">
             <h1 className="text-xl font-semibold">{ui("Runtime")}</h1>
-            <p className="text-sm text-muted-foreground"> {ui("Published apps & live editor dev servers — CPU, memory, uptime, controls.")} </p>
+            <p className="text-sm text-muted-foreground">
+              {" "}
+              {ui(
+                "Published apps & live editor dev servers — CPU, memory, uptime, controls.",
+              )}{" "}
+            </p>
           </div>
           <Button
             variant="outline"
@@ -306,11 +349,19 @@ export default function RuntimeAdminPage() {
             onClick={() => setAutoRefresh((v) => !v)}
             className="gap-1.5"
           >
-            <RefreshCw className={`h-3.5 w-3.5 ${autoRefresh ? "text-emerald-400" : "text-muted-foreground"}`} />
+            <RefreshCw
+              className={`h-3.5 w-3.5 ${autoRefresh ? "text-emerald-400" : "text-muted-foreground"}`}
+            />
             {autoRefresh ? ui("Auto-refresh on") : ui("Auto-refresh off")}
           </Button>
-          <Button variant="outline" size="sm" onClick={loadAll} className="gap-1.5">
-            <RotateCw className="h-3.5 w-3.5" /> {ui("Refresh")} </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={loadAll}
+            className="gap-1.5"
+          >
+            <RotateCw className="h-3.5 w-3.5" /> {ui("Refresh")}{" "}
+          </Button>
         </div>
       </div>
 
@@ -362,8 +413,12 @@ export default function RuntimeAdminPage() {
         />
       )}
 
-      {egressFor && <EgressDrawer instance={egressFor} onClose={() => setEgressFor(null)} />}
-      {logsFor && <LogsDrawer instance={logsFor} onClose={() => setLogsFor(null)} />}
+      {egressFor && (
+        <EgressDrawer instance={egressFor} onClose={() => setEgressFor(null)} />
+      )}
+      {logsFor && (
+        <LogsDrawer instance={logsFor} onClose={() => setLogsFor(null)} />
+      )}
     </div>
   );
 }
@@ -394,9 +449,13 @@ function TabButton({
       {icon}
       {label}
       {count > 0 && (
-        <span className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
-          active ? "bg-brand-400/20 text-brand-300" : "bg-muted text-muted-foreground"
-        }`}>
+        <span
+          className={`ml-1 rounded-full px-1.5 py-0.5 text-[10px] font-medium ${
+            active
+              ? "bg-brand-400/20 text-brand-300"
+              : "bg-muted text-muted-foreground"
+          }`}
+        >
           {count}
         </span>
       )}
@@ -426,10 +485,26 @@ function DevServersTab({
     <div>
       {summary && (
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-          <SummaryCard icon={<Code2 className="h-4 w-4" />} label={ui("Total servers")} value={summary.total} />
-          <SummaryCard icon={<CheckCircle2 className="h-4 w-4 text-emerald-400" />} label={ui("Alive")} value={summary.alive} />
-          <SummaryCard icon={<CheckCircle2 className="h-4 w-4 text-brand-400" />} label={ui("Ready")} value={summary.ready} />
-          <SummaryCard icon={<HardDrive className="h-4 w-4" />} label={ui("Total RAM")} value={fmtBytes(summary.totalMemoryBytes)} />
+          <SummaryCard
+            icon={<Code2 className="h-4 w-4" />}
+            label={ui("Total servers")}
+            value={summary.total}
+          />
+          <SummaryCard
+            icon={<CheckCircle2 className="h-4 w-4 text-emerald-400" />}
+            label={ui("Alive")}
+            value={summary.alive}
+          />
+          <SummaryCard
+            icon={<CheckCircle2 className="h-4 w-4 text-brand-400" />}
+            label={ui("Ready")}
+            value={summary.ready}
+          />
+          <SummaryCard
+            icon={<HardDrive className="h-4 w-4" />}
+            label={ui("Total RAM")}
+            value={fmtBytes(summary.totalMemoryBytes)}
+          />
         </div>
       )}
 
@@ -444,81 +519,134 @@ function DevServersTab({
           <thead className="bg-muted/40 border-b border-border">
             <tr className="text-left text-muted-foreground">
               <th className="px-3 py-2 font-medium">{ui("Project")}</th>
-              <th className="px-3 py-2 font-medium">{ui("Owner / Workspace")}</th>
+              <th className="px-3 py-2 font-medium">
+                {ui("Owner / Workspace")}
+              </th>
               <th className="px-3 py-2 font-medium">{ui("Framework")}</th>
               <th className="px-3 py-2 font-medium">{ui("Listen")}</th>
               <th className="px-3 py-2 font-medium text-right">{ui("PID")}</th>
               <th className="px-3 py-2 font-medium">{ui("Status")}</th>
-              <th className="px-3 py-2 font-medium text-right">{ui("Memory")}</th>
-              <th className="px-3 py-2 font-medium text-right">{ui("Uptime")}</th>
+              <th className="px-3 py-2 font-medium text-right">
+                {ui("Memory")}
+              </th>
+              <th className="px-3 py-2 font-medium text-right">
+                {ui("Uptime")}
+              </th>
               <th className="px-3 py-2 font-medium"></th>
             </tr>
           </thead>
           <tbody>
             {loading && servers.length === 0 ? (
-              <tr><td colSpan={9} className="px-3 py-8 text-center text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin inline mr-2" /> {ui("Loading…")} </td></tr>
-            ) : servers.length === 0 ? (
-              <tr><td colSpan={9} className="px-3 py-8 text-center text-muted-foreground">
-                <div className="space-y-2">
-                  <div>{ui("No active dev servers.")}</div>
-                  <div className="text-[11px]">
-                    Vite/Next dev servers spawn when a user opens the editor preview, and exit when the API restarts or the user idles out.
-                  </div>
-                </div>
-              </td></tr>
-            ) : servers.map((s) => (
-              <tr key={s.projectId} className="border-b border-border last:border-b-0 hover:bg-muted/20">
-                <td className="px-3 py-2">
-                  <Link href={`/editor/${s.projectId}`} className="text-foreground hover:text-brand-400 font-medium">
-                    {s.projectName}
-                  </Link>
-                  <div className="text-[10px] text-muted-foreground font-mono">{s.projectSlug}</div>
-                </td>
-                <td className="px-3 py-2">
-                  <div>{s.ownerEmail ?? "\u2014"}</div>
-                  <div className="text-[10px] text-muted-foreground">{s.workspaceName}</div>
-                </td>
-                <td className="px-3 py-2 font-mono text-[11px]">{s.frameworkId}</td>
-                <td className="px-3 py-2 font-mono text-[11px]">{s.listenAddr}</td>
-                <td className="px-3 py-2 text-right font-mono">{s.pid ?? "\u2014"}</td>
-                <td className="px-3 py-2">
-                  {!s.alive ? (
-                    <span className="inline-flex items-center gap-1 text-red-400 text-[10px]">
-                      <Circle className="h-2.5 w-2.5 fill-red-400" /> {ui("dead")} </span>
-                  ) : s.ready ? (
-                    <span className="inline-flex items-center gap-1 text-emerald-400 text-[10px]">
-                      <Circle className="h-2.5 w-2.5 fill-emerald-400" /> {ui("ready")} </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 text-amber-400 text-[10px]">
-                      <Circle className="h-2.5 w-2.5 fill-amber-400" /> {ui("starting")} </span>
-                  )}
-                </td>
-                <td className="px-3 py-2 text-right font-mono">{fmtBytes(s.memoryBytes)}</td>
-                <td className="px-3 py-2 text-right font-mono">{fmtUptime(s.uptimeMs)}</td>
-                <td className="px-3 py-2 text-right">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => onKill(s.projectId, s.projectName)}
-                    disabled={killing === s.projectId || !s.alive}
-                    className="h-6 px-2 text-[10px] text-red-300 hover:bg-red-500/10 hover:text-red-200 border-red-500/30"
-                    title={ui("Terminate this Vite process")}
-                  >
-                    {killing === s.projectId ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                    ) : (
-                      <Square className="h-3 w-3" />
-                    )}
-                  </Button>
+              <tr>
+                <td
+                  colSpan={9}
+                  className="px-3 py-8 text-center text-muted-foreground"
+                >
+                  <Loader2 className="h-4 w-4 animate-spin inline mr-2" />{" "}
+                  {ui("Loading…")}{" "}
                 </td>
               </tr>
-            ))}
+            ) : servers.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={9}
+                  className="px-3 py-8 text-center text-muted-foreground"
+                >
+                  <div className="space-y-2">
+                    <div>{ui("No active dev servers.")}</div>
+                    <div className="text-[11px]">
+                      Vite/Next dev servers spawn when a user opens the editor
+                      preview, and exit when the API restarts or the user idles
+                      out.
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            ) : (
+              servers.map((s) => (
+                <tr
+                  key={s.projectId}
+                  className="border-b border-border last:border-b-0 hover:bg-muted/20"
+                >
+                  <td className="px-3 py-2">
+                    <Link
+                      href={`/editor/${s.projectId}`}
+                      className="text-foreground hover:text-brand-400 font-medium"
+                    >
+                      {s.projectName}
+                    </Link>
+                    <div className="text-[10px] text-muted-foreground font-mono">
+                      {s.projectSlug}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2">
+                    <div>{s.ownerEmail ?? "\u2014"}</div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {s.workspaceName}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-[11px]">
+                    {s.frameworkId}
+                  </td>
+                  <td className="px-3 py-2 font-mono text-[11px]">
+                    {s.listenAddr}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono">
+                    {s.pid ?? "\u2014"}
+                  </td>
+                  <td className="px-3 py-2">
+                    {!s.alive ? (
+                      <span className="inline-flex items-center gap-1 text-red-400 text-[10px]">
+                        <Circle className="h-2.5 w-2.5 fill-red-400" />{" "}
+                        {ui("dead")}{" "}
+                      </span>
+                    ) : s.ready ? (
+                      <span className="inline-flex items-center gap-1 text-emerald-400 text-[10px]">
+                        <Circle className="h-2.5 w-2.5 fill-emerald-400" />{" "}
+                        {ui("ready")}{" "}
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-amber-400 text-[10px]">
+                        <Circle className="h-2.5 w-2.5 fill-amber-400" />{" "}
+                        {ui("starting")}{" "}
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono">
+                    {fmtBytes(s.memoryBytes)}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono">
+                    {fmtUptime(s.uptimeMs)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => onKill(s.projectId, s.projectName)}
+                      disabled={killing === s.projectId || !s.alive}
+                      className="h-6 px-2 text-[10px] text-red-300 hover:bg-red-500/10 hover:text-red-200 border-red-500/30"
+                      title={ui("Terminate this Vite process")}
+                    >
+                      {killing === s.projectId ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Square className="h-3 w-3" />
+                      )}
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="mt-3 text-[11px] text-muted-foreground"> {ui("Source: in-memory")} <code>servers</code> {ui("map in")} <code>dev-server-core.ts</code>{ui(". Memory is RSS from")} <code>/proc/&lt;pid&gt;/status</code>{ui(". Ports allocated from")} <code>3100-3200</code>.
+      <div className="mt-3 text-[11px] text-muted-foreground">
+        {" "}
+        {ui("Source: in-memory")} <code>servers</code> {ui("map in")}{" "}
+        <code>dev-server-core.ts</code>
+        {ui(". Memory is RSS from")} <code>/proc/&lt;pid&gt;/status</code>
+        {ui(". Ports allocated from")} <code>3100-3200</code>.
       </div>
     </div>
   );
@@ -564,11 +692,31 @@ function PublishedAppsTab({
     <div>
       {summary && (
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
-          <SummaryCard icon={<Activity className="h-4 w-4" />} label={ui("Total")} value={summary.total} />
-          <SummaryCard icon={<CheckCircle2 className="h-4 w-4 text-emerald-400" />} label={ui("Running")} value={summary.running} />
-          <SummaryCard icon={<AlertTriangle className="h-4 w-4 text-red-400" />} label={ui("Failed")} value={summary.failed} />
-          <SummaryCard icon={<Server className="h-4 w-4 text-zinc-400" />} label={ui("Stopped")} value={summary.stopped} />
-          <SummaryCard icon={<HardDrive className="h-4 w-4" />} label={ui("Total RAM")} value={fmtBytes(summary.totalMemoryBytes)} />
+          <SummaryCard
+            icon={<Activity className="h-4 w-4" />}
+            label={ui("Total")}
+            value={summary.total}
+          />
+          <SummaryCard
+            icon={<CheckCircle2 className="h-4 w-4 text-emerald-400" />}
+            label={ui("Running")}
+            value={summary.running}
+          />
+          <SummaryCard
+            icon={<AlertTriangle className="h-4 w-4 text-red-400" />}
+            label={ui("Failed")}
+            value={summary.failed}
+          />
+          <SummaryCard
+            icon={<Server className="h-4 w-4 text-zinc-400" />}
+            label={ui("Stopped")}
+            value={summary.stopped}
+          />
+          <SummaryCard
+            icon={<HardDrive className="h-4 w-4" />}
+            label={ui("Total RAM")}
+            value={fmtBytes(summary.totalMemoryBytes)}
+          />
         </div>
       )}
 
@@ -605,126 +753,218 @@ function PublishedAppsTab({
           <thead className="bg-muted/40 border-b border-border">
             <tr className="text-left text-muted-foreground">
               <th className="px-3 py-2 font-medium">{ui("Project")}</th>
-              <th className="px-3 py-2 font-medium">{ui("Owner / Workspace")}</th>
+              <th className="px-3 py-2 font-medium">
+                {ui("Owner / Workspace")}
+              </th>
               <th className="px-3 py-2 font-medium">{ui("Framework")}</th>
               <th className="px-3 py-2 font-medium">{ui("Listen")}</th>
               <th className="px-3 py-2 font-medium">{ui("Sandbox user")}</th>
               <th className="px-3 py-2 font-medium">{ui("State")}</th>
               <th className="px-3 py-2 font-medium text-right">{ui("CPU")}</th>
-              <th className="px-3 py-2 font-medium text-right">{ui("Memory")}</th>
-              <th className="px-3 py-2 font-medium text-right">{ui("Uptime")}</th>
+              <th className="px-3 py-2 font-medium text-right">
+                {ui("Memory")}
+              </th>
+              <th className="px-3 py-2 font-medium text-right">
+                {ui("Uptime")}
+              </th>
               <th className="px-3 py-2 font-medium">{ui("Last active")}</th>
               <th className="px-3 py-2 font-medium"></th>
             </tr>
           </thead>
           <tbody>
             {loading && allInstances.length === 0 ? (
-              <tr><td colSpan={11} className="px-3 py-8 text-center text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin inline mr-2" /> {ui("Loading…")} </td></tr>
-            ) : instances.length === 0 ? (
-              <tr><td colSpan={11} className="px-3 py-8 text-center text-muted-foreground">
-                {allInstances.length === 0 ? (
-                  <div className="space-y-2">
-                    <div>{ui("No published apps yet.")}</div>
-                    <div className="text-[11px]"> {ui("Runtime rows appear here when a user clicks")} <em>{ui("Publish")}</em>{ui(". To see ALL projects (including drafts), open")}{" "}
-                      <Link href="/admin/projects" className="text-brand-400 hover:underline">{ui("Projects")}</Link>.
-                    </div>
-                  </div>
-                ) : ui("No instances match your filter.")}
-              </td></tr>
-            ) : instances.map((r) => (
-              <tr key={r.projectId} className="border-b border-border last:border-b-0 hover:bg-muted/20">
-                <td className="px-3 py-2">
-                  <Link href={`/editor/${r.projectId}`} className="text-foreground hover:text-brand-400 font-medium">
-                    {r.projectName}
-                  </Link>
-                  <div className="text-[10px] text-muted-foreground font-mono">{r.projectSlug}</div>
-                </td>
-                <td className="px-3 py-2">
-                  <div className="text-foreground">{r.ownerEmail ?? "\u2014"}</div>
-                  <div className="text-[10px] text-muted-foreground">{r.workspaceName}</div>
-                </td>
-                <td className="px-3 py-2 font-mono text-[11px]">{r.frameworkId}</td>
-                <td className="px-3 py-2 font-mono text-[11px]">
-                  {r.listenAddr ?? <span className="text-muted-foreground">{ui("static")}</span>}
-                  {r.listenKind && <div className="text-[10px] text-muted-foreground">{r.listenKind}</div>}
-                </td>
-                <td className="px-3 py-2 font-mono text-[11px] text-zinc-300">{r.sandboxUser}</td>
-                <td className="px-3 py-2"><StateBadge state={r.state} /></td>
-                <td className="px-3 py-2 text-right font-mono">
-                  {r.cpuPct != null ? `${r.cpuPct.toFixed(1)}%` : "\u2014"}
-                </td>
-                <td className="px-3 py-2 text-right font-mono">{fmtBytes(r.memoryBytes)}</td>
-                <td className="px-3 py-2 text-right font-mono">{fmtUptime(r.uptimeMs)}</td>
-                <td className="px-3 py-2 text-muted-foreground">{fmtAge(r.lastActiveAt)}</td>
-                <td className="px-3 py-2 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onLogs(r)}
-                      className="h-6 px-2 text-[10px]"
-                      title={ui("View systemd journal logs (secrets auto-redacted)")}
-                    >
-                      <FileText className="h-3 w-3" />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => onEgress(r)}
-                      className="h-6 px-2 text-[10px]"
-                      title={ui("Egress policy + recent build-proxy activity")}
-                    >
-                      <Network className="h-3 w-3" />
-                    </Button>
-                    {r.runtimeKind === "process" && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onRestart(r.projectId)}
-                          disabled={restarting === r.projectId || stopping === r.projectId}
-                          className="h-6 px-2 text-[10px]"
-                          title={ui("systemctl restart")}
-                        >
-                          {restarting === r.projectId ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <RotateCw className="h-3 w-3" />
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => onStop(r.projectId, r.projectName)}
-                          disabled={stopping === r.projectId || restarting === r.projectId || r.state === "stopped"}
-                          className="h-6 px-2 text-[10px] text-red-300 hover:bg-red-500/10 hover:text-red-200 border-red-500/30"
-                          title={ui("systemctl stop \\u2014 terminate the running process")}
-                        >
-                          {stopping === r.projectId ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            <Square className="h-3 w-3" />
-                          )}
-                        </Button>
-                      </>
-                    )}
-                  </div>
+              <tr>
+                <td
+                  colSpan={11}
+                  className="px-3 py-8 text-center text-muted-foreground"
+                >
+                  <Loader2 className="h-4 w-4 animate-spin inline mr-2" />{" "}
+                  {ui("Loading…")}{" "}
                 </td>
               </tr>
-            ))}
+            ) : instances.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={11}
+                  className="px-3 py-8 text-center text-muted-foreground"
+                >
+                  {allInstances.length === 0 ? (
+                    <div className="space-y-2">
+                      <div>{ui("No published apps yet.")}</div>
+                      <div className="text-[11px]">
+                        {" "}
+                        {ui("Runtime rows appear here when a user clicks")}{" "}
+                        <em>{ui("Publish")}</em>
+                        {ui(
+                          ". To see ALL projects (including drafts), open",
+                        )}{" "}
+                        <Link
+                          href="/admin/projects"
+                          className="text-brand-400 hover:underline"
+                        >
+                          {ui("Projects")}
+                        </Link>
+                        .
+                      </div>
+                    </div>
+                  ) : (
+                    ui("No instances match your filter.")
+                  )}
+                </td>
+              </tr>
+            ) : (
+              instances.map((r) => (
+                <tr
+                  key={r.projectId}
+                  className="border-b border-border last:border-b-0 hover:bg-muted/20"
+                >
+                  <td className="px-3 py-2">
+                    <Link
+                      href={`/editor/${r.projectId}`}
+                      className="text-foreground hover:text-brand-400 font-medium"
+                    >
+                      {r.projectName}
+                    </Link>
+                    <div className="text-[10px] text-muted-foreground font-mono">
+                      {r.projectSlug}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2">
+                    <div className="text-foreground">
+                      {r.ownerEmail ?? "\u2014"}
+                    </div>
+                    <div className="text-[10px] text-muted-foreground">
+                      {r.workspaceName}
+                    </div>
+                  </td>
+                  <td className="px-3 py-2 font-mono text-[11px]">
+                    {r.frameworkId}
+                  </td>
+                  <td className="px-3 py-2 font-mono text-[11px]">
+                    {r.listenAddr ?? (
+                      <span className="text-muted-foreground">
+                        {ui("static")}
+                      </span>
+                    )}
+                    {r.listenKind && (
+                      <div className="text-[10px] text-muted-foreground">
+                        {r.listenKind}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 font-mono text-[11px] text-zinc-300">
+                    {r.sandboxUser}
+                  </td>
+                  <td className="px-3 py-2">
+                    <StateBadge state={r.state} />
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono">
+                    {r.cpuPct != null ? `${r.cpuPct.toFixed(1)}%` : "\u2014"}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono">
+                    {fmtBytes(r.memoryBytes)}
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono">
+                    {fmtUptime(r.uptimeMs)}
+                  </td>
+                  <td className="px-3 py-2 text-muted-foreground">
+                    {fmtAge(r.lastActiveAt)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <div className="flex items-center justify-end gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onLogs(r)}
+                        className="h-6 px-2 text-[10px]"
+                        title={ui(
+                          "View systemd journal logs (secrets auto-redacted)",
+                        )}
+                      >
+                        <FileText className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => onEgress(r)}
+                        className="h-6 px-2 text-[10px]"
+                        title={ui(
+                          "Egress policy + recent build-proxy activity",
+                        )}
+                      >
+                        <Network className="h-3 w-3" />
+                      </Button>
+                      {r.runtimeKind === "process" && (
+                        <>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onRestart(r.projectId)}
+                            disabled={
+                              restarting === r.projectId ||
+                              stopping === r.projectId
+                            }
+                            className="h-6 px-2 text-[10px]"
+                            title={ui("systemctl restart")}
+                          >
+                            {restarting === r.projectId ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <RotateCw className="h-3 w-3" />
+                            )}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => onStop(r.projectId, r.projectName)}
+                            disabled={
+                              stopping === r.projectId ||
+                              restarting === r.projectId ||
+                              r.state === "stopped"
+                            }
+                            className="h-6 px-2 text-[10px] text-red-300 hover:bg-red-500/10 hover:text-red-200 border-red-500/30"
+                            title={ui(
+                              "systemctl stop \\u2014 terminate the running process",
+                            )}
+                          >
+                            {stopping === r.projectId ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Square className="h-3 w-3" />
+                            )}
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      <div className="mt-3 text-[11px] text-muted-foreground"> {ui("Metrics source: systemd cgroups via")} <code>/sys/fs/cgroup/system.slice/doable-app@&lt;slug&gt;.service</code>{ui(". Sandbox user is the per-project Linux UID created by")} <code>setupProjectUser()</code>.
+      <div className="mt-3 text-[11px] text-muted-foreground">
+        {" "}
+        {ui("Metrics source: systemd cgroups via")}{" "}
+        <code>/sys/fs/cgroup/system.slice/doable-app@&lt;slug&gt;.service</code>
+        {ui(". Sandbox user is the per-project Linux UID created by")}{" "}
+        <code>setupProjectUser()</code>.
       </div>
     </div>
   );
 }
 
 // ─── Summary card ─────────────────────────────────────────
-function SummaryCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string | number }) {
+function SummaryCard({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | number;
+}) {
   return (
     <div className="rounded-lg border border-border bg-card p-3">
       <div className="flex items-center gap-1.5 text-muted-foreground text-[10px] uppercase tracking-wide mb-1">
@@ -742,7 +982,13 @@ interface EgressData {
   egressHosts: string[];
   buildProxy: {
     enabled: string | null;
-    recentEntries: { timestamp: string; action: string; method: string; url: string; bytes: number }[];
+    recentEntries: {
+      timestamp: string;
+      action: string;
+      method: string;
+      url: string;
+      bytes: number;
+    }[];
     note: string | null;
   };
   egressDenials: {
@@ -751,7 +997,13 @@ interface EgressData {
   };
 }
 
-function EgressDrawer({ instance, onClose }: { instance: Instance; onClose: () => void }) {
+function EgressDrawer({
+  instance,
+  onClose,
+}: {
+  instance: Instance;
+  onClose: () => void;
+}) {
   const ui = useUiText();
 
   const [data, setData] = useState<EgressData | null>(null);
@@ -760,9 +1012,15 @@ function EgressDrawer({ instance, onClose }: { instance: Instance; onClose: () =
 
   useEffect(() => {
     setLoading(true);
-    apiFetch<{ data: EgressData }>(`/admin/runtime/${instance.projectId}/egress`)
+    apiFetch<{ data: EgressData }>(
+      `/admin/runtime/${instance.projectId}/egress`,
+    )
       .then((r) => setData(r.data))
-      .catch((e) => setError(e instanceof Error ? e.message : ui("Failed to load egress data")))
+      .catch((e) =>
+        setError(
+          e instanceof Error ? e.message : ui("Failed to load egress data"),
+        ),
+      )
       .finally(() => setLoading(false));
   }, [ui, instance.projectId]);
 
@@ -772,9 +1030,15 @@ function EgressDrawer({ instance, onClose }: { instance: Instance; onClose: () =
       <div className="w-[640px] max-w-full bg-background border-l border-border overflow-y-auto p-5">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <div className="text-xs text-muted-foreground">{ui("Egress for")}</div>
-            <div className="text-base font-semibold">{instance.projectName}</div>
-            <div className="text-[11px] text-muted-foreground font-mono">{instance.projectSlug}</div>
+            <div className="text-xs text-muted-foreground">
+              {ui("Egress for")}
+            </div>
+            <div className="text-base font-semibold">
+              {instance.projectName}
+            </div>
+            <div className="text-[11px] text-muted-foreground font-mono">
+              {instance.projectSlug}
+            </div>
           </div>
           <Button variant="outline" size="sm" onClick={onClose}>
             <X className="h-3.5 w-3.5" />
@@ -783,7 +1047,9 @@ function EgressDrawer({ instance, onClose }: { instance: Instance; onClose: () =
 
         {loading && (
           <div className="text-center py-8 text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin inline mr-2" /> {ui("Loading egress data…")} </div>
+            <Loader2 className="h-4 w-4 animate-spin inline mr-2" />{" "}
+            {ui("Loading egress data…")}{" "}
+          </div>
         )}
 
         {error && (
@@ -795,31 +1061,48 @@ function EgressDrawer({ instance, onClose }: { instance: Instance; onClose: () =
         {data && (
           <div className="space-y-5">
             <section>
-              <h2 className="text-xs uppercase tracking-wide text-muted-foreground mb-2"> {ui("Egress allow-list (systemd")} <code>IPAddressAllow</code>)
+              <h2 className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                {" "}
+                {ui("Egress allow-list (systemd")} <code>IPAddressAllow</code>)
               </h2>
               {data.egressHosts.length === 0 ? (
-                <div className="text-sm text-muted-foreground p-3 rounded-md border border-border bg-muted/30"> {ui("None configured. App can reach")} <code>localhost</code> {ui("only — all other outbound TCP is blocked by")} <code>IPAddressDeny=any</code>.
+                <div className="text-sm text-muted-foreground p-3 rounded-md border border-border bg-muted/30">
+                  {" "}
+                  {ui("None configured. App can reach")} <code>localhost</code>{" "}
+                  {ui("only — all other outbound TCP is blocked by")}{" "}
+                  <code>IPAddressDeny=any</code>.
                 </div>
               ) : (
                 <ul className="text-xs font-mono rounded-md border border-border divide-y divide-border">
                   {data.egressHosts.map((h, i) => (
-                    <li key={i} className="px-3 py-1.5">{h}</li>
+                    <li key={i} className="px-3 py-1.5">
+                      {h}
+                    </li>
                   ))}
                 </ul>
               )}
             </section>
 
             <section>
-              <h2 className="text-xs uppercase tracking-wide text-muted-foreground mb-2"> {ui("Build-time proxy (Squid)")}{" "}
+              <h2 className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                {" "}
+                {ui("Build-time proxy (Squid)")}{" "}
                 <span className="text-[10px] normal-case text-muted-foreground">
-                  {data.buildProxy.enabled ? `\u2192 ${data.buildProxy.enabled}` : ui("(disabled)")}
+                  {data.buildProxy.enabled
+                    ? `\u2192 ${data.buildProxy.enabled}`
+                    : ui("(disabled)")}
                 </span>
               </h2>
               {data.buildProxy.note && (
-                <div className="text-[11px] text-muted-foreground mb-2">{data.buildProxy.note}</div>
+                <div className="text-[11px] text-muted-foreground mb-2">
+                  {data.buildProxy.note}
+                </div>
               )}
               {data.buildProxy.recentEntries.length === 0 ? (
-                <div className="text-sm text-muted-foreground p-3 rounded-md border border-border bg-muted/30"> {ui("No recent build-proxy activity captured.")} </div>
+                <div className="text-sm text-muted-foreground p-3 rounded-md border border-border bg-muted/30">
+                  {" "}
+                  {ui("No recent build-proxy activity captured.")}{" "}
+                </div>
               ) : (
                 <div className="rounded-md border border-border max-h-[300px] overflow-y-auto">
                   <table className="w-full text-[11px] font-mono">
@@ -833,15 +1116,25 @@ function EgressDrawer({ instance, onClose }: { instance: Instance; onClose: () =
                       </tr>
                     </thead>
                     <tbody>
-                      {data.buildProxy.recentEntries.slice().reverse().map((e, i) => (
-                        <tr key={i} className="border-t border-border">
-                          <td className="px-2 py-1">{e.timestamp.slice(11, 19)}</td>
-                          <td className="px-2 py-1">{e.action}</td>
-                          <td className="px-2 py-1">{e.method}</td>
-                          <td className="px-2 py-1 truncate max-w-[280px]" title={e.url}>{e.url}</td>
-                          <td className="px-2 py-1 text-right">{e.bytes}</td>
-                        </tr>
-                      ))}
+                      {data.buildProxy.recentEntries
+                        .slice()
+                        .reverse()
+                        .map((e, i) => (
+                          <tr key={i} className="border-t border-border">
+                            <td className="px-2 py-1">
+                              {e.timestamp.slice(11, 19)}
+                            </td>
+                            <td className="px-2 py-1">{e.action}</td>
+                            <td className="px-2 py-1">{e.method}</td>
+                            <td
+                              className="px-2 py-1 truncate max-w-[280px]"
+                              title={e.url}
+                            >
+                              {e.url}
+                            </td>
+                            <td className="px-2 py-1 text-right">{e.bytes}</td>
+                          </tr>
+                        ))}
                     </tbody>
                   </table>
                 </div>
@@ -849,12 +1142,22 @@ function EgressDrawer({ instance, onClose }: { instance: Instance; onClose: () =
             </section>
 
             <section>
-              <h2 className="text-xs uppercase tracking-wide text-muted-foreground mb-2"> {ui("Recent egress denials (journal, last hour)")} </h2>
+              <h2 className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+                {" "}
+                {ui("Recent egress denials (journal, last hour)")}{" "}
+              </h2>
               {data.egressDenials.note && (
-                <div className="text-[11px] text-muted-foreground mb-2">{data.egressDenials.note}</div>
+                <div className="text-[11px] text-muted-foreground mb-2">
+                  {data.egressDenials.note}
+                </div>
               )}
               {data.egressDenials.recentEvents.length === 0 ? (
-                <div className="text-sm text-muted-foreground p-3 rounded-md border border-border bg-muted/30"> {ui("No deny events. (No outbound attempts blocked, or systemd's BPF firewall isn't logging at this level.)")} </div>
+                <div className="text-sm text-muted-foreground p-3 rounded-md border border-border bg-muted/30">
+                  {" "}
+                  {ui(
+                    "No deny events. (No outbound attempts blocked, or systemd's BPF firewall isn't logging at this level.)",
+                  )}{" "}
+                </div>
               ) : (
                 <pre className="text-[11px] font-mono rounded-md border border-border bg-black/40 p-2 max-h-[200px] overflow-auto">
                   {data.egressDenials.recentEvents.join("\n")}
@@ -862,7 +1165,14 @@ function EgressDrawer({ instance, onClose }: { instance: Instance; onClose: () =
               )}
             </section>
 
-            <div className="text-[11px] text-muted-foreground pt-2 border-t border-border"> {ui("Systemd unit:")} <code>{data.systemdUnit ?? "\u2014"}</code>{ui(". Egress policy is enforced at the cgroup level by systemd's")} <code>IPAddressDeny=any</code> {ui("+ per-project")} <code>IPAddressAllow=...</code>.
+            <div className="text-[11px] text-muted-foreground pt-2 border-t border-border">
+              {" "}
+              {ui("Systemd unit:")} <code>{data.systemdUnit ?? "\u2014"}</code>
+              {ui(
+                ". Egress policy is enforced at the cgroup level by systemd's",
+              )}{" "}
+              <code>IPAddressDeny=any</code> {ui("+ per-project")}{" "}
+              <code>IPAddressAllow=...</code>.
             </div>
           </div>
         )}
@@ -885,13 +1195,20 @@ const LOG_LINE_RE = /^(\S+)\s+\S+\s+\S+\s+(.*)$/;
 
 function classifyLogLine(line: string): "error" | "warn" | "info" | "debug" {
   const lower = line.toLowerCase();
-  if (/\b(error|err|fatal|panic|exception|failed|failure)\b/.test(lower)) return "error";
+  if (/\b(error|err|fatal|panic|exception|failed|failure)\b/.test(lower))
+    return "error";
   if (/\b(warn|warning|deprecated)\b/.test(lower)) return "warn";
   if (/\bdebug\b/.test(lower)) return "debug";
   return "info";
 }
 
-function LogsDrawer({ instance, onClose }: { instance: Instance; onClose: () => void }) {
+function LogsDrawer({
+  instance,
+  onClose,
+}: {
+  instance: Instance;
+  onClose: () => void;
+}) {
   const ui = useUiText();
 
   const [data, setData] = useState<LogsData | null>(null);
@@ -918,7 +1235,9 @@ function LogsDrawer({ instance, onClose }: { instance: Instance; onClose: () => 
     }
   }, [ui, instance.projectId, lines, search]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   useEffect(() => {
     if (!autoRefresh) return;
@@ -939,10 +1258,14 @@ function LogsDrawer({ instance, onClose }: { instance: Instance; onClose: () => 
         <div className="px-5 py-4 border-b border-border flex items-start justify-between">
           <div>
             <div className="text-xs text-muted-foreground flex items-center gap-1.5">
-              <FileText className="h-3.5 w-3.5" /> {ui("Logs for")} </div>
-            <div className="text-base font-semibold mt-0.5">{instance.projectName}</div>
+              <FileText className="h-3.5 w-3.5" /> {ui("Logs for")}{" "}
+            </div>
+            <div className="text-base font-semibold mt-0.5">
+              {instance.projectName}
+            </div>
             <div className="text-[11px] text-muted-foreground font-mono">
-              {data?.systemdUnit ?? ui("doable-app@{v0}.service", {v0: (instance.projectSlug)})}
+              {data?.systemdUnit ??
+                ui("doable-app@{v0}.service", { v0: instance.projectSlug })}
             </div>
           </div>
           <Button variant="outline" size="sm" onClick={onClose}>
@@ -952,7 +1275,11 @@ function LogsDrawer({ instance, onClose }: { instance: Instance; onClose: () => 
 
         {data?.redacted && (
           <div className="px-5 py-2 bg-emerald-500/10 border-b border-emerald-500/20 text-[11px] text-emerald-300 flex items-center gap-1.5">
-            <Shield className="h-3 w-3" /> {ui("Secrets auto-redacted (passwords, JWTs, API keys, hex blobs, DB URLs). Every view is recorded in the admin audit log.")} </div>
+            <Shield className="h-3 w-3" />{" "}
+            {ui(
+              "Secrets auto-redacted (passwords, JWTs, API keys, hex blobs, DB URLs). Every view is recorded in the admin audit log.",
+            )}{" "}
+          </div>
         )}
 
         <div className="px-5 py-2 border-b border-border flex items-center gap-2 flex-wrap">
@@ -977,7 +1304,13 @@ function LogsDrawer({ instance, onClose }: { instance: Instance; onClose: () => 
             <option value="500">{ui("Last 500")}</option>
             <option value="1000">{ui("Last 1000")}</option>
           </select>
-          <Button variant="outline" size="sm" onClick={load} disabled={loading} className="h-7 gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={load}
+            disabled={loading}
+            className="h-7 gap-1"
+          >
             <RotateCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
             <span className="text-[10px]">{ui("Refresh")}</span>
           </Button>
@@ -987,10 +1320,20 @@ function LogsDrawer({ instance, onClose }: { instance: Instance; onClose: () => 
             onClick={() => setAutoRefresh((v) => !v)}
             className="h-7 gap-1"
           >
-            <RefreshCw className={`h-3 w-3 ${autoRefresh ? "text-emerald-400" : "text-muted-foreground"}`} />
-            <span className="text-[10px]">{autoRefresh ? ui("Live") : ui("Off")}</span>
+            <RefreshCw
+              className={`h-3 w-3 ${autoRefresh ? "text-emerald-400" : "text-muted-foreground"}`}
+            />
+            <span className="text-[10px]">
+              {autoRefresh ? ui("Live") : ui("Off")}
+            </span>
           </Button>
-          <Button variant="outline" size="sm" onClick={copyAll} className="h-7" title={ui("Copy all visible lines")}>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={copyAll}
+            className="h-7"
+            title={ui("Copy all visible lines")}
+          >
             <span className="text-[10px]">{ui("Copy")}</span>
           </Button>
         </div>
@@ -1003,7 +1346,9 @@ function LogsDrawer({ instance, onClose }: { instance: Instance; onClose: () => 
           )}
           {loading && !data && (
             <div className="text-center py-12 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin inline mr-2" /> {ui("Loading logs…")} </div>
+              <Loader2 className="h-4 w-4 animate-spin inline mr-2" />{" "}
+              {ui("Loading logs…")}{" "}
+            </div>
           )}
           {data && data.lines.length === 0 && (
             <div className="text-center py-12 text-muted-foreground text-sm">
@@ -1015,10 +1360,13 @@ function LogsDrawer({ instance, onClose }: { instance: Instance; onClose: () => 
               {data.lines.map((line, i) => {
                 const level = classifyLogLine(line);
                 const colorCls =
-                  level === "error" ? "text-red-300" :
-                  level === "warn" ? "text-amber-300" :
-                  level === "debug" ? "text-zinc-500" :
-                  "text-zinc-200";
+                  level === "error"
+                    ? "text-red-300"
+                    : level === "warn"
+                      ? "text-amber-300"
+                      : level === "debug"
+                        ? "text-zinc-500"
+                        : "text-zinc-200";
                 const m = LOG_LINE_RE.exec(line);
                 const ts = m?.[1] ?? "";
                 const msg = m?.[2] ?? line;
@@ -1039,11 +1387,17 @@ function LogsDrawer({ instance, onClose }: { instance: Instance; onClose: () => 
         {data && (
           <div className="px-5 py-2 border-t border-border bg-muted/20 text-[11px] text-muted-foreground flex items-center justify-between">
             <span>
-              {data.filteredLines ?? data.lines.length} {ui("lines")} {data.totalLines && data.filteredLines !== data.totalLines && (
-                <span className="text-muted-foreground/70"> {ui("of")} {data.totalLines} {ui("fetched")}</span>
+              {data.filteredLines ?? data.lines.length} {ui("lines")}{" "}
+              {data.totalLines && data.filteredLines !== data.totalLines && (
+                <span className="text-muted-foreground/70">
+                  {" "}
+                  {ui("of")} {data.totalLines} {ui("fetched")}
+                </span>
               )}
             </span>
-            <span>{ui("journalctl -u")} {data.systemdUnit ?? "\u2026"}</span>
+            <span>
+              {ui("journalctl -u")} {data.systemdUnit ?? "\u2026"}
+            </span>
           </div>
         )}
       </div>

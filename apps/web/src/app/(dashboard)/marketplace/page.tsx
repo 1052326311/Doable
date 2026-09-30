@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect } from "react";
 import { apiListWorkspaces, type ApiWorkspace } from "@/lib/api";
@@ -20,10 +19,13 @@ export default function MarketplacePage() {
         if (res.data.length > 0) {
           // Honor the workspace the sidebar has active so installs land
           // in the workspace the user expects.
-          const activeId = typeof window !== "undefined"
-            ? localStorage.getItem("doable_active_workspace_id")
+          const activeId =
+            typeof window !== "undefined"
+              ? localStorage.getItem("doable_active_workspace_id")
+              : null;
+          const active = activeId
+            ? res.data.find((w) => w.id === activeId)
             : null;
-          const active = activeId ? res.data.find((w) => w.id === activeId) : null;
           setWorkspace(active ?? res.data[0] ?? null);
         }
       } finally {
@@ -42,7 +44,10 @@ export default function MarketplacePage() {
 
   if (!workspace) {
     return (
-      <div className="flex items-center justify-center h-full text-zinc-500"> {ui("No workspace found")} </div>
+      <div className="flex items-center justify-center h-full text-zinc-500">
+        {" "}
+        {ui("No workspace found")}{" "}
+      </div>
     );
   }
 

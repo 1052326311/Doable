@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useMemo, useCallback } from "react";
 import { ChevronUp, ChevronDown } from "lucide-react";
@@ -24,7 +23,7 @@ export function TopPagesTable({ pages }: { pages: PageData[] }) {
         setSortDir("desc");
       }
     },
-    [sortCol]
+    [sortCol],
   );
 
   const sorted = useMemo(() => {
@@ -69,9 +68,13 @@ export function TopPagesTable({ pages }: { pages: PageData[] }) {
     return (
       <div className="rounded-lg border border-border bg-card">
         <div className="border-b border-border px-4 py-3">
-          <h3 className="text-sm font-semibold text-foreground">{ui("Top Pages")}</h3>
+          <h3 className="text-sm font-semibold text-foreground">
+            {ui("Top Pages")}
+          </h3>
         </div>
-        <p className="p-4 text-center text-xs text-muted-foreground">{ui("No page data available yet.")}</p>
+        <p className="p-4 text-center text-xs text-muted-foreground">
+          {ui("No page data available yet.")}
+        </p>
       </div>
     );
   }
@@ -79,7 +82,9 @@ export function TopPagesTable({ pages }: { pages: PageData[] }) {
   return (
     <div className="rounded-lg border border-border bg-card">
       <div className="border-b border-border px-4 py-3">
-        <h3 className="text-sm font-semibold text-foreground">{ui("Top Pages")}</h3>
+        <h3 className="text-sm font-semibold text-foreground">
+          {ui("Top Pages")}
+        </h3>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
@@ -110,10 +115,18 @@ export function TopPagesTable({ pages }: { pages: PageData[] }) {
                 key={page.path}
                 className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors"
               >
-                <td className="px-4 py-2.5 font-mono text-foreground">{page.path}</td>
-                <td className="px-4 py-2.5 text-muted-foreground">{page.views.toLocaleString(ui.locale)}</td>
-                <td className="px-4 py-2.5 text-muted-foreground">{page.visitors.toLocaleString(ui.locale)}</td>
-                <td className="px-4 py-2.5 text-muted-foreground">{formatDuration(page.avgDuration)}</td>
+                <td className="px-4 py-2.5 font-mono text-foreground">
+                  {page.path}
+                </td>
+                <td className="px-4 py-2.5 text-muted-foreground">
+                  {page.views.toLocaleString(ui.locale)}
+                </td>
+                <td className="px-4 py-2.5 text-muted-foreground">
+                  {page.visitors.toLocaleString(ui.locale)}
+                </td>
+                <td className="px-4 py-2.5 text-muted-foreground">
+                  {formatDuration(page.avgDuration)}
+                </td>
               </tr>
             ))}
           </tbody>

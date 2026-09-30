@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { apiFetch } from "@/lib/api";
@@ -32,9 +31,9 @@ export const ContextPanel = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [scope, setScope] = useState<Scope>("project");
-  const [collapsedCategories, setCollapsedCategories] = useState<
-    Set<string>
-  >(new Set());
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(
+    new Set(),
+  );
 
   const availableTabs = useMemo(() => {
     if (!workspaceId) return SCOPE_TABS.filter((t) => t.key === "project");
@@ -67,7 +66,7 @@ export const ContextPanel = ({
           return `/projects/${projectId}/context/${filename}`;
       }
     },
-    [scope, projectId, workspaceId]
+    [scope, projectId, workspaceId],
   );
 
   // ─── Data fetching ────────────────────────────────────
@@ -76,11 +75,15 @@ export const ContextPanel = ({
     setLoading(true);
     setError(null);
     try {
-      const json = await apiFetch<{ data: { files: ContextFile[]; stats: ContextStats } }>(getListPath());
+      const json = await apiFetch<{
+        data: { files: ContextFile[]; stats: ContextStats };
+      }>(getListPath());
       setFiles(json.data.files);
       setStats(json.data.stats);
     } catch (err) {
-      setError(err instanceof Error ? err.message : ui("Failed to load context files"));
+      setError(
+        err instanceof Error ? err.message : ui("Failed to load context files"),
+      );
     } finally {
       setLoading(false);
     }
@@ -109,11 +112,11 @@ export const ContextPanel = ({
         prev.map((f) =>
           f.filename === filename
             ? { ...f, content, updatedAt: new Date().toISOString() }
-            : f
-        )
+            : f,
+        ),
       );
     },
-    [getFilePath]
+    [getFilePath],
   );
 
   const handleCreate = useCallback(async () => {
@@ -134,13 +137,18 @@ export const ContextPanel = ({
 
   const handleDelete = useCallback(
     async (filename: string) => {
-      if (!confirm(ui("Delete {v0}? Default files will be reset.", {v0: (filename)}))) return;
+      if (
+        !confirm(
+          ui("Delete {v0}? Default files will be reset.", { v0: filename }),
+        )
+      )
+        return;
 
       await apiFetch(getFilePath(filename), { method: "DELETE" });
       setSelectedFile(null);
       await fetchFiles();
     },
-    [ui, getFilePath, fetchFiles]
+    [ui, getFilePath, fetchFiles],
   );
 
   const toggleCategory = useCallback((categoryKey: string) => {
@@ -157,10 +165,7 @@ export const ContextPanel = ({
 
   // ─── Grouped files ────────────────────────────────────
 
-  const groupedFiles = useMemo(
-    () => groupFilesByCategory(files),
-    [files]
-  );
+  const groupedFiles = useMemo(() => groupFilesByCategory(files), [files]);
 
   // ─── Selected file view ───────────────────────────────
 
@@ -200,7 +205,7 @@ export const ContextPanel = ({
                 "px-3 py-1.5 text-xs font-medium rounded-md transition-colors",
                 scope === tab.key
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
               )}
             >
               {tab.label}
@@ -218,7 +223,9 @@ export const ContextPanel = ({
             className="p-1.5 rounded-md hover:bg-muted transition-colors"
             title={ui("Refresh")}
           >
-            <RefreshCw className={cn("h-3.5 w-3.5", loading && "animate-spin")} />
+            <RefreshCw
+              className={cn("h-3.5 w-3.5", loading && "animate-spin")}
+            />
           </button>
           <button
             onClick={() => void handleCreate()}
@@ -234,8 +241,13 @@ export const ContextPanel = ({
       {stats && (
         <div className="px-4 py-2 border-b">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
-            <span>{stats.estimatedTokens.toLocaleString(ui.locale)} {ui("tokens")}</span>
-            <span>{stats.budgetUsedPercent}{ui("% of budget")}</span>
+            <span>
+              {stats.estimatedTokens.toLocaleString(ui.locale)} {ui("tokens")}
+            </span>
+            <span>
+              {stats.budgetUsedPercent}
+              {ui("% of budget")}
+            </span>
           </div>
           <div className="h-1.5 rounded-full bg-muted overflow-hidden">
             <div
@@ -245,7 +257,7 @@ export const ContextPanel = ({
                   ? "bg-amber-500"
                   : stats.budgetUsedPercent > 95
                     ? "bg-red-500"
-                    : "bg-primary"
+                    : "bg-primary",
               )}
               style={{ width: `${Math.min(100, stats.budgetUsedPercent)}%` }}
             />
@@ -263,7 +275,10 @@ export const ContextPanel = ({
       {/* File list — grouped by category */}
       <div className="flex-1 overflow-auto">
         {loading && files.length === 0 ? (
-          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground"> {ui("Loading...")} </div>
+          <div className="flex items-center justify-center h-32 text-sm text-muted-foreground">
+            {" "}
+            {ui("Loading...")}{" "}
+          </div>
         ) : (
           <div className="p-2 space-y-1">
             {groupedFiles.map(({ category, files: catFiles }) => {
@@ -281,7 +296,7 @@ export const ContextPanel = ({
                       <ChevronRight
                         className={cn(
                           "h-3 w-3 transition-transform",
-                          !isCollapsed && "rotate-90"
+                          !isCollapsed && "rotate-90",
                         )}
                       />
                       <span>{category.label}</span>
@@ -295,17 +310,13 @@ export const ContextPanel = ({
                   {!isCollapsed && (
                     <div className="space-y-0.5">
                       {catFiles.map((file) => {
-                        const Icon =
-                          FILE_ICONS[file.filename] ?? FileText;
-                        const hasContent =
-                          file.content.trim().length > 50;
+                        const Icon = FILE_ICONS[file.filename] ?? FileText;
+                        const hasContent = file.content.trim().length > 50;
 
                         return (
                           <button
                             key={file.filename}
-                            onClick={() =>
-                              setSelectedFile(file.filename)
-                            }
+                            onClick={() => setSelectedFile(file.filename)}
                             className="flex items-center gap-3 w-full px-3 py-2 rounded-md text-left hover:bg-muted transition-colors group"
                           >
                             <Icon className="h-4 w-4 text-muted-foreground shrink-0" />
@@ -315,7 +326,9 @@ export const ContextPanel = ({
                               </p>
                               <p className="text-xs text-muted-foreground truncate">
                                 {hasContent
-                                  ? ui("{v0} chars", {v0: (file.content.length)})
+                                  ? ui("{v0} chars", {
+                                      v0: file.content.length,
+                                    })
                                   : ui("Empty — click to edit")}
                               </p>
                             </div>
@@ -324,7 +337,7 @@ export const ContextPanel = ({
                                 "h-2 w-2 rounded-full shrink-0",
                                 hasContent
                                   ? "bg-emerald-500"
-                                  : "bg-muted-foreground/30"
+                                  : "bg-muted-foreground/30",
                               )}
                             />
                           </button>

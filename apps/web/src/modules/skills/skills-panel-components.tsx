@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback } from "react";
 import {
@@ -38,7 +37,13 @@ export function InlineCreateForm({
 }: {
   label: string;
   placeholder: string;
-  onSubmit: (name: string, content: string, scope: ScopeType, description?: string, autoInvoke?: boolean) => void;
+  onSubmit: (
+    name: string,
+    content: string,
+    scope: ScopeType,
+    description?: string,
+    autoInvoke?: boolean,
+  ) => void;
   onCancel: () => void;
 }) {
   const ui = useUiText();
@@ -55,7 +60,13 @@ export function InlineCreateForm({
     if (!name.trim()) return;
     setSaving(true);
     try {
-      onSubmit(name.trim(), content, scope, isSkill ? description : undefined, isSkill ? autoInvoke : undefined);
+      onSubmit(
+        name.trim(),
+        content,
+        scope,
+        isSkill ? description : undefined,
+        isSkill ? autoInvoke : undefined,
+      );
     } finally {
       setSaving(false);
     }
@@ -64,7 +75,9 @@ export function InlineCreateForm({
   return (
     <div className="border rounded-md bg-muted/30">
       <div className="flex items-center justify-between px-3 py-2 border-b">
-        <span className="text-xs font-semibold">{ui("New")} {label}</span>
+        <span className="text-xs font-semibold">
+          {ui("New")} {label}
+        </span>
         <button
           onClick={onCancel}
           className="p-1 rounded-md hover:bg-muted transition-colors"
@@ -74,17 +87,23 @@ export function InlineCreateForm({
       </div>
       <div className="p-3 space-y-3">
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1"> {ui("Name")} </label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">
+            {" "}
+            {ui("Name")}{" "}
+          </label>
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder={ui("My {v0}", {v0: (label)})}
+            placeholder={ui("My {v0}", { v0: label })}
             className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 placeholder:text-muted-foreground"
           />
         </div>
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1"> {ui("Scope")} </label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">
+            {" "}
+            {ui("Scope")}{" "}
+          </label>
           <select
             value={scope}
             onChange={(e) => setScope(e.target.value as ScopeType)}
@@ -98,13 +117,20 @@ export function InlineCreateForm({
         {isSkill && (
           <>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1"> {ui("Description")} <span className="text-muted-foreground/50">{ui("(when to use this skill)")}</span>
+              <label className="block text-xs font-medium text-muted-foreground mb-1">
+                {" "}
+                {ui("Description")}{" "}
+                <span className="text-muted-foreground/50">
+                  {ui("(when to use this skill)")}
+                </span>
               </label>
               <input
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder={ui("Use when building React components with accessibility...")}
+                placeholder={ui(
+                  "Use when building React components with accessibility...",
+                )}
                 className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 placeholder:text-muted-foreground"
               />
             </div>
@@ -116,12 +142,21 @@ export function InlineCreateForm({
                 onChange={(e) => setAutoInvoke(e.target.checked)}
                 className="rounded border-input"
               />
-              <label htmlFor="auto-invoke-create" className="text-xs text-muted-foreground"> {ui("Auto-invoke when prompt matches")} </label>
+              <label
+                htmlFor="auto-invoke-create"
+                className="text-xs text-muted-foreground"
+              >
+                {" "}
+                {ui("Auto-invoke when prompt matches")}{" "}
+              </label>
             </div>
           </>
         )}
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1"> {ui("Content")} </label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">
+            {" "}
+            {ui("Content")}{" "}
+          </label>
           <textarea
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -134,17 +169,22 @@ export function InlineCreateForm({
           <button
             onClick={onCancel}
             className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-          > {ui("Cancel")} </button>
+          >
+            {" "}
+            {ui("Cancel")}{" "}
+          </button>
           <button
             onClick={() => void handleSubmit()}
             disabled={saving || !name.trim()}
             className={cn(
               "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               "bg-primary text-primary-foreground hover:bg-primary/90",
-              "disabled:opacity-40 disabled:cursor-not-allowed"
+              "disabled:opacity-40 disabled:cursor-not-allowed",
             )}
           >
-            {saving && <Loader2 className="h-3 w-3 animate-spin" />} {ui("Create")} </button>
+            {saving && <Loader2 className="h-3 w-3 animate-spin" />}{" "}
+            {ui("Create")}{" "}
+          </button>
         </div>
       </div>
     </div>
@@ -165,15 +205,23 @@ export function SkillCard({
   type: "skill" | "rule";
   expanded: boolean;
   onToggle: () => void;
-  onUpdate: (content: string, description?: string, autoInvoke?: boolean) => void;
+  onUpdate: (
+    content: string,
+    description?: string,
+    autoInvoke?: boolean,
+  ) => void;
   onDelete: () => void;
 }) {
   const ui = useUiText();
 
-  const itemName = type === "skill" ? (item as Skill).skill_name : (item as Rule).rule_name;
-  const itemContent = type === "skill" ? (item as Skill).skill_content : (item as Rule).content;
-  const itemDescription = type === "skill" ? (item as Skill).description ?? "" : "";
-  const itemAutoInvoke = type === "skill" ? (item as Skill).auto_invoke ?? true : true;
+  const itemName =
+    type === "skill" ? (item as Skill).skill_name : (item as Rule).rule_name;
+  const itemContent =
+    type === "skill" ? (item as Skill).skill_content : (item as Rule).content;
+  const itemDescription =
+    type === "skill" ? ((item as Skill).description ?? "") : "";
+  const itemAutoInvoke =
+    type === "skill" ? ((item as Skill).auto_invoke ?? true) : true;
   const [editContent, setEditContent] = useState(itemContent);
   const [editDescription, setEditDescription] = useState(itemDescription);
   const [editAutoInvoke, setEditAutoInvoke] = useState(itemAutoInvoke);
@@ -184,7 +232,11 @@ export function SkillCard({
   const handleSave = useCallback(async () => {
     setSaving(true);
     try {
-      onUpdate(editContent, type === "skill" ? editDescription : undefined, type === "skill" ? editAutoInvoke : undefined);
+      onUpdate(
+        editContent,
+        type === "skill" ? editDescription : undefined,
+        type === "skill" ? editAutoInvoke : undefined,
+      );
       setDirty(false);
     } finally {
       setSaving(false);
@@ -203,9 +255,19 @@ export function SkillCard({
   const handleContentChange = useCallback(
     (value: string) => {
       setEditContent(value);
-      setDirty(value !== itemContent || editDescription !== itemDescription || editAutoInvoke !== itemAutoInvoke);
+      setDirty(
+        value !== itemContent ||
+          editDescription !== itemDescription ||
+          editAutoInvoke !== itemAutoInvoke,
+      );
     },
-    [itemContent, itemDescription, itemAutoInvoke, editDescription, editAutoInvoke]
+    [
+      itemContent,
+      itemDescription,
+      itemAutoInvoke,
+      editDescription,
+      editAutoInvoke,
+    ],
   );
 
   const Icon = type === "skill" ? Lightbulb : Shield;
@@ -229,12 +291,15 @@ export function SkillCard({
             {type === "skill" && itemDescription
               ? itemDescription
               : itemContent
-                ? ui("{v0} chars", {v0: (itemContent.length)})
+                ? ui("{v0} chars", { v0: itemContent.length })
                 : ui("Empty -- click to edit")}
           </p>
         </div>
         {type === "skill" && !itemAutoInvoke && (
-          <Badge variant="outline" className="text-[10px] shrink-0 mr-1"> {ui("manual")} </Badge>
+          <Badge variant="outline" className="text-[10px] shrink-0 mr-1">
+            {" "}
+            {ui("manual")}{" "}
+          </Badge>
         )}
         <Badge
           variant={SCOPE_VARIANTS[item.scope]}
@@ -251,13 +316,20 @@ export function SkillCard({
             {type === "skill" && (
               <>
                 <div>
-                  <label className="block text-xs font-medium text-muted-foreground mb-1"> {ui("Description")} </label>
+                  <label className="block text-xs font-medium text-muted-foreground mb-1">
+                    {" "}
+                    {ui("Description")}{" "}
+                  </label>
                   <input
                     type="text"
                     value={editDescription}
                     onChange={(e) => {
                       setEditDescription(e.target.value);
-                      setDirty(editContent !== itemContent || e.target.value !== itemDescription || editAutoInvoke !== itemAutoInvoke);
+                      setDirty(
+                        editContent !== itemContent ||
+                          e.target.value !== itemDescription ||
+                          editAutoInvoke !== itemAutoInvoke,
+                      );
                     }}
                     placeholder={ui("When to use this skill...")}
                     className="w-full rounded-md border border-input bg-background px-3 py-1.5 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 placeholder:text-muted-foreground"
@@ -270,11 +342,21 @@ export function SkillCard({
                     checked={editAutoInvoke}
                     onChange={(e) => {
                       setEditAutoInvoke(e.target.checked);
-                      setDirty(editContent !== itemContent || editDescription !== itemDescription || e.target.checked !== itemAutoInvoke);
+                      setDirty(
+                        editContent !== itemContent ||
+                          editDescription !== itemDescription ||
+                          e.target.checked !== itemAutoInvoke,
+                      );
                     }}
                     className="rounded border-input"
                   />
-                  <label htmlFor={`auto-invoke-${item.id}`} className="text-xs text-muted-foreground"> {ui("Auto-invoke when prompt matches")} </label>
+                  <label
+                    htmlFor={`auto-invoke-${item.id}`}
+                    className="text-xs text-muted-foreground"
+                  >
+                    {" "}
+                    {ui("Auto-invoke when prompt matches")}{" "}
+                  </label>
                 </div>
               </>
             )}
@@ -285,7 +367,9 @@ export function SkillCard({
               className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 resize-y placeholder:text-muted-foreground"
               placeholder={
                 type === "skill"
-                  ? ui("--- name: my-skill trigger: auto --- Skill content in markdown...")
+                  ? ui(
+                      "--- name: my-skill trigger: auto --- Skill content in markdown...",
+                    )
                   : ui("Rule content...")
               }
             />
@@ -301,14 +385,16 @@ export function SkillCard({
                 dirty
                   ? "bg-primary text-primary-foreground hover:bg-primary/90"
                   : "text-muted-foreground",
-                "disabled:opacity-40 disabled:cursor-not-allowed"
+                "disabled:opacity-40 disabled:cursor-not-allowed",
               )}
             >
               {saving ? (
                 <Loader2 className="h-3 w-3 animate-spin" />
               ) : (
                 <Save className="h-3 w-3" />
-              )} {ui("Save")} </button>
+              )}{" "}
+              {ui("Save")}{" "}
+            </button>
             <button
               onClick={handleDelete}
               onBlur={() => setConfirmDelete(false)}
@@ -316,15 +402,17 @@ export function SkillCard({
                 "flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-medium transition-colors",
                 confirmDelete
                   ? "bg-red-600 text-white hover:bg-red-700"
-                  : "text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20"
+                  : "text-muted-foreground hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20",
               )}
             >
               {confirmDelete ? (
                 <>
-                  <AlertCircle className="h-3 w-3" /> {ui("Confirm")} </>
+                  <AlertCircle className="h-3 w-3" /> {ui("Confirm")}{" "}
+                </>
               ) : (
                 <>
-                  <Trash2 className="h-3 w-3" /> {ui("Delete")} </>
+                  <Trash2 className="h-3 w-3" /> {ui("Delete")}{" "}
+                </>
               )}
             </button>
           </div>

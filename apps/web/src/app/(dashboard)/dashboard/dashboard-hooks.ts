@@ -1,5 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useCallback } from "react";
 import { GREETINGS, DASHBOARD_SUGGESTIONS } from "./dashboard-constants";
@@ -17,7 +17,7 @@ export function useRotatingGreeting(name: string) {
     return () => clearInterval(interval);
   }, []);
 
-  return ui(GREETINGS[index]!, {name});
+  return ui(GREETINGS[index]!, { name });
 }
 
 // ─── Typing Placeholder Hook ────────────────────────────────
@@ -26,8 +26,13 @@ export function useTypingPlaceholder(): string {
   const ui = useUiText();
   const [index, setIndex] = useState(0);
   const [displayText, setDisplayText] = useState("");
-  useEffect(() => { setDisplayText(""); setPhase("typing"); }, [ui]);
-  const [phase, setPhase] = useState<"typing" | "holding" | "erasing">("typing");
+  useEffect(() => {
+    setDisplayText("");
+    setPhase("typing");
+  }, [ui]);
+  const [phase, setPhase] = useState<"typing" | "holding" | "erasing">(
+    "typing",
+  );
 
   useEffect(() => {
     const target = ui(DASHBOARD_SUGGESTIONS[index]!);
@@ -35,9 +40,12 @@ export function useTypingPlaceholder(): string {
 
     if (phase === "typing") {
       if (displayText.length < target.length) {
-        timeout = setTimeout(() => {
-          setDisplayText(target.slice(0, displayText.length + 1));
-        }, 35 + Math.random() * 25);
+        timeout = setTimeout(
+          () => {
+            setDisplayText(target.slice(0, displayText.length + 1));
+          },
+          35 + Math.random() * 25,
+        );
       } else {
         timeout = setTimeout(() => setPhase("holding"), 100);
       }
@@ -57,7 +65,9 @@ export function useTypingPlaceholder(): string {
     return () => clearTimeout(timeout);
   }, [ui, displayText, phase, index]);
 
-  return displayText || ui("Describe the business workflow you want to build...");
+  return (
+    displayText || ui("Describe the business workflow you want to build...")
+  );
 }
 
 // ─── Context Menu Hook ──────────────────────────────────────

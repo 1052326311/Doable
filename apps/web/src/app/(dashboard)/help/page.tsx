@@ -1,16 +1,20 @@
-import {getUiText} from "@/i18n/server";
+import { getUiText } from "@/i18n/server";
 
-import {useUiText} from "@/i18n/use-ui-text";
-import {translateUiData} from "@/i18n/text";
+import { useUiText } from "@/i18n/use-ui-text";
+import { translateUiData } from "@/i18n/text";
 import Link from "next/link";
 import { BookOpen, ArrowRight } from "lucide-react";
 
 export async function generateMetadata() {
- const ui = await getUiText();
- return translateUiData({
-  title: "Help Center — Doable",
-  description: "Guides and articles to help you get the most out of Doable.",
-}, ui);
+  const ui = await getUiText();
+  return translateUiData(
+    {
+      title: "Help Center — Doable",
+      description:
+        "Guides and articles to help you get the most out of Doable.",
+    },
+    ui,
+  );
 }
 
 const articles = [
@@ -30,9 +34,18 @@ export default function HelpIndexPage() {
     <div className="flex-1 overflow-y-auto">
       <div className="max-w-4xl mx-auto px-8 py-12">
         <div className="mb-10">
-          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">{ui("Help")}</p>
-          <h1 className="text-3xl font-bold text-foreground mb-3">{ui("Help Center")}</h1>
-          <p className="text-muted-foreground"> {ui("Guides and articles to help you get the most out of Doable.")} </p>
+          <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">
+            {ui("Help")}
+          </p>
+          <h1 className="text-3xl font-bold text-foreground mb-3">
+            {ui("Help Center")}
+          </h1>
+          <p className="text-muted-foreground">
+            {" "}
+            {ui(
+              "Guides and articles to help you get the most out of Doable.",
+            )}{" "}
+          </p>
         </div>
 
         <div className="space-y-3">
@@ -49,7 +62,9 @@ export default function HelpIndexPage() {
                 <p className="font-medium text-foreground group-hover:text-foreground">
                   {article.title}
                 </p>
-                <p className="text-sm text-muted-foreground mt-1">{article.description}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {article.description}
+                </p>
               </div>
               <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0 mt-1 group-hover:translate-x-0.5 transition-transform" />
             </Link>

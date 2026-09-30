@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 /**
  * Vanilla SVG flame graph. No D3.
@@ -124,7 +123,12 @@ export function FlameGraph({
 
   return (
     <div className="overflow-x-auto rounded-lg border border-border bg-card p-2">
-      <svg width={width} height={height} role="img" aria-label={ui("Trace flame graph")}>
+      <svg
+        width={width}
+        height={height}
+        role="img"
+        aria-label={ui("Trace flame graph")}
+      >
         {laid.map(({ span, depth, xPx, widthPx }) => {
           const isSelected = selectedSpanId === span.span_id;
           const fill = colorFor(span);
@@ -152,13 +156,25 @@ export function FlameGraph({
                   y={y + 14}
                   fill="white"
                   fontSize={11}
-                  style={{ pointerEvents: "none", fontFamily: "ui-monospace, monospace" }}
+                  style={{
+                    pointerEvents: "none",
+                    fontFamily: "ui-monospace, monospace",
+                  }}
                 >
-                  {truncate(`${span.service} · ${span.name}`, Math.floor(widthPx / 7))}
+                  {truncate(
+                    `${span.service} · ${span.name}`,
+                    Math.floor(widthPx / 7),
+                  )}
                 </text>
               )}
               <title>
-                {ui("{v0} · {v1}\n{v2}ms · {v3}{v4}", {v0: (span.service), v1: (span.name), v2: (span.duration_ms ?? "?"), v3: (span.status_code), v4: (span.status_message ? `\n${span.status_message}` : "")})}
+                {ui("{v0} · {v1}\n{v2}ms · {v3}{v4}", {
+                  v0: span.service,
+                  v1: span.name,
+                  v2: span.duration_ms ?? "?",
+                  v3: span.status_code,
+                  v4: span.status_message ? `\n${span.status_message}` : "",
+                })}
               </title>
             </g>
           );

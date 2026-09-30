@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState } from "react";
 import { Check, Sparkles, Loader2 } from "lucide-react";
@@ -35,18 +34,24 @@ export function PricingCards({
               "rounded-md px-4 py-2 text-sm font-medium transition-all",
               interval === "monthly"
                 ? "bg-brand-600 text-white shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
-          > {ui("Monthly")} </button>
+          >
+            {" "}
+            {ui("Monthly")}{" "}
+          </button>
           <button
             onClick={() => setInterval("yearly")}
             className={cn(
               "rounded-md px-4 py-2 text-sm font-medium transition-all",
               interval === "yearly"
                 ? "bg-brand-600 text-white shadow-sm"
-                : "text-muted-foreground hover:text-foreground"
+                : "text-muted-foreground hover:text-foreground",
             )}
-          > {ui("Yearly")} <span className="ml-1.5 rounded-full bg-green-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-green-400">
+          >
+            {" "}
+            {ui("Yearly")}{" "}
+            <span className="ml-1.5 rounded-full bg-green-500/10 px-1.5 py-0.5 text-[10px] font-semibold text-green-400">
               -20%
             </span>
           </button>
@@ -69,18 +74,21 @@ export function PricingCards({
                 isPopular
                   ? "border-brand-500/50 bg-brand-500/5 shadow-lg shadow-brand-500/10"
                   : "border-border bg-card",
-                isCurrent && "ring-1 ring-brand-500/30"
+                isCurrent && "ring-1 ring-brand-500/30",
               )}
             >
               {isPopular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <div className="inline-flex items-center gap-1 rounded-full bg-brand-600 px-3 py-1 text-xs font-medium text-white shadow-sm">
-                    <Sparkles className="h-3 w-3" /> {ui("Most Popular")} </div>
+                    <Sparkles className="h-3 w-3" /> {ui("Most Popular")}{" "}
+                  </div>
                 </div>
               )}
 
               <div className="mb-4">
-                <h3 className="text-lg font-semibold text-foreground">{plan.name}</h3>
+                <h3 className="text-lg font-semibold text-foreground">
+                  {plan.name}
+                </h3>
                 <p className="mt-1 text-sm text-muted-foreground">
                   {plan.description}
                 </p>
@@ -94,17 +102,26 @@ export function PricingCards({
                   <span className="text-muted-foreground">/mo</span>
                 )}
                 {interval === "yearly" && plan.priceYearly > 0 && (
-                  <p className="mt-1 text-xs text-muted-foreground"> {ui("Billed $")}{plan.priceYearly}/year
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {" "}
+                    {ui("Billed $")}
+                    {plan.priceYearly}/year
                   </p>
                 )}
                 {plan.priceMonthly === 0 && (
-                  <p className="mt-1 text-xs text-muted-foreground"> {ui("Free forever")} </p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {" "}
+                    {ui("Free forever")}{" "}
+                  </p>
                 )}
               </div>
 
               <ul className="mb-6 flex-1 space-y-2.5">
                 {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2.5 text-sm">
+                  <li
+                    key={feature}
+                    className="flex items-start gap-2.5 text-sm"
+                  >
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-brand-400" />
                     <span className="text-foreground">{feature}</span>
                   </li>
@@ -120,7 +137,7 @@ export function PricingCards({
                   "disabled:pointer-events-none disabled:opacity-50",
                   isPopular
                     ? "bg-brand-600 text-white hover:bg-brand-500 shadow-sm"
-                    : "border border-border bg-secondary text-foreground hover:bg-accent"
+                    : "border border-border bg-secondary text-foreground hover:bg-accent",
                 )}
               >
                 {loading ? (
@@ -130,7 +147,7 @@ export function PricingCards({
                 ) : plan.id === "free" ? (
                   ui("Free Forever")
                 ) : (
-                  ui("Upgrade to {v0}", {v0: (plan.name)})
+                  ui("Upgrade to {v0}", { v0: plan.name })
                 )}
               </button>
             </div>

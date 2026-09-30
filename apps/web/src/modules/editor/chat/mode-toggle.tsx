@@ -1,13 +1,22 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useEditorStore, type EditorMode } from "../hooks/use-editor-store";
 import { Hammer, Target } from "lucide-react";
 
-const modes: { id: EditorMode; label: string; icon: typeof Hammer; desc: string }[] = [
-  { id: "plan", label: "Strategize", icon: Target, desc: "AI helps you plan, then does the work" },
+const modes: {
+  id: EditorMode;
+  label: string;
+  icon: typeof Hammer;
+  desc: string;
+}[] = [
+  {
+    id: "plan",
+    label: "Strategize",
+    icon: Target,
+    desc: "AI helps you plan, then does the work",
+  },
   { id: "agent", label: "Work", icon: Hammer, desc: "AI writes code directly" },
 ];
 
@@ -30,7 +39,9 @@ export function ModeToggle() {
           }`}
           title={desc}
         >
-          <Icon className={`h-3 w-3 ${mode === id ? "text-brand-600 dark:text-brand-400" : ""}`} />
+          <Icon
+            className={`h-3 w-3 ${mode === id ? "text-brand-600 dark:text-brand-400" : ""}`}
+          />
           {label}
         </button>
       ))}

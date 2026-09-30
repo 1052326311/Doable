@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback } from "react";
 import {
@@ -38,7 +37,10 @@ export function StatusDot({ status }: { status: string }) {
   };
   return (
     <span
-      className={cn("h-2 w-2 rounded-full shrink-0", colors[status] ?? colors.inactive)}
+      className={cn(
+        "h-2 w-2 rounded-full shrink-0",
+        colors[status] ?? colors.inactive,
+      )}
       title={status}
     />
   );
@@ -46,9 +48,14 @@ export function StatusDot({ status }: { status: string }) {
 
 // ─── Transport Badge ────────────────────────────────────────
 
-export function TransportBadge({ type }: { type: McpConnector["transport_type"] }) {
+export function TransportBadge({
+  type,
+}: {
+  type: McpConnector["transport_type"];
+}) {
   const label = TRANSPORT_LABELS[type];
-  const Icon = type === "stdio" ? Terminal : type === "http_sse" ? Radio : Globe;
+  const Icon =
+    type === "stdio" ? Terminal : type === "http_sse" ? Radio : Globe;
   return (
     <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
       <Icon className="h-2.5 w-2.5" />
@@ -80,12 +87,20 @@ export function ConnectorCard({
   const ui = useUiText();
 
   const [testing, setTesting] = useState(false);
-  const [testResult, setTestResult] = useState<{ ok: boolean; message: string; tools?: McpTool[] } | null>(null);
+  const [testResult, setTestResult] = useState<{
+    ok: boolean;
+    message: string;
+    tools?: McpTool[];
+  } | null>(null);
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [toggling, setToggling] = useState(false);
 
   const capTools = connector.capabilities_cache
-    ? (connector.capabilities_cache as { tools?: { count?: number; list?: McpTool[] } }).tools
+    ? (
+        connector.capabilities_cache as {
+          tools?: { count?: number; list?: McpTool[] };
+        }
+      ).tools
     : undefined;
   const toolCount = capTools?.count ?? 0;
   const toolList = capTools?.list ?? [];
@@ -176,35 +191,59 @@ export function ConnectorCard({
         <div className="border-t">
           {connector.description && (
             <div className="px-4 py-3 border-b">
-              <p className="text-xs text-muted-foreground">{connector.description}</p>
+              <p className="text-xs text-muted-foreground">
+                {connector.description}
+              </p>
             </div>
           )}
 
           <div className="px-4 py-3 border-b space-y-2">
             <div className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-xs">
-              <span className="text-muted-foreground font-medium">{ui("Transport")}</span>
+              <span className="text-muted-foreground font-medium">
+                {ui("Transport")}
+              </span>
               <span>{TRANSPORT_LABELS[connector.transport_type].label}</span>
               {connector.server_url && (
                 <>
-                  <span className="text-muted-foreground font-medium">{ui("URL")}</span>
-                  <span className="font-mono truncate">{connector.server_url}</span>
+                  <span className="text-muted-foreground font-medium">
+                    {ui("URL")}
+                  </span>
+                  <span className="font-mono truncate">
+                    {connector.server_url}
+                  </span>
                 </>
               )}
               {connector.server_command && (
                 <>
-                  <span className="text-muted-foreground font-medium">{ui("Command")}</span>
-                  <span className="font-mono truncate">{connector.server_command}</span>
+                  <span className="text-muted-foreground font-medium">
+                    {ui("Command")}
+                  </span>
+                  <span className="font-mono truncate">
+                    {connector.server_command}
+                  </span>
                 </>
               )}
-              {!isBuiltin && Array.isArray(connector.server_args) && connector.server_args.length > 0 && (
-                <>
-                  <span className="text-muted-foreground font-medium">{ui("Args")}</span>
-                  <span className="font-mono truncate">{connector.server_args.join(", ")}</span>
-                </>
-              )}
-              <span className="text-muted-foreground font-medium">{ui("Auth")}</span>
-              <span className="capitalize">{connector.auth_type.replace("_", " ")}</span>
-              <span className="text-muted-foreground font-medium">{ui("Scope")}</span>
+              {!isBuiltin &&
+                Array.isArray(connector.server_args) &&
+                connector.server_args.length > 0 && (
+                  <>
+                    <span className="text-muted-foreground font-medium">
+                      {ui("Args")}
+                    </span>
+                    <span className="font-mono truncate">
+                      {connector.server_args.join(", ")}
+                    </span>
+                  </>
+                )}
+              <span className="text-muted-foreground font-medium">
+                {ui("Auth")}
+              </span>
+              <span className="capitalize">
+                {connector.auth_type.replace("_", " ")}
+              </span>
+              <span className="text-muted-foreground font-medium">
+                {ui("Scope")}
+              </span>
               <span className="capitalize">{connector.scope}</span>
             </div>
           </div>
@@ -213,17 +252,25 @@ export function ConnectorCard({
             <div className="px-4 py-3 border-b">
               <div className="flex items-center gap-1.5 mb-2">
                 <Wrench className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs font-medium text-muted-foreground"> {ui("Tools (")}{toolCount})
+                <span className="text-xs font-medium text-muted-foreground">
+                  {" "}
+                  {ui("Tools (")}
+                  {toolCount})
                 </span>
               </div>
               <div className="grid gap-1">
                 {toolList.map((tool) => (
-                  <div key={tool.name} className="flex items-start gap-2 text-xs">
+                  <div
+                    key={tool.name}
+                    className="flex items-start gap-2 text-xs"
+                  >
                     <code className="shrink-0 rounded bg-muted px-1 py-0.5 font-mono text-[11px]">
                       {tool.name}
                     </code>
                     {tool.description && (
-                      <span className="text-muted-foreground truncate">{tool.description}</span>
+                      <span className="text-muted-foreground truncate">
+                        {tool.description}
+                      </span>
                     )}
                   </div>
                 ))}
@@ -271,9 +318,12 @@ export function ConnectorCard({
                 <button
                   onClick={() => onReconnect()}
                   className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-                  title={ui("Re-run the OAuth login to refresh this connection (keeps the same server and name)")}
+                  title={ui(
+                    "Re-run the OAuth login to refresh this connection (keeps the same server and name)",
+                  )}
                 >
-                  <RefreshCw className="h-3.5 w-3.5" /> {ui("Reconnect")} </button>
+                  <RefreshCw className="h-3.5 w-3.5" /> {ui("Reconnect")}{" "}
+                </button>
               )}
               <button
                 onClick={() => void handleTest()}
@@ -284,18 +334,23 @@ export function ConnectorCard({
                   <Loader2 className="h-3.5 w-3.5 animate-spin" />
                 ) : (
                   <Zap className="h-3.5 w-3.5" />
-                )} {ui("Test Connection")} </button>
+                )}{" "}
+                {ui("Test Connection")}{" "}
+              </button>
               <button
                 onClick={() => void handleToggleActive()}
                 disabled={toggling}
                 className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors disabled:opacity-40"
               >
-                {connector.status === "active" || connector.status === "connecting" ? (
+                {connector.status === "active" ||
+                connector.status === "connecting" ? (
                   <>
-                    <PowerOff className="h-3.5 w-3.5" /> {ui("Deactivate")} </>
+                    <PowerOff className="h-3.5 w-3.5" /> {ui("Deactivate")}{" "}
+                  </>
                 ) : (
                   <>
-                    <Power className="h-3.5 w-3.5" /> {ui("Activate")} </>
+                    <Power className="h-3.5 w-3.5" /> {ui("Activate")}{" "}
+                  </>
                 )}
               </button>
             </div>
@@ -312,10 +367,13 @@ export function ConnectorCard({
               >
                 {confirmDelete ? (
                   <>
-                    <AlertCircle className="h-3.5 w-3.5" /> {ui("Confirm Delete")} </>
+                    <AlertCircle className="h-3.5 w-3.5" />{" "}
+                    {ui("Confirm Delete")}{" "}
+                  </>
                 ) : (
                   <>
-                    <Trash2 className="h-3.5 w-3.5" /> {ui("Delete")} </>
+                    <Trash2 className="h-3.5 w-3.5" /> {ui("Delete")}{" "}
+                  </>
                 )}
               </button>
             )}

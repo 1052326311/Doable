@@ -1,16 +1,8 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  X,
-  Play,
-  Zap,
-  CheckCircle2,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { X, Play, Zap, CheckCircle2, Loader2, AlertCircle } from "lucide-react";
 import type { AuditPhase, AuditResults } from "./speed-panel-data";
 import { PHASE_LABELS, PHASE_ORDER } from "./speed-panel-data";
 import { SpeedPanelResults } from "./speed-panel-results";
@@ -53,7 +45,10 @@ export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
         setPhase(currentPhase);
         setPhaseProgress(((phaseIndex + 1) / PHASE_ORDER.length) * 100);
         phaseIndex++;
-        phaseTimerRef.current = setTimeout(advancePhase, 900 + Math.random() * 600);
+        phaseTimerRef.current = setTimeout(
+          advancePhase,
+          900 + Math.random() * 600,
+        );
       }
       // If we run out of animation phases before the fetch returns, just stay on the last phase
     };
@@ -105,7 +100,9 @@ export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div className="flex items-center gap-2.5">
           <Zap className="h-4.5 w-4.5 text-amber-400" />
-          <h2 className="text-sm font-semibold text-foreground">{ui("Speed")}</h2>
+          <h2 className="text-sm font-semibold text-foreground">
+            {ui("Speed")}
+          </h2>
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -144,16 +141,28 @@ export function SpeedPanel({ projectId, onClose, onSendMessage }: Props) {
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-red-500/10 mb-4">
                   <AlertCircle className="h-8 w-8 text-red-400" />
                 </div>
-                <h3 className="text-sm font-medium text-foreground mb-1">{ui("Audit failed")}</h3>
-                <p className="text-[13px] text-muted-foreground max-w-[300px] mb-5">{auditError}</p>
+                <h3 className="text-sm font-medium text-foreground mb-1">
+                  {ui("Audit failed")}
+                </h3>
+                <p className="text-[13px] text-muted-foreground max-w-[300px] mb-5">
+                  {auditError}
+                </p>
               </>
             ) : (
               <>
                 <div className="flex h-16 w-16 items-center justify-center rounded-full bg-amber-500/10 mb-4">
                   <Zap className="h-8 w-8 text-amber-400" />
                 </div>
-                <h3 className="text-sm font-medium text-foreground mb-1"> {ui("Performance Audit")} </h3>
-                <p className="text-[13px] text-muted-foreground max-w-[300px] mb-5"> {ui("Analyze your page speed, transfer size, bundle breakdown, and get actionable recommendations to improve performance.")} </p>
+                <h3 className="text-sm font-medium text-foreground mb-1">
+                  {" "}
+                  {ui("Performance Audit")}{" "}
+                </h3>
+                <p className="text-[13px] text-muted-foreground max-w-[300px] mb-5">
+                  {" "}
+                  {ui(
+                    "Analyze your page speed, transfer size, bundle breakdown, and get actionable recommendations to improve performance.",
+                  )}{" "}
+                </p>
               </>
             )}
             <button

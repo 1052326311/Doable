@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import {
@@ -13,7 +12,12 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiFetch } from "@/lib/api";
-import { SectionCard, FILE_ICONS, type ContextFile, type ContextStats } from "./project-settings-shared";
+import {
+  SectionCard,
+  FILE_ICONS,
+  type ContextFile,
+  type ContextStats,
+} from "./project-settings-shared";
 
 // ═══════════════════════════════════════════════════════════════
 // CONTEXT FILES TAB
@@ -42,7 +46,10 @@ export function ContextFilesTab({
       setFiles(res.data.files);
       setStats(res.data.stats);
     } catch (err) {
-      addToast("error", err instanceof Error ? err.message : ui("Failed to load context files"));
+      addToast(
+        "error",
+        err instanceof Error ? err.message : ui("Failed to load context files"),
+      );
     } finally {
       setLoading(false);
     }
@@ -62,12 +69,15 @@ export function ContextFilesTab({
         prev.map((f) =>
           f.filename === filename
             ? { ...f, content, updatedAt: new Date().toISOString() }
-            : f
-        )
+            : f,
+        ),
       );
-      addToast("success", ui("Saved {v0}",{v0:(filename)}));
+      addToast("success", ui("Saved {v0}", { v0: filename }));
     } catch (err) {
-      addToast("error", err instanceof Error ? err.message : ui("Failed to save"));
+      addToast(
+        "error",
+        err instanceof Error ? err.message : ui("Failed to save"),
+      );
       throw err;
     }
   };
@@ -90,7 +100,10 @@ export function ContextFilesTab({
       <SectionCard title={ui("Knowledge (.doable/)")}>
         <div className="space-y-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-3 rounded-lg border p-3">
+            <div
+              key={i}
+              className="flex items-center gap-3 rounded-lg border p-3"
+            >
               <div className="h-8 w-8 animate-pulse rounded bg-muted" />
               <div className="flex-1 space-y-1.5">
                 <div className="h-4 w-32 animate-pulse rounded bg-muted" />
@@ -107,23 +120,30 @@ export function ContextFilesTab({
     <div className="space-y-4">
       <SectionCard
         title={ui("Knowledge (.doable/)")}
-        description={ui("Knowledge files guide the AI's behavior when editing your project. Each file serves a different purpose.")}
+        description={ui(
+          "Knowledge files guide the AI's behavior when editing your project. Each file serves a different purpose.",
+        )}
       >
         {/* Token budget */}
         {stats && (
           <div className="mb-5 rounded-lg bg-muted/30 p-3">
             <div className="flex items-center justify-between text-sm">
               <span className="text-muted-foreground">
-                {stats.totalFiles} {ui("files,")} {stats.estimatedTokens.toLocaleString(ui.locale)} {ui("tokens")} </span>
+                {stats.totalFiles} {ui("files,")}{" "}
+                {stats.estimatedTokens.toLocaleString(ui.locale)}{" "}
+                {ui("tokens")}{" "}
+              </span>
               <span
                 className={cn(
                   "text-xs font-medium",
                   stats.budgetUsedPercent > 80
                     ? "text-amber-600"
-                    : "text-muted-foreground"
+                    : "text-muted-foreground",
                 )}
               >
-                {stats.budgetUsedPercent}{ui("% of budget used")} </span>
+                {stats.budgetUsedPercent}
+                {ui("% of budget used")}{" "}
+              </span>
             </div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
               <div
@@ -133,7 +153,7 @@ export function ContextFilesTab({
                     ? "bg-red-500"
                     : stats.budgetUsedPercent > 80
                       ? "bg-amber-500"
-                      : "bg-primary"
+                      : "bg-primary",
                 )}
                 style={{
                   width: `${Math.min(100, stats.budgetUsedPercent)}%`,
@@ -158,13 +178,13 @@ export function ContextFilesTab({
                 <div
                   className={cn(
                     "flex h-9 w-9 items-center justify-center rounded-lg",
-                    hasContent ? "bg-primary/10" : "bg-muted"
+                    hasContent ? "bg-primary/10" : "bg-muted",
                   )}
                 >
                   <Icon
                     className={cn(
                       "h-4 w-4",
-                      hasContent ? "text-primary" : "text-muted-foreground"
+                      hasContent ? "text-primary" : "text-muted-foreground",
                     )}
                   />
                 </div>
@@ -172,7 +192,7 @@ export function ContextFilesTab({
                   <p className="text-sm font-medium">{file.filename}</p>
                   <p className="text-xs text-muted-foreground truncate">
                     {hasContent
-                      ? ui("{v0} characters", {v0: (file.content.length)})
+                      ? ui("{v0} characters", { v0: file.content.length })
                       : ui("Empty -- click to edit")}
                   </p>
                 </div>
@@ -180,7 +200,7 @@ export function ContextFilesTab({
                   <div
                     className={cn(
                       "h-2 w-2 rounded-full",
-                      hasContent ? "bg-emerald-500" : "bg-muted-foreground/30"
+                      hasContent ? "bg-emerald-500" : "bg-muted-foreground/30",
                     )}
                   />
                   <ChevronRight className="h-4 w-4 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
@@ -196,7 +216,9 @@ export function ContextFilesTab({
             onClick={() => void fetchFiles()}
             className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
           >
-            <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} /> {ui("Refresh")} </button>
+            <RefreshCw className={cn("h-3 w-3", loading && "animate-spin")} />{" "}
+            {ui("Refresh")}{" "}
+          </button>
         </div>
       </SectionCard>
     </div>
@@ -266,13 +288,17 @@ function ContextFileEditor({
           <Icon className="h-4 w-4 text-muted-foreground" />
           <span className="text-sm font-semibold">{file.filename}</span>
           {dirty && (
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300"> {ui("Unsaved")} </span>
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300">
+              {" "}
+              {ui("Unsaved")}{" "}
+            </span>
           )}
         </div>
 
         <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground">
-            {content.length} {ui("chars")} </span>
+            {content.length} {ui("chars")}{" "}
+          </span>
           <button
             onClick={() => void handleSave()}
             disabled={!dirty || saving}
@@ -280,7 +306,7 @@ function ContextFileEditor({
               "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
               dirty
                 ? "bg-primary text-primary-foreground hover:bg-primary/90"
-                : "bg-muted text-muted-foreground cursor-not-allowed"
+                : "bg-muted text-muted-foreground cursor-not-allowed",
             )}
           >
             {saving ? (
@@ -306,7 +332,9 @@ function ContextFileEditor({
 
       {/* Footer */}
       <div className="flex items-center justify-between border-t px-4 py-2 text-xs text-muted-foreground">
-        <span> {ui("Last updated:")}{" "}
+        <span>
+          {" "}
+          {ui("Last updated:")}{" "}
           {new Date(file.updatedAt).toLocaleDateString(ui.locale, {
             year: "numeric",
             month: "short",

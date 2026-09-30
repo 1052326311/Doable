@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useEffect, useRef, useState } from "react";
 import type { ReactElement } from "react";
@@ -35,7 +34,10 @@ export function LogTail(): ReactElement {
   return (
     <div className="border-t border-neutral-800">
       <div className="flex items-center justify-between px-3 py-1 text-xs text-neutral-400">
-        <span>{ui("Logs (")}{lines.length})</span>
+        <span>
+          {ui("Logs (")}
+          {lines.length})
+        </span>
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}

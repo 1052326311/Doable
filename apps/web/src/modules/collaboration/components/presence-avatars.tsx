@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState } from "react";
 import type { PresenceUser } from "@doable/shared";
@@ -44,15 +43,21 @@ export function PresenceAvatars({ users, maxVisible = 4 }: Props) {
             {/* Tooltip */}
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50">
               <div className="rounded-lg bg-popover border border-border px-3 py-2 text-xs whitespace-nowrap shadow-xl">
-                <p className="font-medium text-foreground">{user.displayName ?? ui("User")}</p>
+                <p className="font-medium text-foreground">
+                  {user.displayName ?? ui("User")}
+                </p>
                 <p className="text-muted-foreground mt-0.5">
                   {user.currentFile
-                    ? ui("Editing {v0}", {v0: (user.currentFile.split("/").pop())})
+                    ? ui("Editing {v0}", {
+                        v0: user.currentFile.split("/").pop(),
+                      })
                     : user.currentView === "preview"
                       ? ui("Viewing preview")
                       : ui("In editor")}
                 </p>
-                <p className="text-muted-foreground mt-0.5 capitalize">{user.status}</p>
+                <p className="text-muted-foreground mt-0.5 capitalize">
+                  {user.status}
+                </p>
               </div>
             </div>
           </div>
@@ -68,7 +73,8 @@ export function PresenceAvatars({ users, maxVisible = 4 }: Props) {
       </div>
       {users.length > 0 && (
         <span className="text-[11px] text-muted-foreground ml-1">
-          {users.length} {ui("online")} </span>
+          {users.length} {ui("online")}{" "}
+        </span>
       )}
     </div>
   );

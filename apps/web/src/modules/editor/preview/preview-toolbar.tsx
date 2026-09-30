@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState, useCallback, useRef, useEffect } from "react";
 import {
@@ -76,7 +75,10 @@ export function PreviewToolbar({
   useEffect(() => {
     if (!showRouteDropdown) return;
     const handler = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(e.target as Node)
+      ) {
         setShowRouteDropdown(false);
       }
     };
@@ -113,9 +115,7 @@ export function PreviewToolbar({
         className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
         title={ui("Refresh preview")}
       >
-        <RefreshCw
-          className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`}
-        />
+        <RefreshCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} />
       </button>
 
       {/* URL display / Route navigation */}
@@ -146,7 +146,9 @@ export function PreviewToolbar({
                 onClick={() => handleRouteSelect(route.path)}
                 className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs hover:bg-accent transition-colors"
               >
-                <span className="font-mono text-muted-foreground">{route.path}</span>
+                <span className="font-mono text-muted-foreground">
+                  {route.path}
+                </span>
                 <span className="text-foreground truncate">{route.label}</span>
               </button>
             ))}
@@ -181,7 +183,11 @@ export function PreviewToolbar({
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:bg-accent hover:text-foreground"
           }`}
-          title={visualEditActive ? ui("Disable visual editing") : ui("Enable visual editing")}
+          title={
+            visualEditActive
+              ? ui("Disable visual editing")
+              : ui("Enable visual editing")
+          }
         >
           <MousePointer2 className="h-3.5 w-3.5" />
         </button>

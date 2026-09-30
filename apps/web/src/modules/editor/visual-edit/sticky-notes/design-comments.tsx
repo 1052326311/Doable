@@ -1,9 +1,15 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback, useRef, useEffect } from "react";
-import { MessageCircle, Check, X, Send, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  MessageCircle,
+  Check,
+  X,
+  Send,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -32,13 +38,21 @@ interface CommentPinProps {
   onClick: () => void;
 }
 
-export function CommentPin({ comment, index, isActive, onClick }: CommentPinProps) {
+export function CommentPin({
+  comment,
+  index,
+  isActive,
+  onClick,
+}: CommentPinProps) {
   const color = comment.userColor ?? "#64B5F6";
 
   return (
     <button
       type="button"
-      onClick={(e) => { e.stopPropagation(); onClick(); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick();
+      }}
       className={`absolute z-[9998] flex items-center justify-center rounded-full border-2 shadow-lg transition-all duration-150 cursor-pointer hover:scale-110 ${
         isActive
           ? "w-8 h-8 -translate-x-4 -translate-y-4 ring-2 ring-white/50"
@@ -108,15 +122,18 @@ export function CommentThread({
     setReplyText("");
   }, [replyText, onReply]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-    if (e.key === "Escape") {
-      onClose();
-    }
-  }, [handleSubmit, onClose]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+      if (e.key === "Escape") {
+        onClose();
+      }
+    },
+    [handleSubmit, onClose],
+  );
 
   // Position the popover so it stays within viewport
   const style: React.CSSProperties = {
@@ -193,7 +210,9 @@ export function CommentThread({
 
       {/* Main comment content */}
       <div className="px-3 py-2">
-        <p className="text-sm text-foreground whitespace-pre-wrap break-words">{comment.content}</p>
+        <p className="text-sm text-foreground whitespace-pre-wrap break-words">
+          {comment.content}
+        </p>
       </div>
 
       {/* Replies */}
@@ -204,13 +223,21 @@ export function CommentThread({
             onClick={() => setShowReplies(!showReplies)}
             className="flex items-center gap-1 w-full px-3 py-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors"
           >
-            {showReplies ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-            {replies.length} {replies.length === 1 ? ui("reply") : ui("replies")}
+            {showReplies ? (
+              <ChevronUp className="w-3 h-3" />
+            ) : (
+              <ChevronDown className="w-3 h-3" />
+            )}
+            {replies.length}{" "}
+            {replies.length === 1 ? ui("reply") : ui("replies")}
           </button>
           {showReplies && (
             <div className="max-h-[200px] overflow-y-auto">
               {replies.map((reply) => (
-                <div key={reply.id} className="px-3 py-1.5 border-t border-border/50">
+                <div
+                  key={reply.id}
+                  className="px-3 py-1.5 border-t border-border/50"
+                >
                   <div className="flex items-center gap-1.5 mb-0.5">
                     <div
                       className="w-4 h-4 rounded-full flex items-center justify-center text-[8px] font-bold text-white"
@@ -218,8 +245,12 @@ export function CommentThread({
                     >
                       {(reply.displayName ?? "U")[0]?.toUpperCase()}
                     </div>
-                    <span className="text-[11px] font-medium text-foreground">{reply.displayName ?? ui("User")}</span>
-                    <span className="text-[10px] text-muted-foreground">{formatTimeAgo(reply.createdAt)}</span>
+                    <span className="text-[11px] font-medium text-foreground">
+                      {reply.displayName ?? ui("User")}
+                    </span>
+                    <span className="text-[10px] text-muted-foreground">
+                      {formatTimeAgo(reply.createdAt)}
+                    </span>
                     {reply.userId === currentUserId && (
                       <button
                         type="button"
@@ -231,7 +262,9 @@ export function CommentThread({
                       </button>
                     )}
                   </div>
-                  <p className="text-xs text-foreground/80 whitespace-pre-wrap break-words pl-5.5">{reply.content}</p>
+                  <p className="text-xs text-foreground/80 whitespace-pre-wrap break-words pl-5.5">
+                    {reply.content}
+                  </p>
                 </div>
               ))}
             </div>
@@ -298,7 +331,12 @@ interface NewCommentInputProps {
   onCancel: () => void;
 }
 
-export function NewCommentInput({ x, y, onSubmit, onCancel }: NewCommentInputProps) {
+export function NewCommentInput({
+  x,
+  y,
+  onSubmit,
+  onCancel,
+}: NewCommentInputProps) {
   const ui = useUiText();
 
   const [text, setText] = useState("");
@@ -316,15 +354,18 @@ export function NewCommentInput({ x, y, onSubmit, onCancel }: NewCommentInputPro
     setText("");
   }, [text, onSubmit]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-    if (e.key === "Escape") {
-      onCancel();
-    }
-  }, [handleSubmit, onCancel]);
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSubmit();
+      }
+      if (e.key === "Escape") {
+        onCancel();
+      }
+    },
+    [handleSubmit, onCancel],
+  );
 
   return (
     <div
@@ -335,7 +376,9 @@ export function NewCommentInput({ x, y, onSubmit, onCancel }: NewCommentInputPro
     >
       <div className="flex items-center gap-2 px-3 py-2 border-b border-border">
         <MessageCircle className="w-3.5 h-3.5 text-brand-400" />
-        <span className="text-xs font-medium text-foreground">{ui("Add comment")}</span>
+        <span className="text-xs font-medium text-foreground">
+          {ui("Add comment")}
+        </span>
       </div>
       <div className="px-3 py-2">
         <textarea
@@ -353,13 +396,19 @@ export function NewCommentInput({ x, y, onSubmit, onCancel }: NewCommentInputPro
           type="button"
           onClick={onCancel}
           className="px-2 py-1 rounded-lg text-[11px] text-muted-foreground hover:bg-muted transition-colors"
-        > {ui("Cancel")} </button>
+        >
+          {" "}
+          {ui("Cancel")}{" "}
+        </button>
         <button
           type="button"
           onClick={handleSubmit}
           disabled={!text.trim()}
           className="px-2.5 py-1 rounded-lg text-[11px] font-medium bg-brand-400 text-white hover:bg-brand-500 disabled:opacity-40 transition-colors"
-        > {ui("Comment")} </button>
+        >
+          {" "}
+          {ui("Comment")}{" "}
+        </button>
       </div>
     </div>
   );
@@ -396,7 +445,9 @@ export function DesignCommentsOverlay({
   containerRef,
 }: DesignCommentsOverlayProps) {
   // Separate top-level comments and replies
-  const topLevel = comments.filter((c) => !c.parentId && (showResolved || !c.resolved));
+  const topLevel = comments.filter(
+    (c) => !c.parentId && (showResolved || !c.resolved),
+  );
   const repliesByParent = new Map<string, DesignComment[]>();
   for (const c of comments) {
     if (c.parentId) {
@@ -406,7 +457,9 @@ export function DesignCommentsOverlay({
     }
   }
 
-  const activeComment = activeCommentId ? topLevel.find((c) => c.id === activeCommentId) : null;
+  const activeComment = activeCommentId
+    ? topLevel.find((c) => c.id === activeCommentId)
+    : null;
   const containerRect = containerRef.current?.getBoundingClientRect();
 
   return (
@@ -455,5 +508,8 @@ function formatTimeAgo(dateStr: string): string {
   if (diffHr < 24) return `${diffHr}h`;
   const diffDay = Math.floor(diffHr / 24);
   if (diffDay < 7) return `${diffDay}d`;
-  return new Date(dateStr).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+  return new Date(dateStr).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+  });
 }

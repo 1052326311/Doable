@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useCallback } from "react";
 
@@ -70,7 +69,9 @@ export interface Subscription {
 
 function getAuthHeaders(): HeadersInit {
   const token =
-    typeof window !== "undefined" ? localStorage.getItem("doable_access_token") : null;
+    typeof window !== "undefined"
+      ? localStorage.getItem("doable_access_token")
+      : null;
   return {
     "Content-Type": "application/json",
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
@@ -139,7 +140,10 @@ export function useUsage(workspaceId: string | undefined) {
   return { usage, loading };
 }
 
-export function useCreditUsage(workspaceId: string | undefined, days: number = 30) {
+export function useCreditUsage(
+  workspaceId: string | undefined,
+  days: number = 30,
+) {
   const [data, setData] = useState<CreditUsageHistory | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -149,9 +153,12 @@ export function useCreditUsage(workspaceId: string | undefined, days: number = 3
       return;
     }
     setLoading(true);
-    fetch(`${API_URL}/billing/credits/usage?workspaceId=${workspaceId}&days=${days}`, {
-      headers: getAuthHeaders(),
-    })
+    fetch(
+      `${API_URL}/billing/credits/usage?workspaceId=${workspaceId}&days=${days}`,
+      {
+        headers: getAuthHeaders(),
+      },
+    )
       .then((r) => r.json())
       .then((res) => setData(res.data ?? null))
       .catch(console.error)
@@ -176,7 +183,9 @@ export function useCurrentPlan(workspaceId: string | undefined) {
     }
     // Get workspace to determine current plan
     const token =
-      typeof window !== "undefined" ? localStorage.getItem("doable_access_token") : null;
+      typeof window !== "undefined"
+        ? localStorage.getItem("doable_access_token")
+        : null;
     fetch(`${API_URL}/workspaces/${workspaceId}`, {
       headers: {
         "Content-Type": "application/json",
@@ -226,7 +235,10 @@ export function useBillingActions(workspaceId: string | undefined) {
 
   const clearError = useCallback(() => setError(null), []);
 
-  const subscribe = async (planId: string, interval: "monthly" | "yearly" = "monthly") => {
+  const subscribe = async (
+    planId: string,
+    interval: "monthly" | "yearly" = "monthly",
+  ) => {
     if (!workspaceId) return;
     setLoading(true);
     setError(null);

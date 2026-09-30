@@ -1,14 +1,7 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
+import { useUiText } from "@/i18n/use-ui-text";
 
-
-import {
-  Loader2,
-  Search,
-  ExternalLink,
-  XCircle,
-  Server,
-} from "lucide-react";
+import { Loader2, Search, ExternalLink, XCircle, Server } from "lucide-react";
 import type { ProviderPreset, ModelPreset } from "@doable/shared";
 import { ProviderCard } from "./provider-card";
 import { ProviderIcon, PROVIDER_COLORS } from "./provider-icons";
@@ -90,8 +83,9 @@ export function StepChoose({
         const q = searchQuery.toLowerCase().trim();
         const matches =
           !q ||
-          "custom openai-compatible compatible url byok self-hosted vllm lm studio litellm proxy endpoint local"
-            .includes(q);
+          "custom openai-compatible compatible url byok self-hosted vllm lm studio litellm proxy endpoint local".includes(
+            q,
+          );
         if (!matches) return null;
         return (
           <button
@@ -103,8 +97,15 @@ export function StepChoose({
               <Server className="h-5 w-5" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-foreground">{ui("Custom OpenAI-compatible URL")}</p>
-              <p className="text-xs text-muted-foreground line-clamp-1"> {ui("Paste any /v1 base URL + key — vLLM, LM Studio, LiteLLM, proxies, …")} </p>
+              <p className="text-sm font-medium text-foreground">
+                {ui("Custom OpenAI-compatible URL")}
+              </p>
+              <p className="text-xs text-muted-foreground line-clamp-1">
+                {" "}
+                {ui(
+                  "Paste any /v1 base URL + key — vLLM, LM Studio, LiteLLM, proxies, …",
+                )}{" "}
+              </p>
             </div>
           </button>
         );
@@ -131,7 +132,10 @@ export function StepChoose({
 
       {filteredProviders.length === 0 ? (
         <div className="py-12 text-center">
-          <p className="text-sm text-muted-foreground"> {ui("No providers match your search.")} </p>
+          <p className="text-sm text-muted-foreground">
+            {" "}
+            {ui("No providers match your search.")}{" "}
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
@@ -171,18 +175,26 @@ export function StepConfigure({
       <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary p-3">
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white"
-          style={brandColor ? { backgroundColor: `${brandColor}18` } : { backgroundColor: "rgba(113,113,122,0.15)" }}
+          style={
+            brandColor
+              ? { backgroundColor: `${brandColor}18` }
+              : { backgroundColor: "rgba(113,113,122,0.15)" }
+          }
         >
           <ProviderIcon providerId={preset.id} size={28} />
         </div>
         <div>
           <p className="text-sm font-medium text-foreground">{preset.name}</p>
-          <p className="text-xs text-muted-foreground">{ui(preset.description)}</p>
+          <p className="text-xs text-muted-foreground">
+            {ui(preset.description)}
+          </p>
         </div>
       </div>
 
       <div>
-        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("Label")}</label>
+        <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+          {ui("Label")}
+        </label>
         <input
           type="text"
           value={form.label}
@@ -194,7 +206,9 @@ export function StepConfigure({
 
       {isAzure && preset.baseUrlTemplate && (
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("Azure Resource Name")}</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+            {ui("Azure Resource Name")}
+          </label>
           <input
             type="text"
             value={form.azureResourceName}
@@ -203,7 +217,13 @@ export function StepConfigure({
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500"
           />
           {form.azureResourceName && (
-            <p className="mt-1 text-xs text-muted-foreground"> {ui("URL:")} {preset.defaultBaseUrl.replace("{resource}", form.azureResourceName)}
+            <p className="mt-1 text-xs text-muted-foreground">
+              {" "}
+              {ui("URL:")}{" "}
+              {preset.defaultBaseUrl.replace(
+                "{resource}",
+                form.azureResourceName,
+              )}
             </p>
           )}
         </div>
@@ -211,7 +231,9 @@ export function StepConfigure({
 
       {(!preset.baseUrlTemplate || !isAzure) && (
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("Base URL")}</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+            {ui("Base URL")}
+          </label>
           <input
             type="text"
             value={form.baseUrl}
@@ -221,14 +243,21 @@ export function StepConfigure({
             className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500 disabled:opacity-60"
           />
           {isLocal && (
-            <p className="mt-1 text-xs text-muted-foreground"> {ui("Default port:")} {new URL(preset.defaultBaseUrl).port || "80"}{ui(". Make sure the server is running.")} </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {" "}
+              {ui("Default port:")}{" "}
+              {new URL(preset.defaultBaseUrl).port || "80"}
+              {ui(". Make sure the server is running.")}{" "}
+            </p>
           )}
         </div>
       )}
 
       {isAzure && (
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("API Version")}</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+            {ui("API Version")}
+          </label>
           <input
             type="text"
             value={form.azureApiVersion}
@@ -241,7 +270,9 @@ export function StepConfigure({
 
       {requiresAuth && (
         <div>
-          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">{ui("API Key")}</label>
+          <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+            {ui("API Key")}
+          </label>
           <input
             type="password"
             value={form.apiKey}
@@ -256,14 +287,20 @@ export function StepConfigure({
               rel="noopener noreferrer"
               className="mt-1.5 inline-flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300 transition-colors"
             >
-              <ExternalLink className="h-3 w-3" /> {ui("Get API Key")} </a>
+              <ExternalLink className="h-3 w-3" /> {ui("Get API Key")}{" "}
+            </a>
           )}
         </div>
       )}
 
       {!requiresAuth && (
         <div className="rounded-lg border border-border bg-muted p-3">
-          <p className="text-xs text-muted-foreground"> {ui("No API key required. This provider runs locally on your machine.")} </p>
+          <p className="text-xs text-muted-foreground">
+            {" "}
+            {ui(
+              "No API key required. This provider runs locally on your machine.",
+            )}{" "}
+          </p>
         </div>
       )}
     </div>

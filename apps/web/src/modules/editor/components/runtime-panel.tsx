@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useEffect, useState } from "react";
 import { apiGetRuntimeMetrics, type ApiInstanceMetrics } from "@/lib/api";
@@ -49,7 +48,10 @@ export function RuntimePanel({ projectId }: { projectId: string }) {
           setError(null);
         }
       } catch (err) {
-        if (!cancelled) setError(err instanceof Error ? err.message : ui("Failed to load metrics"));
+        if (!cancelled)
+          setError(
+            err instanceof Error ? err.message : ui("Failed to load metrics"),
+          );
       }
     };
     void tick();
@@ -62,13 +64,18 @@ export function RuntimePanel({ projectId }: { projectId: string }) {
 
   if (error) {
     return (
-      <div className="rounded-lg border border-border p-3 text-xs text-muted-foreground"> {ui("Metrics unavailable:")} {ui(error)}
+      <div className="rounded-lg border border-border p-3 text-xs text-muted-foreground">
+        {" "}
+        {ui("Metrics unavailable:")} {ui(error)}
       </div>
     );
   }
   if (!metrics) {
     return (
-      <div className="rounded-lg border border-border p-3 text-xs text-muted-foreground"> {ui("Loading runtime metrics…")} </div>
+      <div className="rounded-lg border border-border p-3 text-xs text-muted-foreground">
+        {" "}
+        {ui("Loading runtime metrics…")}{" "}
+      </div>
     );
   }
   if (metrics.source === "none") {
@@ -84,19 +91,32 @@ export function RuntimePanel({ projectId }: { projectId: string }) {
         >
           {metrics.state}
         </span>
-        <span className="text-[10px] text-muted-foreground">{ui("poll")} {POLL_MS / 1000}{ui("s")}</span>
+        <span className="text-[10px] text-muted-foreground">
+          {ui("poll")} {POLL_MS / 1000}
+          {ui("s")}
+        </span>
       </div>
       <div className="grid grid-cols-3 gap-2 text-xs">
         <div>
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{ui("Uptime")}</div>
-          <div className="font-medium text-foreground">{formatUptime(metrics.uptimeMs)}</div>
+          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            {ui("Uptime")}
+          </div>
+          <div className="font-medium text-foreground">
+            {formatUptime(metrics.uptimeMs)}
+          </div>
         </div>
         <div>
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{ui("Memory")}</div>
-          <div className="font-medium text-foreground">{formatBytes(metrics.memoryBytes)}</div>
+          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            {ui("Memory")}
+          </div>
+          <div className="font-medium text-foreground">
+            {formatBytes(metrics.memoryBytes)}
+          </div>
         </div>
         <div>
-          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">{ui("CPU")}</div>
+          <div className="text-[10px] uppercase tracking-wide text-muted-foreground">
+            {ui("CPU")}
+          </div>
           <div className="font-medium text-foreground">
             {metrics.cpuPct === null ? "—" : `${metrics.cpuPct.toFixed(1)}%`}
           </div>

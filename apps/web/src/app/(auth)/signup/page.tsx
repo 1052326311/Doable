@@ -1,8 +1,7 @@
 "use client";
-import {translateUiData} from "@/i18n/text";
+import { translateUiData } from "@/i18n/text";
 
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useMemo, type FormEvent } from "react";
 import Link from "next/link";
@@ -14,7 +13,11 @@ import { useAuth } from "@/hooks/use-auth";
 import { getGitHubLoginUrl, getGoogleLoginUrl } from "@/lib/api";
 import { Eye, EyeOff, Loader2, Check, X } from "lucide-react";
 
-import { getPasswordStrength, getPasswordCriteria, isValidEmail } from "./signup-utils";
+import {
+  getPasswordStrength,
+  getPasswordCriteria,
+  isValidEmail,
+} from "./signup-utils";
 import { GitHubIcon, GoogleIcon } from "./oauth-icons";
 
 export default function SignupPage() {
@@ -56,8 +59,14 @@ export default function SignupPage() {
   const [emailTouched, setEmailTouched] = useState(false);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
 
-  const strength = useMemo(() => translateUiData(getPasswordStrength(password), ui), [ui, password]);
-  const criteria = useMemo(() => translateUiData(getPasswordCriteria(password), ui), [ui, password]);
+  const strength = useMemo(
+    () => translateUiData(getPasswordStrength(password), ui),
+    [ui, password],
+  );
+  const criteria = useMemo(
+    () => translateUiData(getPasswordCriteria(password), ui),
+    [ui, password],
+  );
   const emailValid = useMemo(() => isValidEmail(email), [email]);
 
   async function handleSubmit(e: FormEvent) {
@@ -76,13 +85,17 @@ export default function SignupPage() {
 
     if (strength.score < 2) {
       setError(
-        ui("Password is too weak. Use at least 8 characters with uppercase, lowercase, and numbers.")
+        ui(
+          "Password is too weak. Use at least 8 characters with uppercase, lowercase, and numbers.",
+        ),
       );
       return;
     }
 
     if (!agreedToTerms) {
-      setError(ui("You must agree to the Terms of Service and Privacy Policy."));
+      setError(
+        ui("You must agree to the Terms of Service and Privacy Policy."),
+      );
       return;
     }
 
@@ -131,7 +144,9 @@ export default function SignupPage() {
     const params = new URLSearchParams(window.location.search);
     const returnToRaw = params.get("returnTo");
     const returnTo =
-      returnToRaw && returnToRaw.startsWith("/") && !returnToRaw.startsWith("//")
+      returnToRaw &&
+      returnToRaw.startsWith("/") &&
+      !returnToRaw.startsWith("//")
         ? returnToRaw
         : null;
     window.location.href =
@@ -145,12 +160,23 @@ export default function SignupPage() {
   if (pendingMessage) {
     return (
       <>
-        <h2 className="mb-3 text-center text-xl font-semibold text-[hsl(var(--foreground))]"> {ui("You're on the list")} </h2>
+        <h2 className="mb-3 text-center text-xl font-semibold text-[hsl(var(--foreground))]">
+          {" "}
+          {ui("You're on the list")}{" "}
+        </h2>
         <div className="rounded-xl border border-[hsl(var(--border))] bg-[hsl(var(--card))] p-5 text-sm leading-relaxed text-[hsl(var(--foreground))] whitespace-pre-wrap">
           {pendingMessage}
         </div>
-        <p className="mt-6 text-center text-sm text-[hsl(var(--muted-foreground))]"> {ui("Already approved?")}{" "}
-          <Link href="/login" className="font-medium text-brand-700 hover:underline"> {ui("Sign in")} </Link>
+        <p className="mt-6 text-center text-sm text-[hsl(var(--muted-foreground))]">
+          {" "}
+          {ui("Already approved?")}{" "}
+          <Link
+            href="/login"
+            className="font-medium text-brand-700 hover:underline"
+          >
+            {" "}
+            {ui("Sign in")}{" "}
+          </Link>
         </p>
       </>
     );
@@ -158,7 +184,10 @@ export default function SignupPage() {
 
   return (
     <>
-      <h2 className="mb-6 text-center text-xl font-semibold text-[hsl(var(--foreground))]"> {ui("Create your account")} </h2>
+      <h2 className="mb-6 text-center text-xl font-semibold text-[hsl(var(--foreground))]">
+        {" "}
+        {ui("Create your account")}{" "}
+      </h2>
 
       {/* OAuth Buttons */}
       <div className="space-y-3">
@@ -172,7 +201,9 @@ export default function SignupPage() {
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <GitHubIcon className="mr-2 h-4 w-4" />
-          )} {ui("Continue with GitHub")} </Button>
+          )}{" "}
+          {ui("Continue with GitHub")}{" "}
+        </Button>
         <Button
           variant="outline"
           className="w-full rounded-xl"
@@ -183,7 +214,9 @@ export default function SignupPage() {
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
             <GoogleIcon className="mr-2 h-4 w-4" />
-          )} {ui("Continue with Google")} </Button>
+          )}{" "}
+          {ui("Continue with Google")}{" "}
+        </Button>
       </div>
 
       {/* Divider */}
@@ -192,7 +225,10 @@ export default function SignupPage() {
           <span className="w-full border-t border-[hsl(var(--border))]" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-[hsl(var(--card))] px-2 text-[hsl(var(--muted-foreground))]"> {ui("Or sign up with email")} </span>
+          <span className="bg-[hsl(var(--card))] px-2 text-[hsl(var(--muted-foreground))]">
+            {" "}
+            {ui("Or sign up with email")}{" "}
+          </span>
         </div>
       </div>
 
@@ -244,7 +280,10 @@ export default function SignupPage() {
             onBlur={() => setEmailTouched(true)}
           />
           {emailTouched && email.length > 0 && !emailValid && (
-            <p className="text-xs text-red-600 dark:text-red-400"> {ui("Please enter a valid email address")} </p>
+            <p className="text-xs text-red-600 dark:text-red-400">
+              {" "}
+              {ui("Please enter a valid email address")}{" "}
+            </p>
           )}
         </div>
 
@@ -268,7 +307,9 @@ export default function SignupPage() {
               tabIndex={-1}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
               onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? ui("Hide password") : ui("Show password")}
+              aria-label={
+                showPassword ? ui("Hide password") : ui("Show password")
+              }
             >
               {showPassword ? (
                 <EyeOff className="h-4 w-4" />
@@ -293,7 +334,9 @@ export default function SignupPage() {
                     />
                   ))}
                 </div>
-                <p className="text-xs text-[hsl(var(--muted-foreground))]"> {ui("Password strength:")} {ui(strength.label)}
+                <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                  {" "}
+                  {ui("Password strength:")} {ui(strength.label)}
                 </p>
               </div>
               {/* Criteria checklist */}
@@ -355,11 +398,15 @@ export default function SignupPage() {
             </button>
           </div>
           {confirmPassword.length > 0 && confirmPassword !== password && (
-            <p className="text-xs text-red-600 dark:text-red-400"> {ui("Passwords do not match")} </p>
+            <p className="text-xs text-red-600 dark:text-red-400">
+              {" "}
+              {ui("Passwords do not match")}{" "}
+            </p>
           )}
           {confirmPassword.length > 0 && confirmPassword === password && (
             <p className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-              <Check className="h-3 w-3" /> {ui("Passwords match")} </p>
+              <Check className="h-3 w-3" /> {ui("Passwords match")}{" "}
+            </p>
           )}
         </div>
 
@@ -375,17 +422,26 @@ export default function SignupPage() {
           <label
             htmlFor="terms"
             className="text-sm text-[hsl(var(--muted-foreground))] select-none cursor-pointer leading-snug"
-          > {ui("I agree to the")}{" "}
+          >
+            {" "}
+            {ui("I agree to the")}{" "}
             <a
               href="/terms"
               className="font-medium text-brand-700 hover:underline"
               target="_blank"
-            > {ui("Terms of Service")} </a>{" "} {ui("and")}{" "}
+            >
+              {" "}
+              {ui("Terms of Service")}{" "}
+            </a>{" "}
+            {ui("and")}{" "}
             <a
               href="/privacy"
               className="font-medium text-brand-700 hover:underline"
               target="_blank"
-            > {ui("Privacy Policy")} </a>
+            >
+              {" "}
+              {ui("Privacy Policy")}{" "}
+            </a>
           </label>
         </div>
 
@@ -396,20 +452,26 @@ export default function SignupPage() {
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Creating account...")} </>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+              {ui("Creating account...")}{" "}
+            </>
           ) : (
             ui("Create account")
           )}
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-[hsl(var(--muted-foreground))]"> {ui("Already have an account?")}{" "}
+      <p className="mt-6 text-center text-sm text-[hsl(var(--muted-foreground))]">
+        {" "}
+        {ui("Already have an account?")}{" "}
         <Link
           href="/login"
           className="font-medium text-brand-700 hover:underline"
-        > {ui("Sign in")} </Link>
+        >
+          {" "}
+          {ui("Sign in")}{" "}
+        </Link>
       </p>
     </>
   );
 }
-

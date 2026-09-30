@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
@@ -9,10 +8,24 @@ import { apiListTemplates, type ApiTemplate } from "@/lib/api";
 import { TemplateCard } from "@/components/templates/template-card";
 import { TemplatePreviewModal } from "@/components/templates/template-preview-modal";
 import { UseTemplateDialog } from "@/components/templates/use-template-dialog";
-import { Loader2, Search, Sparkles, FileCode, BarChart3, Layout, ShoppingBag, BookOpen, User, CheckSquare } from "lucide-react";
+import {
+  Loader2,
+  Search,
+  Sparkles,
+  FileCode,
+  BarChart3,
+  Layout,
+  ShoppingBag,
+  BookOpen,
+  User,
+  CheckSquare,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const CATEGORY_CONFIG: Record<string, { label: string; icon: typeof FileCode }> = {
+const CATEGORY_CONFIG: Record<
+  string,
+  { label: string; icon: typeof FileCode }
+> = {
   all: { label: "All Templates", icon: Sparkles },
   starter: { label: "Starters", icon: FileCode },
   dashboard: { label: "Dashboards", icon: BarChart3 },
@@ -35,7 +48,9 @@ export default function TemplatesPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   // Preview modal state
-  const [previewTemplate, setPreviewTemplate] = useState<ApiTemplate | null>(null);
+  const [previewTemplate, setPreviewTemplate] = useState<ApiTemplate | null>(
+    null,
+  );
 
   // Use template dialog state
   const [remixTemplate, setRemixTemplate] = useState<ApiTemplate | null>(null);
@@ -70,8 +85,13 @@ export default function TemplatesPage() {
         {/* Header */}
         <div className="mb-8 flex items-start justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-foreground">{ui("Templates")}</h1>
-            <p className="mt-2 text-sm text-muted-foreground"> {ui("Start from a template to build your next project")} </p>
+            <h1 className="text-3xl font-bold text-foreground">
+              {ui("Templates")}
+            </h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              {" "}
+              {ui("Start from a template to build your next project")}{" "}
+            </p>
           </div>
           {/* Search */}
           <div className="relative">
@@ -103,7 +123,7 @@ export default function TemplatesPage() {
                   "flex shrink-0 items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 transition-colors -mb-px",
                   activeCategory === cat
                     ? "border-foreground text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                    : "border-transparent text-muted-foreground hover:text-foreground hover:border-border",
                 )}
               >
                 <Icon className="h-3.5 w-3.5" />
@@ -117,13 +137,15 @@ export default function TemplatesPage() {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground mb-4" />
-            <p className="text-sm text-muted-foreground">{ui("Loading templates...")}</p>
+            <p className="text-sm text-muted-foreground">
+              {ui("Loading templates...")}
+            </p>
           </div>
         ) : filteredTemplates.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 text-center">
             <p className="text-sm text-muted-foreground">
               {searchQuery
-                ? ui("No templates matching \"{v0}\"", {v0: (searchQuery)})
+                ? ui('No templates matching "{v0}"', { v0: searchQuery })
                 : ui("No templates in this category yet.")}
             </p>
           </div>

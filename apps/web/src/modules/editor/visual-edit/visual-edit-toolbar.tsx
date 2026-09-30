@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { ArrowUp, CornerRightUp, Code2, Trash2 } from "lucide-react";
@@ -127,7 +126,9 @@ export function VisualEditToolbar({
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={hasPendingChanges ? ui("Save first") : ui("Ask Doable...")}
+          placeholder={
+            hasPendingChanges ? ui("Save first") : ui("Ask Doable...")
+          }
           disabled={hasPendingChanges}
           className="h-7 w-full rounded-lg bg-secondary px-2.5 text-[12px] text-foreground outline-none placeholder:text-muted-foreground focus:bg-muted transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         />

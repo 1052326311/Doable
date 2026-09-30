@@ -1,5 +1,4 @@
-
-import {useUiText} from "@/i18n/use-ui-text";
+import { useUiText } from "@/i18n/use-ui-text";
 import {
   Bookmark,
   BookmarkCheck,
@@ -83,9 +82,7 @@ export function VersionItem({
       {/* Content */}
       <div
         className={`flex-1 min-w-0 rounded-md py-1.5 px-2 -ml-1 transition-colors ${
-          isCurrent
-            ? "bg-primary/5"
-            : "hover:bg-accent/50"
+          isCurrent ? "bg-primary/5" : "hover:bg-accent/50"
         }`}
       >
         {/* Top row: description + bookmark */}
@@ -93,7 +90,10 @@ export function VersionItem({
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
               {isCurrent && (
-                <span className="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1 py-0.5 text-[10px] font-semibold text-primary leading-none"> {ui("CURRENT")} </span>
+                <span className="inline-flex items-center gap-0.5 rounded bg-primary/10 px-1 py-0.5 text-[10px] font-semibold text-primary leading-none">
+                  {" "}
+                  {ui("CURRENT")}{" "}
+                </span>
               )}
               <p
                 className={`text-sm leading-tight truncate ${
@@ -103,7 +103,7 @@ export function VersionItem({
                 }`}
               >
                 {version.description ??
-                  ui("Version {v0}", {v0: (version.version_number)})}
+                  ui("Version {v0}", { v0: version.version_number })}
               </p>
             </div>
           </div>
@@ -146,7 +146,10 @@ export function VersionItem({
               {version.shortSha}
             </span>
           ) : (
-            <span className="font-mono"> {ui("v")}{version.version_number}
+            <span className="font-mono">
+              {" "}
+              {ui("v")}
+              {version.version_number}
             </span>
           )}
           <span className="text-muted-foreground/30">|</span>
@@ -156,12 +159,19 @@ export function VersionItem({
               <span className="text-muted-foreground/30">|</span>
               <span className="flex items-center gap-1">
                 <FileDiff className="h-2.5 w-2.5" />
-                {version.filesChanged} {ui("file")}{version.filesChanged !== 1 ? ui("s") : ""}
+                {version.filesChanged} {ui("file")}
+                {version.filesChanged !== 1 ? ui("s") : ""}
                 {(version.insertions || version.deletions) && (
                   <span className="text-[10px]">
-                    {version.insertions ? <span className="text-green-600">+{version.insertions}</span> : null}
+                    {version.insertions ? (
+                      <span className="text-green-600">
+                        +{version.insertions}
+                      </span>
+                    ) : null}
                     {version.insertions && version.deletions ? " " : null}
-                    {version.deletions ? <span className="text-red-600">-{version.deletions}</span> : null}
+                    {version.deletions ? (
+                      <span className="text-red-600">-{version.deletions}</span>
+                    ) : null}
                   </span>
                 )}
               </span>
@@ -178,16 +188,16 @@ export function VersionItem({
             <ChevronDown className="h-3 w-3" />
           ) : (
             <ChevronRight className="h-3 w-3" />
-          )} {ui("Details")} </button>
+          )}{" "}
+          {ui("Details")}{" "}
+        </button>
 
         {isExpanded && (
           <div className="mt-1.5 rounded border border-border/50 bg-muted/20 p-2 text-[11px] space-y-1.5">
             <div className="flex items-center justify-between text-muted-foreground">
               <span>{ui("Created")}</span>
               <span>
-                {new Date(
-                  version.created_at
-                ).toLocaleString(ui.locale)}
+                {new Date(version.created_at).toLocaleString(ui.locale)}
               </span>
             </div>
             <div className="flex items-center justify-between text-muted-foreground">
@@ -198,7 +208,10 @@ export function VersionItem({
             </div>
             <div className="flex items-center justify-between text-muted-foreground">
               <span>{ui("Version")}</span>
-              <span className="font-mono font-medium text-foreground"> {ui("v")}{version.version_number}
+              <span className="font-mono font-medium text-foreground">
+                {" "}
+                {ui("v")}
+                {version.version_number}
               </span>
             </div>
             {version.description && (
@@ -221,7 +234,8 @@ export function VersionItem({
               }}
               className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
             >
-              <RotateCcw className="h-3 w-3" /> {ui("Restore")} </button>
+              <RotateCcw className="h-3 w-3" /> {ui("Restore")}{" "}
+            </button>
           )}
           {!isFirstVersion && (
             <button
@@ -231,7 +245,8 @@ export function VersionItem({
               }}
               className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[11px] text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
             >
-              <FileDiff className="h-3 w-3" /> {ui("View diff")} </button>
+              <FileDiff className="h-3 w-3" /> {ui("View diff")}{" "}
+            </button>
           )}
         </div>
       </div>

@@ -1,9 +1,14 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useCallback } from "react";
-import { Loader2, ChevronRight, ChevronDown, ShieldCheck, ShieldAlert } from "lucide-react";
+import {
+  Loader2,
+  ChevronRight,
+  ChevronDown,
+  ShieldCheck,
+  ShieldAlert,
+} from "lucide-react";
 import { SectionCard } from "@/modules/settings/components/project-settings-shared";
 import type { DataTokenState } from "../hooks/use-data-token";
 import { enableRls, type SchemaResult, type TableSchema } from "../api";
@@ -38,11 +43,17 @@ export function SchemaPane({ projectId, tokenState }: SchemaPaneProps) {
         setError(null);
         setSelectedName((cur) => cur ?? s.tables[0]?.name ?? null);
       })
-      .catch((err) => setError(err instanceof Error ? err.message : ui("Failed to load schema")))
+      .catch((err) =>
+        setError(
+          err instanceof Error ? err.message : ui("Failed to load schema"),
+        ),
+      )
       .finally(() => setLoading(false));
   }, [ui, client]);
 
-  useEffect(() => { loadSchema(); }, [loadSchema]);
+  useEffect(() => {
+    loadSchema();
+  }, [loadSchema]);
 
   async function doEnableRls(table: string): Promise<void> {
     setRlsBusy(table);
@@ -51,7 +62,11 @@ export function SchemaPane({ projectId, tokenState }: SchemaPaneProps) {
       await enableRls(projectId, table);
       loadSchema();
     } catch (err) {
-      setError(err instanceof Error ? err.message : ui("Failed to enable row-level security"));
+      setError(
+        err instanceof Error
+          ? err.message
+          : ui("Failed to enable row-level security"),
+      );
     } finally {
       setRlsBusy(null);
     }
@@ -77,8 +92,13 @@ export function SchemaPane({ projectId, tokenState }: SchemaPaneProps) {
 
   if (tables.length === 0) {
     return (
-      <SectionCard title={ui("Schema")} description={ui("Tables, columns, indexes, and row-level security.")}>
-        <p className="text-sm text-muted-foreground">{ui("No tables found. Ask the AI to create your schema.")}</p>
+      <SectionCard
+        title={ui("Schema")}
+        description={ui("Tables, columns, indexes, and row-level security.")}
+      >
+        <p className="text-sm text-muted-foreground">
+          {ui("No tables found. Ask the AI to create your schema.")}
+        </p>
       </SectionCard>
     );
   }
@@ -86,7 +106,10 @@ export function SchemaPane({ projectId, tokenState }: SchemaPaneProps) {
   const selected = tables.find((t) => t.name === selectedName) ?? null;
 
   return (
-    <SectionCard title={ui("Schema")} description={ui("Tables, columns, indexes, and row-level security.")}>
+    <SectionCard
+      title={ui("Schema")}
+      description={ui("Tables, columns, indexes, and row-level security.")}
+    >
       <div className="flex gap-4">
         {/* Table list */}
         <div className="w-52 shrink-0 space-y-1 border-r pr-4">
@@ -99,21 +122,38 @@ export function SchemaPane({ projectId, tokenState }: SchemaPaneProps) {
                   setSelectedName(t.name);
                   setExpandedTables((prev) => {
                     const next = new Set(prev);
-                    if (open) next.delete(t.name); else next.add(t.name);
+                    if (open) next.delete(t.name);
+                    else next.add(t.name);
                     return next;
                   });
                 }}
                 className={`flex w-full items-center gap-1.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors ${
-                  selectedName === t.name ? "bg-muted font-medium" : "hover:bg-muted/50"
+                  selectedName === t.name
+                    ? "bg-muted font-medium"
+                    : "hover:bg-muted/50"
                 }`}
               >
-                {open ? <ChevronDown className="h-3 w-3 shrink-0" /> : <ChevronRight className="h-3 w-3 shrink-0" />}
+                {open ? (
+                  <ChevronDown className="h-3 w-3 shrink-0" />
+                ) : (
+                  <ChevronRight className="h-3 w-3 shrink-0" />
+                )}
                 {/* RLS status at a glance */}
-                {t.rls_enabled
-                  ? <ShieldCheck className="h-3.5 w-3.5 shrink-0 text-green-500" aria-label={ui("RLS enabled")} />
-                  : <ShieldAlert className="h-3.5 w-3.5 shrink-0 text-amber-500" aria-label={ui("RLS off")} />}
+                {t.rls_enabled ? (
+                  <ShieldCheck
+                    className="h-3.5 w-3.5 shrink-0 text-green-500"
+                    aria-label={ui("RLS enabled")}
+                  />
+                ) : (
+                  <ShieldAlert
+                    className="h-3.5 w-3.5 shrink-0 text-amber-500"
+                    aria-label={ui("RLS off")}
+                  />
+                )}
                 <span className="truncate">{t.name}</span>
-                <span className="ml-auto text-xs text-muted-foreground">{t.rowCount}</span>
+                <span className="ml-auto text-xs text-muted-foreground">
+                  {t.rowCount}
+                </span>
               </button>
             );
           })}
@@ -127,35 +167,49 @@ export function SchemaPane({ projectId, tokenState }: SchemaPaneProps) {
               {/* RLS status badge */}
               {selected.rls_enabled ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-green-500/15 px-2 py-0.5 text-[11px] font-medium text-green-600 dark:text-green-400">
-                  <ShieldCheck className="h-3 w-3" /> {ui("RLS enabled")} </span>
+                  <ShieldCheck className="h-3 w-3" /> {ui("RLS enabled")}{" "}
+                </span>
               ) : (
                 <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/15 px-2 py-0.5 text-[11px] font-medium text-amber-600 dark:text-amber-400">
-                  <ShieldAlert className="h-3 w-3" /> {ui("RLS off")} </span>
+                  <ShieldAlert className="h-3 w-3" /> {ui("RLS off")}{" "}
+                </span>
               )}
-              {!selected.rls_enabled && (
-                hasIdentityCol(selected) ? (
+              {!selected.rls_enabled &&
+                (hasIdentityCol(selected) ? (
                   <button
                     onClick={() => void doEnableRls(selected.name)}
                     disabled={rlsBusy === selected.name}
                     className="inline-flex items-center gap-1.5 rounded-md border border-green-500/40 px-2.5 py-1 text-xs font-medium text-green-600 transition-colors hover:bg-green-500/10 disabled:opacity-50 dark:text-green-400"
                   >
-                    {rlsBusy === selected.name && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                    <ShieldCheck className="h-3.5 w-3.5" /> {ui("Enable RLS")} </button>
+                    {rlsBusy === selected.name && (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    )}
+                    <ShieldCheck className="h-3.5 w-3.5" />{" "}
+                    {ui("Enable RLS")}{" "}
+                  </button>
                 ) : (
-                  <span className="text-[11px] text-muted-foreground"> {ui("add a created_by / owner_id column to enable RLS")} </span>
-                )
-              )}
+                  <span className="text-[11px] text-muted-foreground">
+                    {" "}
+                    {ui(
+                      "add a created_by / owner_id column to enable RLS",
+                    )}{" "}
+                  </span>
+                ))}
             </div>
 
             {/* Columns */}
             <div>
-              <p className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">{ui("Columns")}</p>
+              <p className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                {ui("Columns")}
+              </p>
               <table className="w-full text-xs">
                 <thead>
                   <tr className="border-b text-muted-foreground">
                     <th className="pb-1 text-left font-medium">{ui("Name")}</th>
                     <th className="pb-1 text-left font-medium">{ui("Type")}</th>
-                    <th className="pb-1 text-left font-medium">{ui("Flags")}</th>
+                    <th className="pb-1 text-left font-medium">
+                      {ui("Flags")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -164,7 +218,11 @@ export function SchemaPane({ projectId, tokenState }: SchemaPaneProps) {
                       <td className="py-1 font-mono">{col.name}</td>
                       <td className="py-1 text-muted-foreground">{col.type}</td>
                       <td className="py-1 space-x-1">
-                        {!col.nullable && <span className="rounded bg-muted px-1">{ui("NOT NULL")}</span>}
+                        {!col.nullable && (
+                          <span className="rounded bg-muted px-1">
+                            {ui("NOT NULL")}
+                          </span>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -175,16 +233,27 @@ export function SchemaPane({ projectId, tokenState }: SchemaPaneProps) {
             {/* Indexes */}
             {selected.indexes.length > 0 && (
               <div>
-                <p className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide"> {ui("Indexes (")}{selected.indexes.length})
+                <p className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  {" "}
+                  {ui("Indexes (")}
+                  {selected.indexes.length})
                 </p>
                 <ul className="space-y-0.5">
                   {selected.indexes.map((indexdef) => {
-                    const name = indexdef.match(/INDEX (\w+)/i)?.[1] ?? indexdef;
+                    const name =
+                      indexdef.match(/INDEX (\w+)/i)?.[1] ?? indexdef;
                     const unique = /UNIQUE INDEX/i.test(indexdef);
                     return (
-                      <li key={indexdef} className="flex items-center gap-2 text-xs">
+                      <li
+                        key={indexdef}
+                        className="flex items-center gap-2 text-xs"
+                      >
                         <span className="font-mono">{name}</span>
-                        {unique && <span className="rounded bg-muted px-1 text-muted-foreground">{ui("UNIQUE")}</span>}
+                        {unique && (
+                          <span className="rounded bg-muted px-1 text-muted-foreground">
+                            {ui("UNIQUE")}
+                          </span>
+                        )}
                       </li>
                     );
                   })}
@@ -194,18 +263,33 @@ export function SchemaPane({ projectId, tokenState }: SchemaPaneProps) {
 
             {/* Policies */}
             <div>
-              <p className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide"> {ui("Policies (")}{selected.policies.length})
+              <p className="mb-1 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                {" "}
+                {ui("Policies (")}
+                {selected.policies.length})
               </p>
               {selected.policies.length === 0 ? (
-                <p className="text-xs text-muted-foreground"> {ui("No policies —")} {selected.rls_enabled ? ui("RLS is on but no policy grants access (rows are hidden).") : ui("this table is not row-level-secured.")}
+                <p className="text-xs text-muted-foreground">
+                  {" "}
+                  {ui("No policies —")}{" "}
+                  {selected.rls_enabled
+                    ? ui(
+                        "RLS is on but no policy grants access (rows are hidden).",
+                      )
+                    : ui("this table is not row-level-secured.")}
                 </p>
               ) : (
                 <ul className="space-y-0.5">
                   {selected.policies.map((pol) => (
-                    <li key={pol.name} className="flex items-center gap-2 text-xs">
+                    <li
+                      key={pol.name}
+                      className="flex items-center gap-2 text-xs"
+                    >
                       <span className="h-2 w-2 rounded-full bg-green-500 shrink-0" />
                       <span className="font-mono">{pol.name}</span>
-                      <span className="text-muted-foreground">{pol.command}</span>
+                      <span className="text-muted-foreground">
+                        {pol.command}
+                      </span>
                     </li>
                   ))}
                 </ul>

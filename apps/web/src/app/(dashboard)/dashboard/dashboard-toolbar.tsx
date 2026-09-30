@@ -1,16 +1,28 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import {
-  Search, LayoutGrid, List, Filter, X, Star,
-  Trash2, FolderInput, ChevronDown,
-  Globe, AlertCircle, FileCode, ArrowRight,
+  Search,
+  LayoutGrid,
+  List,
+  Filter,
+  X,
+  Star,
+  Trash2,
+  FolderInput,
+  ChevronDown,
+  Globe,
+  AlertCircle,
+  FileCode,
+  ArrowRight,
 } from "lucide-react";
 import {
-  DropdownMenu, DropdownMenuTrigger,
-  DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator,
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import type { Folder } from "@doable/shared";
 import type { ViewMode, StatusFilter, SortKey } from "./dashboard-constants";
@@ -43,13 +55,23 @@ const TABS = [
 ];
 
 export function DashboardToolbar({
-  activeTab, setActiveTab, onBrowseTemplates,
-  searchRef, searchQuery, setSearchQuery,
-  statusFilter, setStatusFilter,
-  starredFilter, setStarredFilter,
-  viewMode, setViewMode,
-  selectedIds, setSelectedIds,
-  folders, onBulkMoveToFolder, onBulkDeleteConfirm,
+  activeTab,
+  setActiveTab,
+  onBrowseTemplates,
+  searchRef,
+  searchQuery,
+  setSearchQuery,
+  statusFilter,
+  setStatusFilter,
+  starredFilter,
+  setStarredFilter,
+  viewMode,
+  setViewMode,
+  selectedIds,
+  setSelectedIds,
+  folders,
+  onBulkMoveToFolder,
+  onBulkDeleteConfirm,
 }: DashboardToolbarProps) {
   const ui = useUiText();
   const i18n_TABS = useUiData(TABS);
@@ -75,7 +97,9 @@ export function DashboardToolbar({
           <button
             onClick={onBrowseTemplates}
             className="ml-auto flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-          > {ui("Browse all")} <ArrowRight className="h-3.5 w-3.5" />
+          >
+            {" "}
+            {ui("Browse all")} <ArrowRight className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
@@ -108,17 +132,28 @@ export function DashboardToolbar({
           <DropdownMenu>
             <DropdownMenuTrigger className="flex h-9 items-center gap-2 rounded-lg border border-border bg-card px-3 text-sm text-muted-foreground hover:text-foreground hover:border-border transition-colors">
               <Filter className="h-3.5 w-3.5" />
-              {statusFilter === "all" ? ui("All status") : ui(STATUS_STYLES[statusFilter]?.label)}
+              {statusFilter === "all"
+                ? ui("All status")
+                : ui(STATUS_STYLES[statusFilter]?.label)}
               <ChevronDown className="h-3 w-3" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setStatusFilter("all")}> {ui("All status")} </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setStatusFilter("all")}>
+                {" "}
+                {ui("All status")}{" "}
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setStatusFilter("published")}>
-                <Globe className="mr-2 h-3.5 w-3.5 text-emerald-400" /> {ui("Published")} </DropdownMenuItem>
+                <Globe className="mr-2 h-3.5 w-3.5 text-emerald-400" />{" "}
+                {ui("Published")}{" "}
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setStatusFilter("draft")}>
-                <FileCode className="mr-2 h-3.5 w-3.5 text-muted-foreground" /> {ui("Draft")} </DropdownMenuItem>
+                <FileCode className="mr-2 h-3.5 w-3.5 text-muted-foreground" />{" "}
+                {ui("Draft")}{" "}
+              </DropdownMenuItem>
               <DropdownMenuItem onClick={() => setStatusFilter("error")}>
-                <AlertCircle className="mr-2 h-3.5 w-3.5 text-red-400" /> {ui("Error")} </DropdownMenuItem>
+                <AlertCircle className="mr-2 h-3.5 w-3.5 text-red-400" />{" "}
+                {ui("Error")}{" "}
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}
@@ -133,7 +168,11 @@ export function DashboardToolbar({
                 : "border-border bg-card text-muted-foreground hover:text-foreground hover:border-border"
             }`}
           >
-            <Star className={`h-3.5 w-3.5 ${starredFilter ? "fill-yellow-400" : ""}`} /> {ui("Starred")} </button>
+            <Star
+              className={`h-3.5 w-3.5 ${starredFilter ? "fill-yellow-400" : ""}`}
+            />{" "}
+            {ui("Starred")}{" "}
+          </button>
         )}
 
         {/* View Mode */}
@@ -142,7 +181,9 @@ export function DashboardToolbar({
             <button
               onClick={() => setViewMode("grid")}
               className={`flex h-9 w-9 items-center justify-center transition-colors ${
-                viewMode === "grid" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+                viewMode === "grid"
+                  ? "bg-secondary text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
               title={ui("Grid view")}
             >
@@ -151,7 +192,9 @@ export function DashboardToolbar({
             <button
               onClick={() => setViewMode("list")}
               className={`flex h-9 w-9 items-center justify-center transition-colors ${
-                viewMode === "list" ? "bg-secondary text-foreground" : "text-muted-foreground hover:text-foreground"
+                viewMode === "list"
+                  ? "bg-secondary text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
               title={ui("List view")}
             >
@@ -165,16 +208,25 @@ export function DashboardToolbar({
       {selectedIds.size > 0 && (
         <div className="flex items-center gap-3 rounded-lg border border-brand-500/30 bg-brand-500/5 px-4 py-2">
           <span className="text-sm text-brand-300 font-medium">
-            {selectedIds.size} {ui("selected")} </span>
+            {selectedIds.size} {ui("selected")}{" "}
+          </span>
           <div className="flex items-center gap-1 ml-auto">
             <DropdownMenu>
               <DropdownMenuTrigger className="flex h-8 items-center gap-1.5 rounded-md px-3 text-sm text-foreground hover:bg-accent transition-colors">
-                <FolderInput className="h-3.5 w-3.5" /> {ui("Move to folder")} </DropdownMenuTrigger>
+                <FolderInput className="h-3.5 w-3.5" />{" "}
+                {ui("Move to folder")}{" "}
+              </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => onBulkMoveToFolder(null)}> {ui("Root (no folder)")} </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => onBulkMoveToFolder(null)}>
+                  {" "}
+                  {ui("Root (no folder)")}{" "}
+                </DropdownMenuItem>
                 {folders.length > 0 && <DropdownMenuSeparator />}
                 {folders.map((f) => (
-                  <DropdownMenuItem key={f.id} onClick={() => onBulkMoveToFolder(f.id)}>
+                  <DropdownMenuItem
+                    key={f.id}
+                    onClick={() => onBulkMoveToFolder(f.id)}
+                  >
                     <FolderInput className="mr-2 h-3.5 w-3.5" />
                     {f.name}
                   </DropdownMenuItem>
@@ -185,12 +237,14 @@ export function DashboardToolbar({
               onClick={onBulkDeleteConfirm}
               className="flex h-8 items-center gap-1.5 rounded-md px-3 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
             >
-              <Trash2 className="h-3.5 w-3.5" /> {ui("Delete")} </button>
+              <Trash2 className="h-3.5 w-3.5" /> {ui("Delete")}{" "}
+            </button>
             <button
               onClick={() => setSelectedIds(new Set())}
               className="flex h-8 items-center gap-1.5 rounded-md px-3 text-sm text-muted-foreground hover:bg-accent transition-colors"
             >
-              <X className="h-3.5 w-3.5" /> {ui("Clear")} </button>
+              <X className="h-3.5 w-3.5" /> {ui("Clear")}{" "}
+            </button>
           </div>
         </div>
       )}

@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useEffect, useState } from "react";
 import { Loader2, X } from "lucide-react";
@@ -70,7 +69,11 @@ export function UseTemplateDialog({
         ? localStorage.getItem("doable_active_workspace_id")
         : null;
     if (!activeWorkspaceId) {
-      setError(ui("No active workspace selected. Please pick a workspace and try again."));
+      setError(
+        ui(
+          "No active workspace selected. Please pick a workspace and try again.",
+        ),
+      );
       return;
     }
 
@@ -78,12 +81,18 @@ export function UseTemplateDialog({
     setError(null);
 
     try {
-      const res = await apiUseTemplate(template.id, projectName.trim(), activeWorkspaceId);
+      const res = await apiUseTemplate(
+        template.id,
+        projectName.trim(),
+        activeWorkspaceId,
+      );
       onCreated(res.data.projectId);
     } catch (err) {
       console.error(ui("Failed to remix project:"), err);
       setError(
-        err instanceof Error ? err.message : ui("Failed to create project. Please try again.")
+        err instanceof Error
+          ? err.message
+          : ui("Failed to create project. Please try again."),
       );
       setIsCreating(false);
     }
@@ -124,13 +133,27 @@ export function UseTemplateDialog({
           </div>
 
           <DialogHeader className="space-y-2 text-left">
-            <DialogTitle className="text-xl font-semibold text-foreground"> {ui("Remix project")} </DialogTitle>
-            <DialogDescription className="text-sm text-muted-foreground"> {ui("By remixing a project, you will create a copy that you own.")} </DialogDescription>
+            <DialogTitle className="text-xl font-semibold text-foreground">
+              {" "}
+              {ui("Remix project")}{" "}
+            </DialogTitle>
+            <DialogDescription className="text-sm text-muted-foreground">
+              {" "}
+              {ui(
+                "By remixing a project, you will create a copy that you own.",
+              )}{" "}
+            </DialogDescription>
           </DialogHeader>
 
           {/* Form */}
           <div className="mt-6 space-y-2">
-            <Label htmlFor="project-name" className="text-sm font-medium text-foreground"> {ui("Project name")} </Label>
+            <Label
+              htmlFor="project-name"
+              className="text-sm font-medium text-foreground"
+            >
+              {" "}
+              {ui("Project name")}{" "}
+            </Label>
             <Input
               id="project-name"
               value={projectName}
@@ -143,9 +166,7 @@ export function UseTemplateDialog({
                 }
               }}
             />
-            {error && (
-              <p className="text-sm text-red-400 mt-1">{ui(error)}</p>
-            )}
+            {error && <p className="text-sm text-red-400 mt-1">{ui(error)}</p>}
           </div>
         </div>
 
@@ -155,7 +176,10 @@ export function UseTemplateDialog({
             onClick={onClose}
             disabled={isCreating}
             className="text-muted-foreground hover:text-foreground hover:bg-secondary"
-          > {ui("Cancel")} </Button>
+          >
+            {" "}
+            {ui("Cancel")}{" "}
+          </Button>
           <Button
             onClick={handleRemix}
             disabled={isCreating || !projectName.trim()}
@@ -163,7 +187,9 @@ export function UseTemplateDialog({
           >
             {isCreating ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Remixing...")} </>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                {ui("Remixing...")}{" "}
+              </>
             ) : (
               ui("Remix")
             )}

@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -111,8 +110,13 @@ export const TemplateGallery = ({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">{ui("Start a Project")}</h2>
-          <p className="text-muted-foreground mt-1"> {ui("Choose a template or start from scratch.")} </p>
+          <h2 className="text-2xl font-bold tracking-tight">
+            {ui("Start a Project")}
+          </h2>
+          <p className="text-muted-foreground mt-1">
+            {" "}
+            {ui("Choose a template or start from scratch.")}{" "}
+          </p>
         </div>
         {/* Search */}
         <div className="relative">
@@ -144,7 +148,7 @@ export const TemplateGallery = ({
                 "flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 transition-colors -mb-px",
                 activeCategory === cat
                   ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30"
+                  : "border-transparent text-muted-foreground hover:text-foreground hover:border-muted-foreground/30",
               )}
             >
               <Icon className="h-3.5 w-3.5" />
@@ -182,7 +186,10 @@ export const TemplateGallery = ({
           ))}
 
           {filteredTemplates.length === 0 && (
-            <div className="col-span-full flex items-center justify-center h-32 text-sm text-muted-foreground"> {ui("No templates in this category yet.")} </div>
+            <div className="col-span-full flex items-center justify-center h-32 text-sm text-muted-foreground">
+              {" "}
+              {ui("No templates in this category yet.")}{" "}
+            </div>
           )}
         </div>
       )}
@@ -223,7 +230,10 @@ const TemplateCard = ({
           <CategoryIcon className="h-10 w-10 text-muted-foreground/40" />
         )}
         {template.isOfficial && (
-          <span className="absolute top-2 right-2 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary"> {ui("Official")} </span>
+          <span className="absolute top-2 right-2 inline-flex items-center rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+            {" "}
+            {ui("Official")}{" "}
+          </span>
         )}
       </div>
 
@@ -252,7 +262,8 @@ const TemplateCard = ({
 
         <div className="flex items-center justify-between">
           <span className="text-xs text-muted-foreground">
-            {template.fileCount} {ui("files")} </span>
+            {template.fileCount} {ui("files")}{" "}
+          </span>
           <button
             onClick={onSelect}
             disabled={isScaffolding}
@@ -260,15 +271,18 @@ const TemplateCard = ({
               "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition-colors",
               isScaffolding
                 ? "bg-muted text-muted-foreground cursor-wait"
-                : "bg-primary text-primary-foreground hover:bg-primary/90"
+                : "bg-primary text-primary-foreground hover:bg-primary/90",
             )}
           >
             {isScaffolding ? (
               <>
-                <Loader2 className="h-3 w-3 animate-spin" /> {ui("Creating...")} </>
+                <Loader2 className="h-3 w-3 animate-spin" />{" "}
+                {ui("Creating...")}{" "}
+              </>
             ) : (
               <>
-                <Rocket className="h-3 w-3" /> {ui("Use Template")} </>
+                <Rocket className="h-3 w-3" /> {ui("Use Template")}{" "}
+              </>
             )}
           </button>
         </div>

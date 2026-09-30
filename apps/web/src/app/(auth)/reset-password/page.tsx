@@ -1,8 +1,7 @@
 "use client";
-import {translateUiData} from "@/i18n/text";
+import { translateUiData } from "@/i18n/text";
 
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useMemo, type FormEvent, Suspense } from "react";
 import Link from "next/link";
@@ -65,8 +64,14 @@ function ResetPasswordForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const strength = useMemo(() => translateUiData(getPasswordStrength(password), ui), [ui, password]);
-  const criteria = useMemo(() => translateUiData(getPasswordCriteria(password), ui), [ui, password]);
+  const strength = useMemo(
+    () => translateUiData(getPasswordStrength(password), ui),
+    [ui, password],
+  );
+  const criteria = useMemo(
+    () => translateUiData(getPasswordCriteria(password), ui),
+    [ui, password],
+  );
 
   if (!token) {
     return (
@@ -74,12 +79,23 @@ function ResetPasswordForm() {
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/30">
           <X className="h-6 w-6 text-red-600 dark:text-red-400" />
         </div>
-        <h2 className="mb-2 text-xl font-semibold text-[hsl(var(--foreground))]"> {ui("Invalid reset link")} </h2>
-        <p className="mb-6 text-sm text-[hsl(var(--muted-foreground))]"> {ui("This password reset link is invalid or has expired. Please request a new one.")} </p>
+        <h2 className="mb-2 text-xl font-semibold text-[hsl(var(--foreground))]">
+          {" "}
+          {ui("Invalid reset link")}{" "}
+        </h2>
+        <p className="mb-6 text-sm text-[hsl(var(--muted-foreground))]">
+          {" "}
+          {ui(
+            "This password reset link is invalid or has expired. Please request a new one.",
+          )}{" "}
+        </p>
         <Link
           href="/forgot-password"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-700 hover:underline"
-        > {ui("Request new reset link")} </Link>
+        >
+          {" "}
+          {ui("Request new reset link")}{" "}
+        </Link>
       </div>
     );
   }
@@ -90,12 +106,23 @@ function ResetPasswordForm() {
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
           <CheckCircle className="h-6 w-6 text-green-600 dark:text-green-400" />
         </div>
-        <h2 className="mb-2 text-xl font-semibold text-[hsl(var(--foreground))]"> {ui("Password reset successful")} </h2>
-        <p className="mb-6 text-sm text-[hsl(var(--muted-foreground))]"> {ui("Your password has been updated. You can now sign in with your new password.")} </p>
+        <h2 className="mb-2 text-xl font-semibold text-[hsl(var(--foreground))]">
+          {" "}
+          {ui("Password reset successful")}{" "}
+        </h2>
+        <p className="mb-6 text-sm text-[hsl(var(--muted-foreground))]">
+          {" "}
+          {ui(
+            "Your password has been updated. You can now sign in with your new password.",
+          )}{" "}
+        </p>
         <Button
           className="w-full rounded-xl bg-brand-700 text-white hover:bg-brand-800"
           onClick={() => router.push("/login")}
-        > {ui("Sign in")} </Button>
+        >
+          {" "}
+          {ui("Sign in")}{" "}
+        </Button>
       </div>
     );
   }
@@ -111,7 +138,9 @@ function ResetPasswordForm() {
 
     if (strength.score < 2) {
       setError(
-        ui("Password is too weak. Use at least 8 characters with uppercase, lowercase, and numbers.")
+        ui(
+          "Password is too weak. Use at least 8 characters with uppercase, lowercase, and numbers.",
+        ),
       );
       return;
     }
@@ -126,7 +155,9 @@ function ResetPasswordForm() {
       });
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: "Request failed" }));
+        const body = await res
+          .json()
+          .catch(() => ({ error: "Request failed" }));
         throw new Error(body.error ?? ui("Request failed"));
       }
 
@@ -148,8 +179,16 @@ function ResetPasswordForm() {
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-700/10">
           <Lock className="h-6 w-6 text-brand-700" />
         </div>
-        <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]"> {ui("Set new password")} </h2>
-        <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]"> {ui("Your new password must be different from your previous password.")} </p>
+        <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">
+          {" "}
+          {ui("Set new password")}{" "}
+        </h2>
+        <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
+          {" "}
+          {ui(
+            "Your new password must be different from your previous password.",
+          )}{" "}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -186,7 +225,9 @@ function ResetPasswordForm() {
               tabIndex={-1}
               className="absolute right-3 top-1/2 -translate-y-1/2 text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
               onClick={() => setShowPassword(!showPassword)}
-              aria-label={showPassword ? ui("Hide password") : ui("Show password")}
+              aria-label={
+                showPassword ? ui("Hide password") : ui("Show password")
+              }
             >
               {showPassword ? (
                 <EyeOff className="h-4 w-4" />
@@ -210,7 +251,9 @@ function ResetPasswordForm() {
                     />
                   ))}
                 </div>
-                <p className="text-xs text-[hsl(var(--muted-foreground))]"> {ui("Password strength:")} {strength.label}
+                <p className="text-xs text-[hsl(var(--muted-foreground))]">
+                  {" "}
+                  {ui("Password strength:")} {strength.label}
                 </p>
               </div>
               <div className="space-y-1">
@@ -271,11 +314,15 @@ function ResetPasswordForm() {
             </button>
           </div>
           {confirmPassword.length > 0 && confirmPassword !== password && (
-            <p className="text-xs text-red-600 dark:text-red-400"> {ui("Passwords do not match")} </p>
+            <p className="text-xs text-red-600 dark:text-red-400">
+              {" "}
+              {ui("Passwords do not match")}{" "}
+            </p>
           )}
           {confirmPassword.length > 0 && confirmPassword === password && (
             <p className="flex items-center gap-1 text-xs text-green-600 dark:text-green-400">
-              <Check className="h-3 w-3" /> {ui("Passwords match")} </p>
+              <Check className="h-3 w-3" /> {ui("Passwords match")}{" "}
+            </p>
           )}
         </div>
 
@@ -286,7 +333,9 @@ function ResetPasswordForm() {
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Resetting password...")} </>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+              {ui("Resetting password...")}{" "}
+            </>
           ) : (
             ui("Reset password")
           )}
@@ -298,7 +347,8 @@ function ResetPasswordForm() {
           href="/login"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" /> {ui("Back to sign in")} </Link>
+          <ArrowLeft className="h-4 w-4" /> {ui("Back to sign in")}{" "}
+        </Link>
       </p>
     </>
   );
@@ -314,7 +364,10 @@ export default function ResetPasswordPage() {
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-700/10">
             <Lock className="h-6 w-6 text-brand-700" />
           </div>
-          <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]"> {ui("Set new password")} </h2>
+          <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">
+            {" "}
+            {ui("Set new password")}{" "}
+          </h2>
           <div className="mt-6 flex justify-center">
             <Loader2 className="h-6 w-6 animate-spin text-[hsl(var(--muted-foreground))]" />
           </div>

@@ -1,5 +1,4 @@
-
-import {useUiText} from "@/i18n/use-ui-text";
+import { useUiText } from "@/i18n/use-ui-text";
 import { useState, useCallback, useRef, useEffect } from "react";
 
 interface SpeechRecognitionEvent {
@@ -30,7 +29,9 @@ declare global {
   }
 }
 
-function getSpeechRecognitionConstructor(): (new () => SpeechRecognitionInstance) | null {
+function getSpeechRecognitionConstructor():
+  | (new () => SpeechRecognitionInstance)
+  | null {
   if (typeof window === "undefined") return null;
   return window.SpeechRecognition ?? window.webkitSpeechRecognition ?? null;
 }
@@ -61,7 +62,9 @@ export function useSpeechRecognition(onResult: (transcript: string) => void) {
   const ui = useUiText();
 
   const [isListening, setIsListening] = useState(false);
-  const [isSupported] = useState(() => getSpeechRecognitionConstructor() !== null);
+  const [isSupported] = useState(
+    () => getSpeechRecognitionConstructor() !== null,
+  );
   const [error, setError] = useState<string | null>(null);
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null);
   const onResultRef = useRef(onResult);
@@ -99,7 +102,9 @@ export function useSpeechRecognition(onResult: (transcript: string) => void) {
         });
         if (status.state === "denied") {
           setError(
-            ui("Microphone permission is blocked for this site. Open the padlock icon → Site settings → Microphone → Allow, then try again.")
+            ui(
+              "Microphone permission is blocked for this site. Open the padlock icon → Site settings → Microphone → Allow, then try again.",
+            ),
           );
           return;
         }
@@ -150,8 +155,8 @@ export function useSpeechRecognition(onResult: (transcript: string) => void) {
       recognitionRef.current = null;
       setError(
         err instanceof Error
-          ? ui("Voice input couldn't start: {v0}", {v0: (err.message)})
-          : "Voice input couldn't start. Please try again."
+          ? ui("Voice input couldn't start: {v0}", { v0: err.message })
+          : "Voice input couldn't start. Please try again.",
       );
     }
   }, [ui, isListening, isSupported]);

@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback, useEffect } from "react";
 import { Loader2, Lock, ChevronDown, ChevronUp } from "lucide-react";
@@ -37,11 +36,13 @@ interface GitHubConnectDialogProps {
 // ─── Helpers ────────────────────────────────────────────────
 
 function slugifyRepoName(name: string): string {
-  return name
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-|-$/g, "")
-    .slice(0, 60) || "my-project";
+  return (
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 60) || "my-project"
+  );
 }
 
 // ─── Component ──────────────────────────────────────────────
@@ -71,17 +72,24 @@ export function GitHubConnectDialog({
 
   const handleSwitchAccount = useCallback(async () => {
     if (!onSwitchAccount) return;
-    if (!confirm(
-      ui("Disconnect {v0} and connect a different one?\n\n", {v0: (githubUsername ? `@${githubUsername}` : "your GitHub account")}) +
-      "Existing project-to-repo links won't be deleted, but new pushes/pulls will use the next account you sign in with.",
-    )) return;
+    if (
+      !confirm(
+        ui("Disconnect {v0} and connect a different one?\n\n", {
+          v0: githubUsername ? `@${githubUsername}` : "your GitHub account",
+        }) +
+          "Existing project-to-repo links won't be deleted, but new pushes/pulls will use the next account you sign in with.",
+      )
+    )
+      return;
     setSwitching(true);
     setError(null);
     try {
       await onSwitchAccount();
     } catch (err) {
       setSwitching(false);
-      setError(err instanceof Error ? err.message : ui("Failed to switch account"));
+      setError(
+        err instanceof Error ? err.message : ui("Failed to switch account"),
+      );
     }
   }, [ui, onSwitchAccount, githubUsername]);
 
@@ -101,7 +109,7 @@ export function GitHubConnectDialog({
     (e: React.MouseEvent) => {
       if (e.target === e.currentTarget && !connecting) onClose();
     },
-    [onClose, connecting]
+    [onClose, connecting],
   );
 
   const handleConnect = useCallback(async () => {
@@ -127,7 +135,8 @@ export function GitHubConnectDialog({
     } finally {
       setConnecting(false);
     }
-  }, [ui,
+  }, [
+    ui,
     githubUsername,
     repoName,
     autoRepoName,
@@ -148,7 +157,10 @@ export function GitHubConnectDialog({
         {/* Header */}
         <div className="border-b px-6 py-4">
           <h2 className="text-lg font-semibold">{ui("Connect to GitHub")}</h2>
-          <p className="mt-1 text-sm text-muted-foreground"> {ui("Push this project to a GitHub repository.")} </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {" "}
+            {ui("Push this project to a GitHub repository.")}{" "}
+          </p>
         </div>
 
         {/* Not connected — show OAuth button */}
@@ -163,19 +175,33 @@ export function GitHubConnectDialog({
               >
                 <path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z" />
               </svg>
-              <h4 className="mt-4 text-sm font-medium"> {ui("Connect your GitHub account")} </h4>
-              <p className="mt-1 text-xs text-muted-foreground"> {ui("Authorize Doable to access your repositories so you can push and pull code.")} </p>
+              <h4 className="mt-4 text-sm font-medium">
+                {" "}
+                {ui("Connect your GitHub account")}{" "}
+              </h4>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {" "}
+                {ui(
+                  "Authorize Doable to access your repositories so you can push and pull code.",
+                )}{" "}
+              </p>
               <button
                 className="mt-4 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
                 onClick={onInitiateOAuth}
-              > {ui("Connect with GitHub")} </button>
+              >
+                {" "}
+                {ui("Connect with GitHub")}{" "}
+              </button>
             </div>
 
             <div className="flex justify-end border-t mt-6 pt-4">
               <button
                 className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent"
                 onClick={onClose}
-              > {ui("Cancel")} </button>
+              >
+                {" "}
+                {ui("Cancel")}{" "}
+              </button>
             </div>
           </div>
         ) : (
@@ -186,7 +212,9 @@ export function GitHubConnectDialog({
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="h-2 w-2 rounded-full bg-green-500 shrink-0" />
-                  <span className="text-sm text-muted-foreground truncate"> {ui("Connected as")}{" "}
+                  <span className="text-sm text-muted-foreground truncate">
+                    {" "}
+                    {ui("Connected as")}{" "}
                     <span className="font-medium text-foreground">
                       {githubUsername}
                     </span>
@@ -198,11 +226,15 @@ export function GitHubConnectDialog({
                     onClick={() => void handleSwitchAccount()}
                     disabled={switching || connecting}
                     className="shrink-0 rounded px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground disabled:opacity-50 transition-colors"
-                    title={ui("Disconnect this GitHub account and connect a different one")}
+                    title={ui(
+                      "Disconnect this GitHub account and connect a different one",
+                    )}
                   >
                     {switching ? (
                       <span className="flex items-center gap-1.5">
-                        <Loader2 className="h-3 w-3 animate-spin" /> {ui("Disconnecting…")} </span>
+                        <Loader2 className="h-3 w-3 animate-spin" />{" "}
+                        {ui("Disconnecting…")}{" "}
+                      </span>
                     ) : (
                       ui("Switch account")
                     )}
@@ -238,12 +270,17 @@ export function GitHubConnectDialog({
                   <ChevronUp className="h-3 w-3" />
                 ) : (
                   <ChevronDown className="h-3 w-3" />
-                )} {ui("Customize name & settings")} </button>
+                )}{" "}
+                {ui("Customize name & settings")}{" "}
+              </button>
 
               {showAdvanced && (
                 <div className="space-y-3 rounded-md border p-3">
                   <div>
-                    <label className="mb-1 block text-xs font-medium"> {ui("Repository Name")} </label>
+                    <label className="mb-1 block text-xs font-medium">
+                      {" "}
+                      {ui("Repository Name")}{" "}
+                    </label>
                     <div className="flex items-center gap-2">
                       <span className="text-xs text-muted-foreground">
                         {githubUsername}/
@@ -259,7 +296,10 @@ export function GitHubConnectDialog({
                   </div>
 
                   <div>
-                    <label className="mb-1 block text-xs font-medium"> {ui("Description")} </label>
+                    <label className="mb-1 block text-xs font-medium">
+                      {" "}
+                      {ui("Description")}{" "}
+                    </label>
                     <input
                       type="text"
                       value={description}
@@ -276,7 +316,9 @@ export function GitHubConnectDialog({
                       onChange={(e) => setIsPrivate(!e.target.checked)}
                       className="rounded border"
                     />
-                    <span className="text-xs">{ui("Make repository public")}</span>
+                    <span className="text-xs">
+                      {ui("Make repository public")}
+                    </span>
                   </label>
                 </div>
               )}
@@ -295,7 +337,10 @@ export function GitHubConnectDialog({
                 className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent"
                 onClick={onClose}
                 disabled={connecting}
-              > {ui("Cancel")} </button>
+              >
+                {" "}
+                {ui("Cancel")}{" "}
+              </button>
               <button
                 className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
                 onClick={() => void handleConnect()}
@@ -303,7 +348,9 @@ export function GitHubConnectDialog({
               >
                 {connecting ? (
                   <span className="flex items-center gap-2">
-                    <Loader2 className="h-3.5 w-3.5 animate-spin" /> {ui("Creating...")} </span>
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />{" "}
+                    {ui("Creating...")}{" "}
+                  </span>
                 ) : (
                   ui("Create & Connect")
                 )}

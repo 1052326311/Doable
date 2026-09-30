@@ -134,7 +134,7 @@ export function InfoItem({
           <p
             className={cn(
               "mt-0.5 text-sm truncate",
-              mono && "font-mono text-xs"
+              mono && "font-mono text-xs",
             )}
             title={value}
           >

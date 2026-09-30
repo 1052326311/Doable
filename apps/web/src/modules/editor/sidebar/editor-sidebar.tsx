@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useEditorStore } from "../hooks/use-editor-store";
 import { FileTree } from "./file-tree";
@@ -77,7 +76,10 @@ export function EditorSidebar() {
           <KnowledgeTab projectId={projectId} />
         )}
         {activeSidebarTab === "knowledge" && !projectId && (
-          <div className="flex items-center justify-center h-48 text-xs text-muted-foreground"> {ui("No project selected.")} </div>
+          <div className="flex items-center justify-center h-48 text-xs text-muted-foreground">
+            {" "}
+            {ui("No project selected.")}{" "}
+          </div>
         )}
         {activeSidebarTab === "skills" && workspaceId && (
           <SkillsPanel
@@ -86,7 +88,10 @@ export function EditorSidebar() {
           />
         )}
         {activeSidebarTab === "skills" && !workspaceId && (
-          <div className="flex items-center justify-center h-48 text-xs text-muted-foreground"> {ui("No workspace selected.")} </div>
+          <div className="flex items-center justify-center h-48 text-xs text-muted-foreground">
+            {" "}
+            {ui("No workspace selected.")}{" "}
+          </div>
         )}
       </div>
     </div>

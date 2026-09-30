@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { Type } from "lucide-react";
 
@@ -21,12 +20,17 @@ export function TextEditor({ value, onChange }: TextEditorProps) {
       {/* Section Header */}
       <div className="flex items-center gap-2 px-3 py-2">
         <Type className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-xs font-medium text-foreground">{ui("Text")}</span>
+        <span className="text-xs font-medium text-foreground">
+          {ui("Text")}
+        </span>
       </div>
 
       {/* Content */}
       <div className="px-3 pb-3">
-        <label className="mb-1.5 block text-[11px] text-muted-foreground"> {ui("Content")} </label>
+        <label className="mb-1.5 block text-[11px] text-muted-foreground">
+          {" "}
+          {ui("Content")}{" "}
+        </label>
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}

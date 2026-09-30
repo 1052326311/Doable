@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState, useRef } from "react";
 import { BarChart3, TrendingUp, Activity, Layers } from "lucide-react";
@@ -38,7 +37,9 @@ export function AreaChart({
     return (
       <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
         <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
-          <TrendingUp className="h-4 w-4 text-blue-400" /> {ui("Daily Usage")} </h3>
+          <TrendingUp className="h-4 w-4 text-blue-400" />{" "}
+          {ui("Daily Usage")}{" "}
+        </h3>
         <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
           <BarChart3 className="h-8 w-8 mb-2 opacity-40" />
           <p className="text-xs">{ui("No usage data for this period")}</p>
@@ -47,7 +48,10 @@ export function AreaChart({
     );
   }
 
-  const W = 600, H = 180, PX = 40, PY = 20;
+  const W = 600,
+    H = 180,
+    PX = 40,
+    PY = 20;
   const maxTokens = Math.max(...periods.map((p) => p.totalTokens), 1);
   const points = periods.map((p, i) => ({
     x: PX + (i / Math.max(periods.length - 1, 1)) * (W - PX * 2),
@@ -77,7 +81,7 @@ export function AreaChart({
     label: formatTokenCount(Math.round(maxTokens * pct)),
   }));
 
-  // X-axis labels  
+  // X-axis labels
   const labelInterval = periods.length > 30 ? 7 : periods.length > 14 ? 3 : 1;
 
   const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
@@ -88,7 +92,10 @@ export function AreaChart({
     let minDist = Infinity;
     points.forEach((pt, i) => {
       const dist = Math.abs(pt.x - x);
-      if (dist < minDist) { minDist = dist; closest = i; }
+      if (dist < minDist) {
+        minDist = dist;
+        closest = i;
+      }
     });
     setHoverIdx(closest);
   };
@@ -96,7 +103,9 @@ export function AreaChart({
   return (
     <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
       <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
-        <TrendingUp className="h-4 w-4 text-blue-400" /> {ui("Daily Usage")} </h3>
+        <TrendingUp className="h-4 w-4 text-blue-400" />{" "}
+        {ui("Daily Usage")}{" "}
+      </h3>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}
@@ -119,17 +128,30 @@ export function AreaChart({
         {yLabels.map((yl, i) => (
           <g key={i}>
             <line
-              x1={PX} y1={yl.y} x2={W - PX} y2={yl.y}
-              stroke="hsl(var(--border))" strokeWidth="0.5"
+              x1={PX}
+              y1={yl.y}
+              x2={W - PX}
+              y2={yl.y}
+              stroke="hsl(var(--border))"
+              strokeWidth="0.5"
             />
-            <text x={PX - 4} y={yl.y + 3} textAnchor="end" className="fill-[hsl(var(--muted-foreground))] text-[8px]">
+            <text
+              x={PX - 4}
+              y={yl.y + 3}
+              textAnchor="end"
+              className="fill-[hsl(var(--muted-foreground))] text-[8px]"
+            >
               {yl.label}
             </text>
           </g>
         ))}
 
         {/* Area fill with animation */}
-        <path d={areaD} fill="url(#areaGrad)" className="animate-[fadeIn_0.8s_ease-out]" />
+        <path
+          d={areaD}
+          fill="url(#areaGrad)"
+          className="animate-[fadeIn_0.8s_ease-out]"
+        />
 
         {/* Line */}
         <path
@@ -145,7 +167,9 @@ export function AreaChart({
         {points.map((pt, i) => (
           <circle
             key={i}
-            cx={pt.x} cy={pt.y} r={hoverIdx === i ? 4 : 2}
+            cx={pt.x}
+            cy={pt.y}
+            r={hoverIdx === i ? 4 : 2}
             className={`transition-all duration-200 ${
               hoverIdx === i
                 ? "fill-blue-400 stroke-blue-400/30"
@@ -159,14 +183,21 @@ export function AreaChart({
         {hoverIdx !== null && points[hoverIdx] && (
           <>
             <line
-              x1={points[hoverIdx].x} y1={PY}
-              x2={points[hoverIdx].x} y2={H - PY}
-              stroke="#3b82f6" strokeWidth="0.5" strokeDasharray="3,3" opacity="0.5"
+              x1={points[hoverIdx].x}
+              y1={PY}
+              x2={points[hoverIdx].x}
+              y2={H - PY}
+              stroke="#3b82f6"
+              strokeWidth="0.5"
+              strokeDasharray="3,3"
+              opacity="0.5"
             />
             <rect
               x={Math.min(points[hoverIdx].x - 50, W - PX - 100)}
               y={Math.max(points[hoverIdx].y - 32, 2)}
-              width="100" height="22" rx="4"
+              width="100"
+              height="22"
+              rx="4"
               className="fill-[hsl(var(--popover))] stroke-[hsl(var(--border))]"
               strokeWidth="0.5"
             />
@@ -176,7 +207,8 @@ export function AreaChart({
               textAnchor="middle"
               className="fill-[hsl(var(--popover-foreground))] text-[9px] font-medium"
             >
-              {formatDateLabel(points[hoverIdx].date)}: {formatTokenCount(points[hoverIdx].tokens)}
+              {formatDateLabel(points[hoverIdx].date)}:{" "}
+              {formatTokenCount(points[hoverIdx].tokens)}
             </text>
           </>
         )}
@@ -186,13 +218,14 @@ export function AreaChart({
           i % labelInterval === 0 ? (
             <text
               key={i}
-              x={pt.x} y={H - 2}
+              x={pt.x}
+              y={H - 2}
               textAnchor="middle"
               className="fill-[hsl(var(--muted-foreground))] text-[8px]"
             >
               {formatDateLabel(pt.date)}
             </text>
-          ) : null
+          ) : null,
         )}
       </svg>
     </div>
@@ -211,7 +244,12 @@ export function TokenDonut({
   split,
   loading,
 }: {
-  split: { promptTokens: number; completionTokens: number; thinkingTokens: number; cachedTokens: number } | null;
+  split: {
+    promptTokens: number;
+    completionTokens: number;
+    thinkingTokens: number;
+    cachedTokens: number;
+  } | null;
   loading: boolean;
 }) {
   const ui = useUiText();
@@ -229,7 +267,12 @@ export function TokenDonut({
   }
 
   const values = split
-    ? [split.promptTokens, split.completionTokens, split.thinkingTokens, split.cachedTokens]
+    ? [
+        split.promptTokens,
+        split.completionTokens,
+        split.thinkingTokens,
+        split.cachedTokens,
+      ]
     : [0, 0, 0, 0];
   const total = values.reduce((a, b) => a + b, 0);
 
@@ -237,7 +280,9 @@ export function TokenDonut({
     return (
       <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
         <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
-          <Layers className="h-4 w-4 text-violet-400" /> {ui("Token Breakdown")} </h3>
+          <Layers className="h-4 w-4 text-violet-400" />{" "}
+          {ui("Token Breakdown")}{" "}
+        </h3>
         <div className="flex flex-col items-center py-6 text-muted-foreground">
           <Layers className="h-6 w-6 mb-2 opacity-40" />
           <p className="text-xs">{ui("No token data")}</p>
@@ -254,7 +299,14 @@ export function TokenDonut({
   const segments = values.map((v, i) => {
     const pct = v / total;
     const dash = circumference * pct;
-    const seg = { dash, gap: circumference - dash, offset, color: i18n_DONUT_COLORS[i]!.stroke, pct, value: v };
+    const seg = {
+      dash,
+      gap: circumference - dash,
+      offset,
+      color: i18n_DONUT_COLORS[i]!.stroke,
+      pct,
+      value: v,
+    };
     offset -= dash;
     return seg;
   });
@@ -262,7 +314,9 @@ export function TokenDonut({
   return (
     <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
       <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
-        <Layers className="h-4 w-4 text-violet-400" /> {ui("Token Breakdown")} </h3>
+        <Layers className="h-4 w-4 text-violet-400" />{" "}
+        {ui("Token Breakdown")}{" "}
+      </h3>
       <div className="flex items-center gap-6">
         <div className="relative w-36 h-36 shrink-0">
           <svg viewBox="0 0 120 120" className="w-full h-full -rotate-90">
@@ -270,7 +324,9 @@ export function TokenDonut({
               seg.value > 0 ? (
                 <circle
                   key={i}
-                  cx="60" cy="60" r={radius}
+                  cx="60"
+                  cy="60"
+                  r={radius}
                   fill="none"
                   stroke={seg.color}
                   strokeWidth={strokeW}
@@ -280,12 +336,16 @@ export function TokenDonut({
                   className="transition-all duration-700 ease-out"
                   style={{ animationDelay: `${i * 100}ms` }}
                 />
-              ) : null
+              ) : null,
             )}
           </svg>
           <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-lg font-bold text-foreground">{formatTokenCount(total)}</span>
-            <span className="text-[10px] text-muted-foreground">{ui("total")}</span>
+            <span className="text-lg font-bold text-foreground">
+              {formatTokenCount(total)}
+            </span>
+            <span className="text-[10px] text-muted-foreground">
+              {ui("total")}
+            </span>
           </div>
         </div>
         <div className="space-y-2.5 flex-1 min-w-0">
@@ -296,7 +356,11 @@ export function TokenDonut({
                 <div className="flex justify-between items-baseline">
                   <span className="text-xs text-foreground">{c.label}</span>
                   <span className="text-[10px] text-muted-foreground tabular-nums">
-                    {formatTokenCount(values[i] ?? 0)} ({total > 0 ? Math.round(((values[i] ?? 0) / total) * 100) : 0}%)
+                    {formatTokenCount(values[i] ?? 0)} (
+                    {total > 0
+                      ? Math.round(((values[i] ?? 0) / total) * 100)
+                      : 0}
+                    %)
                   </span>
                 </div>
                 <div className="h-1 bg-muted rounded-full mt-1 overflow-hidden">
@@ -322,7 +386,12 @@ export function HourlyHeatmap({
   hours,
   loading,
 }: {
-  hours: { hour: number; requestCount: number; totalTokens: number; totalCostUsd: number }[];
+  hours: {
+    hour: number;
+    requestCount: number;
+    totalTokens: number;
+    totalCostUsd: number;
+  }[];
   loading: boolean;
 }) {
   const ui = useUiText();
@@ -360,7 +429,9 @@ export function HourlyHeatmap({
   return (
     <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
       <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
-        <Activity className="h-4 w-4 text-emerald-400" /> {ui("Hourly Activity")} </h3>
+        <Activity className="h-4 w-4 text-emerald-400" />{" "}
+        {ui("Hourly Activity")}{" "}
+      </h3>
       <div className="flex gap-[3px]">
         {hours.map((h) => (
           <div key={h.hour} className="flex-1 group relative">
@@ -371,13 +442,19 @@ export function HourlyHeatmap({
             <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block z-20 pointer-events-none">
               <div className="bg-popover text-popover-foreground border border-border text-[10px] rounded-md px-2 py-1 whitespace-nowrap shadow-lg">
                 <div className="font-medium">{formatHour(h.hour)}</div>
-                <div>{h.requestCount} {ui("requests")}</div>
-                <div>{formatTokenCount(h.totalTokens)} {ui("tokens")}</div>
+                <div>
+                  {h.requestCount} {ui("requests")}
+                </div>
+                <div>
+                  {formatTokenCount(h.totalTokens)} {ui("tokens")}
+                </div>
               </div>
             </div>
             {/* Hour label */}
             {h.hour % 3 === 0 && (
-              <div className="text-[8px] text-muted-foreground text-center mt-1">{formatHour(h.hour)}</div>
+              <div className="text-[8px] text-muted-foreground text-center mt-1">
+                {formatHour(h.hour)}
+              </div>
             )}
           </div>
         ))}

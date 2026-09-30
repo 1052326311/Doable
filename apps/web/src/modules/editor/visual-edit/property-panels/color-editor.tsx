@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useRef, useState } from "react";
 import { Paintbrush } from "lucide-react";
@@ -91,16 +90,16 @@ function ColorRow({
       {popoverOpen && (
         <>
           {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40"
-            onClick={handleClose}
-          />
+          <div className="fixed inset-0 z-40" onClick={handleClose} />
           {/* Popover content */}
           <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-lg border border-border bg-popover p-3 shadow-md">
             <div className="space-y-2.5">
               {/* Text input */}
               <div>
-                <label className="mb-1 block text-[10px] text-muted-foreground"> {ui("CSS Value")} </label>
+                <label className="mb-1 block text-[10px] text-muted-foreground">
+                  {" "}
+                  {ui("CSS Value")}{" "}
+                </label>
                 <input
                   type="text"
                   value={draft}
@@ -114,7 +113,10 @@ function ColorRow({
 
               {/* Native color picker */}
               <div>
-                <label className="mb-1 block text-[10px] text-muted-foreground"> {ui("Pick Color")} </label>
+                <label className="mb-1 block text-[10px] text-muted-foreground">
+                  {" "}
+                  {ui("Pick Color")}{" "}
+                </label>
                 <input
                   type="color"
                   value={draft.startsWith("#") ? draft : "#000000"}
@@ -128,11 +130,17 @@ function ColorRow({
                 <button
                   onClick={handleCommit}
                   className="flex-1 rounded-md bg-brand-500/20 px-2 py-1.5 text-[11px] font-medium text-brand-400 transition-colors hover:bg-brand-500/30"
-                > {ui("Apply")} </button>
+                >
+                  {" "}
+                  {ui("Apply")}{" "}
+                </button>
                 <button
                   onClick={handleClose}
                   className="flex-1 rounded-md bg-secondary px-2 py-1.5 text-[11px] text-muted-foreground transition-colors hover:bg-muted"
-                > {ui("Cancel")} </button>
+                >
+                  {" "}
+                  {ui("Cancel")}{" "}
+                </button>
               </div>
             </div>
           </div>
@@ -157,7 +165,9 @@ export function ColorEditor({
       {/* Section Header */}
       <div className="flex items-center gap-2 px-3 py-2">
         <Paintbrush className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="text-xs font-medium text-foreground">{ui("Colors")}</span>
+        <span className="text-xs font-medium text-foreground">
+          {ui("Colors")}
+        </span>
       </div>
 
       {/* Content */}

@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useEffect } from "react";
 import { X } from "lucide-react";
@@ -33,7 +32,9 @@ export function HistoryPanel({ projectId, onClose }: Props) {
     <div className="flex h-full flex-col bg-background">
       {/* Header */}
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
-        <h2 className="text-sm font-semibold text-foreground">{ui("Version History")}</h2>
+        <h2 className="text-sm font-semibold text-foreground">
+          {ui("Version History")}
+        </h2>
         <button
           onClick={onClose}
           className="flex h-6 w-6 items-center justify-center rounded text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"

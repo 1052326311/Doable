@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState } from "react";
 import {
@@ -24,7 +23,10 @@ const ROLE_LABELS: Record<string, string> = {
   viewer: "Viewer",
 };
 
-const ROLE_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const ROLE_ICONS: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   admin: Shield,
   member: Users,
   viewer: Eye,
@@ -60,7 +62,9 @@ export function InviteDialog({
       setRole("member");
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : ui("Failed to send invite"));
+      setError(
+        err instanceof Error ? err.message : ui("Failed to send invite"),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -72,12 +76,17 @@ export function InviteDialog({
       <div className="relative w-full max-w-md rounded-xl border bg-background p-6 shadow-xl">
         <div className="mb-5">
           <h3 className="text-lg font-semibold">{ui("Invite Member")}</h3>
-          <p className="mt-1 text-sm text-muted-foreground"> {ui("Send an invite to join this workspace.")} </p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {" "}
+            {ui("Send an invite to join this workspace.")}{" "}
+          </p>
         </div>
 
         <div className="space-y-4">
           <div className="space-y-2">
-            <label htmlFor="invite-email" className="text-sm font-medium">{ui("Email address")}</label>
+            <label htmlFor="invite-email" className="text-sm font-medium">
+              {ui("Email address")}
+            </label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <input
@@ -106,7 +115,7 @@ export function InviteDialog({
                       "flex flex-1 items-center justify-center gap-2 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors",
                       role === r
                         ? "border-primary bg-primary/5 text-foreground"
-                        : "border-input text-muted-foreground hover:text-foreground"
+                        : "border-input text-muted-foreground hover:text-foreground",
                     )}
                   >
                     <Icon className="h-3.5 w-3.5" />
@@ -124,7 +133,10 @@ export function InviteDialog({
           <button
             onClick={onClose}
             className="rounded-md border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent"
-          > {ui("Cancel")} </button>
+          >
+            {" "}
+            {ui("Cancel")}{" "}
+          </button>
           <button
             onClick={() => void handleSubmit()}
             disabled={submitting || !email.trim() || !email.includes("@")}
@@ -176,14 +188,23 @@ export function RemoveConfirmDialog({
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       <div className="relative w-full max-w-sm rounded-xl border bg-background p-6 shadow-xl">
         <h3 className="text-lg font-semibold">{ui("Remove Member")}</h3>
-        <p className="mt-2 text-sm text-muted-foreground"> {ui("Are you sure you want to remove")}{" "}
-          <strong className="text-foreground">{displayName}</strong>{" "} {ui("from this workspace? They will lose access to all projects.")} </p>
+        <p className="mt-2 text-sm text-muted-foreground">
+          {" "}
+          {ui("Are you sure you want to remove")}{" "}
+          <strong className="text-foreground">{displayName}</strong>{" "}
+          {ui(
+            "from this workspace? They will lose access to all projects.",
+          )}{" "}
+        </p>
 
         <div className="mt-6 flex justify-end gap-2">
           <button
             onClick={onClose}
             className="rounded-md border px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent"
-          > {ui("Cancel")} </button>
+          >
+            {" "}
+            {ui("Cancel")}{" "}
+          </button>
           <button
             onClick={() => void handleRemove()}
             disabled={removing}

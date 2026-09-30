@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useCollaboration } from "../collaboration-context";
 import { PresenceAvatars } from "./presence-avatars";
@@ -8,7 +7,8 @@ import { PresenceAvatars } from "./presence-avatars";
 export function CollabHeaderItems() {
   const ui = useUiText();
 
-  const { members, joined, setChatPopoutOpen, setChatVisible } = useCollaboration();
+  const { members, joined, setChatPopoutOpen, setChatVisible } =
+    useCollaboration();
   if (!joined) return null;
 
   const handleClick = () => {
@@ -17,7 +17,11 @@ export function CollabHeaderItems() {
   };
 
   return (
-    <div className="cursor-pointer" onClick={handleClick} title={ui("Open team chat")}>
+    <div
+      className="cursor-pointer"
+      onClick={handleClick}
+      title={ui("Open team chat")}
+    >
       <PresenceAvatars users={members} />
     </div>
   );

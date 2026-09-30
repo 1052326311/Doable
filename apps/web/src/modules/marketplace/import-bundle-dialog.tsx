@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState } from "react";
 import {
@@ -99,10 +98,13 @@ export function ImportBundleDialog({
         const fd = new FormData();
         fd.append("file", zipFile);
         fd.append("format", "standards.zip.v1");
-        await apiFetch(`/marketplace/${workspaceId}/environments/import-bundle`, {
-          method: "POST",
-          body: fd,
-        });
+        await apiFetch(
+          `/marketplace/${workspaceId}/environments/import-bundle`,
+          {
+            method: "POST",
+            body: fd,
+          },
+        );
       } else {
         if (!url.trim()) throw new Error("Paste a GitHub URL first");
         await apiFetch(`/marketplace/${workspaceId}/environments/import-url`, {
@@ -133,12 +135,25 @@ export function ImportBundleDialog({
       (tab === "url" && url.trim().length > 0));
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { onOpenChange(o); if (!o) reset(); }}>
+    <Dialog
+      open={open}
+      onOpenChange={(o) => {
+        onOpenChange(o);
+        if (!o) reset();
+      }}
+    >
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5 text-brand-400" /> {ui("Import from outside Doable")} </DialogTitle>
-          <DialogDescription> {ui("Bring in an environment from a JSON manifest, Standards Zip, or public GitHub repo.")} </DialogDescription>
+            <Upload className="h-5 w-5 text-brand-400" />{" "}
+            {ui("Import from outside Doable")}{" "}
+          </DialogTitle>
+          <DialogDescription>
+            {" "}
+            {ui(
+              "Bring in an environment from a JSON manifest, Standards Zip, or public GitHub repo.",
+            )}{" "}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
@@ -173,7 +188,16 @@ export function ImportBundleDialog({
                 onChange={(e) => setJsonText(e.target.value)}
                 className="font-mono text-xs"
               />
-              <p className="text-xs text-muted-foreground"> {ui("Paste a")} <code className="rounded bg-muted px-1 py-0.5">doable.json.v1</code> {ui("manifest. Anything that fails schema validation is rejected.")} </p>
+              <p className="text-xs text-muted-foreground">
+                {" "}
+                {ui("Paste a")}{" "}
+                <code className="rounded bg-muted px-1 py-0.5">
+                  doable.json.v1
+                </code>{" "}
+                {ui(
+                  "manifest. Anything that fails schema validation is rejected.",
+                )}{" "}
+              </p>
             </div>
           )}
 
@@ -182,9 +206,16 @@ export function ImportBundleDialog({
               <label className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border bg-card/40 px-4 py-6 text-center transition-colors hover:bg-card cursor-pointer">
                 <Upload className="h-6 w-6 text-muted-foreground" />
                 <span className="text-sm text-foreground">
-                  {zipFile ? zipFile.name : ui("Drop a Standards Zip here, or click to browse")}
+                  {zipFile
+                    ? zipFile.name
+                    : ui("Drop a Standards Zip here, or click to browse")}
                 </span>
-                <span className="text-xs text-muted-foreground"> {ui("Compatible with Anthropic Skills, Cursor Rules, MCP, and Claude Code plugin layouts.")} </span>
+                <span className="text-xs text-muted-foreground">
+                  {" "}
+                  {ui(
+                    "Compatible with Anthropic Skills, Cursor Rules, MCP, and Claude Code plugin layouts.",
+                  )}{" "}
+                </span>
                 <input
                   type="file"
                   accept=".zip,application/zip"
@@ -202,14 +233,24 @@ export function ImportBundleDialog({
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
               />
-              <p className="text-xs text-muted-foreground"> {ui("Public repos only. The import will tarball the path and decode it as a Standards Zip.")} </p>
+              <p className="text-xs text-muted-foreground">
+                {" "}
+                {ui(
+                  "Public repos only. The import will tarball the path and decode it as a Standards Zip.",
+                )}{" "}
+              </p>
             </div>
           )}
 
           {/* Trust caveat */}
           <p className="flex items-start gap-2 rounded-md border border-border bg-muted/40 p-3 text-xs text-muted-foreground">
             <ShieldCheck className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-400" />
-            <span> {ui("Imports land as a draft environment in your workspace. They never run code or call external services until you authorise each connector individually.")} </span>
+            <span>
+              {" "}
+              {ui(
+                "Imports land as a draft environment in your workspace. They never run code or call external services until you authorise each connector individually.",
+              )}{" "}
+            </span>
           </p>
 
           {error && (
@@ -227,15 +268,28 @@ export function ImportBundleDialog({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
-            <X className="mr-1 h-3.5 w-3.5" /> {ui("Cancel")} </Button>
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={busy}
+          >
+            <X className="mr-1 h-3.5 w-3.5" /> {ui("Cancel")}{" "}
+          </Button>
           <Button onClick={handleImport} disabled={!canSubmit}>
             {busy ? (
-              <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> {ui("Importing...")}</>
+              <>
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />{" "}
+                {ui("Importing...")}
+              </>
             ) : done ? (
-              <><CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> {ui("Imported")}</>
+              <>
+                <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> {ui("Imported")}
+              </>
             ) : (
-              <><Upload className="mr-1.5 h-3.5 w-3.5" /> {ui("Import to workspace")}</>
+              <>
+                <Upload className="mr-1.5 h-3.5 w-3.5" />{" "}
+                {ui("Import to workspace")}
+              </>
             )}
           </Button>
         </DialogFooter>

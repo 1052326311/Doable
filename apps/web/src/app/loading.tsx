@@ -1,5 +1,4 @@
-
-import {useUiText} from "@/i18n/use-ui-text";
+import { useUiText } from "@/i18n/use-ui-text";
 export default function Loading() {
   const ui = useUiText();
 

@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback } from "react";
 import { cn } from "@/lib/utils";
@@ -55,8 +54,7 @@ export function MembersPage({
   const [removingMember, setRemovingMember] =
     useState<WorkspaceMemberData | null>(null);
 
-  const isAdmin =
-    currentUserRole === "owner" || currentUserRole === "admin";
+  const isAdmin = currentUserRole === "owner" || currentUserRole === "admin";
 
   if (loading) {
     return <MembersLoadingSkeleton />;
@@ -78,15 +76,18 @@ export function MembersPage({
 
       {/* Members Section */}
       <SectionCard
-        title={ui("Members ({v0})", {v0: (members.length)})}
-        description={ui("People who have access to this workspace and its projects.")}
+        title={ui("Members ({v0})", { v0: members.length })}
+        description={ui(
+          "People who have access to this workspace and its projects.",
+        )}
         action={
           isAdmin ? (
             <button
               onClick={() => setInviteDialogOpen(true)}
               className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
             >
-              <UserPlus className="h-4 w-4" /> {ui("Invite")} </button>
+              <UserPlus className="h-4 w-4" /> {ui("Invite")}{" "}
+            </button>
           ) : undefined
         }
       >
@@ -108,7 +109,7 @@ export function MembersPage({
       {/* Pending Invites */}
       {isAdmin && invites.length > 0 && (
         <SectionCard
-          title={ui("Pending Invites ({v0})", {v0: (invites.length)})}
+          title={ui("Pending Invites ({v0})", { v0: invites.length })}
           description={ui("Invites that have been sent but not yet accepted.")}
         >
           <div className="space-y-2">
@@ -128,7 +129,9 @@ export function MembersPage({
       {isAdmin && (
         <SectionCard
           title={ui("Invite Link")}
-          description={ui("Generate a shareable link to invite people to this workspace.")}
+          description={ui(
+            "Generate a shareable link to invite people to this workspace.",
+          )}
         >
           <InviteLinkSection
             onGenerate={generateInviteLink}
@@ -143,7 +146,7 @@ export function MembersPage({
         onClose={() => setInviteDialogOpen(false)}
         onInvite={async (email, role) => {
           await inviteMember(email, role);
-          addToast("success", ui("Invite sent to {v0}",{v0:(email)}));
+          addToast("success", ui("Invite sent to {v0}", { v0: email }));
         }}
       />
 
@@ -154,10 +157,9 @@ export function MembersPage({
           onClose={() => setRemovingMember(null)}
           onConfirm={async () => {
             const name =
-              removingMember.display_name ||
-              removingMember.email.split("@")[0];
+              removingMember.display_name || removingMember.email.split("@")[0];
             await removeMember(removingMember.user_id);
-            addToast("success", ui("{v0} has been removed",{v0:(name)}));
+            addToast("success", ui("{v0} has been removed", { v0: name }));
           }}
         />
       )}

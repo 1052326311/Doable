@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { Suspense, useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -60,7 +59,11 @@ function AcceptInvitePageInner() {
       .catch((err: unknown) => {
         if (cancelled) return;
         let message = ui("This invite is invalid, expired, or already used.");
-        if (err instanceof ApiError && err.body && typeof err.body === "object") {
+        if (
+          err instanceof ApiError &&
+          err.body &&
+          typeof err.body === "object"
+        ) {
           const body = err.body as { error?: string };
           if (body.error) message = body.error;
         }
@@ -73,7 +76,9 @@ function AcceptInvitePageInner() {
     };
   }, [ui, authLoading, isAuthenticated, token, router]);
 
-  const returnTo = token ? `/invite/${encodeURIComponent(token)}` : "/dashboard";
+  const returnTo = token
+    ? `/invite/${encodeURIComponent(token)}`
+    : "/dashboard";
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[hsl(var(--background))] px-4">
@@ -82,21 +87,36 @@ function AcceptInvitePageInner() {
           <div className="flex flex-col items-center text-center">
             <Loader2 className="h-8 w-8 animate-spin text-[hsl(var(--muted-foreground))]" />
             <h1 className="mt-4 text-lg font-semibold">
-              {status === "accepting" ? ui("Accepting invite…") : ui("Loading…")}
+              {status === "accepting"
+                ? ui("Accepting invite…")
+                : ui("Loading…")}
             </h1>
           </div>
         )}
 
         {status === "needs-auth" && (
           <div className="flex flex-col items-center text-center">
-            <h1 className="text-xl font-semibold">{ui("You're invited to a workspace")}</h1>
-            <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]"> {ui("Sign in or create an account to accept this invitation.")} </p>
+            <h1 className="text-xl font-semibold">
+              {ui("You're invited to a workspace")}
+            </h1>
+            <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
+              {" "}
+              {ui(
+                "Sign in or create an account to accept this invitation.",
+              )}{" "}
+            </p>
             <div className="mt-6 flex w-full flex-col gap-2">
               <Button asChild className="w-full">
-                <Link href={`/login?returnTo=${encodeURIComponent(returnTo)}`}> {ui("Sign in")} </Link>
+                <Link href={`/login?returnTo=${encodeURIComponent(returnTo)}`}>
+                  {" "}
+                  {ui("Sign in")}{" "}
+                </Link>
               </Button>
               <Button asChild variant="outline" className="w-full">
-                <Link href={`/signup?returnTo=${encodeURIComponent(returnTo)}`}> {ui("Create account")} </Link>
+                <Link href={`/signup?returnTo=${encodeURIComponent(returnTo)}`}>
+                  {" "}
+                  {ui("Create account")}{" "}
+                </Link>
               </Button>
             </div>
           </div>
@@ -105,19 +125,31 @@ function AcceptInvitePageInner() {
         {status === "success" && (
           <div className="flex flex-col items-center text-center">
             <CheckCircle2 className="h-10 w-10 text-green-500" />
-            <h1 className="mt-4 text-xl font-semibold">{ui("Invite accepted!")}</h1>
-            <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]"> {ui("Redirecting you to your dashboard…")} </p>
+            <h1 className="mt-4 text-xl font-semibold">
+              {ui("Invite accepted!")}
+            </h1>
+            <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
+              {" "}
+              {ui("Redirecting you to your dashboard…")}{" "}
+            </p>
             <Button
               className="mt-6"
-              onClick={() => router.replace(workspaceId ? "/dashboard" : "/dashboard")}
-            > {ui("Go to dashboard")} </Button>
+              onClick={() =>
+                router.replace(workspaceId ? "/dashboard" : "/dashboard")
+              }
+            >
+              {" "}
+              {ui("Go to dashboard")}{" "}
+            </Button>
           </div>
         )}
 
         {status === "error" && (
           <div className="flex flex-col items-center text-center">
             <AlertCircle className="h-10 w-10 text-red-500" />
-            <h1 className="mt-4 text-xl font-semibold">{ui("Couldn't accept invite")}</h1>
+            <h1 className="mt-4 text-xl font-semibold">
+              {ui("Couldn't accept invite")}
+            </h1>
             <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
               {ui(errorMessage)}
             </p>

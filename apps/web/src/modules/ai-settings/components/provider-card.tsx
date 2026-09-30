@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import type { ProviderPreset } from "@doable/shared";
 import { ProviderIcon, PROVIDER_COLORS } from "./provider-icons";
@@ -23,7 +22,11 @@ export function ProviderCard({ preset, onClick }: ProviderCardProps) {
       {/* Provider icon */}
       <div
         className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white"
-        style={brandColor ? { backgroundColor: `${brandColor}18` } : { backgroundColor: "rgba(113,113,122,0.15)" }}
+        style={
+          brandColor
+            ? { backgroundColor: `${brandColor}18` }
+            : { backgroundColor: "rgba(113,113,122,0.15)" }
+        }
       >
         <ProviderIcon providerId={preset.id} size={24} />
       </div>
@@ -35,10 +38,16 @@ export function ProviderCard({ preset, onClick }: ProviderCardProps) {
             {preset.name}
           </span>
           {preset.freeTier && (
-            <span className="shrink-0 rounded bg-green-500/15 px-1.5 py-0.5 text-[10px] font-medium text-green-400"> {ui("Free")} </span>
+            <span className="shrink-0 rounded bg-green-500/15 px-1.5 py-0.5 text-[10px] font-medium text-green-400">
+              {" "}
+              {ui("Free")}{" "}
+            </span>
           )}
           {preset.category === "local" && (
-            <span className="shrink-0 rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-medium text-blue-400"> {ui("Local")} </span>
+            <span className="shrink-0 rounded bg-blue-500/15 px-1.5 py-0.5 text-[10px] font-medium text-blue-400">
+              {" "}
+              {ui("Local")}{" "}
+            </span>
           )}
         </div>
         <p className="mt-0.5 text-xs text-muted-foreground line-clamp-2">

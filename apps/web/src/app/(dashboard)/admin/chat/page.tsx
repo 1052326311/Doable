@@ -1,13 +1,23 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useEffect, useState, useCallback, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  ArrowLeft, Loader2, RotateCw, MessageSquare, AlertTriangle,
-  Search, ChevronLeft, ChevronRight, Shield, X, User as UserIcon, Bot, Wrench,
+  ArrowLeft,
+  Loader2,
+  RotateCw,
+  MessageSquare,
+  AlertTriangle,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Shield,
+  X,
+  User as UserIcon,
+  Bot,
+  Wrench,
 } from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
@@ -41,9 +51,14 @@ interface Message {
 
 interface ThreadData {
   session: {
-    sessionId: string; userId: string; userEmail: string | null;
-    projectId: string; projectName: string | null; projectSlug: string | null;
-    mode: string; createdAt: string;
+    sessionId: string;
+    userId: string;
+    userEmail: string | null;
+    projectId: string;
+    projectName: string | null;
+    projectSlug: string | null;
+    mode: string;
+    createdAt: string;
   };
   messages: Message[];
   redacted: boolean;
@@ -85,18 +100,23 @@ function ChatAdminInner() {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ limit: String(PAGE_SIZE), offset: String(offset) });
+      const params = new URLSearchParams({
+        limit: String(PAGE_SIZE),
+        offset: String(offset),
+      });
       if (search) params.set("search", search);
       if (mode) params.set("mode", mode);
       if (projectIdFilter) params.set("projectId", projectIdFilter);
-      const r = await apiFetch<{ data: { sessions: Session[]; total: number } }>(
-        `/admin/chat-sessions?${params.toString()}`,
-      );
+      const r = await apiFetch<{
+        data: { sessions: Session[]; total: number };
+      }>(`/admin/chat-sessions?${params.toString()}`);
       setSessions(r.data.sessions);
       setTotal(r.data.total);
       setError(null);
     } catch (e) {
-      setError(e instanceof Error ? e.message : ui("Failed to load chat sessions"));
+      setError(
+        e instanceof Error ? e.message : ui("Failed to load chat sessions"),
+      );
     } finally {
       setLoading(false);
     }
@@ -118,8 +138,12 @@ function ChatAdminInner() {
     return (
       <div className="max-w-2xl mx-auto p-8 text-center">
         <AlertTriangle className="h-8 w-8 text-amber-400 mx-auto mb-3" />
-        <h1 className="text-xl font-semibold mb-2">{ui("Platform admin required")}</h1>
-        <Button onClick={() => router.push("/dashboard")}>{ui("Back to Dashboard")}</Button>
+        <h1 className="text-xl font-semibold mb-2">
+          {ui("Platform admin required")}
+        </h1>
+        <Button onClick={() => router.push("/dashboard")}>
+          {ui("Back to Dashboard")}
+        </Button>
       </div>
     );
   }
@@ -127,22 +151,49 @@ function ChatAdminInner() {
   return (
     <div className="max-w-7xl mx-auto p-6">
       <div className="mb-6">
-        <Link href="/admin" className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-3">
-          <ArrowLeft className="h-4 w-4" /> {ui("Back to Admin")} </Link>
+        <Link
+          href="/admin"
+          className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground mb-3"
+        >
+          <ArrowLeft className="h-4 w-4" /> {ui("Back to Admin")}{" "}
+        </Link>
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-brand-600/20">
             <MessageSquare className="h-5 w-5 text-brand-400" />
           </div>
           <div className="flex-1">
-            <h1 className="text-xl font-semibold">{ui("Chat Sessions (")}{total})</h1>
-            <p className="text-sm text-muted-foreground"> {ui("Every AI conversation across the platform — for training, audit, abuse review.")} </p>
+            <h1 className="text-xl font-semibold">
+              {ui("Chat Sessions (")}
+              {total})
+            </h1>
+            <p className="text-sm text-muted-foreground">
+              {" "}
+              {ui(
+                "Every AI conversation across the platform — for training, audit, abuse review.",
+              )}{" "}
+            </p>
           </div>
-          <Button variant="outline" size="sm" onClick={load} disabled={loading} className="gap-1.5">
-            <RotateCw className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`} /> {ui("Refresh")} </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={load}
+            disabled={loading}
+            className="gap-1.5"
+          >
+            <RotateCw
+              className={`h-3.5 w-3.5 ${loading ? "animate-spin" : ""}`}
+            />{" "}
+            {ui("Refresh")}{" "}
+          </Button>
         </div>
         {projectIdFilter && (
-          <div className="mt-3 inline-flex items-center gap-2 text-xs px-2 py-1 rounded-md bg-brand-500/10 border border-brand-500/30 text-brand-300"> {ui("Filtered to project")} {projectIdFilter.slice(0, 8)}…
-            <button onClick={() => router.push("/admin/chat")} className="hover:text-brand-200">
+          <div className="mt-3 inline-flex items-center gap-2 text-xs px-2 py-1 rounded-md bg-brand-500/10 border border-brand-500/30 text-brand-300">
+            {" "}
+            {ui("Filtered to project")} {projectIdFilter.slice(0, 8)}…
+            <button
+              onClick={() => router.push("/admin/chat")}
+              className="hover:text-brand-200"
+            >
               <X className="h-3 w-3" />
             </button>
           </div>
@@ -153,7 +204,11 @@ function ChatAdminInner() {
       <div className="mb-4 p-3 rounded-md border border-emerald-500/30 bg-emerald-500/10 text-[12px] text-emerald-300 flex items-start gap-2">
         <Shield className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
         <div>
-          <strong>{ui("Read-only audit view.")}</strong> {ui("Message content is auto-redacted (passwords, JWTs, API keys, hex blobs, DB URLs). Every thread you open is recorded in the admin audit log with your name + timestamp.")} </div>
+          <strong>{ui("Read-only audit view.")}</strong>{" "}
+          {ui(
+            "Message content is auto-redacted (passwords, JWTs, API keys, hex blobs, DB URLs). Every thread you open is recorded in the admin audit log with your name + timestamp.",
+          )}{" "}
+        </div>
       </div>
 
       {/* Filters */}
@@ -176,14 +231,27 @@ function ChatAdminInner() {
         </div>
         <select
           value={mode}
-          onChange={(e) => { setMode(e.target.value); setOffset(0); }}
+          onChange={(e) => {
+            setMode(e.target.value);
+            setOffset(0);
+          }}
           className="rounded-md border border-border bg-background px-2 py-1.5 text-sm"
         >
           <option value="">{ui("All modes")}</option>
           <option value="chat">{ui("chat")}</option>
           <option value="agent">{ui("agent")}</option>
         </select>
-        <Button variant="outline" size="sm" onClick={() => { setOffset(0); setSearch(searchInput); }}> {ui("Search")} </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            setOffset(0);
+            setSearch(searchInput);
+          }}
+        >
+          {" "}
+          {ui("Search")}{" "}
+        </Button>
       </div>
 
       {error && (
@@ -199,7 +267,9 @@ function ChatAdminInner() {
               <th className="px-3 py-2 font-medium">{ui("User")}</th>
               <th className="px-3 py-2 font-medium">{ui("Project")}</th>
               <th className="px-3 py-2 font-medium">{ui("Mode")}</th>
-              <th className="px-3 py-2 font-medium text-right">{ui("Messages")}</th>
+              <th className="px-3 py-2 font-medium text-right">
+                {ui("Messages")}
+              </th>
               <th className="px-3 py-2 font-medium">{ui("Last activity")}</th>
               <th className="px-3 py-2 font-medium">{ui("Started")}</th>
               <th className="px-3 py-2 font-medium"></th>
@@ -207,58 +277,124 @@ function ChatAdminInner() {
           </thead>
           <tbody>
             {loading && sessions.length === 0 ? (
-              <tr><td colSpan={7} className="px-3 py-8 text-center text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin inline mr-2" /> {ui("Loading…")} </td></tr>
-            ) : sessions.length === 0 ? (
-              <tr><td colSpan={7} className="px-3 py-8 text-center text-muted-foreground"> {ui("No chat sessions match your filter.")} </td></tr>
-            ) : sessions.map((s) => (
-              <tr
-                key={s.sessionId}
-                className="border-b border-border last:border-b-0 hover:bg-muted/20 cursor-pointer"
-                onClick={() => setThreadFor(s)}
-              >
-                <td className="px-3 py-2">{s.userEmail ?? <span className="text-muted-foreground font-mono text-[10px]">{s.userId.slice(0, 12)}…</span>}</td>
-                <td className="px-3 py-2">
-                  {s.projectName ?? <span className="text-muted-foreground">—</span>}
-                  {s.projectSlug && <div className="text-[10px] text-muted-foreground font-mono">{s.projectSlug}</div>}
-                </td>
-                <td className="px-3 py-2">
-                  <span className="px-1.5 py-0.5 rounded text-[10px] bg-muted border border-border">
-                    {s.mode}
-                  </span>
-                </td>
-                <td className="px-3 py-2 text-right font-mono">{s.messageCount}</td>
-                <td className="px-3 py-2 text-muted-foreground">{fmtAge(s.lastMessageAt)}</td>
-                <td className="px-3 py-2 text-muted-foreground">{fmtAge(s.createdAt)}</td>
-                <td className="px-3 py-2 text-right">
-                  <Button size="sm" variant="outline" className="h-6 px-2 text-[10px]"> {ui("Open")} </Button>
+              <tr>
+                <td
+                  colSpan={7}
+                  className="px-3 py-8 text-center text-muted-foreground"
+                >
+                  <Loader2 className="h-4 w-4 animate-spin inline mr-2" />{" "}
+                  {ui("Loading…")}{" "}
                 </td>
               </tr>
-            ))}
+            ) : sessions.length === 0 ? (
+              <tr>
+                <td
+                  colSpan={7}
+                  className="px-3 py-8 text-center text-muted-foreground"
+                >
+                  {" "}
+                  {ui("No chat sessions match your filter.")}{" "}
+                </td>
+              </tr>
+            ) : (
+              sessions.map((s) => (
+                <tr
+                  key={s.sessionId}
+                  className="border-b border-border last:border-b-0 hover:bg-muted/20 cursor-pointer"
+                  onClick={() => setThreadFor(s)}
+                >
+                  <td className="px-3 py-2">
+                    {s.userEmail ?? (
+                      <span className="text-muted-foreground font-mono text-[10px]">
+                        {s.userId.slice(0, 12)}…
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
+                    {s.projectName ?? (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                    {s.projectSlug && (
+                      <div className="text-[10px] text-muted-foreground font-mono">
+                        {s.projectSlug}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-3 py-2">
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-muted border border-border">
+                      {s.mode}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 text-right font-mono">
+                    {s.messageCount}
+                  </td>
+                  <td className="px-3 py-2 text-muted-foreground">
+                    {fmtAge(s.lastMessageAt)}
+                  </td>
+                  <td className="px-3 py-2 text-muted-foreground">
+                    {fmtAge(s.createdAt)}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-6 px-2 text-[10px]"
+                    >
+                      {" "}
+                      {ui("Open")}{" "}
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
       <div className="mt-3 flex items-center justify-between text-[11px] text-muted-foreground">
-        <span>{ui("Showing {start}–{end} of {total}", {start:offset+1,end:offset+sessions.length,total})}</span>
+        <span>
+          {ui("Showing {start}–{end} of {total}", {
+            start: offset + 1,
+            end: offset + sessions.length,
+            total,
+          })}
+        </span>
         <div className="flex items-center gap-1">
-          <Button variant="outline" size="sm" disabled={offset === 0}
-                  onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))} className="h-7 px-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={offset === 0}
+            onClick={() => setOffset(Math.max(0, offset - PAGE_SIZE))}
+            className="h-7 px-2"
+          >
             <ChevronLeft className="h-3.5 w-3.5" />
           </Button>
-          <Button variant="outline" size="sm" disabled={offset + PAGE_SIZE >= total}
-                  onClick={() => setOffset(offset + PAGE_SIZE)} className="h-7 px-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={offset + PAGE_SIZE >= total}
+            onClick={() => setOffset(offset + PAGE_SIZE)}
+            className="h-7 px-2"
+          >
             <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>
 
-      {threadFor && <ThreadDrawer session={threadFor} onClose={() => setThreadFor(null)} />}
+      {threadFor && (
+        <ThreadDrawer session={threadFor} onClose={() => setThreadFor(null)} />
+      )}
     </div>
   );
 }
 
-function ThreadDrawer({ session, onClose }: { session: Session; onClose: () => void }) {
+function ThreadDrawer({
+  session,
+  onClose,
+}: {
+  session: Session;
+  onClose: () => void;
+}) {
   const ui = useUiText();
 
   const [data, setData] = useState<ThreadData | null>(null);
@@ -267,9 +403,13 @@ function ThreadDrawer({ session, onClose }: { session: Session; onClose: () => v
 
   useEffect(() => {
     setLoading(true);
-    apiFetch<{ data: ThreadData }>(`/admin/chat-sessions/${session.sessionId}/messages`)
+    apiFetch<{ data: ThreadData }>(
+      `/admin/chat-sessions/${session.sessionId}/messages`,
+    )
       .then((r) => setData(r.data))
-      .catch((e) => setError(e instanceof Error ? e.message : ui("Failed to load thread")))
+      .catch((e) =>
+        setError(e instanceof Error ? e.message : ui("Failed to load thread")),
+      )
       .finally(() => setLoading(false));
   }, [ui, session.sessionId]);
 
@@ -279,12 +419,16 @@ function ThreadDrawer({ session, onClose }: { session: Session; onClose: () => v
       <div className="w-[800px] max-w-full bg-background border-l border-border flex flex-col">
         <div className="px-5 py-4 border-b border-border flex items-start justify-between">
           <div>
-            <div className="text-[11px] text-muted-foreground">{ui("Thread")}</div>
+            <div className="text-[11px] text-muted-foreground">
+              {ui("Thread")}
+            </div>
             <div className="text-base font-semibold mt-0.5">
               {session.projectName ?? ui("(no project)")}
             </div>
             <div className="text-[11px] text-muted-foreground">
-              {session.userEmail ?? session.userId} {ui("· mode=")}{session.mode} · {session.messageCount} {ui("messages")} </div>
+              {session.userEmail ?? session.userId} {ui("· mode=")}
+              {session.mode} · {session.messageCount} {ui("messages")}{" "}
+            </div>
           </div>
           <Button variant="outline" size="sm" onClick={onClose}>
             <X className="h-3.5 w-3.5" />
@@ -301,16 +445,23 @@ function ThreadDrawer({ session, onClose }: { session: Session; onClose: () => v
         <div className="flex-1 overflow-y-auto bg-muted/10 p-4 space-y-3">
           {loading && (
             <div className="text-center py-8 text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin inline mr-2" /> {ui("Loading thread…")} </div>
+              <Loader2 className="h-4 w-4 animate-spin inline mr-2" />{" "}
+              {ui("Loading thread…")}{" "}
+            </div>
           )}
           {error && (
             <div className="p-3 rounded-md border border-red-500/30 bg-red-500/10 text-sm text-red-300">
               {ui(error)}
             </div>
           )}
-          {data?.messages.map((m) => <MessageCard key={m.id} m={m} />)}
+          {data?.messages.map((m) => (
+            <MessageCard key={m.id} m={m} />
+          ))}
           {data?.messages.length === 0 && (
-            <div className="text-center py-12 text-muted-foreground text-sm"> {ui("This session has no messages.")} </div>
+            <div className="text-center py-12 text-muted-foreground text-sm">
+              {" "}
+              {ui("This session has no messages.")}{" "}
+            </div>
           )}
         </div>
       </div>
@@ -321,11 +472,14 @@ function ThreadDrawer({ session, onClose }: { session: Session; onClose: () => v
 function MessageCard({ m }: { m: Message }) {
   const ui = useUiText();
 
-  const Icon = m.role === "user" ? UserIcon : m.role === "assistant" ? Bot : Wrench;
+  const Icon =
+    m.role === "user" ? UserIcon : m.role === "assistant" ? Bot : Wrench;
   const tone =
-    m.role === "user" ? "border-brand-500/30 bg-brand-500/5"
-    : m.role === "assistant" ? "border-zinc-500/20 bg-zinc-500/5"
-    : "border-amber-500/30 bg-amber-500/5";
+    m.role === "user"
+      ? "border-brand-500/30 bg-brand-500/5"
+      : m.role === "assistant"
+        ? "border-zinc-500/20 bg-zinc-500/5"
+        : "border-amber-500/30 bg-amber-500/5";
   const [expanded, setExpanded] = useState(false);
   const content = m.content ?? "";
   const isLong = content.length > 2000;
@@ -339,10 +493,14 @@ function MessageCard({ m }: { m: Message }) {
           <span className="font-medium uppercase tracking-wide">{m.role}</span>
           {m.displayName && <span>· {m.displayName}</span>}
           {m.hadToolCalls && (
-            <span className="px-1 py-0.5 rounded bg-amber-500/15 text-amber-300 text-[9px]">{ui("tools")}</span>
+            <span className="px-1 py-0.5 rounded bg-amber-500/15 text-amber-300 text-[9px]">
+              {ui("tools")}
+            </span>
           )}
         </div>
-        <span className="text-[10px] text-muted-foreground">{fmtAbs(m.createdAt)}</span>
+        <span className="text-[10px] text-muted-foreground">
+          {fmtAbs(m.createdAt)}
+        </span>
       </div>
 
       {content && (
@@ -361,7 +519,10 @@ function MessageCard({ m }: { m: Message }) {
 
       {m.thinkingContent && (
         <details className="mt-2">
-          <summary className="text-[10px] text-muted-foreground cursor-pointer hover:text-foreground"> {ui("thinking")} </summary>
+          <summary className="text-[10px] text-muted-foreground cursor-pointer hover:text-foreground">
+            {" "}
+            {ui("thinking")}{" "}
+          </summary>
           <pre className="mt-1 p-2 bg-black/30 rounded text-[10px] font-mono whitespace-pre-wrap">
             {m.thinkingContent}
           </pre>
@@ -384,11 +545,13 @@ function MessageCard({ m }: { m: Message }) {
 
 export default function ChatAdminPage() {
   return (
-    <Suspense fallback={
-      <div className="flex items-center justify-center min-h-screen">
-        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-      </div>
-    }>
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      }
+    >
       <ChatAdminInner />
     </Suspense>
   );

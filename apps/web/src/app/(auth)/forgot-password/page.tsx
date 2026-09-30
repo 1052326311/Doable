@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, type FormEvent } from "react";
 import Link from "next/link";
@@ -32,7 +31,9 @@ export default function ForgotPasswordPage() {
       });
 
       if (!res.ok) {
-        const body = await res.json().catch(() => ({ error: "Request failed" }));
+        const body = await res
+          .json()
+          .catch(() => ({ error: "Request failed" }));
         throw new Error(body.error ?? ui("Request failed"));
       }
 
@@ -54,9 +55,19 @@ export default function ForgotPasswordPage() {
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
           <Mail className="h-6 w-6 text-green-600 dark:text-green-400" />
         </div>
-        <h2 className="mb-2 text-xl font-semibold text-[hsl(var(--foreground))]"> {ui("Check your email")} </h2>
-        <p className="mb-6 text-sm text-[hsl(var(--muted-foreground))]"> {ui("If an account exists for")} <strong className="text-[hsl(var(--foreground))]">{email}</strong>{ui(", we've sent password reset instructions to your inbox.")} </p>
-        <p className="mb-6 text-xs text-[hsl(var(--muted-foreground))]"> {ui("Didn't receive the email? Check your spam folder or")}{" "}
+        <h2 className="mb-2 text-xl font-semibold text-[hsl(var(--foreground))]">
+          {" "}
+          {ui("Check your email")}{" "}
+        </h2>
+        <p className="mb-6 text-sm text-[hsl(var(--muted-foreground))]">
+          {" "}
+          {ui("If an account exists for")}{" "}
+          <strong className="text-[hsl(var(--foreground))]">{email}</strong>
+          {ui(", we've sent password reset instructions to your inbox.")}{" "}
+        </p>
+        <p className="mb-6 text-xs text-[hsl(var(--muted-foreground))]">
+          {" "}
+          {ui("Didn't receive the email? Check your spam folder or")}{" "}
           <button
             type="button"
             onClick={() => {
@@ -64,13 +75,17 @@ export default function ForgotPasswordPage() {
               setEmail("");
             }}
             className="font-medium text-brand-700 hover:underline"
-          > {ui("try again")} </button>
+          >
+            {" "}
+            {ui("try again")}{" "}
+          </button>
         </p>
         <Link
           href="/login"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-700 hover:underline"
         >
-          <ArrowLeft className="h-4 w-4" /> {ui("Back to sign in")} </Link>
+          <ArrowLeft className="h-4 w-4" /> {ui("Back to sign in")}{" "}
+        </Link>
       </div>
     );
   }
@@ -81,8 +96,16 @@ export default function ForgotPasswordPage() {
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-brand-700/10">
           <Mail className="h-6 w-6 text-brand-700" />
         </div>
-        <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]"> {ui("Forgot your password?")} </h2>
-        <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]"> {ui("No worries. Enter your email and we'll send you reset instructions.")} </p>
+        <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">
+          {" "}
+          {ui("Forgot your password?")}{" "}
+        </h2>
+        <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
+          {" "}
+          {ui(
+            "No worries. Enter your email and we'll send you reset instructions.",
+          )}{" "}
+        </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
@@ -121,7 +144,9 @@ export default function ForgotPasswordPage() {
         >
           {isLoading ? (
             <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Sending...")} </>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+              {ui("Sending...")}{" "}
+            </>
           ) : (
             ui("Send reset instructions")
           )}
@@ -133,7 +158,8 @@ export default function ForgotPasswordPage() {
           href="/login"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
         >
-          <ArrowLeft className="h-4 w-4" /> {ui("Back to sign in")} </Link>
+          <ArrowLeft className="h-4 w-4" /> {ui("Back to sign in")}{" "}
+        </Link>
       </p>
     </>
   );

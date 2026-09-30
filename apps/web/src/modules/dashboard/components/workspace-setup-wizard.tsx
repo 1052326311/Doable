@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -31,7 +30,20 @@ const COLOR_OPTIONS = [
   { value: "teal", class: "bg-teal-500" },
 ];
 
-const ICON_OPTIONS = ["🔧", "🚀", "💻", "🎨", "📦", "🔬", "🎯", "⚡", "🌐", "🛠️", "📝", "🤖"];
+const ICON_OPTIONS = [
+  "🔧",
+  "🚀",
+  "💻",
+  "🎨",
+  "📦",
+  "🔬",
+  "🎯",
+  "⚡",
+  "🌐",
+  "🛠️",
+  "📝",
+  "🤖",
+];
 
 const POPULAR_INTEGRATIONS = [
   { name: "GitHub", icon: "🐙", description: "Code & version control" },
@@ -68,7 +80,7 @@ function StepIndicator({ current }: { current: Step }) {
           key={step}
           className={cn(
             "h-1.5 w-8 rounded-full transition-colors",
-            i <= idx ? "bg-primary" : "bg-muted"
+            i <= idx ? "bg-primary" : "bg-muted",
           )}
         />
       ))}
@@ -117,16 +129,21 @@ export function WorkspaceSetupWizard({
             icon: envIcon,
             color: envColor,
           }),
-        }
+        },
       );
       // Apply to workspace + set as default
-      await apiFetch(`/workspaces/${workspaceId}/environments/${env.id}/default`, {
-        method: "POST",
-      });
+      await apiFetch(
+        `/workspaces/${workspaceId}/environments/${env.id}/default`,
+        {
+          method: "POST",
+        },
+      );
       setCreatedEnvId(env.id);
       setStep("knowledge");
     } catch (err) {
-      setEnvError(err instanceof Error ? err.message : ui("Failed to create environment"));
+      setEnvError(
+        err instanceof Error ? err.message : ui("Failed to create environment"),
+      );
     } finally {
       setEnvSubmitting(false);
     }
@@ -147,7 +164,7 @@ export function WorkspaceSetupWizard({
             filename: "custom-instructions.md",
             content: instructions.trim(),
           }),
-        }
+        },
       );
       setStep("integrations");
     } catch {
@@ -181,12 +198,19 @@ export function WorkspaceSetupWizard({
           <>
             <DialogHeader>
               <DialogTitle>{ui("Set up your workspace")}</DialogTitle>
-              <DialogDescription> {ui("Every workspace needs an environment — it defines what your AI assistant knows and can do.")} </DialogDescription>
+              <DialogDescription>
+                {" "}
+                {ui(
+                  "Every workspace needs an environment — it defines what your AI assistant knows and can do.",
+                )}{" "}
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4 mt-4">
               <div className="flex gap-3">
                 <div className="flex flex-col items-center gap-1">
-                  <label className="text-xs font-medium text-muted-foreground">{ui("Icon")}</label>
+                  <label className="text-xs font-medium text-muted-foreground">
+                    {ui("Icon")}
+                  </label>
                   <div className="grid grid-cols-4 gap-1 rounded-md border p-1.5">
                     {ICON_OPTIONS.map((icon) => (
                       <button
@@ -196,7 +220,7 @@ export function WorkspaceSetupWizard({
                           "flex h-8 w-8 items-center justify-center rounded text-base transition-colors",
                           envIcon === icon
                             ? "bg-primary/15 ring-1 ring-primary/30"
-                            : "hover:bg-muted"
+                            : "hover:bg-muted",
                         )}
                       >
                         {icon}
@@ -206,17 +230,25 @@ export function WorkspaceSetupWizard({
                 </div>
                 <div className="flex-1 space-y-3">
                   <div>
-                    <label className="mb-1 block text-xs font-medium text-muted-foreground"> {ui("Name")} </label>
+                    <label className="mb-1 block text-xs font-medium text-muted-foreground">
+                      {" "}
+                      {ui("Name")}{" "}
+                    </label>
                     <Input
                       value={envName}
                       onChange={(e) => setEnvName(e.target.value)}
                       placeholder={ui("My Environment")}
                       autoFocus
-                      onKeyDown={(e) => e.key === "Enter" && handleCreateEnvironment()}
+                      onKeyDown={(e) =>
+                        e.key === "Enter" && handleCreateEnvironment()
+                      }
                     />
                   </div>
                   <div>
-                    <label className="mb-1.5 block text-xs font-medium text-muted-foreground"> {ui("Color")} </label>
+                    <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                      {" "}
+                      {ui("Color")}{" "}
+                    </label>
                     <div className="flex gap-2">
                       {COLOR_OPTIONS.map((c) => (
                         <button
@@ -227,7 +259,7 @@ export function WorkspaceSetupWizard({
                             c.class,
                             envColor === c.value
                               ? "ring-2 ring-ring ring-offset-2 ring-offset-background"
-                              : "opacity-60 hover:opacity-100"
+                              : "opacity-60 hover:opacity-100",
                           )}
                         />
                       ))}
@@ -235,15 +267,24 @@ export function WorkspaceSetupWizard({
                   </div>
                 </div>
               </div>
-              {envError && <p className="text-sm text-destructive">{envError}</p>}
+              {envError && (
+                <p className="text-sm text-destructive">{envError}</p>
+              )}
             </div>
             <DialogFooter className="mt-6">
-              <Button variant="ghost" onClick={handleClose}> {ui("Skip setup")} </Button>
+              <Button variant="ghost" onClick={handleClose}>
+                {" "}
+                {ui("Skip setup")}{" "}
+              </Button>
               <Button
                 onClick={handleCreateEnvironment}
                 disabled={envSubmitting || !envName.trim()}
               >
-                {envSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {ui("Create & Continue")} <ArrowRight className="ml-2 h-4 w-4" />
+                {envSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}{" "}
+                {ui("Create & Continue")}{" "}
+                <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </DialogFooter>
           </>
@@ -254,26 +295,44 @@ export function WorkspaceSetupWizard({
           <>
             <DialogHeader>
               <DialogTitle>{ui("Add knowledge")}</DialogTitle>
-              <DialogDescription> {ui("Tell your AI what it should know about your projects. You can always add more later.")} </DialogDescription>
+              <DialogDescription>
+                {" "}
+                {ui(
+                  "Tell your AI what it should know about your projects. You can always add more later.",
+                )}{" "}
+              </DialogDescription>
             </DialogHeader>
             <div className="mt-4">
               <textarea
                 value={instructions}
                 onChange={(e) => setInstructions(e.target.value)}
-                placeholder={"e.g. We use React with TypeScript.\nOur API follows REST conventions.\nAlways use Tailwind for styling."}
+                placeholder={
+                  "e.g. We use React with TypeScript.\nOur API follows REST conventions.\nAlways use Tailwind for styling."
+                }
                 rows={5}
                 autoFocus
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring placeholder:text-muted-foreground resize-none"
               />
-              <p className="mt-1.5 text-xs text-muted-foreground"> {ui("These instructions guide your AI assistant across all projects in this workspace.")} </p>
+              <p className="mt-1.5 text-xs text-muted-foreground">
+                {" "}
+                {ui(
+                  "These instructions guide your AI assistant across all projects in this workspace.",
+                )}{" "}
+              </p>
             </div>
             <DialogFooter className="mt-6">
-              <Button variant="ghost" onClick={() => setStep("integrations")}> {ui("Skip")} </Button>
+              <Button variant="ghost" onClick={() => setStep("integrations")}>
+                {" "}
+                {ui("Skip")}{" "}
+              </Button>
               <Button
                 onClick={handleSaveKnowledge}
                 disabled={knowledgeSubmitting || !instructions.trim()}
               >
-                {knowledgeSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {ui("Save & Continue")} <ArrowRight className="ml-2 h-4 w-4" />
+                {knowledgeSubmitting && (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}{" "}
+                {ui("Save & Continue")} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </DialogFooter>
           </>
@@ -284,7 +343,12 @@ export function WorkspaceSetupWizard({
           <>
             <DialogHeader>
               <DialogTitle>{ui("Connect tools")}</DialogTitle>
-              <DialogDescription> {ui("Connect external tools to supercharge your workflow. You can set these up anytime from Settings.")} </DialogDescription>
+              <DialogDescription>
+                {" "}
+                {ui(
+                  "Connect external tools to supercharge your workflow. You can set these up anytime from Settings.",
+                )}{" "}
+              </DialogDescription>
             </DialogHeader>
             <div className="mt-4 grid grid-cols-2 gap-2">
               {i18n_POPULAR_INTEGRATIONS.map((integration) => (
@@ -297,7 +361,9 @@ export function WorkspaceSetupWizard({
                 >
                   <span className="text-lg">{integration.icon}</span>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium truncate">{integration.name}</p>
+                    <p className="text-sm font-medium truncate">
+                      {integration.name}
+                    </p>
                     <p className="text-[11px] text-muted-foreground truncate">
                       {integration.description}
                     </p>
@@ -305,9 +371,16 @@ export function WorkspaceSetupWizard({
                 </button>
               ))}
             </div>
-            <p className="mt-3 text-center text-xs text-muted-foreground"> {ui("Integrations can be connected from workspace settings at any time.")} </p>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              {" "}
+              {ui(
+                "Integrations can be connected from workspace settings at any time.",
+              )}{" "}
+            </p>
             <DialogFooter className="mt-4">
-              <Button onClick={() => setStep("done")}> {ui("Continue")} <ArrowRight className="ml-2 h-4 w-4" />
+              <Button onClick={() => setStep("done")}>
+                {" "}
+                {ui("Continue")} <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
             </DialogFooter>
           </>
@@ -321,9 +394,14 @@ export function WorkspaceSetupWizard({
             </div>
             <DialogTitle className="mb-2">{ui("You're all set!")}</DialogTitle>
             <p className="text-sm text-muted-foreground mb-6">
-              <strong>{workspaceName}</strong> {ui("is ready to go. Start creating projects and let AI help you build.")} </p>
+              <strong>{workspaceName}</strong>{" "}
+              {ui(
+                "is ready to go. Start creating projects and let AI help you build.",
+              )}{" "}
+            </p>
             <Button onClick={handleClose} className="w-full max-w-[200px]">
-              <Check className="mr-2 h-4 w-4" /> {ui("Go to workspace")} </Button>
+              <Check className="mr-2 h-4 w-4" /> {ui("Go to workspace")}{" "}
+            </Button>
           </div>
         )}
       </DialogContent>

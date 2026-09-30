@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useMemo, useRef } from "react";
 import { Loader2 } from "lucide-react";
@@ -40,7 +39,12 @@ export function IntegrationConnectDialog({
   onDismiss,
   onConnected,
 }: {
-  request: { integrationId: string; displayName: string; logoUrl?: string; reason: string };
+  request: {
+    integrationId: string;
+    displayName: string;
+    logoUrl?: string;
+    reason: string;
+  };
   workspaceId: string;
   projectId?: string;
   onDismiss: () => void;
@@ -69,11 +73,18 @@ export function IntegrationConnectDialog({
   // of a silent no-op while the catalog request is in flight.
   if (!item && loading) {
     return (
-      <Dialog open onOpenChange={(o) => { if (!o) onDismiss(); }}>
+      <Dialog
+        open
+        onOpenChange={(o) => {
+          if (!o) onDismiss();
+        }}
+      >
         <DialogContent>
           <div className="flex flex-col items-center justify-center gap-3 py-8">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-            <p className="text-sm text-muted-foreground"> {ui("Connecting")} {request.displayName}…
+            <p className="text-sm text-muted-foreground">
+              {" "}
+              {ui("Connecting")} {request.displayName}…
             </p>
           </div>
         </DialogContent>
@@ -86,15 +97,28 @@ export function IntegrationConnectDialog({
   // Tell the user instead of rendering an invisible no-op.
   if (!item) {
     return (
-      <Dialog open onOpenChange={(o) => { if (!o) onDismiss(); }}>
+      <Dialog
+        open
+        onOpenChange={(o) => {
+          if (!o) onDismiss();
+        }}
+      >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{ui("Connect")} {request.displayName}</DialogTitle>
+            <DialogTitle>
+              {ui("Connect")} {request.displayName}
+            </DialogTitle>
             <DialogDescription className="mt-1">
-              {request.displayName} {ui("isn’t enabled for this workspace yet. Ask a workspace admin to enable it under Settings → Integrations, then try again.")} </DialogDescription>
+              {request.displayName}{" "}
+              {ui(
+                "isn’t enabled for this workspace yet. Ask a workspace admin to enable it under Settings → Integrations, then try again.",
+              )}{" "}
+            </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={onDismiss}>{ui("Close")}</Button>
+            <Button variant="outline" onClick={onDismiss}>
+              {ui("Close")}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

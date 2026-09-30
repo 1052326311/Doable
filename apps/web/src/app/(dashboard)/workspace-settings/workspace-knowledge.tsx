@@ -1,14 +1,8 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import {
-  Plus,
-  FileText,
-  Loader2,
-  AlertCircle,
-} from "lucide-react";
+import { Plus, FileText, Loader2, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { apiFetch } from "@/lib/api";
 import { FileEditor } from "./workspace-knowledge-editor";
@@ -58,7 +52,9 @@ function formatDate(dateStr: string): string {
 
 // ─── Main Component ─────────────────────────────────────────
 
-export function WorkspaceKnowledgePanel({ workspaceId }: WorkspaceKnowledgePanelProps) {
+export function WorkspaceKnowledgePanel({
+  workspaceId,
+}: WorkspaceKnowledgePanelProps) {
   const ui = useUiText();
 
   const [files, setFiles] = useState<ContextFile[]>([]);
@@ -72,39 +68,55 @@ export function WorkspaceKnowledgePanel({ workspaceId }: WorkspaceKnowledgePanel
     setError(null);
     try {
       const res = await apiFetch<{ data: { files: ContextFile[] } }>(
-        `/workspaces/${workspaceId}/context`
+        `/workspaces/${workspaceId}/context`,
       );
       setFiles(res.data.files);
     } catch (err) {
-      setError(err instanceof Error ? err.message : ui("Failed to load knowledge files"));
+      setError(
+        err instanceof Error
+          ? err.message
+          : ui("Failed to load knowledge files"),
+      );
     } finally {
       setLoading(false);
     }
   }, [ui, workspaceId]);
 
-  useEffect(() => { void fetchFiles(); }, [fetchFiles]);
+  useEffect(() => {
+    void fetchFiles();
+  }, [fetchFiles]);
 
-  const handleCreateFile = useCallback(async (filename: string) => {
-    setShowAddDialog(false);
-    try {
-      await apiFetch(`/workspaces/${workspaceId}/context/${filename}`, {
-        method: "PUT",
-        body: JSON.stringify({ content: "" }),
-      });
-      await fetchFiles();
-      // Open the new file
-      setActiveFile({ filename, content: "", updatedAt: new Date().toISOString() });
-    } catch (err) {
-      console.error(ui("Failed to create file:"), err);
-    }
-  }, [ui, workspaceId, fetchFiles]);
+  const handleCreateFile = useCallback(
+    async (filename: string) => {
+      setShowAddDialog(false);
+      try {
+        await apiFetch(`/workspaces/${workspaceId}/context/${filename}`, {
+          method: "PUT",
+          body: JSON.stringify({ content: "" }),
+        });
+        await fetchFiles();
+        // Open the new file
+        setActiveFile({
+          filename,
+          content: "",
+          updatedAt: new Date().toISOString(),
+        });
+      } catch (err) {
+        console.error(ui("Failed to create file:"), err);
+      }
+    },
+    [ui, workspaceId, fetchFiles],
+  );
 
   if (activeFile) {
     return (
       <FileEditor
         file={activeFile}
         workspaceId={workspaceId}
-        onBack={() => { setActiveFile(null); void fetchFiles(); }}
+        onBack={() => {
+          setActiveFile(null);
+          void fetchFiles();
+        }}
       />
     );
   }
@@ -112,7 +124,9 @@ export function WorkspaceKnowledgePanel({ workspaceId }: WorkspaceKnowledgePanel
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin mr-2" /> {ui("Loading knowledge base...")} </div>
+        <Loader2 className="h-4 w-4 animate-spin mr-2" />{" "}
+        {ui("Loading knowledge base...")}{" "}
+      </div>
     );
   }
 
@@ -124,7 +138,10 @@ export function WorkspaceKnowledgePanel({ workspaceId }: WorkspaceKnowledgePanel
         <button
           onClick={fetchFiles}
           className="mt-3 rounded-md bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-500"
-        > {ui("Retry")} </button>
+        >
+          {" "}
+          {ui("Retry")}{" "}
+        </button>
       </div>
     );
   }
@@ -132,7 +149,12 @@ export function WorkspaceKnowledgePanel({ workspaceId }: WorkspaceKnowledgePanel
   return (
     <div>
       {/* Hint */}
-      <p className="mb-4 text-xs text-muted-foreground"> {ui("These files are read by the AI before every interaction in this workspace. Click a file to edit it.")} </p>
+      <p className="mb-4 text-xs text-muted-foreground">
+        {" "}
+        {ui(
+          "These files are read by the AI before every interaction in this workspace. Click a file to edit it.",
+        )}{" "}
+      </p>
 
       {/* Add file dialog */}
       {showAddDialog && (
@@ -157,7 +179,7 @@ export function WorkspaceKnowledgePanel({ workspaceId }: WorkspaceKnowledgePanel
               <FileText
                 className={cn(
                   "h-4 w-4 flex-none mt-0.5",
-                  hasContent ? "text-brand-400/70" : "text-muted-foreground"
+                  hasContent ? "text-brand-400/70" : "text-muted-foreground",
                 )}
               />
               <div className="flex-1 min-w-0">
@@ -169,10 +191,13 @@ export function WorkspaceKnowledgePanel({ workspaceId }: WorkspaceKnowledgePanel
                     {formatDate(file.updatedAt)}
                   </span>
                 </div>
-                <p className="mt-0.5 text-xs text-muted-foreground truncate">{desc}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground truncate">
+                  {desc}
+                </p>
                 {hasContent && (
                   <p className="mt-0.5 text-[10px] text-muted-foreground">
-                    {file.content.length} {ui("chars")} </p>
+                    {file.content.length} {ui("chars")}{" "}
+                  </p>
                 )}
               </div>
             </button>
@@ -186,7 +211,8 @@ export function WorkspaceKnowledgePanel({ workspaceId }: WorkspaceKnowledgePanel
           onClick={() => setShowAddDialog(true)}
           className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-dashed border-border py-2.5 text-xs text-muted-foreground hover:border-brand-500/50 hover:text-brand-400 transition-colors"
         >
-          <Plus className="h-3 w-3" /> {ui("Add Knowledge File")} </button>
+          <Plus className="h-3 w-3" /> {ui("Add Knowledge File")}{" "}
+        </button>
       </div>
     </div>
   );
@@ -208,9 +234,14 @@ function AddFileDialog({
   const [name, setName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => { inputRef.current?.focus(); }, []);
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
 
-  const filename = name.trim().toLowerCase().replace(/[^a-z0-9._-]/g, "-");
+  const filename = name
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]/g, "-");
   const fullFilename = filename.endsWith(".md") ? filename : `${filename}.md`;
   const isValid = filename.length > 0 && !existingFiles.includes(fullFilename);
   const isDuplicate = existingFiles.includes(fullFilename);
@@ -221,8 +252,14 @@ function AddFileDialog({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 rounded-lg border border-border bg-secondary p-4">
-      <label className="block text-xs font-medium text-muted-foreground mb-1.5"> {ui("New Knowledge File")} </label>
+    <form
+      onSubmit={handleSubmit}
+      className="mb-4 rounded-lg border border-border bg-secondary p-4"
+    >
+      <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+        {" "}
+        {ui("New Knowledge File")}{" "}
+      </label>
       <input
         ref={inputRef}
         value={name}
@@ -231,21 +268,33 @@ function AddFileDialog({
         className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-brand-500"
         spellCheck={false}
       />
-      {isDuplicate && <p className="mt-1 text-xs text-red-400">{ui("File already exists.")}</p>}
+      {isDuplicate && (
+        <p className="mt-1 text-xs text-red-400">
+          {ui("File already exists.")}
+        </p>
+      )}
       {filename && !isDuplicate && (
-        <p className="mt-1 text-xs text-muted-foreground font-mono">{fullFilename}</p>
+        <p className="mt-1 text-xs text-muted-foreground font-mono">
+          {fullFilename}
+        </p>
       )}
       <div className="mt-3 flex items-center gap-2">
         <button
           type="submit"
           disabled={!isValid}
           className="rounded-md bg-brand-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-brand-500 disabled:opacity-50 disabled:cursor-not-allowed"
-        > {ui("Create")} </button>
+        >
+          {" "}
+          {ui("Create")}{" "}
+        </button>
         <button
           type="button"
           onClick={onCancel}
           className="rounded-md px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors"
-        > {ui("Cancel")} </button>
+        >
+          {" "}
+          {ui("Cancel")}{" "}
+        </button>
       </div>
     </form>
   );

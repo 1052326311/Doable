@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect } from "react";
 import { Loader2, Table2, Rows3, FileStack, ShieldCheck } from "lucide-react";
@@ -27,8 +26,15 @@ export function OverviewPane({ tokenState, onNavigate }: OverviewPaneProps) {
     setLoading(true);
     client
       .schema()
-      .then((s) => { setSchema(s); setError(null); })
-      .catch((err) => setError(err instanceof Error ? err.message : ui("Failed to load schema")))
+      .then((s) => {
+        setSchema(s);
+        setError(null);
+      })
+      .catch((err) =>
+        setError(
+          err instanceof Error ? err.message : ui("Failed to load schema"),
+        ),
+      )
       .finally(() => setLoading(false));
   }, [ui, client]);
 
@@ -51,7 +57,10 @@ export function OverviewPane({ tokenState, onNavigate }: OverviewPaneProps) {
   const tables = schema?.tables ?? [];
   const totalRows = tables.reduce((s, t) => s + (t.rowCount ?? 0), 0);
   const totalIndexes = tables.reduce((s, t) => s + (t.indexes?.length ?? 0), 0);
-  const totalPolicies = tables.reduce((s, t) => s + (t.policies?.length ?? 0), 0);
+  const totalPolicies = tables.reduce(
+    (s, t) => s + (t.policies?.length ?? 0),
+    0,
+  );
 
   return (
     <div className="space-y-6">
@@ -69,14 +78,35 @@ export function OverviewPane({ tokenState, onNavigate }: OverviewPaneProps) {
           <div className="rounded-lg border-2 border-dashed p-8 text-center">
             <Table2 className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
             <p className="text-sm font-medium">{ui("No tables yet")}</p>
-            <p className="mt-1 text-xs text-muted-foreground"> {ui("Ask the AI to add some — it will create your schema automatically.")} </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {" "}
+              {ui(
+                "Ask the AI to add some — it will create your schema automatically.",
+              )}{" "}
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <StatCard icon={Table2} label={ui("Tables")} value={tables.length} />
-            <StatCard icon={Rows3} label={ui("Total rows")} value={totalRows.toLocaleString(ui.locale)} />
-            <StatCard icon={FileStack} label={ui("Indexes")} value={totalIndexes} />
-            <StatCard icon={ShieldCheck} label={ui("Policies")} value={totalPolicies} />
+            <StatCard
+              icon={Table2}
+              label={ui("Tables")}
+              value={tables.length}
+            />
+            <StatCard
+              icon={Rows3}
+              label={ui("Total rows")}
+              value={totalRows.toLocaleString(ui.locale)}
+            />
+            <StatCard
+              icon={FileStack}
+              label={ui("Indexes")}
+              value={totalIndexes}
+            />
+            <StatCard
+              icon={ShieldCheck}
+              label={ui("Policies")}
+              value={totalPolicies}
+            />
           </div>
         )}
       </SectionCard>
@@ -87,15 +117,24 @@ export function OverviewPane({ tokenState, onNavigate }: OverviewPaneProps) {
             <button
               onClick={() => onNavigate("schema")}
               className="rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-            > {ui("Open Schema")} </button>
+            >
+              {" "}
+              {ui("Open Schema")}{" "}
+            </button>
             <button
               onClick={() => onNavigate("rows")}
               className="rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-            > {ui("Browse Rows")} </button>
+            >
+              {" "}
+              {ui("Browse Rows")}{" "}
+            </button>
             <button
               onClick={() => onNavigate("queries")}
               className="rounded-md border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-            > {ui("Run Query")} </button>
+            >
+              {" "}
+              {ui("Run Query")}{" "}
+            </button>
           </div>
         </SectionCard>
       )}

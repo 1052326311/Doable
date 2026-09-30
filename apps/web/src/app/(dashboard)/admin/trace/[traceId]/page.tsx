@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 /**
  * /admin/trace/[traceId] — trace detail page.
@@ -18,7 +17,13 @@ import { useEffect, useState } from "react";
 import { use } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Activity, Loader2, ShieldCheck, MessageSquare } from "lucide-react";
+import {
+  ArrowLeft,
+  Activity,
+  Loader2,
+  ShieldCheck,
+  MessageSquare,
+} from "lucide-react";
 import { apiFetch } from "@/lib/api";
 import { usePlatformAdmin } from "@/hooks/use-platform-admin";
 import { Button } from "@/components/ui/button";
@@ -85,11 +90,18 @@ export default function TraceDetailPage({
           // auto-select root or first errored span
           const firstError = res.spans.find((s) => s.status_code === "ERROR");
           const root = res.spans.find((s) => !s.parent_span_id);
-          setSelectedSpanId(firstError?.span_id ?? root?.span_id ?? res.spans[0]?.span_id ?? null);
+          setSelectedSpanId(
+            firstError?.span_id ??
+              root?.span_id ??
+              res.spans[0]?.span_id ??
+              null,
+          );
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : ui("Failed to load trace"));
+          setError(
+            err instanceof Error ? err.message : ui("Failed to load trace"),
+          );
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -112,9 +124,16 @@ export default function TraceDetailPage({
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
         <ShieldCheck className="h-12 w-12" />
-        <p className="font-medium text-foreground">{ui("Platform admin access required")}</p>
-        <Button variant="outline" size="sm" onClick={() => router.push("/dashboard")}>
-          <ArrowLeft className="mr-2 h-3.5 w-3.5" /> {ui("Back")} </Button>
+        <p className="font-medium text-foreground">
+          {ui("Platform admin access required")}
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push("/dashboard")}
+        >
+          <ArrowLeft className="mr-2 h-3.5 w-3.5" /> {ui("Back")}{" "}
+        </Button>
       </div>
     );
   }
@@ -133,7 +152,8 @@ export default function TraceDetailPage({
           href="/admin/trace"
           className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
         >
-          <ArrowLeft className="h-3.5 w-3.5" /> {ui("Back to search")} </Link>
+          <ArrowLeft className="h-3.5 w-3.5" /> {ui("Back to search")}{" "}
+        </Link>
         <div className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 px-4 py-3 text-sm text-red-400">
           {error ?? ui("Trace not found")}
         </div>
@@ -153,23 +173,49 @@ export default function TraceDetailPage({
             href="/admin/trace"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-3.5 w-3.5" /> {ui("Trace search")} </Link>
+            <ArrowLeft className="h-3.5 w-3.5" /> {ui("Trace search")}{" "}
+          </Link>
         </div>
         <h1 className="mb-1 flex items-center gap-2 text-xl font-bold text-foreground">
           <Activity className="h-5 w-5 text-brand-400" />
           {trace.root_span_name ?? trace.trace_id}
         </h1>
-        <p className="mb-4 font-mono text-xs text-muted-foreground">trace_id: {trace.trace_id}</p>
+        <p className="mb-4 font-mono text-xs text-muted-foreground">
+          trace_id: {trace.trace_id}
+        </p>
 
         <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <Stat label={ui("Status")} value={trace.status} highlight={trace.status === "error"} />
-          <Stat label={ui("Duration")} value={trace.duration_ms != null ? `${trace.duration_ms}ms` : "—"} />
+          <Stat
+            label={ui("Status")}
+            value={trace.status}
+            highlight={trace.status === "error"}
+          />
+          <Stat
+            label={ui("Duration")}
+            value={trace.duration_ms != null ? `${trace.duration_ms}ms` : "—"}
+          />
           <Stat label={ui("Spans")} value={String(trace.span_count)} />
-          <Stat label={ui("Errors")} value={String(trace.error_count)} highlight={trace.error_count > 0} />
-          <Stat label={ui("Started")} value={new Date(trace.started_at).toLocaleString(ui.locale)} />
-          <Stat label={ui("Services")} value={(trace.services ?? []).join(", ") || "—"} />
-          <Stat label={ui("User")} value={trace.user_id ? short(trace.user_id) : "—"} />
-          <Stat label={ui("Workspace")} value={trace.workspace_id ? short(trace.workspace_id) : "—"} />
+          <Stat
+            label={ui("Errors")}
+            value={String(trace.error_count)}
+            highlight={trace.error_count > 0}
+          />
+          <Stat
+            label={ui("Started")}
+            value={new Date(trace.started_at).toLocaleString(ui.locale)}
+          />
+          <Stat
+            label={ui("Services")}
+            value={(trace.services ?? []).join(", ") || "—"}
+          />
+          <Stat
+            label={ui("User")}
+            value={trace.user_id ? short(trace.user_id) : "—"}
+          />
+          <Stat
+            label={ui("Workspace")}
+            value={trace.workspace_id ? short(trace.workspace_id) : "—"}
+          />
         </div>
 
         {chatTrace && (
@@ -183,14 +229,18 @@ export default function TraceDetailPage({
               {chatTrace.id}
             </Link>
             {chatTrace.session_id && (
-              <span className="font-mono text-[11px] text-brand-300/80"> {ui("session:")} {short(chatTrace.session_id)}
+              <span className="font-mono text-[11px] text-brand-300/80">
+                {" "}
+                {ui("session:")} {short(chatTrace.session_id)}
               </span>
             )}
           </div>
         )}
 
         <div className="mb-6">
-          <h2 className="mb-2 text-sm font-semibold text-foreground">{ui("Flame graph")}</h2>
+          <h2 className="mb-2 text-sm font-semibold text-foreground">
+            {ui("Flame graph")}
+          </h2>
           <FlameGraph
             spans={spans}
             traceStartedAt={trace.started_at}
@@ -202,15 +252,22 @@ export default function TraceDetailPage({
 
         <div className="grid gap-6 lg:grid-cols-[1fr_420px]">
           <div>
-            <h2 className="mb-2 text-sm font-semibold text-foreground">{ui("All logs")}</h2>
+            <h2 className="mb-2 text-sm font-semibold text-foreground">
+              {ui("All logs")}
+            </h2>
             <LogsPanel logs={logs} />
           </div>
           <div>
-            <h2 className="mb-2 text-sm font-semibold text-foreground">{ui("Span detail")}</h2>
+            <h2 className="mb-2 text-sm font-semibold text-foreground">
+              {ui("Span detail")}
+            </h2>
             {selectedSpan ? (
               <SpanDetail span={selectedSpan} logs={logs} />
             ) : (
-              <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground"> {ui("Click a span in the flame graph to inspect.")} </p>
+              <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+                {" "}
+                {ui("Click a span in the flame graph to inspect.")}{" "}
+              </p>
             )}
           </div>
         </div>
@@ -219,11 +276,25 @@ export default function TraceDetailPage({
   );
 }
 
-function Stat({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
+function Stat({
+  label,
+  value,
+  highlight,
+}: {
+  label: string;
+  value: string;
+  highlight?: boolean;
+}) {
   return (
     <div className="rounded-md border border-border bg-card p-3">
-      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className={`text-sm font-medium ${highlight ? "text-red-400" : "text-foreground"}`}>{value}</p>
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">
+        {label}
+      </p>
+      <p
+        className={`text-sm font-medium ${highlight ? "text-red-400" : "text-foreground"}`}
+      >
+        {value}
+      </p>
     </div>
   );
 }
@@ -233,7 +304,10 @@ function LogsPanel({ logs }: { logs: TraceLog[] }) {
 
   if (logs.length === 0) {
     return (
-      <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground"> {ui("No correlated logs.")} </p>
+      <p className="rounded-lg border border-border bg-card p-4 text-sm text-muted-foreground">
+        {" "}
+        {ui("No correlated logs.")}{" "}
+      </p>
     );
   }
   return (
@@ -244,12 +318,18 @@ function LogsPanel({ logs }: { logs: TraceLog[] }) {
             <div className="flex items-center gap-2 text-[10px] uppercase tracking-wide">
               <span className={levelColor(l.level)}>{l.level}</span>
               <span className="text-muted-foreground">{l.service}</span>
-              <span className="text-muted-foreground">{new Date(l.ts).toISOString().slice(11, 23)}</span>
+              <span className="text-muted-foreground">
+                {new Date(l.ts).toISOString().slice(11, 23)}
+              </span>
               {l.span_id && (
-                <span className="font-mono text-muted-foreground">{short(l.span_id)}</span>
+                <span className="font-mono text-muted-foreground">
+                  {short(l.span_id)}
+                </span>
               )}
             </div>
-            <p className="mt-0.5 break-words font-mono text-xs text-foreground">{l.message}</p>
+            <p className="mt-0.5 break-words font-mono text-xs text-foreground">
+              {l.message}
+            </p>
           </li>
         ))}
       </ul>

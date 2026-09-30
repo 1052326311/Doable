@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -85,7 +84,14 @@ export function ShareDialog({
     setCategory(initialCategory ?? "");
     setFeatured(alreadyFeatured);
     setState({ kind: "idle" });
-  }, [open, projectName, projectDescription, initialTitle, initialCategory, alreadyFeatured]);
+  }, [
+    open,
+    projectName,
+    projectDescription,
+    initialTitle,
+    initialCategory,
+    alreadyFeatured,
+  ]);
 
   useEffect(() => {
     if (!open) return;
@@ -136,7 +142,13 @@ export function ShareDialog({
   ]);
 
   const handleUnshare = useCallback(async () => {
-    if (!confirm(ui("Remove this project from Discover? Existing remixes are unaffected."))) {
+    if (
+      !confirm(
+        ui(
+          "Remove this project from Discover? Existing remixes are unaffected.",
+        ),
+      )
+    ) {
       return;
     }
     setState({ kind: "submitting" });
@@ -161,9 +173,16 @@ export function ShareDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Compass className="h-5 w-5 text-emerald-400" />
-            {alreadyShared ? ui("Update Discover listing") : ui("Share to Discover")}
+            {alreadyShared
+              ? ui("Update Discover listing")
+              : ui("Share to Discover")}
           </DialogTitle>
-          <DialogDescription> {ui("Lists your project in the community feed. Other users can browse it and remix it into their own workspace.")} </DialogDescription>
+          <DialogDescription>
+            {" "}
+            {ui(
+              "Lists your project in the community feed. Other users can browse it and remix it into their own workspace.",
+            )}{" "}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-2">
@@ -247,7 +266,9 @@ export function ShareDialog({
                     htmlFor="share-featured"
                     className="flex items-center justify-between cursor-pointer"
                   >
-                    <span className="text-sm font-medium">{ui("Featured (admin)")}</span>
+                    <span className="text-sm font-medium">
+                      {ui("Featured (admin)")}
+                    </span>
                     <input
                       id="share-featured"
                       type="checkbox"
@@ -257,7 +278,10 @@ export function ShareDialog({
                       className="h-4 w-4 accent-amber-400"
                     />
                   </Label>
-                  <p className="text-xs text-muted-foreground mt-1"> {ui("Surfaces this project at the top of Discover.")} </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {" "}
+                    {ui("Surfaces this project at the top of Discover.")}{" "}
+                  </p>
                 </div>
               </div>
             </div>
@@ -285,7 +309,8 @@ export function ShareDialog({
               disabled={submitting}
               className="text-destructive hover:text-destructive"
             >
-              <X className="h-3.5 w-3.5 mr-1.5" /> {ui("Unshare")} </Button>
+              <X className="h-3.5 w-3.5 mr-1.5" /> {ui("Unshare")}{" "}
+            </Button>
           ) : (
             <span />
           )}
@@ -294,15 +319,23 @@ export function ShareDialog({
               variant="outline"
               onClick={() => onOpenChange(false)}
               disabled={submitting}
-            > {ui("Cancel")} </Button>
-            <Button onClick={handleShare} disabled={submitting || !title.trim()}>
+            >
+              {" "}
+              {ui("Cancel")}{" "}
+            </Button>
+            <Button
+              onClick={handleShare}
+              disabled={submitting || !title.trim()}
+            >
               {submitting ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
                   {alreadyShared ? ui("Updating...") : ui("Sharing...")}
                 </>
               ) : (
-                <>{alreadyShared ? ui("Save changes") : ui("Share to Discover")}</>
+                <>
+                  {alreadyShared ? ui("Save changes") : ui("Share to Discover")}
+                </>
               )}
             </Button>
           </div>

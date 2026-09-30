@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState } from "react";
 import { Loader2, Play } from "lucide-react";
@@ -12,7 +11,8 @@ interface QueriesPaneProps {
   tokenState: DataTokenState;
 }
 
-const SAMPLE = "SELECT * FROM information_schema.tables WHERE table_schema = 'public';";
+const SAMPLE =
+  "SELECT * FROM information_schema.tables WHERE table_schema = 'public';";
 
 export function QueriesPane({ tokenState }: QueriesPaneProps) {
   const ui = useUiText();
@@ -58,7 +58,9 @@ export function QueriesPane({ tokenState }: QueriesPaneProps) {
   return (
     <SectionCard
       title={ui("Queries")}
-      description={ui("Run SELECT / INSERT / UPDATE / DELETE against your database. Queries respect row-level security.")}
+      description={ui(
+        "Run SELECT / INSERT / UPDATE / DELETE against your database. Queries respect row-level security.",
+      )}
     >
       <div className="space-y-3">
         <textarea
@@ -78,8 +80,16 @@ export function QueriesPane({ tokenState }: QueriesPaneProps) {
             disabled={running || !sql.trim()}
             className="inline-flex items-center gap-1.5 rounded-md bg-primary px-4 py-1.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
           >
-            {running ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Play className="h-3.5 w-3.5" />} {ui("Run")} </button>
-          <span className="text-xs text-muted-foreground">{ui("⌘/Ctrl + Enter")}</span>
+            {running ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Play className="h-3.5 w-3.5" />
+            )}{" "}
+            {ui("Run")}{" "}
+          </button>
+          <span className="text-xs text-muted-foreground">
+            {ui("⌘/Ctrl + Enter")}
+          </span>
           {result && !error && (
             <span className="ml-auto text-xs text-muted-foreground">
               {result.rowCount} {result.rowCount === 1 ? ui("row") : ui("rows")}
@@ -87,18 +97,28 @@ export function QueriesPane({ tokenState }: QueriesPaneProps) {
           )}
         </div>
 
-        {error && <p className="text-sm text-destructive whitespace-pre-wrap">{ui(error)}</p>}
+        {error && (
+          <p className="text-sm text-destructive whitespace-pre-wrap">
+            {ui(error)}
+          </p>
+        )}
 
-        {result && !error && (
-          columns.length === 0 ? (
-            <p className="py-2 text-sm text-muted-foreground">{ui("Query OK — no rows returned.")}</p>
+        {result &&
+          !error &&
+          (columns.length === 0 ? (
+            <p className="py-2 text-sm text-muted-foreground">
+              {ui("Query OK — no rows returned.")}
+            </p>
           ) : (
             <div className="overflow-x-auto rounded-md border">
               <table className="w-full text-xs">
                 <thead className="bg-muted/50">
                   <tr>
                     {columns.map((col) => (
-                      <th key={col} className="border-b px-3 py-2 text-left font-medium text-muted-foreground">
+                      <th
+                        key={col}
+                        className="border-b px-3 py-2 text-left font-medium text-muted-foreground"
+                      >
                         {col}
                       </th>
                     ))}
@@ -106,12 +126,22 @@ export function QueriesPane({ tokenState }: QueriesPaneProps) {
                 </thead>
                 <tbody>
                   {rows.map((row, i) => (
-                    <tr key={i} className="border-b border-muted/40 hover:bg-muted/20">
+                    <tr
+                      key={i}
+                      className="border-b border-muted/40 hover:bg-muted/20"
+                    >
                       {columns.map((col) => (
-                        <td key={col} className="max-w-xs truncate px-3 py-1.5 font-mono">
-                          {row[col] === null
-                            ? <span className="italic text-muted-foreground">{ui("null")}</span>
-                            : String(row[col])}
+                        <td
+                          key={col}
+                          className="max-w-xs truncate px-3 py-1.5 font-mono"
+                        >
+                          {row[col] === null ? (
+                            <span className="italic text-muted-foreground">
+                              {ui("null")}
+                            </span>
+                          ) : (
+                            String(row[col])
+                          )}
                         </td>
                       ))}
                     </tr>
@@ -119,8 +149,7 @@ export function QueriesPane({ tokenState }: QueriesPaneProps) {
                 </tbody>
               </table>
             </div>
-          )
-        )}
+          ))}
       </div>
     </SectionCard>
   );

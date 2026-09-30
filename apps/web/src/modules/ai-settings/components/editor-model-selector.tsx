@@ -1,10 +1,17 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState, useEffect, useRef, useMemo } from "react";
-import { Bot, ChevronDown, ExternalLink, Lock, Eye, Wrench, Wifi } from "lucide-react";
+import {
+  Bot,
+  ChevronDown,
+  ExternalLink,
+  Lock,
+  Eye,
+  Wrench,
+  Wifi,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 // ─── Types ─────────────────────────────────────────────────
@@ -33,7 +40,11 @@ interface Props {
   selectedModelId: string;
   selectedProviderId: string | null;
   selectedCopilotAccountId: string | null;
-  onSelect: (modelId: string, providerId: string | null, copilotAccountId: string | null) => void;
+  onSelect: (
+    modelId: string,
+    providerId: string | null,
+    copilotAccountId: string | null,
+  ) => void;
   models: ModelOption[];
   disabled?: boolean;
   enforcedLabel?: string;
@@ -53,7 +64,11 @@ const DEFAULT_MODELS: ModelOption[] = [
 
 // ─── Health Status Dot ─────────────────────────────────────
 
-function HealthDot({ status }: { status?: "healthy" | "degraded" | "down" | "unknown" }) {
+function HealthDot({
+  status,
+}: {
+  status?: "healthy" | "degraded" | "down" | "unknown";
+}) {
   const color =
     status === "healthy"
       ? "bg-green-500"
@@ -63,9 +78,7 @@ function HealthDot({ status }: { status?: "healthy" | "degraded" | "down" | "unk
           ? "bg-red-500"
           : "bg-zinc-500";
 
-  return (
-    <span className={`inline-block h-1.5 w-1.5 rounded-full ${color}`} />
-  );
+  return <span className={`inline-block h-1.5 w-1.5 rounded-full ${color}`} />;
 }
 
 // ─── Capability Badges ─────────────────────────────────────
@@ -136,7 +149,10 @@ function LatencyHint({ ms }: { ms?: number }) {
   if (ms == null || ms <= 0) return null;
   const label = ms < 1000 ? `${ms}ms` : `${(ms / 1000).toFixed(1)}s`;
   return (
-    <span className="text-[9px] text-muted-foreground ml-1" title={ui("Last health check latency")}>
+    <span
+      className="text-[9px] text-muted-foreground ml-1"
+      title={ui("Last health check latency")}
+    >
       {label}
     </span>
   );
@@ -177,8 +193,13 @@ export function EditorModelSelector({
   const customModels = allModels.filter((m) => m.group === "custom");
 
   // Group custom models by provider
-  const providerGroups = useMemo(() => groupByProvider(customModels), [customModels]);
-  const hasProviderGroups = providerGroups.length > 0 && providerGroups.some((g) => g.models.length > 0);
+  const providerGroups = useMemo(
+    () => groupByProvider(customModels),
+    [customModels],
+  );
+  const hasProviderGroups =
+    providerGroups.length > 0 &&
+    providerGroups.some((g) => g.models.length > 0);
 
   // When disabled (enforcement active), render a locked indicator.
   // Must come AFTER all hook calls to keep hook order stable across renders.
@@ -186,7 +207,9 @@ export function EditorModelSelector({
     return (
       <div className="flex items-center gap-1.5 rounded-full border border-border px-2.5 h-7 text-[12px] text-muted-foreground cursor-not-allowed">
         <Lock className="h-3 w-3" />
-        <span className="max-w-[100px] truncate">{enforcedLabel || ui("Locked")}</span>
+        <span className="max-w-[100px] truncate">
+          {enforcedLabel || ui("Locked")}
+        </span>
       </div>
     );
   }
@@ -207,7 +230,10 @@ export function EditorModelSelector({
       {open && (
         <div className="absolute bottom-full mb-1 left-0 z-50 w-64 max-h-80 overflow-y-auto rounded-lg border border-border bg-popover shadow-xl py-1">
           {/* Copilot Models */}
-          <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> {ui("Copilot Models")} </div>
+          <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            {" "}
+            {ui("Copilot Models")}{" "}
+          </div>
           {copilotModels.map((m) => (
             <button
               key={m.id}
@@ -222,7 +248,10 @@ export function EditorModelSelector({
               }`}
             >
               <span className="truncate">{m.label}</span>
-              <CapabilityBadges supportsVision={m.supportsVision} supportsTools={m.supportsTools} />
+              <CapabilityBadges
+                supportsVision={m.supportsVision}
+                supportsTools={m.supportsTools}
+              />
             </button>
           ))}
 
@@ -238,7 +267,8 @@ export function EditorModelSelector({
                     <span className="truncate">{group.name}</span>
                     {group.isLocal && (
                       <span className="inline-flex items-center gap-0.5 rounded-full bg-secondary px-1.5 py-px text-[8px] font-medium text-muted-foreground normal-case tracking-normal">
-                        <Wifi className="h-2 w-2" /> {ui("Local")} </span>
+                        <Wifi className="h-2 w-2" /> {ui("Local")}{" "}
+                      </span>
                     )}
                     <LatencyHint ms={group.healthLatencyMs} />
                   </div>
@@ -251,13 +281,17 @@ export function EditorModelSelector({
                         setOpen(false);
                       }}
                       className={`flex w-full items-center gap-2 px-3 pl-5 py-1.5 text-sm transition-colors ${
-                        selectedModelId === m.id && selectedProviderId === m.providerId
+                        selectedModelId === m.id &&
+                        selectedProviderId === m.providerId
                           ? "bg-brand-600/20 text-brand-300"
                           : "text-foreground hover:bg-accent"
                       }`}
                     >
                       <span className="truncate">{m.label}</span>
-                      <CapabilityBadges supportsVision={m.supportsVision} supportsTools={m.supportsTools} />
+                      <CapabilityBadges
+                        supportsVision={m.supportsVision}
+                        supportsTools={m.supportsTools}
+                      />
                     </button>
                   ))}
                 </div>
@@ -274,7 +308,8 @@ export function EditorModelSelector({
             }}
             className="flex w-full items-center gap-2 px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            <ExternalLink className="h-3 w-3" /> {ui("Manage AI Settings")} </button>
+            <ExternalLink className="h-3 w-3" /> {ui("Manage AI Settings")}{" "}
+          </button>
         </div>
       )}
     </div>

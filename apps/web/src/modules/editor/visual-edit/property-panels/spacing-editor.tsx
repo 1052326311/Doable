@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState } from "react";
 import {
@@ -80,10 +79,18 @@ function SpacingGroup({
           {label}
         </span>
         <div className="flex flex-1 items-center gap-1 font-mono text-[11px] text-muted-foreground">
-          <span className="rounded bg-secondary px-1.5 py-0.5">{values.top}</span>
-          <span className="rounded bg-secondary px-1.5 py-0.5">{values.right}</span>
-          <span className="rounded bg-secondary px-1.5 py-0.5">{values.bottom}</span>
-          <span className="rounded bg-secondary px-1.5 py-0.5">{values.left}</span>
+          <span className="rounded bg-secondary px-1.5 py-0.5">
+            {values.top}
+          </span>
+          <span className="rounded bg-secondary px-1.5 py-0.5">
+            {values.right}
+          </span>
+          <span className="rounded bg-secondary px-1.5 py-0.5">
+            {values.bottom}
+          </span>
+          <span className="rounded bg-secondary px-1.5 py-0.5">
+            {values.left}
+          </span>
         </div>
       </div>
     );
@@ -141,7 +148,9 @@ export function SpacingEditor({
       {/* Section Header */}
       <div className="flex items-center gap-2 px-3 py-2">
         <Move className="h-3.5 w-3.5 text-muted-foreground" />
-        <span className="flex-1 text-xs font-medium text-foreground">{ui("Spacing")}</span>
+        <span className="flex-1 text-xs font-medium text-foreground">
+          {ui("Spacing")}
+        </span>
         <button
           onClick={() => setExpanded((prev) => !prev)}
           className="rounded p-0.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

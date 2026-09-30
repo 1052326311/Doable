@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -34,20 +33,26 @@ interface PlanLimitRow {
 
 interface PlanLimitsResponse {
   data: PlanLimitRow[];
-  defaults: Record<string, {
-    maxProjects: number;
-    maxMembers: number;
-    dailyCredits: number;
-    monthlyCredits: number;
-    maxFileSize: number;
-    customDomains: boolean;
-    analytics: boolean;
-    prioritySupport: boolean;
-  }>;
+  defaults: Record<
+    string,
+    {
+      maxProjects: number;
+      maxMembers: number;
+      dailyCredits: number;
+      monthlyCredits: number;
+      maxFileSize: number;
+      customDomains: boolean;
+      analytics: boolean;
+      prioritySupport: boolean;
+    }
+  >;
 }
 
 const PLAN_ORDER = ["free", "pro", "business", "enterprise"];
-const PLAN_DISPLAY: Record<string, { label: string; emoji: string; color: string }> = {
+const PLAN_DISPLAY: Record<
+  string,
+  { label: string; emoji: string; color: string }
+> = {
   free: { label: "Free", emoji: "🆓", color: "text-zinc-400" },
   pro: { label: "Pro", emoji: "⭐", color: "text-brand-400" },
   business: { label: "Business", emoji: "🏢", color: "text-purple-400" },
@@ -61,12 +66,17 @@ export function PlanLimitsPanel() {
   const i18n_PLAN_DISPLAY = useUiData(PLAN_DISPLAY);
 
   const [limits, setLimits] = useState<PlanLimitRow[]>([]);
-  const [defaults, setDefaults] = useState<PlanLimitsResponse["defaults"] | null>(null);
+  const [defaults, setDefaults] = useState<
+    PlanLimitsResponse["defaults"] | null
+  >(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
   const [editPlan, setEditPlan] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Partial<PlanLimitRow>>({});
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{
+    type: "success" | "error";
+    text: string;
+  } | null>(null);
 
   const fetchLimits = useCallback(async () => {
     try {
@@ -81,7 +91,9 @@ export function PlanLimitsPanel() {
     }
   }, [ui]);
 
-  useEffect(() => { fetchLimits(); }, [fetchLimits]);
+  useEffect(() => {
+    fetchLimits();
+  }, [fetchLimits]);
 
   const startEdit = (row: PlanLimitRow) => {
     setEditPlan(row.plan);
@@ -106,7 +118,10 @@ export function PlanLimitsPanel() {
         method: "PUT",
         body: JSON.stringify(editValues),
       });
-      setMessage({ type: "success", text: `${i18n_PLAN_DISPLAY[editPlan]?.label ?? editPlan} plan limits saved` });
+      setMessage({
+        type: "success",
+        text: `${i18n_PLAN_DISPLAY[editPlan]?.label ?? editPlan} plan limits saved`,
+      });
       setEditPlan(null);
       await fetchLimits();
     } catch (e) {
@@ -121,7 +136,10 @@ export function PlanLimitsPanel() {
     setMessage(null);
     try {
       await apiFetch(`/admin/plan-limits/${plan}/reset`, { method: "PUT" });
-      setMessage({ type: "success", text: `${i18n_PLAN_DISPLAY[plan]?.label ?? plan} plan reset to defaults` });
+      setMessage({
+        type: "success",
+        text: `${i18n_PLAN_DISPLAY[plan]?.label ?? plan} plan reset to defaults`,
+      });
       if (editPlan === plan) setEditPlan(null);
       await fetchLimits();
     } catch (e) {
@@ -155,19 +173,35 @@ export function PlanLimitsPanel() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-muted-foreground"> {ui("Configure limits for each plan tier. Changes take effect immediately for all users on that plan. Set values to override defaults, or reset to use hardcoded defaults.")} </p>
+          <p className="text-xs text-muted-foreground">
+            {" "}
+            {ui(
+              "Configure limits for each plan tier. Changes take effect immediately for all users on that plan. Set values to override defaults, or reset to use hardcoded defaults.",
+            )}{" "}
+          </p>
         </div>
-        <Button onClick={fetchLimits} variant="outline" className="gap-2 text-sm">
-          <RotateCcw className="h-3.5 w-3.5" /> {ui("Refresh")} </Button>
+        <Button
+          onClick={fetchLimits}
+          variant="outline"
+          className="gap-2 text-sm"
+        >
+          <RotateCcw className="h-3.5 w-3.5" /> {ui("Refresh")}{" "}
+        </Button>
       </div>
 
       {message && (
-        <div className={`rounded-lg border px-4 py-2 text-sm flex items-center gap-2 ${
-          message.type === "success"
-            ? "border-green-800/50 bg-green-900/20 text-green-400"
-            : "border-red-800/50 bg-red-900/20 text-red-400"
-        }`}>
-          {message.type === "success" ? <Check className="h-4 w-4" /> : <AlertTriangle className="h-4 w-4" />}
+        <div
+          className={`rounded-lg border px-4 py-2 text-sm flex items-center gap-2 ${
+            message.type === "success"
+              ? "border-green-800/50 bg-green-900/20 text-green-400"
+              : "border-red-800/50 bg-red-900/20 text-red-400"
+          }`}
+        >
+          {message.type === "success" ? (
+            <Check className="h-4 w-4" />
+          ) : (
+            <AlertTriangle className="h-4 w-4" />
+          )}
           {message.text}
         </div>
       )}
@@ -182,14 +216,22 @@ export function PlanLimitsPanel() {
           const isSaving = saving === planKey;
 
           return (
-            <div key={planKey} className="rounded-lg border border-border bg-card p-4">
+            <div
+              key={planKey}
+              className="rounded-lg border border-border bg-card p-4"
+            >
               {/* Plan Header */}
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <span className="text-lg">{display.emoji}</span>
-                  <h3 className={`font-semibold ${display.color}`}>{display.label}</h3>
+                  <h3 className={`font-semibold ${display.color}`}>
+                    {display.label}
+                  </h3>
                   {row.isOverridden && (
-                    <span className="text-[10px] bg-amber-900/30 text-amber-400 border border-amber-800/50 px-1.5 py-0.5 rounded-full font-medium"> {ui("CUSTOMIZED")} </span>
+                    <span className="text-[10px] bg-amber-900/30 text-amber-400 border border-amber-800/50 px-1.5 py-0.5 rounded-full font-medium">
+                      {" "}
+                      {ui("CUSTOMIZED")}{" "}
+                    </span>
                   )}
                 </div>
                 <div className="flex items-center gap-2">
@@ -200,20 +242,39 @@ export function PlanLimitsPanel() {
                       variant="outline"
                       className="text-xs h-7 px-2 gap-1"
                     >
-                      <RotateCcw className="h-3 w-3" /> {ui("Reset")} </Button>
+                      <RotateCcw className="h-3 w-3" /> {ui("Reset")}{" "}
+                    </Button>
                   )}
                   {!isEditing ? (
-                    <Button onClick={() => startEdit(row)} variant="outline" className="text-xs h-7 px-2 gap-1">
-                      <CreditCard className="h-3 w-3" /> {ui("Edit")} </Button>
+                    <Button
+                      onClick={() => startEdit(row)}
+                      variant="outline"
+                      className="text-xs h-7 px-2 gap-1"
+                    >
+                      <CreditCard className="h-3 w-3" /> {ui("Edit")}{" "}
+                    </Button>
                   ) : (
                     <>
-                      <Button onClick={() => setEditPlan(null)} variant="outline" className="text-xs h-7 px-2"> {ui("Cancel")} </Button>
+                      <Button
+                        onClick={() => setEditPlan(null)}
+                        variant="outline"
+                        className="text-xs h-7 px-2"
+                      >
+                        {" "}
+                        {ui("Cancel")}{" "}
+                      </Button>
                       <Button
                         onClick={handleSave}
                         disabled={isSaving}
                         className="text-xs h-7 px-2 gap-1 bg-brand-600 hover:bg-brand-700 text-white"
                       >
-                        {isSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Save className="h-3 w-3" />} {ui("Save")} </Button>
+                        {isSaving ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          <Save className="h-3 w-3" />
+                        )}{" "}
+                        {ui("Save")}{" "}
+                      </Button>
                     </>
                   )}
                 </div>
@@ -222,30 +283,105 @@ export function PlanLimitsPanel() {
               {/* Limits Grid */}
               {isEditing ? (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <LimitInput label={ui("Max Projects")} value={editValues.maxProjects} onChange={(v) => setEditValues({ ...editValues, maxProjects: v })} />
-                  <LimitInput label={ui("Max Members")} value={editValues.maxMembers} onChange={(v) => setEditValues({ ...editValues, maxMembers: v })} />
-                  <LimitInput label={ui("Daily Credits")} value={editValues.dailyCredits} onChange={(v) => setEditValues({ ...editValues, dailyCredits: v })} />
-                  <LimitInput label={ui("Monthly Credits")} value={editValues.monthlyCredits} onChange={(v) => setEditValues({ ...editValues, monthlyCredits: v })} />
-                  <FileSizeInput label={ui("Max File Size")} value={editValues.maxFileSize} onChange={(v) => setEditValues({ ...editValues, maxFileSize: v })} />
-                  <BoolInput label={ui("Custom Domains")} value={editValues.customDomains} onChange={(v) => setEditValues({ ...editValues, customDomains: v })} />
-                  <BoolInput label={ui("Analytics")} value={editValues.analytics} onChange={(v) => setEditValues({ ...editValues, analytics: v })} />
-                  <BoolInput label={ui("Priority Support")} value={editValues.prioritySupport} onChange={(v) => setEditValues({ ...editValues, prioritySupport: v })} />
+                  <LimitInput
+                    label={ui("Max Projects")}
+                    value={editValues.maxProjects}
+                    onChange={(v) =>
+                      setEditValues({ ...editValues, maxProjects: v })
+                    }
+                  />
+                  <LimitInput
+                    label={ui("Max Members")}
+                    value={editValues.maxMembers}
+                    onChange={(v) =>
+                      setEditValues({ ...editValues, maxMembers: v })
+                    }
+                  />
+                  <LimitInput
+                    label={ui("Daily Credits")}
+                    value={editValues.dailyCredits}
+                    onChange={(v) =>
+                      setEditValues({ ...editValues, dailyCredits: v })
+                    }
+                  />
+                  <LimitInput
+                    label={ui("Monthly Credits")}
+                    value={editValues.monthlyCredits}
+                    onChange={(v) =>
+                      setEditValues({ ...editValues, monthlyCredits: v })
+                    }
+                  />
+                  <FileSizeInput
+                    label={ui("Max File Size")}
+                    value={editValues.maxFileSize}
+                    onChange={(v) =>
+                      setEditValues({ ...editValues, maxFileSize: v })
+                    }
+                  />
+                  <BoolInput
+                    label={ui("Custom Domains")}
+                    value={editValues.customDomains}
+                    onChange={(v) =>
+                      setEditValues({ ...editValues, customDomains: v })
+                    }
+                  />
+                  <BoolInput
+                    label={ui("Analytics")}
+                    value={editValues.analytics}
+                    onChange={(v) =>
+                      setEditValues({ ...editValues, analytics: v })
+                    }
+                  />
+                  <BoolInput
+                    label={ui("Priority Support")}
+                    value={editValues.prioritySupport}
+                    onChange={(v) =>
+                      setEditValues({ ...editValues, prioritySupport: v })
+                    }
+                  />
                 </div>
               ) : (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <LimitDisplay label={ui("Max Projects")} value={formatNumber(row.maxProjects)} />
-                  <LimitDisplay label={ui("Max Members")} value={formatNumber(row.maxMembers)} />
-                  <LimitDisplay label={ui("Daily Credits")} value={formatNumber(row.dailyCredits)} />
-                  <LimitDisplay label={ui("Monthly Credits")} value={formatNumber(row.monthlyCredits)} />
-                  <LimitDisplay label={ui("Max File Size")} value={formatFileSize(row.maxFileSize)} />
-                  <LimitDisplay label={ui("Custom Domains")} value={row.customDomains ? "✓" : "✗"} />
-                  <LimitDisplay label={ui("Analytics")} value={row.analytics ? "✓" : "✗"} />
-                  <LimitDisplay label={ui("Priority Support")} value={row.prioritySupport ? "✓" : "✗"} />
+                  <LimitDisplay
+                    label={ui("Max Projects")}
+                    value={formatNumber(row.maxProjects)}
+                  />
+                  <LimitDisplay
+                    label={ui("Max Members")}
+                    value={formatNumber(row.maxMembers)}
+                  />
+                  <LimitDisplay
+                    label={ui("Daily Credits")}
+                    value={formatNumber(row.dailyCredits)}
+                  />
+                  <LimitDisplay
+                    label={ui("Monthly Credits")}
+                    value={formatNumber(row.monthlyCredits)}
+                  />
+                  <LimitDisplay
+                    label={ui("Max File Size")}
+                    value={formatFileSize(row.maxFileSize)}
+                  />
+                  <LimitDisplay
+                    label={ui("Custom Domains")}
+                    value={row.customDomains ? "✓" : "✗"}
+                  />
+                  <LimitDisplay
+                    label={ui("Analytics")}
+                    value={row.analytics ? "✓" : "✗"}
+                  />
+                  <LimitDisplay
+                    label={ui("Priority Support")}
+                    value={row.prioritySupport ? "✓" : "✗"}
+                  />
                 </div>
               )}
 
               {row.updatedAt && (
-                <p className="text-[10px] text-muted-foreground mt-2"> {ui("Last updated:")} {new Date(row.updatedAt).toLocaleString(ui.locale)}
+                <p className="text-[10px] text-muted-foreground mt-2">
+                  {" "}
+                  {ui("Last updated:")}{" "}
+                  {new Date(row.updatedAt).toLocaleString(ui.locale)}
                 </p>
               )}
             </div>
@@ -261,17 +397,29 @@ export function PlanLimitsPanel() {
 function LimitDisplay({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md bg-muted/50 px-3 py-2">
-      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
+      <p className="text-[10px] text-muted-foreground uppercase tracking-wide">
+        {label}
+      </p>
       <p className="text-sm font-medium text-foreground mt-0.5">{value}</p>
     </div>
   );
 }
 
-function LimitInput({ label, value, onChange }: { label: string; value: number | undefined; onChange: (v: number) => void }) {
+function LimitInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number | undefined;
+  onChange: (v: number) => void;
+}) {
   const displayValue = value != null && isFinite(value) ? value : "";
   return (
     <div className="rounded-md bg-muted/50 px-3 py-2">
-      <label className="text-[10px] text-muted-foreground uppercase tracking-wide block mb-1">{label}</label>
+      <label className="text-[10px] text-muted-foreground uppercase tracking-wide block mb-1">
+        {label}
+      </label>
       <input
         type="number"
         min="0"
@@ -283,13 +431,23 @@ function LimitInput({ label, value, onChange }: { label: string; value: number |
   );
 }
 
-function FileSizeInput({ label, value, onChange }: { label: string; value: number | undefined; onChange: (v: number) => void }) {
+function FileSizeInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: number | undefined;
+  onChange: (v: number) => void;
+}) {
   const ui = useUiText();
 
   const mbValue = value != null ? Math.round(value / 1048576) : "";
   return (
     <div className="rounded-md bg-muted/50 px-3 py-2">
-      <label className="text-[10px] text-muted-foreground uppercase tracking-wide block mb-1">{label} {ui("(MB)")}</label>
+      <label className="text-[10px] text-muted-foreground uppercase tracking-wide block mb-1">
+        {label} {ui("(MB)")}
+      </label>
       <input
         type="number"
         min="1"
@@ -301,10 +459,20 @@ function FileSizeInput({ label, value, onChange }: { label: string; value: numbe
   );
 }
 
-function BoolInput({ label, value, onChange }: { label: string; value: boolean | undefined; onChange: (v: boolean) => void }) {
+function BoolInput({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value: boolean | undefined;
+  onChange: (v: boolean) => void;
+}) {
   return (
     <div className="rounded-md bg-muted/50 px-3 py-2 flex items-center gap-2">
-      <label className="text-[10px] text-muted-foreground uppercase tracking-wide flex-1">{label}</label>
+      <label className="text-[10px] text-muted-foreground uppercase tracking-wide flex-1">
+        {label}
+      </label>
       <button
         type="button"
         onClick={() => onChange(!value)}
@@ -312,9 +480,11 @@ function BoolInput({ label, value, onChange }: { label: string; value: boolean |
           value ? "bg-brand-600" : "bg-zinc-600"
         }`}
       >
-        <span className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
-          value ? "translate-x-4.5" : "translate-x-0.5"
-        }`} />
+        <span
+          className={`inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
+            value ? "translate-x-4.5" : "translate-x-0.5"
+          }`}
+        />
       </button>
     </div>
   );

@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -125,7 +124,9 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
   const [showKey, setShowKey] = useState(false);
   const [model, setModel] = useState("");
   const [customBaseUrl, setCustomBaseUrl] = useState("");
-  const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">("idle");
+  const [status, setStatus] = useState<"idle" | "saving" | "success" | "error">(
+    "idle",
+  );
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [query, setQuery] = useState("");
   const [showAll, setShowAll] = useState(false);
@@ -138,36 +139,44 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
   // platform_config preference; with them, /setup/ai-provider also binds
   // workspace_ai_settings + platform_ai_defaults to use the chosen account
   // and model, so chat works the moment the wizard finishes.
-  const [copilotWorkspaceId, setCopilotWorkspaceId] = useState<string | null>(null);
+  const [copilotWorkspaceId, setCopilotWorkspaceId] = useState<string | null>(
+    null,
+  );
   const [copilotAccountId, setCopilotAccountId] = useState<string | null>(null);
-  const [copilotGithubLogin, setCopilotGithubLogin] = useState<string | null>(null);
+  const [copilotGithubLogin, setCopilotGithubLogin] = useState<string | null>(
+    null,
+  );
   const [copilotConnecting, setCopilotConnecting] = useState(false);
   const [copilotError, setCopilotError] = useState<string | null>(null);
-  const [copilotModel, setCopilotModel] = useState<string>(i18n_COPILOT_MODEL_OPTIONS[0]!.id);
+  const [copilotModel, setCopilotModel] = useState<string>(
+    i18n_COPILOT_MODEL_OPTIONS[0]!.id,
+  );
   // Live model list for the connected Copilot account. Populated post-OAuth
   // via /ai/models?copilotAccountId=…, which calls CopilotEngine.listModels()
   // on the server (5-min cached). Falls back to COPILOT_MODEL_OPTIONS if the
   // fetch fails so the wizard never strands the admin on an empty dropdown.
-  const [copilotModels, setCopilotModels] = useState<Array<{ id: string; label: string }>>(
-    i18n_COPILOT_MODEL_OPTIONS,
-  );
+  const [copilotModels, setCopilotModels] = useState<
+    Array<{ id: string; label: string }>
+  >(i18n_COPILOT_MODEL_OPTIONS);
   const [copilotModelsLoading, setCopilotModelsLoading] = useState(false);
   // Snapshot of copilot-account ids that exist BEFORE the popup is opened.
   // Used by the polling fallback to identify which account is the new one
   // when postMessage from the popup never lands (browser COOP clears
   // window.opener after the cross-origin trip through github.com on some
   // Chrome/Safari versions — see BUG-R34-O).
-  const [copilotBaselineAccountIds, setCopilotBaselineAccountIds] = useState<Set<string>>(
-    new Set(),
-  );
+  const [copilotBaselineAccountIds, setCopilotBaselineAccountIds] = useState<
+    Set<string>
+  >(new Set());
 
   // Fetch the admin's primary workspace once — we need its ID to scope the
   // copilot-account POST after OAuth. /workspaces returns the caller's
   // workspaces (auto-created on signup); the first is the admin's own.
   useEffect(() => {
-    apiFetch<Array<{ id: string }> | { data: Array<{ id: string }> }>("/workspaces")
+    apiFetch<Array<{ id: string }> | { data: Array<{ id: string }> }>(
+      "/workspaces",
+    )
       .then((res) => {
-        const list = Array.isArray(res) ? res : res?.data ?? [];
+        const list = Array.isArray(res) ? res : (res?.data ?? []);
         if (list.length > 0) setCopilotWorkspaceId(list[0]!.id);
       })
       .catch(() => {
@@ -185,7 +194,10 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
   useEffect(() => {
     function onMessage(e: MessageEvent) {
       if (e.origin !== window.location.origin) return;
-      const data = e.data as CopilotConnectedMessage | CopilotErrorMessage | undefined;
+      const data = e.data as
+        | CopilotConnectedMessage
+        | CopilotErrorMessage
+        | undefined;
       if (!data || typeof data !== "object" || !("type" in data)) return;
       if (data.type === "doable:copilot-connected" && data.ok) {
         setCopilotAccountId(data.accountId ?? null);
@@ -219,7 +231,10 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
           accountId?: string;
           githubLogin?: string;
         };
-        if (typeof data.accountId === "string" && typeof data.githubLogin === "string") {
+        if (
+          typeof data.accountId === "string" &&
+          typeof data.githubLogin === "string"
+        ) {
           setCopilotAccountId(data.accountId);
           setCopilotGithubLogin(data.githubLogin);
           setCopilotConnecting(false);
@@ -256,9 +271,7 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
       try {
         const res = await apiFetch<{
           data: Array<{ id: string; github_login: string }>;
-        }>(
-          `/workspaces/${copilotWorkspaceId}/ai-settings/copilot-accounts`,
-        );
+        }>(`/workspaces/${copilotWorkspaceId}/ai-settings/copilot-accounts`);
         if (cancelled) return;
         const fresh = (res.data ?? []).find(
           (a) => !copilotBaselineAccountIds.has(a.id),
@@ -274,7 +287,9 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
           if (!cancelled) {
             setCopilotConnecting(false);
             setCopilotError(
-              ui("Connection timed out. If you completed OAuth on GitHub, reload this page and check /admin/ai-settings."),
+              ui(
+                "Connection timed out. If you completed OAuth on GitHub, reload this page and check /admin/ai-settings.",
+              ),
             );
           }
         }
@@ -372,10 +387,16 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
     // (which Chrome/Safari COOP clears after the cross-origin trip) —
     // to decide NOT to redirect the popup to /admin/ai-settings.
     const url = `${API_URL}/auth/github/copilot?workspaceId=${encodeURIComponent(copilotWorkspaceId)}&scope=workspace&fromWizard=1`;
-    const popup = window.open(url, "doable-copilot-oauth", "width=600,height=720,popup=yes");
+    const popup = window.open(
+      url,
+      "doable-copilot-oauth",
+      "width=600,height=720,popup=yes",
+    );
     if (!popup) {
       setCopilotConnecting(false);
-      setCopilotError("Popup blocked — allow popups for this site and try again.");
+      setCopilotError(
+        "Popup blocked — allow popups for this site and try again.",
+      );
     }
   }
 
@@ -385,10 +406,13 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
   // special tiles (Copilot + BYOK URL). "Show all" appends the rest of the
   // catalog. Search applies after assembling the candidate list.
   const tiles = useMemo<SelectedTile[]>(() => {
-    const presetTiles: SelectedTile[] = (showAll ? [...PROVIDER_CATALOG] : popularPresets).map(
-      (p) => ({ kind: "preset", preset: p }),
-    );
-    const specialTiles: SelectedTile[] = i18n_SPECIAL_TILES.map((t) => ({ kind: "special", tile: t }));
+    const presetTiles: SelectedTile[] = (
+      showAll ? [...PROVIDER_CATALOG] : popularPresets
+    ).map((p) => ({ kind: "preset", preset: p }));
+    const specialTiles: SelectedTile[] = i18n_SPECIAL_TILES.map((t) => ({
+      kind: "special",
+      tile: t,
+    }));
     const all = [...presetTiles, ...specialTiles];
     if (!query.trim()) return all;
     const needle = query.trim().toLowerCase();
@@ -397,13 +421,17 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
         return (
           t.preset.name.toLowerCase().includes(needle) ||
           t.preset.id.toLowerCase().includes(needle) ||
-          (t.preset.description + ui(t.preset.description)).toLowerCase().includes(needle)
+          (t.preset.description + ui(t.preset.description))
+            .toLowerCase()
+            .includes(needle)
         );
       }
       return (
         t.tile.name.toLowerCase().includes(needle) ||
         t.tile.id.toLowerCase().includes(needle) ||
-        (t.tile.description + ui(t.tile.description)).toLowerCase().includes(needle)
+        (t.tile.description + ui(t.tile.description))
+          .toLowerCase()
+          .includes(needle)
       );
     });
   }, [ui, popularPresets, query, showAll]);
@@ -437,8 +465,10 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
 
   async function handleSave() {
     if (!selected) return;
-    const isCopilot = selected.kind === "special" && selected.tile.id === "github_copilot";
-    const isByokCustom = selected.kind === "special" && selected.tile.id === "byok-custom";
+    const isCopilot =
+      selected.kind === "special" && selected.tile.id === "github_copilot";
+    const isByokCustom =
+      selected.kind === "special" && selected.tile.id === "byok-custom";
     const isEditableUrlPreset =
       selected.kind === "preset" && selected.preset.baseUrlEditable;
     // Local providers (Ollama, LM Studio, vLLM, …) use authMethod="none" —
@@ -459,7 +489,9 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
           ? backendProviderFor(selected.preset)
           : backendProviderFor(selected.tile);
 
-      const body: Record<string, string | boolean> = { provider: backend.provider };
+      const body: Record<string, string | boolean> = {
+        provider: backend.provider,
+      };
       if (!isCopilot && apiKey.trim()) body.apiKey = apiKey.trim();
       // Editable-URL preset overrides defaultBaseUrl with operator-supplied value.
       if (isEditableUrlPreset && customBaseUrl.trim()) {
@@ -467,14 +499,17 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
       } else if (backend.baseUrl) {
         body.baseUrl = backend.baseUrl;
       }
-      if (isByokCustom && customBaseUrl.trim()) body.baseUrl = customBaseUrl.trim();
+      if (isByokCustom && customBaseUrl.trim())
+        body.baseUrl = customBaseUrl.trim();
       // Always send a model: prefer what the user typed/selected, then fall
       // back to the catalog default for the selected preset. Without a model
       // the API writes NULL into default_provider_model / suggestion_provider_model
       // / platform_ai_defaults, causing "No model available" errors at chat time.
       const resolvedModel =
         model.trim() ||
-        (selected?.kind === "preset" ? (selected.preset.defaultModels[0]?.id ?? "") : "");
+        (selected?.kind === "preset"
+          ? (selected.preset.defaultModels[0]?.id ?? "")
+          : "");
       // BUG-R26-004/005: without a model the API writes NULL into
       // default_provider_model + suggestion_provider_model, and chat then fails
       // with "No model available" on first use. Block save for every non-copilot
@@ -482,7 +517,11 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
       // model field, EditableUrlPresetForm). Copilot OAuth has no model picker.
       if (!isCopilot && !resolvedModel) {
         setStatus("error");
-        setErrorMsg(ui("Pick or type a model — chat needs one to know which engine to call."));
+        setErrorMsg(
+          ui(
+            "Pick or type a model — chat needs one to know which engine to call.",
+          ),
+        );
         return;
       }
       if (resolvedModel) body.model = resolvedModel;
@@ -495,7 +534,11 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
         // model under /admin/ai-settings.
         if (!copilotAccountId) {
           setStatus("error");
-          setErrorMsg(ui("Click \"Connect with GitHub\" first — Copilot needs a connected account before saving."));
+          setErrorMsg(
+            ui(
+              'Click "Connect with GitHub" first — Copilot needs a connected account before saving.',
+            ),
+          );
           return;
         }
         body.copilotAccountId = copilotAccountId;
@@ -505,13 +548,18 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
         body.setAsPlanDefault = setAsPlanDefault;
       }
 
-      await apiFetch("/setup/ai-provider", { method: "POST", body: JSON.stringify(body) });
+      await apiFetch("/setup/ai-provider", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
       setStatus("success");
       setApiKey("");
       setTimeout(onNext, 800);
     } catch (err) {
       setStatus("error");
-      setErrorMsg(err instanceof Error ? err.message : ui("Could not save. Try again."));
+      setErrorMsg(
+        err instanceof Error ? err.message : ui("Could not save. Try again."),
+      );
     }
   }
 
@@ -521,9 +569,18 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex flex-col gap-2">
-        <h2 className="text-2xl font-semibold text-foreground tracking-tight"> {ui("Connect an AI provider")} </h2>
-        <p className="text-sm text-muted-foreground"> {ui("Pick one to start — you can add more in")}{" "}
-          <span className="text-foreground font-medium">/admin/ai-providers</span> {ui("later.")} </p>
+        <h2 className="text-2xl font-semibold text-foreground tracking-tight">
+          {" "}
+          {ui("Connect an AI provider")}{" "}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {" "}
+          {ui("Pick one to start — you can add more in")}{" "}
+          <span className="text-foreground font-medium">
+            /admin/ai-providers
+          </span>{" "}
+          {ui("later.")}{" "}
+        </p>
       </div>
 
       {/* Search + Show all toggle */}
@@ -544,9 +601,12 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
             checked={showAll}
             onChange={(e) => setShowAll(e.target.checked)}
             className="h-3.5 w-3.5 rounded border-input"
-          /> {ui("Show all")} {totalCount} {ui("providers")} {!showAll && (
+          />{" "}
+          {ui("Show all")} {totalCount} {ui("providers")}{" "}
+          {!showAll && (
             <span className="text-muted-foreground/60">
-              ({popularCount} {ui("popular shown)")} </span>
+              ({popularCount} {ui("popular shown)")}{" "}
+            </span>
           )}
         </label>
       </div>
@@ -554,12 +614,19 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
       {/* Tile grid */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 max-h-[60vh] overflow-y-auto pr-1">
         {tiles.length === 0 && (
-          <div className="col-span-full text-center text-sm text-muted-foreground py-6"> {ui("No providers match “")}{query}{ui("”. Clear the search or toggle “Show all”.")} </div>
+          <div className="col-span-full text-center text-sm text-muted-foreground py-6">
+            {" "}
+            {ui("No providers match “")}
+            {query}
+            {ui("”. Clear the search or toggle “Show all”.")}{" "}
+          </div>
         )}
         {tiles.map((t) => {
           const isSelected = selected ? isSameTile(selected, t) : false;
           const name = ui(t.kind === "preset" ? t.preset.name : t.tile.name);
-          const description = ui(t.kind === "preset" ? t.preset.description : t.tile.description);
+          const description = ui(
+            t.kind === "preset" ? t.preset.description : t.tile.description,
+          );
           const free = t.kind === "preset" ? t.preset.freeTier : undefined;
           return (
             <div key={tileKey(t)} className="flex flex-col gap-0">
@@ -577,7 +644,9 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
                 <div
                   className={cn(
                     "mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-                    isSelected ? "border-brand-500 bg-brand-500" : "border-muted-foreground/40",
+                    isSelected
+                      ? "border-brand-500 bg-brand-500"
+                      : "border-muted-foreground/40",
                   )}
                 >
                   {isSelected && <Check className="h-2.5 w-2.5 text-white" />}
@@ -586,10 +655,15 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
                   <p className="text-sm font-medium text-foreground truncate">
                     {name}
                     {free && (
-                      <span className="ml-1.5 inline-block rounded bg-green-500/15 text-green-400 px-1.5 py-0.5 text-[10px] font-medium align-middle"> {ui("free tier")} </span>
+                      <span className="ml-1.5 inline-block rounded bg-green-500/15 text-green-400 px-1.5 py-0.5 text-[10px] font-medium align-middle">
+                        {" "}
+                        {ui("free tier")}{" "}
+                      </span>
                     )}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{description}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                    {description}
+                  </p>
                 </div>
               </button>
 
@@ -616,47 +690,51 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
                 />
               )}
 
-              {isSelected && t.kind === "special" && t.tile.id === "github_copilot" && (
-                <CopilotForm
-                  status={status}
-                  errorMsg={errorMsg}
-                  onSave={handleSave}
-                  copilotAccountId={copilotAccountId}
-                  copilotGithubLogin={copilotGithubLogin}
-                  copilotConnecting={copilotConnecting}
-                  copilotError={copilotError}
-                  copilotModel={copilotModel}
-                  onCopilotModelChange={setCopilotModel}
-                  copilotModels={copilotModels}
-                  copilotModelsLoading={copilotModelsLoading}
-                  onConnect={openCopilotPopup}
-                  workspaceReady={!!copilotWorkspaceId}
-                  setAsPlanDefault={setAsPlanDefault}
-                  onSetAsPlanDefaultChange={setSetAsPlanDefault}
-                />
-              )}
+              {isSelected &&
+                t.kind === "special" &&
+                t.tile.id === "github_copilot" && (
+                  <CopilotForm
+                    status={status}
+                    errorMsg={errorMsg}
+                    onSave={handleSave}
+                    copilotAccountId={copilotAccountId}
+                    copilotGithubLogin={copilotGithubLogin}
+                    copilotConnecting={copilotConnecting}
+                    copilotError={copilotError}
+                    copilotModel={copilotModel}
+                    onCopilotModelChange={setCopilotModel}
+                    copilotModels={copilotModels}
+                    copilotModelsLoading={copilotModelsLoading}
+                    onConnect={openCopilotPopup}
+                    workspaceReady={!!copilotWorkspaceId}
+                    setAsPlanDefault={setAsPlanDefault}
+                    onSetAsPlanDefaultChange={setSetAsPlanDefault}
+                  />
+                )}
 
-              {isSelected && t.kind === "special" && t.tile.id === "byok-custom" && (
-                <ByokCustomForm
-                  apiKey={apiKey}
-                  onApiKeyChange={(v) => {
-                    setApiKey(v);
-                    setStatus("idle");
-                    setErrorMsg(null);
-                  }}
-                  baseUrl={customBaseUrl}
-                  onBaseUrlChange={setCustomBaseUrl}
-                  model={model}
-                  onModelChange={setModel}
-                  showKey={showKey}
-                  onToggleShowKey={() => setShowKey((v) => !v)}
-                  status={status}
-                  errorMsg={errorMsg}
-                  onSave={handleSave}
-                  setAsPlanDefault={setAsPlanDefault}
-                  onSetAsPlanDefaultChange={setSetAsPlanDefault}
-                />
-              )}
+              {isSelected &&
+                t.kind === "special" &&
+                t.tile.id === "byok-custom" && (
+                  <ByokCustomForm
+                    apiKey={apiKey}
+                    onApiKeyChange={(v) => {
+                      setApiKey(v);
+                      setStatus("idle");
+                      setErrorMsg(null);
+                    }}
+                    baseUrl={customBaseUrl}
+                    onBaseUrlChange={setCustomBaseUrl}
+                    model={model}
+                    onModelChange={setModel}
+                    showKey={showKey}
+                    onToggleShowKey={() => setShowKey((v) => !v)}
+                    status={status}
+                    errorMsg={errorMsg}
+                    onSave={handleSave}
+                    setAsPlanDefault={setAsPlanDefault}
+                    onSetAsPlanDefaultChange={setSetAsPlanDefault}
+                  />
+                )}
             </div>
           );
         })}
@@ -665,32 +743,70 @@ export function Step2AIProvider({ onNext, onBack, onSkip }: StepProps) {
       <Step2EmbeddingPanel />
 
       <div className="rounded-lg border border-border/60 bg-muted/30 px-4 py-3 text-xs text-muted-foreground space-y-1">
-        <p> {ui("Tip: export any of 19 supported API key env vars (")}<code className="text-foreground">ANTHROPIC_API_KEY</code>,{" "}
+        <p>
+          {" "}
+          {ui("Tip: export any of 19 supported API key env vars (")}
+          <code className="text-foreground">ANTHROPIC_API_KEY</code>,{" "}
           <code className="text-foreground">OPENAI_API_KEY</code>,{" "}
           <code className="text-foreground">GEMINI_API_KEY</code>,{" "}
           <code className="text-foreground">OPENROUTER_API_KEY</code>,{" "}
           <code className="text-foreground">GROQ_API_KEY</code>,{" "}
-          <code className="text-foreground">DEEPSEEK_API_KEY</code>{ui(", …) before running")}{" "}
-          <code className="text-foreground">docker/setup.sh</code> {ui("and the matching provider is pre-configured here. See")} <code className="text-foreground">docker/setup.sh</code>{" "} {ui("banner for the full list.")} </p>
-        <p> {ui("Running a")} <span className="text-foreground font-medium">{ui("local model")}</span>{ui("? Search for")}{" "}
-          <code className="text-foreground">ollama</code>,{" "}
-          <code className="text-foreground">lm studio</code>{ui(", or")}{" "}
-          <code className="text-foreground">vllm</code> {ui("above — no API key needed, just point at")} <code className="text-foreground">http://localhost:&lt;port&gt;/v1</code>.
+          <code className="text-foreground">DEEPSEEK_API_KEY</code>
+          {ui(", …) before running")}{" "}
+          <code className="text-foreground">docker/setup.sh</code>{" "}
+          {ui("and the matching provider is pre-configured here. See")}{" "}
+          <code className="text-foreground">docker/setup.sh</code>{" "}
+          {ui("banner for the full list.")}{" "}
         </p>
-        <p> {ui("Doable does")} <span className="text-foreground font-medium">{ui("not")}</span> {ui("bundle, ship, or proxy any third-party AI keys — every key is BYOK (bring-your-own).")} </p>
+        <p>
+          {" "}
+          {ui("Running a")}{" "}
+          <span className="text-foreground font-medium">
+            {ui("local model")}
+          </span>
+          {ui("? Search for")} <code className="text-foreground">ollama</code>,{" "}
+          <code className="text-foreground">lm studio</code>
+          {ui(", or")} <code className="text-foreground">vllm</code>{" "}
+          {ui("above — no API key needed, just point at")}{" "}
+          <code className="text-foreground">
+            http://localhost:&lt;port&gt;/v1
+          </code>
+          .
+        </p>
+        <p>
+          {" "}
+          {ui("Doable does")}{" "}
+          <span className="text-foreground font-medium">{ui("not")}</span>{" "}
+          {ui(
+            "bundle, ship, or proxy any third-party AI keys — every key is BYOK (bring-your-own).",
+          )}{" "}
+        </p>
       </div>
 
       <div className="flex items-center justify-between pt-2">
-        <Button variant="ghost" onClick={onBack} className="gap-2 text-muted-foreground">
-          <ArrowLeft className="h-4 w-4" /> {ui("Back")} </Button>
+        <Button
+          variant="ghost"
+          onClick={onBack}
+          className="gap-2 text-muted-foreground"
+        >
+          <ArrowLeft className="h-4 w-4" /> {ui("Back")}{" "}
+        </Button>
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={onSkip}
             className="text-sm text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
-          > {ui("Skip for now")} </button>
+          >
+            {" "}
+            {ui("Skip for now")}{" "}
+          </button>
           {selected && status === "success" && (
-            <Button onClick={onNext} className="bg-brand-600 text-white hover:bg-brand-500 gap-2"> {ui("Continue")} <ArrowRight className="h-4 w-4" />
+            <Button
+              onClick={onNext}
+              className="bg-brand-600 text-white hover:bg-brand-500 gap-2"
+            >
+              {" "}
+              {ui("Continue")} <ArrowRight className="h-4 w-4" />
             </Button>
           )}
         </div>
@@ -741,8 +857,15 @@ function PresetForm({
       {preset.baseUrlEditable ? (
         <>
           <div className="flex items-center justify-between gap-2">
-            <label className="text-xs font-medium text-foreground"> {ui("Base URL")} {preset.baseUrlTemplate && (
-                <span className="ml-1 text-muted-foreground font-normal"> {ui("(replace")} {`{placeholders}`} {ui("with your values)")} </span>
+            <label className="text-xs font-medium text-foreground">
+              {" "}
+              {ui("Base URL")}{" "}
+              {preset.baseUrlTemplate && (
+                <span className="ml-1 text-muted-foreground font-normal">
+                  {" "}
+                  {ui("(replace")} {`{placeholders}`}{" "}
+                  {ui("with your values)")}{" "}
+                </span>
               )}
             </label>
             {preset.apiKeyHelpUrl && (
@@ -751,7 +874,9 @@ function PresetForm({
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300 underline underline-offset-2"
-              > {ui("Help")} <ExternalLink className="h-3 w-3" />
+              >
+                {" "}
+                {ui("Help")} <ExternalLink className="h-3 w-3" />
               </a>
             )}
           </div>
@@ -766,7 +891,10 @@ function PresetForm({
         </>
       ) : (
         <div className="flex items-center justify-between gap-2">
-          <span className="text-xs text-muted-foreground"> {ui("Base URL:")} <code className="text-foreground">{preset.defaultBaseUrl}</code>
+          <span className="text-xs text-muted-foreground">
+            {" "}
+            {ui("Base URL:")}{" "}
+            <code className="text-foreground">{preset.defaultBaseUrl}</code>
           </span>
           {preset.apiKeyHelpUrl && (
             <a
@@ -774,18 +902,30 @@ function PresetForm({
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-xs text-brand-400 hover:text-brand-300 underline underline-offset-2"
-            > {ui("Get key")} <ExternalLink className="h-3 w-3" />
+            >
+              {" "}
+              {ui("Get key")} <ExternalLink className="h-3 w-3" />
             </a>
           )}
         </div>
       )}
 
       {preset.authMethod === "none" ? (
-        <p className="text-xs text-muted-foreground"> {ui("This provider runs locally on your machine — no API key needed. Make sure the server is running at the URL above")} {preset.warnings && preset.warnings.length > 0 ? ui("; see warnings below") : ""}.
+        <p className="text-xs text-muted-foreground">
+          {" "}
+          {ui(
+            "This provider runs locally on your machine — no API key needed. Make sure the server is running at the URL above",
+          )}{" "}
+          {preset.warnings && preset.warnings.length > 0
+            ? ui("; see warnings below")
+            : ""}
+          .
         </p>
       ) : (
         <>
-          <label className="text-xs font-medium text-foreground">{ui("API key")}</label>
+          <label className="text-xs font-medium text-foreground">
+            {ui("API key")}
+          </label>
           <div className="relative">
             <input
               type={showKey ? "text" : "password"}
@@ -803,7 +943,11 @@ function PresetForm({
               className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
               tabIndex={-1}
             >
-              {showKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+              {showKey ? (
+                <EyeOff className="h-3.5 w-3.5" />
+              ) : (
+                <Eye className="h-3.5 w-3.5" />
+              )}
             </button>
           </div>
         </>
@@ -819,7 +963,9 @@ function PresetForm({
 
       {preset.defaultModels.length > 0 ? (
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-foreground">{ui("Default model")}</label>
+          <label className="text-xs font-medium text-foreground">
+            {ui("Default model")}
+          </label>
           <select
             value={model}
             onChange={(e) => onModelChange(e.target.value)}
@@ -834,7 +980,12 @@ function PresetForm({
         </div>
       ) : (
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-foreground"> {ui("Model ID")} <span className="ml-1 font-normal text-muted-foreground">{ui("(from provider's docs)")}</span>
+          <label className="text-xs font-medium text-foreground">
+            {" "}
+            {ui("Model ID")}{" "}
+            <span className="ml-1 font-normal text-muted-foreground">
+              {ui("(from provider's docs)")}
+            </span>
           </label>
           <input
             type="text"
@@ -905,7 +1056,12 @@ function CopilotForm({
     <div className="rounded-b-lg border border-t-0 border-brand-500/40 bg-card px-4 pb-4 pt-3 flex flex-col gap-3">
       {!connected && (
         <>
-          <p className="text-xs text-muted-foreground"> {ui("GitHub Copilot uses OAuth — no API key is needed. Click below to authorize Doable against your existing Copilot subscription. A popup window opens; once you authorize on github.com, it closes automatically and we return here to pick the default model.")} </p>
+          <p className="text-xs text-muted-foreground">
+            {" "}
+            {ui(
+              "GitHub Copilot uses OAuth — no API key is needed. Click below to authorize Doable against your existing Copilot subscription. A popup window opens; once you authorize on github.com, it closes automatically and we return here to pick the default model.",
+            )}{" "}
+          </p>
           <Button
             onClick={onConnect}
             disabled={copilotConnecting || !workspaceReady}
@@ -917,7 +1073,9 @@ function CopilotForm({
             ) : (
               <Github className="h-3.5 w-3.5" />
             )}
-            {copilotConnecting ? ui("Waiting for GitHub…") : ui("Connect with GitHub")}
+            {copilotConnecting
+              ? ui("Waiting for GitHub…")
+              : ui("Connect with GitHub")}
           </Button>
           {copilotError && (
             <p className="text-xs text-red-400">{copilotError}</p>
@@ -928,13 +1086,26 @@ function CopilotForm({
         <>
           <div className="flex items-start gap-2">
             <CheckCircle2 className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
-            <p className="text-xs text-muted-foreground leading-snug"> {ui("Connected as")}{" "}
-              <span className="text-foreground font-medium">@{copilotGithubLogin}</span>{ui(". Pick the default model below — you can change it any time in")}{" "}
+            <p className="text-xs text-muted-foreground leading-snug">
+              {" "}
+              {ui("Connected as")}{" "}
+              <span className="text-foreground font-medium">
+                @{copilotGithubLogin}
+              </span>
+              {ui(
+                ". Pick the default model below — you can change it any time in",
+              )}{" "}
               <code className="text-foreground">/admin/ai-settings</code>.
             </p>
           </div>
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="copilot-model" className="text-xs font-medium text-foreground flex items-center gap-2"> {ui("Default Copilot model")} {copilotModelsLoading && (
+            <label
+              htmlFor="copilot-model"
+              className="text-xs font-medium text-foreground flex items-center gap-2"
+            >
+              {" "}
+              {ui("Default Copilot model")}{" "}
+              {copilotModelsLoading && (
                 <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
               )}
             </label>
@@ -953,8 +1124,13 @@ function CopilotForm({
             </select>
             <p className="text-[11px] text-muted-foreground leading-snug">
               {copilotModelsLoading
-                ? ui("Fetching the live list of models your Copilot subscription includes…")
-                : ui("{v0} models available on your Copilot subscription. Tune further from /admin/ai-settings any time.", {v0: (copilotModels.length)})}
+                ? ui(
+                    "Fetching the live list of models your Copilot subscription includes…",
+                  )
+                : ui(
+                    "{v0} models available on your Copilot subscription. Tune further from /admin/ai-settings any time.",
+                    { v0: copilotModels.length },
+                  )}
             </p>
           </div>
           <SaveControls
@@ -1006,7 +1182,9 @@ function ByokCustomForm({
 
   return (
     <div className="rounded-b-lg border border-t-0 border-brand-500/40 bg-card px-4 pb-4 pt-3 flex flex-col gap-3">
-      <label className="text-xs font-medium text-foreground">{ui("Base URL")}</label>
+      <label className="text-xs font-medium text-foreground">
+        {ui("Base URL")}
+      </label>
       <input
         type="url"
         value={baseUrl}
@@ -1016,7 +1194,9 @@ function ByokCustomForm({
         className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-mono text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:ring-offset-background"
       />
 
-      <label className="text-xs font-medium text-foreground">{ui("API key")}</label>
+      <label className="text-xs font-medium text-foreground">
+        {ui("API key")}
+      </label>
       <div className="relative">
         <input
           type={showKey ? "text" : "password"}
@@ -1034,11 +1214,17 @@ function ByokCustomForm({
           className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           tabIndex={-1}
         >
-          {showKey ? <EyeOff className="h-3.5 w-3.5" /> : <Eye className="h-3.5 w-3.5" />}
+          {showKey ? (
+            <EyeOff className="h-3.5 w-3.5" />
+          ) : (
+            <Eye className="h-3.5 w-3.5" />
+          )}
         </button>
       </div>
 
-      <label className="text-xs font-medium text-foreground">{ui("Model")}</label>
+      <label className="text-xs font-medium text-foreground">
+        {ui("Model")}
+      </label>
       <input
         type="text"
         value={model}
@@ -1096,15 +1282,25 @@ function SaveControls({
             onChange={(e) => onSetAsPlanDefaultChange!(e.target.checked)}
             className="mt-0.5 h-3.5 w-3.5 rounded border-input"
           />
-          <span> {ui("Use this model as the default for every plan (Free, Pro, Business, Enterprise) and as the suggestions model. You can fine-tune per-plan and suggestions models later in")}{" "}
-            <span className="text-foreground font-medium">/admin/plan-defaults</span>.
+          <span>
+            {" "}
+            {ui(
+              "Use this model as the default for every plan (Free, Pro, Business, Enterprise) and as the suggestions model. You can fine-tune per-plan and suggestions models later in",
+            )}{" "}
+            <span className="text-foreground font-medium">
+              /admin/plan-defaults
+            </span>
+            .
           </span>
         </label>
       )}
-      {status === "error" && <p className="text-xs text-red-400">{ui(errorMsg)}</p>}
+      {status === "error" && (
+        <p className="text-xs text-red-400">{ui(errorMsg)}</p>
+      )}
       {status === "success" && (
         <p className="text-xs text-green-500 flex items-center gap-1">
-          <Check className="h-3 w-3" /> {ui("Saved")} </p>
+          <Check className="h-3 w-3" /> {ui("Saved")}{" "}
+        </p>
       )}
       <Button
         onClick={onSave}
@@ -1113,7 +1309,11 @@ function SaveControls({
         className="bg-brand-600 text-white hover:bg-brand-500 self-start gap-2"
       >
         {status === "saving" && <Loader2 className="h-3 w-3 animate-spin" />}
-        {status === "saving" ? ui("Validating…") : status === "success" ? ui("Saved") : ui("Validate & Save")}
+        {status === "saving"
+          ? ui("Validating…")
+          : status === "success"
+            ? ui("Saved")
+            : ui("Validate & Save")}
       </Button>
     </>
   );

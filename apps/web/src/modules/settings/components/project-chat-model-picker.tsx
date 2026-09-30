@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, RefreshCw } from "lucide-react";
@@ -45,13 +44,15 @@ export function ProjectChatModelPicker({
   const ui = useUiText();
 
   const { accounts, loading: accountsLoading } = useGitHubAccounts(workspaceId);
-  const { providers, loading: providersLoading } = useCustomProviders(workspaceId);
+  const { providers, loading: providersLoading } =
+    useCustomProviders(workspaceId);
 
   const [inherit, setInherit] = useState(() => !value);
   const [state, setState] = useState<ModelSectionState>(EMPTY_MODEL_STATE);
   const [initialized, setInitialized] = useState(false);
 
-  const activeCopilotId = state.source === "copilot" ? state.copilotAccountId : "";
+  const activeCopilotId =
+    state.source === "copilot" ? state.copilotAccountId : "";
   const activeProviderId = state.source === "custom" ? state.providerId : "";
 
   const { models: copilotModels, loadingModels: copilotModelsLoading } =
@@ -91,7 +92,11 @@ export function ProjectChatModelPicker({
       return;
     }
 
-    if (state.source === "custom" && state.providerId && providerModels.some((m) => m.id === value)) {
+    if (
+      state.source === "custom" &&
+      state.providerId &&
+      providerModels.some((m) => m.id === value)
+    ) {
       setState((s) => ({ ...s, providerModel: value }));
       setInitialized(true);
       return;
@@ -158,7 +163,7 @@ export function ProjectChatModelPicker({
 
   const handleInheritChange = (nextInherit: boolean) => {
     setInherit(nextInherit);
-    onChange(nextInherit ? null : modelFromState(state) ?? value);
+    onChange(nextInherit ? null : (modelFromState(state) ?? value));
   };
 
   const inheritLabel = defaultModel
@@ -190,7 +195,12 @@ export function ProjectChatModelPicker({
             data-testid="chat-model-inherit"
           />
           <p className="text-sm font-medium">{inheritLabel}</p>
-          <p className="mt-1 text-xs text-muted-foreground"> {ui("Use the model configured in AI Settings for this workspace.")} </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {" "}
+            {ui(
+              "Use the model configured in AI Settings for this workspace.",
+            )}{" "}
+          </p>
         </label>
         <label
           className={`cursor-pointer rounded-lg border p-3 transition-colors ${
@@ -207,8 +217,13 @@ export function ProjectChatModelPicker({
             className="sr-only"
             data-testid="chat-model-override-mode"
           />
-          <p className="text-sm font-medium">{ui("Override for this project")}</p>
-          <p className="mt-1 text-xs text-muted-foreground"> {ui("Pick a provider and model from your workspace catalog.")} </p>
+          <p className="text-sm font-medium">
+            {ui("Override for this project")}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {" "}
+            {ui("Pick a provider and model from your workspace catalog.")}{" "}
+          </p>
         </label>
       </div>
 
@@ -216,34 +231,55 @@ export function ProjectChatModelPicker({
         <div className="space-y-4 rounded-lg border bg-muted/20 p-4">
           {(accountsLoading || providersLoading) && (
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Loader2 className="h-4 w-4 animate-spin" /> {ui("Loading providers…")} </div>
+              <Loader2 className="h-4 w-4 animate-spin" />{" "}
+              {ui("Loading providers…")}{" "}
+            </div>
           )}
 
           <div>
-            <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted-foreground"> {ui("Provider source")} </label>
+            <label className="mb-2 block text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              {" "}
+              {ui("Provider source")}{" "}
+            </label>
             <div className="flex w-fit overflow-hidden rounded-lg border border-border">
               <button
                 type="button"
                 onClick={() =>
-                  applyState({ ...state, source: "copilot", providerId: "", providerModel: "" })
+                  applyState({
+                    ...state,
+                    source: "copilot",
+                    providerId: "",
+                    providerModel: "",
+                  })
                 }
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
                   state.source === "copilot"
                     ? "bg-brand-600 text-white"
                     : "bg-secondary text-muted-foreground hover:text-foreground"
                 }`}
-              > {ui("GitHub Copilot")} </button>
+              >
+                {" "}
+                {ui("GitHub Copilot")}{" "}
+              </button>
               <button
                 type="button"
                 onClick={() =>
-                  applyState({ ...state, source: "custom", copilotAccountId: "", copilotModel: "" })
+                  applyState({
+                    ...state,
+                    source: "custom",
+                    copilotAccountId: "",
+                    copilotModel: "",
+                  })
                 }
                 className={`px-4 py-2 text-sm font-medium transition-colors ${
                   state.source === "custom"
                     ? "bg-brand-600 text-white"
                     : "bg-secondary text-muted-foreground hover:text-foreground"
                 }`}
-              > {ui("Custom provider")} </button>
+              >
+                {" "}
+                {ui("Custom provider")}{" "}
+              </button>
             </div>
           </div>
 
@@ -251,11 +287,18 @@ export function ProjectChatModelPicker({
             {state.source === "copilot" ? (
               <>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground"> {ui("Account")} </label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                    {" "}
+                    {ui("Account")}{" "}
+                  </label>
                   <select
                     value={state.copilotAccountId}
                     onChange={(e) =>
-                      applyState({ ...state, copilotAccountId: e.target.value, copilotModel: "" })
+                      applyState({
+                        ...state,
+                        copilotAccountId: e.target.value,
+                        copilotModel: "",
+                      })
                     }
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-500"
                     data-testid="chat-model-copilot-account"
@@ -269,14 +312,21 @@ export function ProjectChatModelPicker({
                   </select>
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground"> {ui("Model")} </label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                    {" "}
+                    {ui("Model")}{" "}
+                  </label>
                   {copilotModelsLoading ? (
                     <div className="flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-xs text-muted-foreground">
-                      <Loader2 className="h-3 w-3 animate-spin" /> {ui("Loading models…")} </div>
+                      <Loader2 className="h-3 w-3 animate-spin" />{" "}
+                      {ui("Loading models…")}{" "}
+                    </div>
                   ) : (
                     <select
                       value={state.copilotModel}
-                      onChange={(e) => applyState({ ...state, copilotModel: e.target.value })}
+                      onChange={(e) =>
+                        applyState({ ...state, copilotModel: e.target.value })
+                      }
                       className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-500"
                       data-testid="chat-model-copilot-model"
                     >
@@ -295,11 +345,18 @@ export function ProjectChatModelPicker({
             ) : (
               <>
                 <div>
-                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground"> {ui("Provider")} </label>
+                  <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                    {" "}
+                    {ui("Provider")}{" "}
+                  </label>
                   <select
                     value={state.providerId}
                     onChange={(e) =>
-                      applyState({ ...state, providerId: e.target.value, providerModel: "" })
+                      applyState({
+                        ...state,
+                        providerId: e.target.value,
+                        providerModel: "",
+                      })
                     }
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-500"
                     data-testid="chat-model-provider"
@@ -312,15 +369,25 @@ export function ProjectChatModelPicker({
                     ))}
                   </select>
                   {validProviders.length === 0 && (
-                    <p className="mt-1 text-[10px] text-muted-foreground"> {ui("No workspace providers configured. Add one in")}{" "}
-                      <a href="/ai-settings" className="text-brand-400 underline"> {ui("AI Settings")} </a>
+                    <p className="mt-1 text-[10px] text-muted-foreground">
+                      {" "}
+                      {ui("No workspace providers configured. Add one in")}{" "}
+                      <a
+                        href="/ai-settings"
+                        className="text-brand-400 underline"
+                      >
+                        {" "}
+                        {ui("AI Settings")}{" "}
+                      </a>
                       .
                     </p>
                   )}
                 </div>
                 <div>
                   <div className="mb-1.5 flex items-center justify-between">
-                    <label className="text-xs font-medium text-muted-foreground">{ui("Model")}</label>
+                    <label className="text-xs font-medium text-muted-foreground">
+                      {ui("Model")}
+                    </label>
                     {state.providerId && (
                       <button
                         type="button"
@@ -328,17 +395,25 @@ export function ProjectChatModelPicker({
                         className="inline-flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground"
                         title={ui("Refresh model list")}
                       >
-                        <RefreshCw className="h-3 w-3" /> {ui("Refresh")} </button>
+                        <RefreshCw className="h-3 w-3" /> {ui("Refresh")}{" "}
+                      </button>
                     )}
                   </div>
                   {providerModelsLoading && state.providerId ? (
                     <div className="flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-xs text-muted-foreground">
-                      <Loader2 className="h-3 w-3 animate-spin" /> {ui("Loading models…")} </div>
+                      <Loader2 className="h-3 w-3 animate-spin" />{" "}
+                      {ui("Loading models…")}{" "}
+                    </div>
                   ) : showModelDropdown ? (
                     <>
                       <select
                         value={state.providerModel}
-                        onChange={(e) => applyState({ ...state, providerModel: e.target.value })}
+                        onChange={(e) =>
+                          applyState({
+                            ...state,
+                            providerModel: e.target.value,
+                          })
+                        }
                         className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:border-brand-500"
                         data-testid="chat-model-provider-model"
                       >
@@ -353,14 +428,18 @@ export function ProjectChatModelPicker({
                       </select>
                       {state.providerModel && (
                         <ModelCapabilityBadges
-                          model={providerModels.find((m) => m.id === state.providerModel)}
+                          model={providerModels.find(
+                            (m) => m.id === state.providerModel,
+                          )}
                         />
                       )}
                     </>
                   ) : (
                     <p className="rounded-lg border border-dashed px-3 py-2 text-xs text-muted-foreground">
                       {state.providerId
-                        ? ui("No models discovered yet. Click Refresh or check the provider in AI Settings.")
+                        ? ui(
+                            "No models discovered yet. Click Refresh or check the provider in AI Settings.",
+                          )
                         : ui("Select a provider first.")}
                     </p>
                   )}
@@ -370,7 +449,12 @@ export function ProjectChatModelPicker({
           </div>
 
           {value && !modelFromState(state) && (
-            <p className="text-xs text-amber-700 dark:text-amber-400"> {ui("Current saved override:")} <span className="font-mono">{value}</span> {ui("— pick a model above to update it.")} </p>
+            <p className="text-xs text-amber-700 dark:text-amber-400">
+              {" "}
+              {ui("Current saved override:")}{" "}
+              <span className="font-mono">{value}</span>{" "}
+              {ui("— pick a model above to update it.")}{" "}
+            </p>
           )}
         </div>
       )}

@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { Search, Filter, Plug, ChevronDown, Loader2, X } from "lucide-react";
@@ -67,7 +66,7 @@ export function IntegrationCatalog({
 
   const visibleAvailable = useMemo(
     () => availableItems.slice(0, visibleCount),
-    [availableItems, visibleCount]
+    [availableItems, visibleCount],
   );
   const hasMore = visibleCount < availableItems.length;
 
@@ -92,18 +91,18 @@ export function IntegrationCatalog({
         credentials?: Record<string, unknown>;
         displayName?: string;
         projectId?: string;
-      }
+      },
     ) => {
       await connect(integrationId, { ...data, projectId });
     },
-    [connect, projectId]
+    [connect, projectId],
   );
 
   const handleDisconnect = useCallback(
     (connectionId: string) => {
       void disconnect(connectionId);
     },
-    [disconnect]
+    [disconnect],
   );
 
   const handleConnectFlowClose = useCallback(
@@ -113,7 +112,7 @@ export function IntegrationCatalog({
         refresh();
       }
     },
-    [refresh]
+    [refresh],
   );
 
   const handleSheetClose = useCallback(() => {
@@ -159,7 +158,7 @@ export function IntegrationCatalog({
             "w-full rounded-lg border border-input bg-background pl-9 pr-8 py-2 text-sm",
             "placeholder:text-muted-foreground",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",
-            "transition-colors"
+            "transition-colors",
           )}
         />
         {searchInput && (
@@ -189,7 +188,7 @@ export function IntegrationCatalog({
                 "shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors",
                 category === cat.key
                   ? "bg-foreground text-background"
-                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                  : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground",
               )}
             >
               {cat.label}
@@ -231,7 +230,10 @@ export function IntegrationCatalog({
         <div>
           <div className="flex items-center gap-2 mb-2.5">
             <span className="h-2 w-2 rounded-full bg-emerald-500" />
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"> {ui("Connected")} </h4>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {" "}
+              {ui("Connected")}{" "}
+            </h4>
             <span className="text-[10px] font-medium text-muted-foreground/60 bg-muted rounded-full px-1.5 py-0.5">
               {connectedItems.length}
             </span>
@@ -253,7 +255,10 @@ export function IntegrationCatalog({
       {!loading && availableItems.length > 0 && (
         <div>
           <div className="flex items-center gap-2 mb-2.5">
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"> {ui("Available")} </h4>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+              {" "}
+              {ui("Available")}{" "}
+            </h4>
             <span className="text-[10px] font-medium text-muted-foreground/60 bg-muted rounded-full px-1.5 py-0.5">
               {availableItems.length}
             </span>
@@ -274,9 +279,13 @@ export function IntegrationCatalog({
                 onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
                 className={cn(
                   "rounded-lg px-4 py-2 text-sm font-medium transition-colors",
-                  "border border-input text-muted-foreground hover:bg-muted hover:text-foreground"
+                  "border border-input text-muted-foreground hover:bg-muted hover:text-foreground",
                 )}
-              > {ui("Load more (")}{availableItems.length - visibleCount} {ui("remaining)")} </button>
+              >
+                {" "}
+                {ui("Load more (")}
+                {availableItems.length - visibleCount} {ui("remaining)")}{" "}
+              </button>
             </div>
           )}
         </div>

@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback, useEffect } from "react";
 import {
@@ -56,7 +55,7 @@ export function RestoreDialog({
     (e: React.MouseEvent) => {
       if (e.target === e.currentTarget && !restoring) onClose();
     },
-    [onClose, restoring]
+    [onClose, restoring],
   );
 
   // Close on Escape
@@ -94,7 +93,7 @@ export function RestoreDialog({
       month: "short",
       day: "numeric",
       year: "numeric",
-    }
+    },
   );
   const formattedTime = new Date(version.createdAt).toLocaleTimeString(
     ui.locale,
@@ -102,7 +101,7 @@ export function RestoreDialog({
       hour: "numeric",
       minute: "2-digit",
       hour12: true,
-    }
+    },
   );
 
   return (
@@ -118,8 +117,13 @@ export function RestoreDialog({
               <RotateCcw className="h-4 w-4 text-amber-600" />
             </div>
             <div>
-              <h2 className="text-base font-semibold">{ui("Restore Version")}</h2>
-              <p className="text-xs text-muted-foreground"> {ui("Roll back to a previous state")} </p>
+              <h2 className="text-base font-semibold">
+                {ui("Restore Version")}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                {" "}
+                {ui("Roll back to a previous state")}{" "}
+              </p>
             </div>
           </div>
           <button
@@ -137,11 +141,15 @@ export function RestoreDialog({
           <div className="rounded-lg border bg-muted/30 p-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs font-semibold font-mono"> {ui("v")}{version.versionNumber}
+                <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-xs font-semibold font-mono">
+                  {" "}
+                  {ui("v")}
+                  {version.versionNumber}
                 </span>
                 {version.bookmarked && (
                   <span className="inline-flex items-center gap-0.5 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium text-amber-700">
-                    <BookmarkCheck className="h-2.5 w-2.5" /> {ui("Saved")} </span>
+                    <BookmarkCheck className="h-2.5 w-2.5" /> {ui("Saved")}{" "}
+                  </span>
                 )}
               </div>
               <span className="text-xs text-muted-foreground">
@@ -165,8 +173,17 @@ export function RestoreDialog({
           <div className="flex gap-3 rounded-lg border border-blue-200 bg-blue-50/70 p-3">
             <Shield className="h-4 w-4 text-blue-600 flex-none mt-0.5" />
             <div className="text-xs leading-relaxed text-blue-800">
-              <p className="font-medium mb-0.5">{ui("Non-destructive restore")}</p>
-              <p className="text-blue-700"> {ui("A new version will be created from v")}{version.versionNumber}{ui(". Your current work and all previous versions will remain accessible.")} </p>
+              <p className="font-medium mb-0.5">
+                {ui("Non-destructive restore")}
+              </p>
+              <p className="text-blue-700">
+                {" "}
+                {ui("A new version will be created from v")}
+                {version.versionNumber}
+                {ui(
+                  ". Your current work and all previous versions will remain accessible.",
+                )}{" "}
+              </p>
             </div>
           </div>
 
@@ -185,7 +202,10 @@ export function RestoreDialog({
             className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-accent transition-colors disabled:opacity-50"
             onClick={onClose}
             disabled={restoring}
-          > {ui("Cancel")} </button>
+          >
+            {" "}
+            {ui("Cancel")}{" "}
+          </button>
           <button
             className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
             onClick={handleRestore}
@@ -193,10 +213,13 @@ export function RestoreDialog({
           >
             {restoring ? (
               <>
-                <Loader2 className="h-3.5 w-3.5 animate-spin" /> {ui("Restoring...")} </>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" />{" "}
+                {ui("Restoring...")}{" "}
+              </>
             ) : (
               <>
-                <RotateCcw className="h-3.5 w-3.5" /> {ui("Restore to v")}{version.versionNumber}
+                <RotateCcw className="h-3.5 w-3.5" /> {ui("Restore to v")}
+                {version.versionNumber}
               </>
             )}
           </button>

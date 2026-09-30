@@ -1,8 +1,7 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { BrandLogo, BrandWordmark } from "@/components/brand-logo";
-
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -55,7 +54,11 @@ export function WizardShell() {
       return;
     }
 
-    apiFetch<{ isPlatformAdmin: boolean; setupCompleted: boolean; workspaceName: string | null }>("/setup/status")
+    apiFetch<{
+      isPlatformAdmin: boolean;
+      setupCompleted: boolean;
+      workspaceName: string | null;
+    }>("/setup/status")
       .then((data) => {
         setIsPlatformAdmin(data.isPlatformAdmin);
         setSetupCompleted(data.setupCompleted);
@@ -107,7 +110,11 @@ export function WizardShell() {
 
   if (!isPlatformAdmin) return null;
 
-  const stepProps = { onNext: handleNext, onBack: handleBack, onSkip: handleNext };
+  const stepProps = {
+    onNext: handleNext,
+    onBack: handleBack,
+    onSkip: handleNext,
+  };
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
@@ -115,11 +122,19 @@ export function WizardShell() {
       <header className="flex items-center justify-between px-8 py-5 border-b border-border/60">
         <div className="flex items-center gap-2.5">
           {/* Simple wordmark — matches the app's existing brand pattern */}
-          <BrandLogo /><BrandWordmark />
-          <span className="text-xs text-muted-foreground font-medium">{ui("Setup")}</span>
+          <BrandLogo />
+          <BrandWordmark />
+          <span className="text-xs text-muted-foreground font-medium">
+            {ui("Setup")}
+          </span>
         </div>
         <div className="flex items-center gap-3">
-          <span className="text-xs text-muted-foreground"> {ui("Step {current} of {total}", {current:step, total:TOTAL_STEPS})}
+          <span className="text-xs text-muted-foreground">
+            {" "}
+            {ui("Step {current} of {total}", {
+              current: step,
+              total: TOTAL_STEPS,
+            })}
           </span>
           <div className="flex items-center gap-1">
             {STEP_LABELS.map((label, i) => {
@@ -137,8 +152,8 @@ export function WizardShell() {
                       done
                         ? "bg-brand-600 text-white cursor-pointer hover:bg-brand-500"
                         : active
-                        ? "bg-brand-600/20 text-brand-400 border border-brand-500/50"
-                        : "bg-muted text-muted-foreground",
+                          ? "bg-brand-600/20 text-brand-400 border border-brand-500/50"
+                          : "bg-muted text-muted-foreground",
                     ].join(" ")}
                   >
                     {done ? <CheckCircle2 className="h-3.5 w-3.5" /> : n}

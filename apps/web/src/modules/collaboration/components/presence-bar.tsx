@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { MessageCircle } from "lucide-react";
 import { useCollaboration } from "../collaboration-context";
@@ -8,7 +7,13 @@ import { useCollaboration } from "../collaboration-context";
 export function PresenceBar() {
   const ui = useUiText();
 
-  const { members, unreadCount, chatPopoutOpen, setChatPopoutOpen, setChatVisible } = useCollaboration();
+  const {
+    members,
+    unreadCount,
+    chatPopoutOpen,
+    setChatPopoutOpen,
+    setChatVisible,
+  } = useCollaboration();
 
   // Only show when 2+ members in the room
   if (members.length < 2) return null;
@@ -62,7 +67,8 @@ export function PresenceBar() {
           )}
         </div>
         <span className="text-[11px] text-muted-foreground ml-1">
-          {members.length} {ui("online")} </span>
+          {members.length} {ui("online")}{" "}
+        </span>
       </div>
 
       {/* Team Chat button */}

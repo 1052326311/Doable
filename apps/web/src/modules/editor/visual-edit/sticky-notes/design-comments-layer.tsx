@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useCallback, useRef, useState } from "react";
 import { MessageCircle, Eye, EyeOff } from "lucide-react";
@@ -35,7 +34,9 @@ export function DesignCommentsLayer({
 
   const { user } = useAuth();
   const { subscribe, send, joined } = useCollaboration();
-  const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(null);
+  const [cursorPos, setCursorPos] = useState<{ x: number; y: number } | null>(
+    null,
+  );
 
   const dc = useDesignComments({
     projectId,
@@ -76,7 +77,9 @@ export function DesignCommentsLayer({
 
   if (!active) return null;
 
-  const commentCount = dc.comments.filter((c) => !c.parentId && !c.resolved).length;
+  const commentCount = dc.comments.filter(
+    (c) => !c.parentId && !c.resolved,
+  ).length;
 
   return (
     <>
@@ -94,7 +97,11 @@ export function DesignCommentsLayer({
             }`}
             title={dc.showResolved ? ui("Hide resolved") : ui("Show resolved")}
           >
-            {dc.showResolved ? <Eye className="w-3 h-3" /> : <EyeOff className="w-3 h-3" />}
+            {dc.showResolved ? (
+              <Eye className="w-3 h-3" />
+            ) : (
+              <EyeOff className="w-3 h-3" />
+            )}
           </button>
         )}
 
@@ -110,7 +117,13 @@ export function DesignCommentsLayer({
           title={dc.commentMode ? ui("Cancel (Esc)") : ui("Add comment")}
         >
           <MessageCircle className="w-3.5 h-3.5" />
-          <span>{dc.commentMode ? ui("Click to place") : commentCount > 0 ? `${commentCount}` : ui("Comment")}</span>
+          <span>
+            {dc.commentMode
+              ? ui("Click to place")
+              : commentCount > 0
+                ? `${commentCount}`
+                : ui("Comment")}
+          </span>
         </button>
       </div>
 
@@ -142,7 +155,11 @@ export function DesignCommentsLayer({
           x={dc.placementPos.x}
           y={dc.placementPos.y}
           onSubmit={(content) => {
-            dc.addComment(content, dc.placementPos!.xPercent, dc.placementPos!.yPercent);
+            dc.addComment(
+              content,
+              dc.placementPos!.xPercent,
+              dc.placementPos!.yPercent,
+            );
           }}
           onCancel={() => {
             dc.setPlacementPos(null);
@@ -156,7 +173,9 @@ export function DesignCommentsLayer({
         <DesignCommentsOverlay
           comments={dc.comments}
           activeCommentId={dc.activeCommentId}
-          onPinClick={(id) => dc.setActiveCommentId(dc.activeCommentId === id ? null : id)}
+          onPinClick={(id) =>
+            dc.setActiveCommentId(dc.activeCommentId === id ? null : id)
+          }
           onClose={() => dc.setActiveCommentId(null)}
           onReply={dc.replyToComment}
           onResolve={dc.resolveComment}

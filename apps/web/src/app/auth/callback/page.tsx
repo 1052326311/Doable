@@ -1,8 +1,7 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { BrandLogo } from "@/components/brand-logo";
-
 
 import { Suspense, useEffect, useRef, useState, type FormEvent } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -46,7 +45,8 @@ function CallbackHandler() {
     let errorParam: string | null = null;
     let returnTo: string | null = null;
 
-    const hash = typeof window !== "undefined" ? window.location.hash.slice(1) : "";
+    const hash =
+      typeof window !== "undefined" ? window.location.hash.slice(1) : "";
     if (hash) {
       const fragmentParams = new URLSearchParams(hash);
       accessToken = fragmentParams.get("accessToken");
@@ -89,13 +89,17 @@ function CallbackHandler() {
 
     if (errorParam) {
       setError(
-        ui(ERROR_MESSAGES[errorParam]) ?? ui("Authentication error: {v0}", {v0: (errorParam)})
+        ui(ERROR_MESSAGES[errorParam]) ??
+          ui("Authentication error: {v0}", { v0: errorParam }),
       );
       return;
     }
 
     if (!accessToken || !refreshToken) {
-      setError(ERROR_MESSAGES.missing_tokens ?? ui("Authentication tokens were missing."));
+      setError(
+        ERROR_MESSAGES.missing_tokens ??
+          ui("Authentication tokens were missing."),
+      );
       return;
     }
 
@@ -122,7 +126,9 @@ function CallbackHandler() {
           avatarUrl: res.user.avatarUrl,
         };
         localStorage.setItem("doable_auth_user", JSON.stringify(user));
-        setStatus(safeReturnTo ? "Redirecting..." : "Redirecting to dashboard...");
+        setStatus(
+          safeReturnTo ? "Redirecting..." : "Redirecting to dashboard...",
+        );
         router.replace(redirectTarget);
       })
       .catch(() => {
@@ -141,7 +147,9 @@ function CallbackHandler() {
         } catch {
           // If JWT decode also fails, the AuthProvider will call /auth/me on mount
         }
-        setStatus(safeReturnTo ? "Redirecting..." : "Redirecting to dashboard...");
+        setStatus(
+          safeReturnTo ? "Redirecting..." : "Redirecting to dashboard...",
+        );
         router.replace(redirectTarget);
       });
   }, [ui, router, searchParams]);
@@ -193,13 +201,25 @@ function CallbackHandler() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[hsl(var(--background))]">
         <div className="w-full max-w-sm px-4">
-          <h2 className="mb-2 text-center text-xl font-semibold text-[hsl(var(--foreground))]"> {ui("Two-factor authentication")} </h2>
-          <p className="mb-6 text-center text-sm text-[hsl(var(--muted-foreground))]"> {ui("Enter the 6-digit code from your authenticator app, or a recovery code.")} </p>
+          <h2 className="mb-2 text-center text-xl font-semibold text-[hsl(var(--foreground))]">
+            {" "}
+            {ui("Two-factor authentication")}{" "}
+          </h2>
+          <p className="mb-6 text-center text-sm text-[hsl(var(--muted-foreground))]">
+            {" "}
+            {ui(
+              "Enter the 6-digit code from your authenticator app, or a recovery code.",
+            )}{" "}
+          </p>
 
           <form onSubmit={handleMfaSubmit} className="space-y-4">
             {mfaError && (
               <div className="flex items-start gap-2 rounded-lg bg-red-50 px-3 py-2.5 text-sm text-red-600 dark:bg-red-950/50 dark:text-red-400">
-                <svg className="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 16 16" fill="currentColor">
+                <svg
+                  className="mt-0.5 h-4 w-4 shrink-0"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                >
                   <path d="M8 1a7 7 0 100 14A7 7 0 008 1zm-.75 4.75a.75.75 0 011.5 0v3a.75.75 0 01-1.5 0v-3zM8 11a1 1 0 110 2 1 1 0 010-2z" />
                 </svg>
                 <span>{mfaError}</span>
@@ -224,7 +244,9 @@ function CallbackHandler() {
             >
               {mfaSubmitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Verifying...")} </>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                  {ui("Verifying...")}{" "}
+                </>
               ) : (
                 ui("Verify and continue")
               )}
@@ -233,7 +255,10 @@ function CallbackHandler() {
               type="button"
               onClick={() => router.replace("/login")}
               className="block w-full text-center text-sm text-[hsl(var(--muted-foreground))] hover:text-[hsl(var(--foreground))] transition-colors"
-            > {ui("Back to sign in")} </button>
+            >
+              {" "}
+              {ui("Back to sign in")}{" "}
+            </button>
           </form>
         </div>
       </div>
@@ -261,7 +286,10 @@ function CallbackHandler() {
             </svg>
           </div>
 
-          <h2 className="mb-2 text-lg font-semibold text-[hsl(var(--foreground))]"> {ui("Authentication Failed")} </h2>
+          <h2 className="mb-2 text-lg font-semibold text-[hsl(var(--foreground))]">
+            {" "}
+            {ui("Authentication Failed")}{" "}
+          </h2>
           <p className="mb-6 text-sm text-[hsl(var(--muted-foreground))]">
             {ui(error)}
           </p>
@@ -270,11 +298,17 @@ function CallbackHandler() {
             <button
               onClick={() => router.replace("/login")}
               className="inline-flex w-full items-center justify-center rounded-xl bg-brand-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-brand-800 transition-colors"
-            > {ui("Back to sign in")} </button>
+            >
+              {" "}
+              {ui("Back to sign in")}{" "}
+            </button>
             <button
               onClick={() => window.location.reload()}
               className="inline-flex w-full items-center justify-center rounded-xl border border-[hsl(var(--border))] px-4 py-2.5 text-sm font-medium text-[hsl(var(--foreground))] hover:bg-[hsl(var(--accent))] transition-colors"
-            > {ui("Try again")} </button>
+            >
+              {" "}
+              {ui("Try again")}{" "}
+            </button>
           </div>
         </div>
       </div>
@@ -297,7 +331,10 @@ function CallbackHandler() {
         <p className="text-sm font-medium text-[hsl(var(--foreground))]">
           {status}
         </p>
-        <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]"> {ui("This should only take a moment")} </p>
+        <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]">
+          {" "}
+          {ui("This should only take a moment")}{" "}
+        </p>
 
         {/* Progress dots */}
         <div className="mt-6 flex justify-center gap-1.5">
@@ -333,8 +370,14 @@ function CallbackFallback() {
             </div>
           </div>
         </div>
-        <p className="text-sm font-medium text-[hsl(var(--foreground))]"> {ui("Preparing authentication...")} </p>
-        <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]"> {ui("This should only take a moment")} </p>
+        <p className="text-sm font-medium text-[hsl(var(--foreground))]">
+          {" "}
+          {ui("Preparing authentication...")}{" "}
+        </p>
+        <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]">
+          {" "}
+          {ui("This should only take a moment")}{" "}
+        </p>
       </div>
     </div>
   );

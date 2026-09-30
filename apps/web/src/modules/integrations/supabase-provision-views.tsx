@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -30,12 +29,19 @@ export function OAuthRequiredSection({
     <div className="flex flex-col items-start gap-3 py-4">
       <div className="flex items-start gap-2">
         <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5 shrink-0" />
-        <p className="text-sm"> {ui("Sign in with Supabase so Doable can create projects on your behalf. You'll be redirected briefly to Supabase to authorize, then come right back here.")} </p>
+        <p className="text-sm">
+          {" "}
+          {ui(
+            "Sign in with Supabase so Doable can create projects on your behalf. You'll be redirected briefly to Supabase to authorize, then come right back here.",
+          )}{" "}
+        </p>
       </div>
       <Button onClick={onSignIn} disabled={signingIn} className="w-full">
         {signingIn ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Waiting for Supabase…")} </>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+            {ui("Waiting for Supabase…")}{" "}
+          </>
         ) : (
           ui("Sign in with Supabase")
         )}
@@ -67,7 +73,12 @@ export function ExistingProjectsSection({
 
   return (
     <div className="flex flex-col gap-2">
-      <p className="text-xs text-muted-foreground"> {ui("Pick a project — Doable will fetch its API keys and wire them into this app automatically.")} </p>
+      <p className="text-xs text-muted-foreground">
+        {" "}
+        {ui(
+          "Pick a project — Doable will fetch its API keys and wire them into this app automatically.",
+        )}{" "}
+      </p>
       <div className="flex max-h-80 flex-col gap-1.5 overflow-y-auto">
         {existingProjects.map((p) => {
           const busy = connectingExistingRef === p.id;
@@ -92,7 +103,9 @@ export function ExistingProjectsSection({
               {busy ? (
                 <Loader2 className="h-4 w-4 animate-spin shrink-0" />
               ) : (
-                <span className="text-xs text-muted-foreground">{ui("Connect")}</span>
+                <span className="text-xs text-muted-foreground">
+                  {ui("Connect")}
+                </span>
               )}
             </button>
           );
@@ -140,7 +153,12 @@ export function CreateNewFormSection({
   return (
     <>
       {existingProjects && existingProjects.length === 0 ? (
-        <p className="text-xs text-muted-foreground"> {ui("You don't have any Supabase projects yet — let's create your first one.")} </p>
+        <p className="text-xs text-muted-foreground">
+          {" "}
+          {ui(
+            "You don't have any Supabase projects yet — let's create your first one.",
+          )}{" "}
+        </p>
       ) : null}
       <div className="flex flex-col gap-1.5">
         <label className="text-xs font-medium">{ui("Project name")}</label>
@@ -153,7 +171,9 @@ export function CreateNewFormSection({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <label className="text-xs font-medium">{ui("Supabase organization")}</label>
+        <label className="text-xs font-medium">
+          {ui("Supabase organization")}
+        </label>
         <select
           className="h-9 rounded-md border bg-background px-3 text-sm"
           value={orgId}
@@ -241,7 +261,10 @@ export function ModeToggle({
             ? "bg-background text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"
         }`}
-      > {ui("Connect existing project")} </button>
+      >
+        {" "}
+        {ui("Connect existing project")}{" "}
+      </button>
       <button
         type="button"
         onClick={() => onModeChange("new")}
@@ -251,7 +274,10 @@ export function ModeToggle({
             ? "bg-background text-foreground shadow-sm"
             : "text-muted-foreground hover:text-foreground"
         }`}
-      > {ui("Create new")} </button>
+      >
+        {" "}
+        {ui("Create new")}{" "}
+      </button>
     </div>
   );
 }

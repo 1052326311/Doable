@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useRef } from "react";
 import type { ApiGitHubCopilotAccount, ApiAiProvider } from "@/lib/api";
@@ -30,7 +29,8 @@ export function HelpTooltip({ text }: { text: string }) {
   useEffect(() => {
     if (!open) return;
     function handleClick(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      if (ref.current && !ref.current.contains(e.target as Node))
+        setOpen(false);
     }
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
@@ -57,13 +57,18 @@ export function HelpTooltip({ text }: { text: string }) {
 
 // ─── ModelCapabilityBadges ──────────────────────────────────
 
-export function ModelCapabilityBadges({ model }: { model?: ProviderModelInfo }) {
+export function ModelCapabilityBadges({
+  model,
+}: {
+  model?: ProviderModelInfo;
+}) {
   const ui = useUiText();
 
   if (!model) return null;
   const badges: { label: string; icon: React.ElementType }[] = [];
   if (model.supportsVision) badges.push({ label: ui("Vision"), icon: Eye });
-  if (model.supportsTools) badges.push({ label: ui("Tool calling"), icon: Wrench });
+  if (model.supportsTools)
+    badges.push({ label: ui("Tool calling"), icon: Wrench });
   if (badges.length === 0) return null;
 
   return (
@@ -115,10 +120,14 @@ export function InlineConfigFields({
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:4000";
   const validAccounts = accounts.filter(
-    (a) => a.is_valid && (scopeFilter === "workspace" ? a.scope === "workspace" : true),
+    (a) =>
+      a.is_valid &&
+      (scopeFilter === "workspace" ? a.scope === "workspace" : true),
   );
   const validProviders = providers.filter(
-    (p) => p.is_valid && (scopeFilter === "workspace" ? p.scope === "workspace" : true),
+    (p) =>
+      p.is_valid &&
+      (scopeFilter === "workspace" ? p.scope === "workspace" : true),
   );
 
   const [customModelMode, setCustomModelMode] = useState(false);
@@ -138,7 +147,10 @@ export function InlineConfigFields({
     <>
       {/* Source toggle */}
       <div className="mb-4">
-        <label className="block text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider"> {ui("Provider Source")} </label>
+        <label className="block text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
+          {" "}
+          {ui("Provider Source")}{" "}
+        </label>
         <div className="flex rounded-lg border border-border overflow-hidden w-fit">
           <button
             onClick={() => onChange({ ...state, source: "copilot" })}
@@ -147,7 +159,10 @@ export function InlineConfigFields({
                 ? "bg-brand-600 text-white"
                 : "bg-secondary text-muted-foreground hover:text-foreground"
             }`}
-          > {ui("GitHub Copilot")} </button>
+          >
+            {" "}
+            {ui("GitHub Copilot")}{" "}
+          </button>
           <button
             onClick={() => onChange({ ...state, source: "custom" })}
             className={`px-4 py-2 text-sm font-medium transition-colors ${
@@ -155,9 +170,17 @@ export function InlineConfigFields({
                 ? "bg-brand-600 text-white"
                 : "bg-secondary text-muted-foreground hover:text-foreground"
             }`}
-          > {ui("Custom Provider")} </button>
+          >
+            {" "}
+            {ui("Custom Provider")}{" "}
+          </button>
         </div>
-        <p className="text-[10px] text-muted-foreground mt-1.5"> {ui("Both configurations are saved. Switching tabs only changes which one is active — your other tab's selection is kept.")} </p>
+        <p className="text-[10px] text-muted-foreground mt-1.5">
+          {" "}
+          {ui(
+            "Both configurations are saved. Switching tabs only changes which one is active — your other tab's selection is kept.",
+          )}{" "}
+        </p>
       </div>
 
       {/* Source-specific config */}
@@ -165,11 +188,15 @@ export function InlineConfigFields({
         {state.source === "copilot" ? (
           <>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Account")}</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                {ui("Account")}
+              </label>
               <div className="flex gap-2">
                 <select
                   value={state.copilotAccountId}
-                  onChange={(e) => onChange({ ...state, copilotAccountId: e.target.value })}
+                  onChange={(e) =>
+                    onChange({ ...state, copilotAccountId: e.target.value })
+                  }
                   className="flex-1 min-w-0 rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-500"
                 >
                   <option value="">{ui("Server Default")}</option>
@@ -189,22 +216,36 @@ export function InlineConfigFields({
                 </a>
               </div>
               {state.copilotAccountId === "" && (
-                <p className="text-[10px] text-muted-foreground mt-1"> {ui("Uses the server's built-in GitHub authentication. Connect your own account for more control.")} </p>
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {" "}
+                  {ui(
+                    "Uses the server's built-in GitHub authentication. Connect your own account for more control.",
+                  )}{" "}
+                </p>
               )}
               {validAccounts.length === 0 && (
-                <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1"> {ui("No accounts connected.")}{" "}
+                <p className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
+                  {" "}
+                  {ui("No accounts connected.")}{" "}
                   <a
                     href={`${API_URL}/auth/github/copilot${workspaceId ? `?workspaceId=${workspaceId}` : ""}`}
                     className="text-brand-400 hover:text-brand-300 underline"
-                  > {ui("Connect one")} </a>
+                  >
+                    {" "}
+                    {ui("Connect one")}{" "}
+                  </a>
                 </p>
               )}
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Model")}</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                {ui("Model")}
+              </label>
               <select
                 value={state.copilotModel}
-                onChange={(e) => onChange({ ...state, copilotModel: e.target.value })}
+                onChange={(e) =>
+                  onChange({ ...state, copilotModel: e.target.value })
+                }
                 className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-500"
               >
                 {copilotModels.map((m) => (
@@ -218,11 +259,19 @@ export function InlineConfigFields({
         ) : (
           <>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Provider")}</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                {ui("Provider")}
+              </label>
               <div className="flex gap-2">
                 <select
                   value={state.providerId}
-                  onChange={(e) => onChange({ ...state, providerId: e.target.value, providerModel: "" })}
+                  onChange={(e) =>
+                    onChange({
+                      ...state,
+                      providerId: e.target.value,
+                      providerModel: "",
+                    })
+                  }
                   className="flex-1 min-w-0 rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground outline-none focus:border-brand-500"
                 >
                   <option value="">{ui("Select a provider...")}</option>
@@ -238,27 +287,39 @@ export function InlineConfigFields({
                     className="flex items-center gap-1 shrink-0 rounded-lg border border-input bg-background px-2.5 py-2 text-xs text-muted-foreground hover:text-foreground hover:border-border transition-colors"
                     title={ui("Add Provider")}
                   >
-                    <Plus className="h-3 w-3" /> {ui("Add")} </button>
+                    <Plus className="h-3 w-3" /> {ui("Add")}{" "}
+                  </button>
                 )}
               </div>
               {validProviders.length === 0 && onAddProviderClick && (
-                <p className="text-[10px] text-muted-foreground mt-1"> {ui("No providers configured.")}{" "}
+                <p className="text-[10px] text-muted-foreground mt-1">
+                  {" "}
+                  {ui("No providers configured.")}{" "}
                   <button
                     onClick={onAddProviderClick}
                     className="text-brand-400 hover:text-brand-300 underline"
-                  > {ui("Add your first provider")} </button>
+                  >
+                    {" "}
+                    {ui("Add your first provider")}{" "}
+                  </button>
                 </p>
               )}
             </div>
             <div>
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5">{ui("Model")}</label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                {ui("Model")}
+              </label>
               {providerModelsLoading && state.providerId ? (
                 <div className="flex items-center gap-2 rounded-lg border border-input bg-background px-3 py-2 text-xs text-muted-foreground">
-                  <Loader2 className="h-3 w-3 animate-spin" /> {ui("Loading models...")} </div>
+                  <Loader2 className="h-3 w-3 animate-spin" />{" "}
+                  {ui("Loading models...")}{" "}
+                </div>
               ) : showModelDropdown ? (
                 <>
                   <select
-                    value={modelInList ? state.providerModel : CUSTOM_MODEL_SENTINEL}
+                    value={
+                      modelInList ? state.providerModel : CUSTOM_MODEL_SENTINEL
+                    }
                     onChange={(e) => {
                       if (e.target.value === CUSTOM_MODEL_SENTINEL) {
                         setCustomModelMode(true);
@@ -277,10 +338,16 @@ export function InlineConfigFields({
                         {m.supportsTools ? ui("[tools]") : ""}
                       </option>
                     ))}
-                    <option value={CUSTOM_MODEL_SENTINEL}>{ui("Type custom model ID...")}</option>
+                    <option value={CUSTOM_MODEL_SENTINEL}>
+                      {ui("Type custom model ID...")}
+                    </option>
                   </select>
                   {state.providerModel && modelInList && (
-                    <ModelCapabilityBadges model={providerModels.find((m) => m.id === state.providerModel)} />
+                    <ModelCapabilityBadges
+                      model={providerModels.find(
+                        (m) => m.id === state.providerModel,
+                      )}
+                    />
                   )}
                 </>
               ) : (
@@ -288,8 +355,14 @@ export function InlineConfigFields({
                   <input
                     type="text"
                     value={state.providerModel}
-                    onChange={(e) => onChange({ ...state, providerModel: e.target.value })}
-                    placeholder={state.providerId ? "e.g. gpt-4o" : ui("Select a provider first")}
+                    onChange={(e) =>
+                      onChange({ ...state, providerModel: e.target.value })
+                    }
+                    placeholder={
+                      state.providerId
+                        ? "e.g. gpt-4o"
+                        : ui("Select a provider first")
+                    }
                     disabled={!state.providerId}
                     className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground outline-none focus:border-brand-500 disabled:opacity-50"
                   />
@@ -297,7 +370,10 @@ export function InlineConfigFields({
                     <button
                       onClick={() => setCustomModelMode(false)}
                       className="text-[10px] text-brand-400 hover:text-brand-300 mt-1"
-                    > {ui("Back to model list")} </button>
+                    >
+                      {" "}
+                      {ui("Back to model list")}{" "}
+                    </button>
                   )}
                 </>
               )}

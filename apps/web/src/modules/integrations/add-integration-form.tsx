@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback } from "react";
 import { Loader2, X, ChevronDown, ChevronRight } from "lucide-react";
@@ -34,7 +33,8 @@ export function AddIntegrationForm({
 
   const [name, setName] = useState("");
   const [scope, setScope] = useState<ScopeType>(isAdmin ? "workspace" : "user");
-  const [transportType, setTransportType] = useState<TransportType>("streamable_http");
+  const [transportType, setTransportType] =
+    useState<TransportType>("streamable_http");
   const [serverUrl, setServerUrl] = useState("");
   const [serverCommand, setServerCommand] = useState("");
   const [authType, setAuthType] = useState<AuthType>("none");
@@ -43,7 +43,8 @@ export function AddIntegrationForm({
   const [error, setError] = useState<string | null>(null);
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  const isHttp = transportType === "streamable_http" || transportType === "http_sse";
+  const isHttp =
+    transportType === "streamable_http" || transportType === "http_sse";
 
   const canSubmit =
     name.trim().length > 0 &&
@@ -68,7 +69,8 @@ export function AddIntegrationForm({
     } finally {
       setSaving(false);
     }
-  }, [ui,
+  }, [
+    ui,
     canSubmit,
     name,
     scope,
@@ -98,7 +100,10 @@ export function AddIntegrationForm({
       <div className="p-4 space-y-4">
         {/* Name */}
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1.5"> {ui("Name")} </label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            {" "}
+            {ui("Name")}{" "}
+          </label>
           <input
             type="text"
             value={name}
@@ -110,13 +115,37 @@ export function AddIntegrationForm({
 
         {/* Availability (scope) */}
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1.5"> {ui("Availability")} </label>
-          <div className={cn("grid gap-2", isAdmin ? "grid-cols-3" : "grid-cols-2")}>
-            {([
-              ...(isAdmin ? [{ value: "workspace" as const, label: ui("Everyone"), desc: ui("All workspace members") }] : []),
-              { value: "project" as const, label: ui("This project"), desc: ui("Project members") },
-              { value: "user" as const, label: ui("Only me"), desc: ui("Personal") },
-            ]).map((option) => (
+          <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+            {" "}
+            {ui("Availability")}{" "}
+          </label>
+          <div
+            className={cn(
+              "grid gap-2",
+              isAdmin ? "grid-cols-3" : "grid-cols-2",
+            )}
+          >
+            {[
+              ...(isAdmin
+                ? [
+                    {
+                      value: "workspace" as const,
+                      label: ui("Everyone"),
+                      desc: ui("All workspace members"),
+                    },
+                  ]
+                : []),
+              {
+                value: "project" as const,
+                label: ui("This project"),
+                desc: ui("Project members"),
+              },
+              {
+                value: "user" as const,
+                label: ui("Only me"),
+                desc: ui("Personal"),
+              },
+            ].map((option) => (
               <button
                 key={option.value}
                 onClick={() => setScope(option.value)}
@@ -124,11 +153,13 @@ export function AddIntegrationForm({
                   "rounded-lg border px-3 py-2 text-left transition-colors",
                   scope === option.value
                     ? "border-primary bg-primary/5 ring-1 ring-primary"
-                    : "border-input hover:bg-muted/50"
+                    : "border-input hover:bg-muted/50",
                 )}
               >
                 <p className="text-xs font-medium">{option.label}</p>
-                <p className="text-[10px] text-muted-foreground">{option.desc}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  {option.desc}
+                </p>
               </button>
             ))}
           </div>
@@ -137,7 +168,10 @@ export function AddIntegrationForm({
         {/* Server URL (default for HTTP) */}
         {isHttp && (
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5"> {ui("Server URL")} </label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+              {" "}
+              {ui("Server URL")}{" "}
+            </label>
             <input
               type="url"
               value={serverUrl}
@@ -151,7 +185,10 @@ export function AddIntegrationForm({
         {/* Server Command (for stdio) */}
         {!isHttp && (
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5"> {ui("Command")} </label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+              {" "}
+              {ui("Command")}{" "}
+            </label>
             <input
               type="text"
               value={serverCommand}
@@ -171,26 +208,42 @@ export function AddIntegrationForm({
             <ChevronDown className="h-3 w-3" />
           ) : (
             <ChevronRight className="h-3 w-3" />
-          )} {ui("Advanced options")} </button>
+          )}{" "}
+          {ui("Advanced options")}{" "}
+        </button>
 
         {showAdvanced && (
           <div className="space-y-4 pl-1 border-l-2 border-muted ml-1">
             {/* Connection type */}
             <div className="pl-3">
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5"> {ui("Connection Type")} </label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                {" "}
+                {ui("Connection Type")}{" "}
+              </label>
               <select
                 value={transportType}
-                onChange={(e) => setTransportType(e.target.value as TransportType)}
+                onChange={(e) =>
+                  setTransportType(e.target.value as TransportType)
+                }
                 className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
               >
-                <option value="streamable_http"> {ui("Web service (HTTP streaming)")} </option>
-                <option value="http_sse"> {ui("Web service (HTTP SSE)")} </option>
+                <option value="streamable_http">
+                  {" "}
+                  {ui("Web service (HTTP streaming)")}{" "}
+                </option>
+                <option value="http_sse">
+                  {" "}
+                  {ui("Web service (HTTP SSE)")}{" "}
+                </option>
               </select>
             </div>
 
             {/* Authentication */}
             <div className="pl-3">
-              <label className="block text-xs font-medium text-muted-foreground mb-1.5"> {ui("Authentication")} </label>
+              <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+                {" "}
+                {ui("Authentication")}{" "}
+              </label>
               <select
                 value={authType}
                 onChange={(e) => setAuthType(e.target.value as AuthType)}
@@ -212,7 +265,9 @@ export function AddIntegrationForm({
                   type="password"
                   value={authCredential}
                   onChange={(e) => setAuthCredential(e.target.value)}
-                  placeholder={authType === "api_key" ? ui("sk-...") : ui("eyJhbGci...")}
+                  placeholder={
+                    authType === "api_key" ? ui("sk-...") : ui("eyJhbGci...")
+                  }
                   className="w-full rounded-lg border border-input bg-background px-3 py-2 text-sm font-mono outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1 placeholder:text-muted-foreground"
                 />
               </div>
@@ -232,17 +287,22 @@ export function AddIntegrationForm({
           <button
             onClick={onCancel}
             className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-          > {ui("Cancel")} </button>
+          >
+            {" "}
+            {ui("Cancel")}{" "}
+          </button>
           <button
             onClick={() => void handleSubmit()}
             disabled={saving || !canSubmit}
             className={cn(
               "flex items-center gap-1.5 rounded-lg px-4 py-1.5 text-xs font-medium transition-colors",
               "bg-primary text-primary-foreground hover:bg-primary/90",
-              "disabled:opacity-40 disabled:cursor-not-allowed"
+              "disabled:opacity-40 disabled:cursor-not-allowed",
             )}
           >
-            {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />} {ui("Add Integration")} </button>
+            {saving && <Loader2 className="h-3.5 w-3.5 animate-spin" />}{" "}
+            {ui("Add Integration")}{" "}
+          </button>
         </div>
       </div>
     </div>

@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -32,9 +31,10 @@ const LOOP_WINDOW_MS = 10_000;
 
 function bumpHopCount(): number {
   try {
-    const prev = JSON.parse(sessionStorage.getItem(LOOP_KEY) ?? "null") as
-      | { n: number; t: number }
-      | null;
+    const prev = JSON.parse(sessionStorage.getItem(LOOP_KEY) ?? "null") as {
+      n: number;
+      t: number;
+    } | null;
     const n = prev && Date.now() - prev.t < LOOP_WINDOW_MS ? prev.n + 1 : 1;
     sessionStorage.setItem(LOOP_KEY, JSON.stringify({ n, t: Date.now() }));
     return n;
@@ -61,7 +61,8 @@ function RefreshAndReturn() {
 
   useEffect(() => {
     const next = safeNextPath(params.get("next"));
-    const toLogin = () => router.replace(`/login?next=${encodeURIComponent(next)}`);
+    const toLogin = () =>
+      router.replace(`/login?next=${encodeURIComponent(next)}`);
 
     if (bumpHopCount() > LOOP_MAX) {
       clearHopCount();

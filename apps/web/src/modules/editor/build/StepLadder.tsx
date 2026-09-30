@@ -1,5 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useEffect, useState } from "react";
 import type { ReactElement } from "react";

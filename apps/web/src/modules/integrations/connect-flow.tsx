@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback, useEffect } from "react";
 import { Loader2, ExternalLink, Eye, EyeOff, ShieldAlert } from "lucide-react";
@@ -17,7 +16,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AUTH_LABELS, type CatalogItem } from "./use-integration-catalog";
 
-import { OAuthForm, SecretTextForm, BasicAuthForm, CustomAuthForm } from "./connect-flow-forms";
+import {
+  OAuthForm,
+  SecretTextForm,
+  BasicAuthForm,
+  CustomAuthForm,
+} from "./connect-flow-forms";
 import { runOAuthPopup, runEnhancedAuthPopup } from "./connect-flow-oauth";
 
 // ─── Connect Flow Dialog ───────────────────────────────────
@@ -33,11 +37,11 @@ interface ConnectFlowProps {
       credentials?: Record<string, unknown>;
       displayName?: string;
       projectId?: string;
-    }
+    },
   ) => Promise<unknown>;
   onGetAuthorizationUrl: (
     integrationId: string,
-    scope?: string
+    scope?: string,
   ) => Promise<string>;
   onGetEnhancedAuthUrl?: (integrationId: string) => Promise<string>;
   projectId?: string;
@@ -86,7 +90,6 @@ export function ConnectFlow({
     if (open && item?.authType === "none") {
       void handleNoAuthConnect();
     }
-     
   }, [open, item?.authType]);
 
   const handleNoAuthConnect = useCallback(async () => {
@@ -111,8 +114,14 @@ export function ConnectFlow({
       getUrl: () => onGetAuthorizationUrl(item.id),
       windowName: "doable-oauth",
       itemName: item.displayName,
-      onDone: () => { setLoading(false); onOpenChange(false); },
-      onError: (msg) => { setError(msg); setLoading(false); },
+      onDone: () => {
+        setLoading(false);
+        onOpenChange(false);
+      },
+      onError: (msg) => {
+        setError(msg);
+        setLoading(false);
+      },
     });
   }, [item, onGetAuthorizationUrl, onOpenChange]);
 
@@ -124,8 +133,14 @@ export function ConnectFlow({
       getUrl: () => onGetEnhancedAuthUrl(item.id),
       integrationId: item.id,
       itemName: item.displayName,
-      onDone: () => { setLoading(false); onOpenChange(false); },
-      onError: (msg) => { setError(msg); setLoading(false); },
+      onDone: () => {
+        setLoading(false);
+        onOpenChange(false);
+      },
+      onError: (msg) => {
+        setError(msg);
+        setLoading(false);
+      },
     });
   }, [item, onGetEnhancedAuthUrl, onOpenChange]);
 
@@ -163,7 +178,16 @@ export function ConnectFlow({
     } finally {
       setLoading(false);
     }
-  }, [ui, item, username, password, displayName, onConnect, onOpenChange, projectId]);
+  }, [
+    ui,
+    item,
+    username,
+    password,
+    displayName,
+    onConnect,
+    onOpenChange,
+    projectId,
+  ]);
 
   const handleCustomAuthConnect = useCallback(async () => {
     if (!item) return;
@@ -197,7 +221,16 @@ export function ConnectFlow({
     } finally {
       setLoading(false);
     }
-  }, [ui, item, customFields, apiKey, displayName, onConnect, onOpenChange, projectId]);
+  }, [
+    ui,
+    item,
+    customFields,
+    apiKey,
+    displayName,
+    onConnect,
+    onOpenChange,
+    projectId,
+  ]);
 
   // Helper: check if custom auth form is valid
   const isCustomAuthValid = useCallback(() => {
@@ -205,7 +238,7 @@ export function ConnectFlow({
     const fields = item.customAuthFields ?? [];
     if (fields.length === 0) return apiKey.trim().length > 0;
     return fields.every(
-      (f) => !f.required || (customFields[f.name]?.trim() ?? "").length > 0
+      (f) => !f.required || (customFields[f.name]?.trim() ?? "").length > 0,
     );
   }, [item, customFields, apiKey]);
 
@@ -221,14 +254,15 @@ export function ConnectFlow({
   // "none" auth type shows a simple connecting state
   if (item.authType === "none") {
     return (
-
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent>
           <div className="flex flex-col items-center justify-center py-8 gap-3">
             {loading ? (
               <>
                 <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                <p className="text-sm text-muted-foreground"> {ui("Connecting to")} {item.displayName}...
+                <p className="text-sm text-muted-foreground">
+                  {" "}
+                  {ui("Connecting to")} {item.displayName}...
                 </p>
               </>
             ) : error ? (
@@ -238,7 +272,10 @@ export function ConnectFlow({
                   variant="outline"
                   size="sm"
                   onClick={() => void handleNoAuthConnect()}
-                > {ui("Try Again")} </Button>
+                >
+                  {" "}
+                  {ui("Try Again")}{" "}
+                </Button>
               </>
             ) : null}
           </div>
@@ -266,7 +303,9 @@ export function ConnectFlow({
               )}
             </div>
             <div>
-              <DialogTitle>{ui("Connect")} {item.displayName}</DialogTitle>
+              <DialogTitle>
+                {ui("Connect")} {item.displayName}
+              </DialogTitle>
               <DialogDescription className="mt-0.5">
                 {authLabel}
               </DialogDescription>
@@ -276,12 +315,14 @@ export function ConnectFlow({
 
         {/* Error */}
         {error && (
-          <div className={cn(
-            "rounded-md border px-3 py-2 text-xs",
-            error.includes("not set up") || error.includes("OAuth")
-              ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400"
-              : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 text-red-600"
-          )}>
+          <div
+            className={cn(
+              "rounded-md border px-3 py-2 text-xs",
+              error.includes("not set up") || error.includes("OAuth")
+                ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400"
+                : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800 text-red-600",
+            )}
+          >
             {(error.includes("not set up") || error.includes("OAuth")) && (
               <ShieldAlert className="inline h-3.5 w-3.5 mr-1.5 -mt-0.5" />
             )}
@@ -297,7 +338,10 @@ export function ConnectFlow({
               disabled={loading}
               onClick={() => void handleEnhancedAuth()}
             >
-              {loading ? ui("Connecting…") : (item.enhancedAuth.connectLabel ?? ui("Connect {v0}", {v0: (item.displayName)}))}
+              {loading
+                ? ui("Connecting…")
+                : (item.enhancedAuth.connectLabel ??
+                  ui("Connect {v0}", { v0: item.displayName }))}
             </Button>
           </div>
         )}

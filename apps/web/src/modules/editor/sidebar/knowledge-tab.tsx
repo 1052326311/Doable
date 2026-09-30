@@ -1,15 +1,8 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useCallback } from "react";
-import {
-  Brain,
-  AlertCircle,
-  Plus,
-  FileText,
-  Loader2,
-} from "lucide-react";
+import { Brain, AlertCircle, Plus, FileText, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { getStoredTokens } from "@/lib/api";
 
@@ -92,7 +85,9 @@ function FileListView({
   if (loading) {
     return (
       <div className="flex items-center justify-center h-48 text-sm text-muted-foreground">
-        <Loader2 className="h-4 w-4 animate-spin mr-2" /> {ui("Loading knowledge base...")} </div>
+        <Loader2 className="h-4 w-4 animate-spin mr-2" />{" "}
+        {ui("Loading knowledge base...")}{" "}
+      </div>
     );
   }
 
@@ -100,11 +95,16 @@ function FileListView({
     return (
       <div className="flex flex-col items-center justify-center h-48 px-4">
         <AlertCircle className="h-6 w-6 text-destructive/60" />
-        <p className="mt-2 text-xs text-muted-foreground text-center">{ui(error)}</p>
+        <p className="mt-2 text-xs text-muted-foreground text-center">
+          {ui(error)}
+        </p>
         <button
           onClick={onRetry}
           className="mt-3 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-        > {ui("Retry")} </button>
+        >
+          {" "}
+          {ui("Retry")}{" "}
+        </button>
       </div>
     );
   }
@@ -112,7 +112,12 @@ function FileListView({
   return (
     <div className="flex-1 overflow-y-auto">
       {/* Hint */}
-      <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground leading-relaxed"> {ui("Context files the AI reads before every interaction. Click to edit.")} </div>
+      <div className="px-4 py-2 border-b border-border text-xs text-muted-foreground leading-relaxed">
+        {" "}
+        {ui(
+          "Context files the AI reads before every interaction. Click to edit.",
+        )}{" "}
+      </div>
 
       {/* File list */}
       <div className="px-2 py-1">
@@ -128,7 +133,7 @@ function FileListView({
               <FileText
                 className={cn(
                   "h-4 w-4 flex-none mt-0.5",
-                  hasContent ? "text-primary/70" : "text-muted-foreground/40"
+                  hasContent ? "text-primary/70" : "text-muted-foreground/40",
                 )}
               />
               <div className="flex-1 min-w-0">
@@ -145,7 +150,8 @@ function FileListView({
                 </p>
                 {hasContent && (
                   <p className="mt-0.5 text-[10px] text-muted-foreground/60">
-                    {file.content.length} {ui("chars")} </p>
+                    {file.content.length} {ui("chars")}{" "}
+                  </p>
                 )}
               </div>
             </button>
@@ -159,7 +165,8 @@ function FileListView({
           onClick={onAddFile}
           className="flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed border-border py-2 text-xs text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
         >
-          <Plus className="h-3 w-3" /> {ui("Add Knowledge File")} </button>
+          <Plus className="h-3 w-3" /> {ui("Add Knowledge File")}{" "}
+        </button>
       </div>
     </div>
   );
@@ -184,12 +191,11 @@ export const KnowledgeTab = ({
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(
-        `${apiBaseUrl}/projects/${projectId}/context`,
-        { headers: getAuthHeaders() }
-      );
+      const res = await fetch(`${apiBaseUrl}/projects/${projectId}/context`, {
+        headers: getAuthHeaders(),
+      });
       if (!res.ok) throw new Error(ui("Failed to load context files"));
-      const json = await res.json() as { data: { files: ContextFile[] } };
+      const json = (await res.json()) as { data: { files: ContextFile[] } };
       setFiles(json.data.files);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Unknown error");
@@ -213,21 +219,27 @@ export const KnowledgeTab = ({
             method: "POST",
             headers: getAuthHeaders(),
             body: JSON.stringify({ content: "" }),
-          }
+          },
         );
         if (!res.ok) {
-          const body = await res.json().catch(() => ({ error: "Failed to create file" }));
+          const body = await res
+            .json()
+            .catch(() => ({ error: "Failed to create file" }));
           throw new Error(body.error ?? ui("Failed to create file"));
         }
-        const json = await res.json() as { data: ContextFile };
+        const json = (await res.json()) as { data: ContextFile };
         // Add to list and open immediately
-        setFiles((prev) => [...prev, json.data].sort((a, b) => a.filename.localeCompare(b.filename)));
+        setFiles((prev) =>
+          [...prev, json.data].sort((a, b) =>
+            a.filename.localeCompare(b.filename),
+          ),
+        );
         setActiveFile(json.data);
       } catch (err) {
         console.error(ui("Failed to create context file:"), err);
       }
     },
-    [ui, projectId, apiBaseUrl]
+    [ui, projectId, apiBaseUrl],
   );
 
   // Open file for editing — re-fetch latest content
@@ -236,10 +248,10 @@ export const KnowledgeTab = ({
       try {
         const res = await fetch(
           `${apiBaseUrl}/projects/${projectId}/context/${file.filename}`,
-          { headers: getAuthHeaders() }
+          { headers: getAuthHeaders() },
         );
         if (res.ok) {
-          const json = await res.json() as { data: ContextFile };
+          const json = (await res.json()) as { data: ContextFile };
           setActiveFile(json.data);
         } else {
           // Fall back to cached version
@@ -249,7 +261,7 @@ export const KnowledgeTab = ({
         setActiveFile(file);
       }
     },
-    [projectId, apiBaseUrl]
+    [projectId, apiBaseUrl],
   );
 
   // Back from editor — refresh list to pick up saves
@@ -276,13 +288,17 @@ export const KnowledgeTab = ({
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2">
           <Brain className="h-3.5 w-3.5 text-muted-foreground" />
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"> {ui("Project Knowledge")} </h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            {" "}
+            {ui("Project Knowledge")}{" "}
+          </h3>
         </div>
         <button
           onClick={() => setShowAddDialog(!showAddDialog)}
           className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
         >
-          <Plus className="h-3 w-3" /> {ui("Add")} </button>
+          <Plus className="h-3 w-3" /> {ui("Add")}{" "}
+        </button>
       </div>
 
       {/* Add File Dialog */}

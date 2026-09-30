@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback } from "react";
 import {
@@ -57,7 +56,7 @@ export function VersionHistory() {
 
   const [filter, setFilter] = useState<"all" | "bookmarked">("all");
   const [expandedVersions, setExpandedVersions] = useState<Set<string>>(
-    new Set()
+    new Set(),
   );
 
   const toggleExpanded = useCallback((versionId: string) => {
@@ -75,9 +74,7 @@ export function VersionHistory() {
   // ─── Filter ───────────────────────────────────────────────
 
   const filtered =
-    filter === "bookmarked"
-      ? versions.filter((v) => v.bookmarked)
-      : versions;
+    filter === "bookmarked" ? versions.filter((v) => v.bookmarked) : versions;
 
   const grouped = groupVersionsByDate(filtered);
 
@@ -92,7 +89,10 @@ export function VersionHistory() {
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-border">
         <div className="flex items-center gap-2">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"> {ui("Version History")} </h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            {" "}
+            {ui("Version History")}{" "}
+          </h3>
           {total > 0 && (
             <span className="rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
               {total}
@@ -106,9 +106,7 @@ export function VersionHistory() {
             title={ui("Refresh")}
             disabled={loading}
           >
-            <RefreshCw
-              className={`h-3 w-3 ${loading ? "animate-spin" : ""}`}
-            />
+            <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
           </button>
           <div className="flex items-center gap-0.5 rounded-md border border-border bg-muted/30 p-0.5">
             <button
@@ -118,7 +116,10 @@ export function VersionHistory() {
                   ? "bg-background text-foreground shadow-sm"
                   : "text-muted-foreground hover:text-foreground"
               }`}
-            > {ui("All")} </button>
+            >
+              {" "}
+              {ui("All")}{" "}
+            </button>
             <button
               onClick={() => setFilter("bookmarked")}
               className={`rounded px-2 py-0.5 text-xs font-medium transition-colors ${
@@ -127,7 +128,9 @@ export function VersionHistory() {
                   : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Star className="h-3 w-3 inline-block mr-0.5 -mt-px" /> {ui("Saved")} </button>
+              <Star className="h-3 w-3 inline-block mr-0.5 -mt-px" />{" "}
+              {ui("Saved")}{" "}
+            </button>
           </div>
         </div>
       </div>
@@ -150,7 +153,10 @@ export function VersionHistory() {
             <button
               onClick={() => fetchVersions(1)}
               className="text-xs text-primary hover:text-primary/80 underline"
-            > {ui("Try again")} </button>
+            >
+              {" "}
+              {ui("Try again")}{" "}
+            </button>
           </div>
         )}
 
@@ -158,8 +164,16 @@ export function VersionHistory() {
         {!loading && !error && versions.length === 0 && (
           <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
             <Clock className="h-6 w-6 text-muted-foreground/50 mb-2" />
-            <p className="text-sm font-medium text-muted-foreground"> {ui("No versions yet")} </p>
-            <p className="mt-1 text-xs text-muted-foreground/70"> {ui("Versions are created automatically as the AI makes changes.")} </p>
+            <p className="text-sm font-medium text-muted-foreground">
+              {" "}
+              {ui("No versions yet")}{" "}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground/70">
+              {" "}
+              {ui(
+                "Versions are created automatically as the AI makes changes.",
+              )}{" "}
+            </p>
           </div>
         )}
 
@@ -171,47 +185,51 @@ export function VersionHistory() {
           filtered.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
               <Bookmark className="h-6 w-6 text-muted-foreground/50 mb-2" />
-              <p className="text-sm font-medium text-muted-foreground"> {ui("No bookmarked versions")} </p>
-              <p className="mt-1 text-xs text-muted-foreground/70"> {ui("Click the bookmark icon on any version to save it.")} </p>
+              <p className="text-sm font-medium text-muted-foreground">
+                {" "}
+                {ui("No bookmarked versions")}{" "}
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground/70">
+                {" "}
+                {ui("Click the bookmark icon on any version to save it.")}{" "}
+              </p>
             </div>
           )}
 
         {/* Timeline */}
         {filtered.length > 0 && (
           <div className="relative">
-            {Array.from(grouped.entries()).map(
-              ([dateGroup, groupVersions]) => (
-                <div key={dateGroup}>
-                  {/* Date group header */}
-                  <div className="sticky top-0 z-10 bg-muted/50 backdrop-blur-sm border-b border-border/50 px-3 py-1.5">
-                    <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
-                      {dateGroup}
-                    </span>
-                  </div>
-
-                  {/* Versions in this date group */}
-                  <div className="relative px-3 py-1.5">
-                    {/* Timeline line */}
-                    <div className="absolute left-[23px] top-0 bottom-0 w-px bg-border" />
-
-                    {groupVersions.map((version) => (
-                      <VersionItem
-                        key={version.id}
-                        version={version}
-                        isCurrent={version.id === currentVersionId}
-                        isExpanded={expandedVersions.has(version.id)}
-                        isFirstVersion={version.version_number === 1}
-                        bookmarkingIds={bookmarkingIds}
-                        toggleBookmark={toggleBookmark}
-                        toggleExpanded={toggleExpanded}
-                        handleRestoreClick={handleRestoreClick}
-                        handleViewDiff={handleViewDiff}
-                      />
-                    ))}
-                  </div>
+            {Array.from(grouped.entries()).map(([dateGroup, groupVersions]) => (
+              <div key={dateGroup}>
+                {/* Date group header */}
+                <div className="sticky top-0 z-10 bg-muted/50 backdrop-blur-sm border-b border-border/50 px-3 py-1.5">
+                  <span className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                    {dateGroup}
+                  </span>
                 </div>
-              )
-            )}
+
+                {/* Versions in this date group */}
+                <div className="relative px-3 py-1.5">
+                  {/* Timeline line */}
+                  <div className="absolute left-[23px] top-0 bottom-0 w-px bg-border" />
+
+                  {groupVersions.map((version) => (
+                    <VersionItem
+                      key={version.id}
+                      version={version}
+                      isCurrent={version.id === currentVersionId}
+                      isExpanded={expandedVersions.has(version.id)}
+                      isFirstVersion={version.version_number === 1}
+                      bookmarkingIds={bookmarkingIds}
+                      toggleBookmark={toggleBookmark}
+                      toggleExpanded={toggleExpanded}
+                      handleRestoreClick={handleRestoreClick}
+                      handleViewDiff={handleViewDiff}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
 
             {/* Load more */}
             {page < totalPages && (
@@ -223,10 +241,16 @@ export function VersionHistory() {
                 >
                   {loadingMore ? (
                     <>
-                      <Loader2 className="h-3 w-3 animate-spin" /> {ui("Loading...")} </>
+                      <Loader2 className="h-3 w-3 animate-spin" />{" "}
+                      {ui("Loading...")}{" "}
+                    </>
                   ) : (
-                    <> {ui("Load older versions")} <span className="text-muted-foreground/50">
-                        ({total - versions.length} {ui("remaining)")} </span>
+                    <>
+                      {" "}
+                      {ui("Load older versions")}{" "}
+                      <span className="text-muted-foreground/50">
+                        ({total - versions.length} {ui("remaining)")}{" "}
+                      </span>
                     </>
                   )}
                 </button>

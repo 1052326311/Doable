@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -14,10 +13,7 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
-import {
-  Avatar,
-  AvatarFallback,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Users,
   Settings,
@@ -49,7 +45,13 @@ const FRAMEWORK_OPTIONS = [
   { id: "nextjs-app", label: "Next.js" },
 ] as const;
 
-function DefaultFrameworkSection({ workspaceId, isAdmin }: { workspaceId: string; isAdmin: boolean }) {
+function DefaultFrameworkSection({
+  workspaceId,
+  isAdmin,
+}: {
+  workspaceId: string;
+  isAdmin: boolean;
+}) {
   const ui = useUiText();
   const i18n_FRAMEWORK_OPTIONS = useUiData(FRAMEWORK_OPTIONS);
 
@@ -63,12 +65,19 @@ function DefaultFrameworkSection({ workspaceId, isAdmin }: { workspaceId: string
     apiGetAiDefaults(workspaceId)
       .then((res) => {
         if (cancelled) return;
-        const fw = (res.data as { default_framework_id?: string | null }).default_framework_id;
+        const fw = (res.data as { default_framework_id?: string | null })
+          .default_framework_id;
         setValue(fw ?? "");
       })
-      .catch(() => { /* fall back to empty */ })
-      .finally(() => { if (!cancelled) setLoading(false); });
-    return () => { cancelled = true; };
+      .catch(() => {
+        /* fall back to empty */
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [workspaceId]);
 
   const handleSave = async (newValue: string) => {
@@ -79,7 +88,9 @@ function DefaultFrameworkSection({ workspaceId, isAdmin }: { workspaceId: string
       await apiUpdateAiDefaults(workspaceId, {
         // Cast through unknown — the API helper's typed shape predates
         // default_framework_id; the server validates it via z.enum.
-        ...({ defaultFrameworkId: newValue || null } as unknown as Parameters<typeof apiUpdateAiDefaults>[1]),
+        ...({ defaultFrameworkId: newValue || null } as unknown as Parameters<
+          typeof apiUpdateAiDefaults
+        >[1]),
       });
       setSavedAt(Date.now());
       setTimeout(() => setSavedAt(null), 2000);
@@ -95,8 +106,15 @@ function DefaultFrameworkSection({ workspaceId, isAdmin }: { workspaceId: string
           <Layers className="h-5 w-5 text-violet-400" />
         </div>
         <div>
-          <h2 className="text-lg font-semibold text-foreground">{ui("Default framework")}</h2>
-          <p className="text-xs text-muted-foreground"> {ui("Used when a creator doesn't pick a framework and the prompt doesn't clearly signal one. Defaults to React (Vite) when unset.")} </p>
+          <h2 className="text-lg font-semibold text-foreground">
+            {ui("Default framework")}
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {" "}
+            {ui(
+              "Used when a creator doesn't pick a framework and the prompt doesn't clearly signal one. Defaults to React (Vite) when unset.",
+            )}{" "}
+          </p>
         </div>
       </div>
       <div className="flex items-center gap-3">
@@ -107,13 +125,19 @@ function DefaultFrameworkSection({ workspaceId, isAdmin }: { workspaceId: string
           className="rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
         >
           {i18n_FRAMEWORK_OPTIONS.map((opt) => (
-            <option key={opt.id} value={opt.id}>{opt.label}</option>
+            <option key={opt.id} value={opt.id}>
+              {opt.label}
+            </option>
           ))}
         </select>
-        {(loading || saving) && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+        {(loading || saving) && (
+          <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+        )}
         {savedAt && <Check className="h-4 w-4 text-green-400" />}
         {!isAdmin && (
-          <span className="text-xs text-muted-foreground">{ui("Read-only — admin permission required.")}</span>
+          <span className="text-xs text-muted-foreground">
+            {ui("Read-only — admin permission required.")}
+          </span>
         )}
       </div>
     </section>
@@ -135,7 +159,9 @@ function RoleBadge({ role }: { role: string }) {
 
   const info = i18n_ROLE_LABELS[role] ?? i18n_ROLE_LABELS.member!;
   return (
-    <span className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${info.color}`}>
+    <span
+      className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${info.color}`}
+    >
       {info.label}
     </span>
   );
@@ -182,12 +208,41 @@ export interface GeneralTabProps {
 }
 
 export function GeneralTab({
-  workspace, members, invites, user, isOwner, isAdmin,
-  editName, setEditName, editDesc, setEditDesc, saving, saveSuccess, handleSave,
-  inviteEmail, setInviteEmail, inviteRole, setInviteRole, inviting, inviteError, handleInvite,
-  generatingLink, handleGenerateLink, inviteLink, linkCopied, handleCopyLink,
-  changingRole, handleChangeRole, handleRemoveMember, handleRevokeInvite,
-  deleteOpen, setDeleteOpen, deleteConfirm, setDeleteConfirm, deleting, handleDelete,
+  workspace,
+  members,
+  invites,
+  user,
+  isOwner,
+  isAdmin,
+  editName,
+  setEditName,
+  editDesc,
+  setEditDesc,
+  saving,
+  saveSuccess,
+  handleSave,
+  inviteEmail,
+  setInviteEmail,
+  inviteRole,
+  setInviteRole,
+  inviting,
+  inviteError,
+  handleInvite,
+  generatingLink,
+  handleGenerateLink,
+  inviteLink,
+  linkCopied,
+  handleCopyLink,
+  changingRole,
+  handleChangeRole,
+  handleRemoveMember,
+  handleRevokeInvite,
+  deleteOpen,
+  setDeleteOpen,
+  deleteConfirm,
+  setDeleteConfirm,
+  deleting,
+  handleDelete,
 }: GeneralTabProps) {
   const ui = useUiText();
 
@@ -200,28 +255,60 @@ export function GeneralTab({
             <Settings className="h-5 w-5 text-brand-400" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-foreground">{ui("General")}</h2>
-            <p className="text-xs text-muted-foreground">{ui("Workspace name and description")}</p>
+            <h2 className="text-lg font-semibold text-foreground">
+              {ui("General")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {ui("Workspace name and description")}
+            </p>
           </div>
         </div>
         <div className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-foreground">{ui("Name")}</label>
-            <Input value={editName} onChange={(e) => setEditName(e.target.value)} disabled={!isAdmin} />
+            <label className="mb-1 block text-sm font-medium text-foreground">
+              {ui("Name")}
+            </label>
+            <Input
+              value={editName}
+              onChange={(e) => setEditName(e.target.value)}
+              disabled={!isAdmin}
+            />
           </div>
           <div>
-            <label className="mb-1 block text-sm font-medium text-foreground">{ui("Description")}</label>
-            <Input value={editDesc} onChange={(e) => setEditDesc(e.target.value)} placeholder={ui("What's this workspace for?")} disabled={!isAdmin} />
+            <label className="mb-1 block text-sm font-medium text-foreground">
+              {ui("Description")}
+            </label>
+            <Input
+              value={editDesc}
+              onChange={(e) => setEditDesc(e.target.value)}
+              placeholder={ui("What's this workspace for?")}
+              disabled={!isAdmin}
+            />
           </div>
           <div className="flex items-center gap-3">
-            <div className="text-xs text-muted-foreground capitalize"> {ui("Plan:")} <span className="text-foreground font-medium">{workspace.plan}</span>
+            <div className="text-xs text-muted-foreground capitalize">
+              {" "}
+              {ui("Plan:")}{" "}
+              <span className="text-foreground font-medium">
+                {workspace.plan}
+              </span>
             </div>
-            <div className="text-xs text-muted-foreground"> {ui("Your role:")} <RoleBadge role={workspace.userRole} />
+            <div className="text-xs text-muted-foreground">
+              {" "}
+              {ui("Your role:")} <RoleBadge role={workspace.userRole} />
             </div>
           </div>
           {isAdmin && (
-            <Button onClick={handleSave} disabled={saving} className="bg-brand-600 text-white hover:bg-brand-500">
-              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : saveSuccess ? <Check className="mr-2 h-4 w-4" /> : null}
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="bg-brand-600 text-white hover:bg-brand-500"
+            >
+              {saving ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : saveSuccess ? (
+                <Check className="mr-2 h-4 w-4" />
+              ) : null}
               {saveSuccess ? ui("Saved") : ui("Save changes")}
             </Button>
           )}
@@ -239,32 +326,77 @@ export function GeneralTab({
             <Users className="h-5 w-5 text-blue-400" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-foreground">{ui("Team Members")}</h2>
-            <p className="text-xs text-muted-foreground">{members.length} {ui("member")}{members.length !== 1 ? ui("s") : ""}</p>
+            <h2 className="text-lg font-semibold text-foreground">
+              {ui("Team Members")}
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              {members.length} {ui("member")}
+              {members.length !== 1 ? ui("s") : ""}
+            </p>
           </div>
         </div>
 
         {isAdmin && (
           <div className="mb-5 rounded-lg border border-border bg-secondary p-4">
-            <p className="mb-3 text-sm font-medium text-foreground">{ui("Invite by email")}</p>
+            <p className="mb-3 text-sm font-medium text-foreground">
+              {ui("Invite by email")}
+            </p>
             <div className="flex gap-2">
-              <Input placeholder={ui("colleague@company.com")} value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} onKeyDown={(e) => e.key === "Enter" && handleInvite()} className="flex-1" />
-              <select value={inviteRole} onChange={(e) => setInviteRole(e.target.value)} className="rounded-md border border-input bg-background px-3 text-sm text-foreground">
+              <Input
+                placeholder={ui("colleague@company.com")}
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleInvite()}
+                className="flex-1"
+              />
+              <select
+                value={inviteRole}
+                onChange={(e) => setInviteRole(e.target.value)}
+                className="rounded-md border border-input bg-background px-3 text-sm text-foreground"
+              >
                 <option value="member">{ui("Member")}</option>
                 <option value="admin">{ui("Admin")}</option>
                 <option value="viewer">{ui("Viewer")}</option>
               </select>
-              <Button onClick={handleInvite} disabled={inviting || !inviteEmail.trim()} className="bg-brand-600 text-white hover:bg-brand-500">
-                {inviting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mail className="h-4 w-4" />}
+              <Button
+                onClick={handleInvite}
+                disabled={inviting || !inviteEmail.trim()}
+                className="bg-brand-600 text-white hover:bg-brand-500"
+              >
+                {inviting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Mail className="h-4 w-4" />
+                )}
               </Button>
             </div>
-            {inviteError && <p className="mt-2 text-xs text-red-400">{inviteError}</p>}
+            {inviteError && (
+              <p className="mt-2 text-xs text-red-400">{inviteError}</p>
+            )}
             <div className="mt-3 flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleGenerateLink} disabled={generatingLink}>
-                {generatingLink ? <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> : <Link2 className="mr-1.5 h-3.5 w-3.5" />} {ui("Generate invite link")} </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleGenerateLink}
+                disabled={generatingLink}
+              >
+                {generatingLink ? (
+                  <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Link2 className="mr-1.5 h-3.5 w-3.5" />
+                )}{" "}
+                {ui("Generate invite link")}{" "}
+              </Button>
               {inviteLink && (
-                <button onClick={handleCopyLink} className="flex items-center gap-1 rounded bg-secondary px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  {linkCopied ? <Check className="h-3 w-3 text-green-400" /> : <Copy className="h-3 w-3" />}
+                <button
+                  onClick={handleCopyLink}
+                  className="flex items-center gap-1 rounded bg-secondary px-2 py-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {linkCopied ? (
+                    <Check className="h-3 w-3 text-green-400" />
+                  ) : (
+                    <Copy className="h-3 w-3" />
+                  )}
                   {linkCopied ? ui("Copied!") : ui("Copy link")}
                 </button>
               )}
@@ -274,7 +406,10 @@ export function GeneralTab({
 
         <div className="space-y-1">
           {members.map((m) => (
-            <div key={m.id} className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+            <div
+              key={m.id}
+              className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-accent transition-colors"
+            >
               <Avatar className="h-8 w-8">
                 <AvatarFallback className="bg-secondary text-xs text-foreground">
                   {(m.display_name ?? m.email)?.[0]?.toUpperCase() ?? "?"}
@@ -283,13 +418,26 @@ export function GeneralTab({
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-foreground truncate">
                   {m.display_name ?? m.email}
-                  {m.user_id === user?.id && <span className="ml-1.5 text-[11px] text-muted-foreground">{ui("(you)")}</span>}
+                  {m.user_id === user?.id && (
+                    <span className="ml-1.5 text-[11px] text-muted-foreground">
+                      {ui("(you)")}
+                    </span>
+                  )}
                 </p>
-                <p className="text-[11px] text-muted-foreground truncate">{m.email}</p>
+                <p className="text-[11px] text-muted-foreground truncate">
+                  {m.email}
+                </p>
               </div>
               <div className="flex items-center gap-2">
                 {isOwner && m.role !== "owner" ? (
-                  <select value={m.role} onChange={(e) => handleChangeRole(m.user_id, e.target.value)} disabled={changingRole === m.user_id} className="rounded border border-input bg-background px-2 py-1 text-[11px] text-foreground">
+                  <select
+                    value={m.role}
+                    onChange={(e) =>
+                      handleChangeRole(m.user_id, e.target.value)
+                    }
+                    disabled={changingRole === m.user_id}
+                    className="rounded border border-input bg-background px-2 py-1 text-[11px] text-foreground"
+                  >
                     <option value="admin">{ui("Admin")}</option>
                     <option value="member">{ui("Member")}</option>
                     <option value="viewer">{ui("Viewer")}</option>
@@ -298,7 +446,11 @@ export function GeneralTab({
                   <RoleBadge role={m.role} />
                 )}
                 {isAdmin && m.role !== "owner" && m.user_id !== user?.id && (
-                  <button onClick={() => handleRemoveMember(m.user_id)} className="rounded p-1 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors" title={ui("Remove member")}>
+                  <button
+                    onClick={() => handleRemoveMember(m.user_id)}
+                    className="rounded p-1 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                    title={ui("Remove member")}
+                  >
                     <UserMinus className="h-3.5 w-3.5" />
                   </button>
                 )}
@@ -316,22 +468,38 @@ export function GeneralTab({
               <Mail className="h-5 w-5 text-purple-400" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-foreground">{ui("Pending Invites")}</h2>
-              <p className="text-xs text-muted-foreground">{invites.length} {ui("pending")}</p>
+              <h2 className="text-lg font-semibold text-foreground">
+                {ui("Pending Invites")}
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                {invites.length} {ui("pending")}
+              </p>
             </div>
           </div>
           <div className="space-y-1">
             {invites.map((inv) => (
-              <div key={inv.id} className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-accent transition-colors">
+              <div
+                key={inv.id}
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-accent transition-colors"
+              >
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary">
                   <Mail className="h-3.5 w-3.5 text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-foreground truncate">{inv.email}</p>
-                  <p className="text-[11px] text-muted-foreground">{ui("Expires")} {new Date(inv.expires_at).toLocaleDateString(ui.locale)}</p>
+                  <p className="text-sm text-foreground truncate">
+                    {inv.email}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {ui("Expires")}{" "}
+                    {new Date(inv.expires_at).toLocaleDateString(ui.locale)}
+                  </p>
                 </div>
                 <RoleBadge role={inv.role} />
-                <button onClick={() => handleRevokeInvite(inv.id)} className="rounded p-1 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors" title={ui("Revoke invite")}>
+                <button
+                  onClick={() => handleRevokeInvite(inv.id)}
+                  className="rounded p-1 text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  title={ui("Revoke invite")}
+                >
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </div>
@@ -348,13 +516,27 @@ export function GeneralTab({
               <AlertTriangle className="h-5 w-5 text-red-400" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-red-300">{ui("Danger Zone")}</h2>
-              <p className="text-xs text-red-400/60">{ui("Irreversible actions")}</p>
+              <h2 className="text-lg font-semibold text-red-300">
+                {ui("Danger Zone")}
+              </h2>
+              <p className="text-xs text-red-400/60">
+                {ui("Irreversible actions")}
+              </p>
             </div>
           </div>
-          <p className="mb-4 text-sm text-muted-foreground"> {ui("Deleting this workspace will permanently remove all projects, files, and data. This cannot be undone.")} </p>
-          <Button variant="outline" onClick={() => setDeleteOpen(true)} className="border-red-800 text-red-400 hover:bg-red-500/10 hover:text-red-300">
-            <Trash2 className="mr-2 h-4 w-4" /> {ui("Delete workspace")} </Button>
+          <p className="mb-4 text-sm text-muted-foreground">
+            {" "}
+            {ui(
+              "Deleting this workspace will permanently remove all projects, files, and data. This cannot be undone.",
+            )}{" "}
+          </p>
+          <Button
+            variant="outline"
+            onClick={() => setDeleteOpen(true)}
+            className="border-red-800 text-red-400 hover:bg-red-500/10 hover:text-red-300"
+          >
+            <Trash2 className="mr-2 h-4 w-4" /> {ui("Delete workspace")}{" "}
+          </Button>
         </section>
       )}
 
@@ -362,14 +544,39 @@ export function GeneralTab({
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle className="text-red-400">{ui("Delete workspace")}</DialogTitle>
-            <DialogDescription className="text-muted-foreground"> {ui("This will permanently delete")} <strong className="text-foreground">{workspace.name}</strong> {ui("and all its data. Type the workspace name to confirm.")} </DialogDescription>
+            <DialogTitle className="text-red-400">
+              {ui("Delete workspace")}
+            </DialogTitle>
+            <DialogDescription className="text-muted-foreground">
+              {" "}
+              {ui("This will permanently delete")}{" "}
+              <strong className="text-foreground">{workspace.name}</strong>{" "}
+              {ui("and all its data. Type the workspace name to confirm.")}{" "}
+            </DialogDescription>
           </DialogHeader>
-          <Input placeholder={workspace.name} value={deleteConfirm} onChange={(e) => setDeleteConfirm(e.target.value)} />
+          <Input
+            placeholder={workspace.name}
+            value={deleteConfirm}
+            onChange={(e) => setDeleteConfirm(e.target.value)}
+          />
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setDeleteOpen(false); setDeleteConfirm(""); }}>{ui("Cancel")}</Button>
-            <Button onClick={handleDelete} disabled={deleteConfirm !== workspace.name || deleting} className="bg-red-600 text-white hover:bg-red-500 disabled:opacity-50">
-              {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />} {ui("Delete permanently")} </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setDeleteOpen(false);
+                setDeleteConfirm("");
+              }}
+            >
+              {ui("Cancel")}
+            </Button>
+            <Button
+              onClick={handleDelete}
+              disabled={deleteConfirm !== workspace.name || deleting}
+              className="bg-red-600 text-white hover:bg-red-500 disabled:opacity-50"
+            >
+              {deleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}{" "}
+              {ui("Delete permanently")}{" "}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

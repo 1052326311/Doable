@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { memo } from "react";
 import { X, Image as ImageIcon, FileText, FileCode, File } from "lucide-react";

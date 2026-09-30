@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 interface ProviderHealthBadgeProps {
   status: "healthy" | "degraded" | "down" | "unknown";
@@ -18,7 +17,10 @@ const STATUS_CONFIG: Record<
   unknown: { color: "bg-zinc-500", label: "Unknown" },
 };
 
-export function ProviderHealthBadge({ status, latencyMs }: ProviderHealthBadgeProps) {
+export function ProviderHealthBadge({
+  status,
+  latencyMs,
+}: ProviderHealthBadgeProps) {
   const ui = useUiText();
   const i18n_STATUS_CONFIG = useUiData(STATUS_CONFIG);
 
@@ -29,7 +31,10 @@ export function ProviderHealthBadge({ status, latencyMs }: ProviderHealthBadgePr
       <span className={`h-2 w-2 rounded-full ${config.color}`} />
       <span>{config.label}</span>
       {latencyMs !== undefined && (
-        <span className="text-muted-foreground tabular-nums">{latencyMs}{ui("ms")}</span>
+        <span className="text-muted-foreground tabular-nums">
+          {latencyMs}
+          {ui("ms")}
+        </span>
       )}
     </span>
   );

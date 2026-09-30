@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 /**
  * /admin/audit — Enterprise prompt & conversation audit.
@@ -95,11 +94,16 @@ function AdminAuditPageInner() {
           // Surface HTTP status when available so a 404 can be distinguished
           // from a transient/network failure in the empty-state UI below.
           const status =
-            e && typeof e === "object" && "status" in e && typeof (e as { status?: unknown }).status === "number"
-              ? ((e as { status: number }).status)
+            e &&
+            typeof e === "object" &&
+            "status" in e &&
+            typeof (e as { status?: unknown }).status === "number"
+              ? (e as { status: number }).status
               : null;
           setErrorStatus(status);
-          setError(e instanceof Error ? e.message : ui("Failed to load audit data"));
+          setError(
+            e instanceof Error ? e.message : ui("Failed to load audit data"),
+          );
           setConversations([]);
           setStats(null);
         }
@@ -124,9 +128,16 @@ function AdminAuditPageInner() {
     return (
       <div className="flex flex-col items-center justify-center gap-3 py-16 text-muted-foreground">
         <ShieldCheck className="h-12 w-12" />
-        <p className="font-medium text-foreground">{ui("Platform admin access required")}</p>
-        <Button variant="outline" size="sm" onClick={() => router.push("/dashboard")}>
-          <ArrowLeft className="mr-2 h-3.5 w-3.5" /> {ui("Back")} </Button>
+        <p className="font-medium text-foreground">
+          {ui("Platform admin access required")}
+        </p>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.push("/dashboard")}
+        >
+          <ArrowLeft className="mr-2 h-3.5 w-3.5" /> {ui("Back")}{" "}
+        </Button>
       </div>
     );
   }
@@ -139,19 +150,29 @@ function AdminAuditPageInner() {
             href="/admin"
             className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
           >
-            <ArrowLeft className="h-3.5 w-3.5" /> {ui("Admin")} </Link>
+            <ArrowLeft className="h-3.5 w-3.5" /> {ui("Admin")}{" "}
+          </Link>
         </div>
         <div className="mb-1 flex items-center justify-between gap-4">
           <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground">
-            <MessageSquare className="h-6 w-6 text-brand-400" /> {ui("Prompt & conversation audit")} </h1>
+            <MessageSquare className="h-6 w-6 text-brand-400" />{" "}
+            {ui("Prompt & conversation audit")}{" "}
+          </h1>
           <Link
             href="/admin/audit/actions"
             className="inline-flex items-center gap-1.5 rounded-md border border-border bg-card px-3 py-1.5 text-xs font-medium text-foreground hover:bg-accent transition-colors"
             title={ui("History of admin actions taken on the audit surface")}
           >
-            <History className="h-3.5 w-3.5 text-brand-400" /> {ui("Admin action log")} </Link>
+            <History className="h-3.5 w-3.5 text-brand-400" />{" "}
+            {ui("Admin action log")}{" "}
+          </Link>
         </div>
-        <p className="mb-6 text-sm text-muted-foreground"> {ui("Search every AI conversation on the platform. Every search and view you perform is recorded for compliance.")} </p>
+        <p className="mb-6 text-sm text-muted-foreground">
+          {" "}
+          {ui(
+            "Search every AI conversation on the platform. Every search and view you perform is recorded for compliance.",
+          )}{" "}
+        </p>
 
         <StatsRow stats={stats} />
 
@@ -167,16 +188,23 @@ function AdminAuditPageInner() {
                   {errorStatus === 404
                     ? ui("Audit log is not yet enabled on this platform")
                     : errorStatus
-                    ? ui("Audit endpoint is unavailable (HTTP {v0})", {v0: (errorStatus)})
-                    : ui("Could not load audit data")}
+                      ? ui("Audit endpoint is unavailable (HTTP {v0})", {
+                          v0: errorStatus,
+                        })
+                      : ui("Could not load audit data")}
                 </div>
-                <div className="mt-0.5 text-xs text-red-400/80">{ui(error)}</div>
+                <div className="mt-0.5 text-xs text-red-400/80">
+                  {ui(error)}
+                </div>
               </div>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={() => setReloadTick((t) => t + 1)}
-              > {ui("Retry")} </Button>
+              >
+                {" "}
+                {ui("Retry")}{" "}
+              </Button>
             </div>
           </div>
         )}
@@ -202,17 +230,36 @@ function StatsRow({ stats }: { stats: AuditStats | null }) {
 
   const items = useMemo(
     () => [
-      { label: ui("Sessions"), value: stats?.total_sessions, sub: `${stats?.sessions_24h ?? 0} in last 24h` },
-      { label: ui("Messages"), value: stats?.total_messages, sub: `${stats?.messages_24h ?? 0} in last 24h` },
-      { label: ui("Messages (7d)"), value: stats?.messages_7d, sub: "rolling window" },
-      { label: ui("Distinct users"), value: stats?.total_users, sub: "with at least one session" },
+      {
+        label: ui("Sessions"),
+        value: stats?.total_sessions,
+        sub: `${stats?.sessions_24h ?? 0} in last 24h`,
+      },
+      {
+        label: ui("Messages"),
+        value: stats?.total_messages,
+        sub: `${stats?.messages_24h ?? 0} in last 24h`,
+      },
+      {
+        label: ui("Messages (7d)"),
+        value: stats?.messages_7d,
+        sub: "rolling window",
+      },
+      {
+        label: ui("Distinct users"),
+        value: stats?.total_users,
+        sub: "with at least one session",
+      },
     ],
     [ui, stats],
   );
   return (
     <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
       {items.map((it) => (
-        <div key={it.label} className="rounded-lg border border-border bg-card p-3">
+        <div
+          key={it.label}
+          className="rounded-lg border border-border bg-card p-3"
+        >
           <div className="flex items-center gap-1.5 text-[11px] uppercase tracking-wide text-muted-foreground">
             <BarChart3 className="h-3 w-3" /> {it.label}
           </div>
@@ -234,7 +281,9 @@ function SearchForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [userId, setUserId] = useState(params.get("user_id") ?? "");
-  const [workspaceId, setWorkspaceId] = useState(params.get("workspace_id") ?? "");
+  const [workspaceId, setWorkspaceId] = useState(
+    params.get("workspace_id") ?? "",
+  );
   const [projectId, setProjectId] = useState(params.get("project_id") ?? "");
   const [from, setFrom] = useState(params.get("from") ?? "");
   const [to, setTo] = useState(params.get("to") ?? "");
@@ -252,44 +301,83 @@ function SearchForm() {
     router.push(`/admin/audit?${next.toString()}`);
   }
   function clear() {
-    setUserId(""); setWorkspaceId(""); setProjectId("");
-    setFrom(""); setTo(""); setQ("");
+    setUserId("");
+    setWorkspaceId("");
+    setProjectId("");
+    setFrom("");
+    setTo("");
+    setQ("");
     router.push("/admin/audit");
   }
 
   return (
-    <form onSubmit={submit} className="rounded-lg border border-border bg-card p-4">
+    <form
+      onSubmit={submit}
+      className="rounded-lg border border-border bg-card p-4"
+    >
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         <Field label={ui("User ID")}>
-          <Input value={userId} onChange={(e) => setUserId(e.target.value)} placeholder={ui("uuid")} />
+          <Input
+            value={userId}
+            onChange={(e) => setUserId(e.target.value)}
+            placeholder={ui("uuid")}
+          />
         </Field>
         <Field label={ui("Workspace ID")}>
-          <Input value={workspaceId} onChange={(e) => setWorkspaceId(e.target.value)} placeholder={ui("uuid")} />
+          <Input
+            value={workspaceId}
+            onChange={(e) => setWorkspaceId(e.target.value)}
+            placeholder={ui("uuid")}
+          />
         </Field>
         <Field label={ui("Project ID")}>
-          <Input value={projectId} onChange={(e) => setProjectId(e.target.value)} placeholder={ui("uuid")} />
+          <Input
+            value={projectId}
+            onChange={(e) => setProjectId(e.target.value)}
+            placeholder={ui("uuid")}
+          />
         </Field>
         <Field label={ui("From")}>
-          <Input type="datetime-local" value={from} onChange={(e) => setFrom(e.target.value)} />
+          <Input
+            type="datetime-local"
+            value={from}
+            onChange={(e) => setFrom(e.target.value)}
+          />
         </Field>
         <Field label={ui("To")}>
-          <Input type="datetime-local" value={to} onChange={(e) => setTo(e.target.value)} />
+          <Input
+            type="datetime-local"
+            value={to}
+            onChange={(e) => setTo(e.target.value)}
+          />
         </Field>
         <Field label={ui("Message contains")}>
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder={ui("prompt or response substring")} />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder={ui("prompt or response substring")}
+          />
         </Field>
       </div>
       <div className="mt-3 flex items-center gap-2">
         <Button type="submit" size="sm">
-          <Search className="mr-1.5 h-3.5 w-3.5" /> {ui("Search")} </Button>
+          <Search className="mr-1.5 h-3.5 w-3.5" /> {ui("Search")}{" "}
+        </Button>
         <Button type="button" size="sm" variant="outline" onClick={clear}>
-          <X className="mr-1.5 h-3.5 w-3.5" /> {ui("Reset")} </Button>
+          <X className="mr-1.5 h-3.5 w-3.5" /> {ui("Reset")}{" "}
+        </Button>
       </div>
     </form>
   );
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
   return (
     <label className="block">
       <span className="mb-1 block text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
@@ -302,7 +390,13 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 // ─── Results table ───────────────────────────────────────────────────
 
-function ConversationTable({ rows, loading }: { rows: ConversationRow[]; loading: boolean }) {
+function ConversationTable({
+  rows,
+  loading,
+}: {
+  rows: ConversationRow[];
+  loading: boolean;
+}) {
   const ui = useUiText();
 
   if (loading) {
@@ -314,7 +408,10 @@ function ConversationTable({ rows, loading }: { rows: ConversationRow[]; loading
   }
   if (rows.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground"> {ui("No conversations match the current filters.")} </div>
+      <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center text-sm text-muted-foreground">
+        {" "}
+        {ui("No conversations match the current filters.")}{" "}
+      </div>
     );
   }
   return (
@@ -345,23 +442,35 @@ function ConversationTable({ rows, loading }: { rows: ConversationRow[]; loading
                   {r.user_display_name || r.user_email || r.user_id.slice(0, 8)}
                 </div>
                 {r.user_email && (
-                  <div className="text-xs text-muted-foreground">{r.user_email}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {r.user_email}
+                  </div>
                 )}
               </td>
               <td className="px-3 py-2 align-top">
                 <div className="text-foreground">{r.workspace_name ?? "—"}</div>
-                <div className="text-xs text-muted-foreground">{r.project_name ?? "—"}</div>
+                <div className="text-xs text-muted-foreground">
+                  {r.project_name ?? "—"}
+                </div>
               </td>
-              <td className="px-3 py-2 align-top whitespace-nowrap">{r.message_count}</td>
+              <td className="px-3 py-2 align-top whitespace-nowrap">
+                {r.message_count}
+              </td>
               <td className="px-3 py-2 align-top max-w-md">
                 {r.last_user_excerpt && (
                   <div className="text-xs text-muted-foreground line-clamp-2">
-                    <span className="font-medium text-foreground/80">{ui("U:")}</span> {r.last_user_excerpt}
+                    <span className="font-medium text-foreground/80">
+                      {ui("U:")}
+                    </span>{" "}
+                    {r.last_user_excerpt}
                   </div>
                 )}
                 {r.last_assistant_excerpt && (
                   <div className="text-xs text-muted-foreground line-clamp-2 mt-0.5">
-                    <span className="font-medium text-foreground/80">{ui("A:")}</span> {r.last_assistant_excerpt}
+                    <span className="font-medium text-foreground/80">
+                      {ui("A:")}
+                    </span>{" "}
+                    {r.last_assistant_excerpt}
                   </div>
                 )}
               </td>

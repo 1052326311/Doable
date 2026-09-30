@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect } from "react";
 import { Loader2, FileStack } from "lucide-react";
@@ -20,9 +19,23 @@ export function MigrationsPane({ projectId }: MigrationsPaneProps) {
   useEffect(() => {
     let alive = true;
     fetchMigrations(projectId)
-      .then((m) => { if (alive) { setMigrations(m); setError(null); } })
-      .catch((err) => { if (alive) setError(err instanceof Error ? err.message : ui("Failed to load migrations")); });
-    return () => { alive = false; };
+      .then((m) => {
+        if (alive) {
+          setMigrations(m);
+          setError(null);
+        }
+      })
+      .catch((err) => {
+        if (alive)
+          setError(
+            err instanceof Error
+              ? err.message
+              : ui("Failed to load migrations"),
+          );
+      });
+    return () => {
+      alive = false;
+    };
   }, [ui, projectId]);
 
   if (!migrations && !error) {
@@ -44,31 +57,50 @@ export function MigrationsPane({ projectId }: MigrationsPaneProps) {
   const rows = migrations ?? [];
 
   return (
-    <SectionCard title={ui("Migrations")} description={ui("Applied migration history for your database.")}>
+    <SectionCard
+      title={ui("Migrations")}
+      description={ui("Applied migration history for your database.")}
+    >
       {rows.length === 0 ? (
         <div className="rounded-lg border-2 border-dashed p-8 text-center">
           <FileStack className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
           <p className="text-sm font-medium">{ui("No migrations yet")}</p>
-          <p className="mt-1 text-xs text-muted-foreground"> {ui("Migrations appear here once the AI applies schema changes via the built-in database.")} </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {" "}
+            {ui(
+              "Migrations appear here once the AI applies schema changes via the built-in database.",
+            )}{" "}
+          </p>
         </div>
       ) : (
         <div className="overflow-x-auto rounded-md border">
           <table className="w-full text-xs">
             <thead className="bg-muted/50">
               <tr className="text-muted-foreground">
-                <th className="border-b px-3 py-2 text-left font-medium">{ui("Migration")}</th>
-                <th className="border-b px-3 py-2 text-left font-medium">{ui("Applied")}</th>
-                <th className="border-b px-3 py-2 text-left font-medium">{ui("Hash")}</th>
+                <th className="border-b px-3 py-2 text-left font-medium">
+                  {ui("Migration")}
+                </th>
+                <th className="border-b px-3 py-2 text-left font-medium">
+                  {ui("Applied")}
+                </th>
+                <th className="border-b px-3 py-2 text-left font-medium">
+                  {ui("Hash")}
+                </th>
               </tr>
             </thead>
             <tbody>
               {rows.map((m) => (
-                <tr key={m.migration_id} className="border-b border-muted/40 hover:bg-muted/20">
+                <tr
+                  key={m.migration_id}
+                  className="border-b border-muted/40 hover:bg-muted/20"
+                >
                   <td className="px-3 py-1.5 font-mono">{m.migration_id}</td>
                   <td className="px-3 py-1.5 text-muted-foreground">
                     {new Date(m.applied_at).toLocaleString(ui.locale)}
                   </td>
-                  <td className="px-3 py-1.5 font-mono text-muted-foreground">{m.sql_hash.slice(0, 12)}</td>
+                  <td className="px-3 py-1.5 font-mono text-muted-foreground">
+                    {m.sql_hash.slice(0, 12)}
+                  </td>
                 </tr>
               ))}
             </tbody>

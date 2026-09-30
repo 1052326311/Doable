@@ -1,17 +1,31 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useEffect, useRef, useMemo } from "react";
 import {
-  BarChart3, Zap, DollarSign, Clock, Hash, CreditCard,
-  TrendingUp, Activity, Layers,
+  BarChart3,
+  Zap,
+  DollarSign,
+  Clock,
+  Hash,
+  CreditCard,
+  TrendingUp,
+  Activity,
+  Layers,
 } from "lucide-react";
 import {
-  useMyUsageSummary, useMyUsageHistory, useMyUsageBreakdown,
-  useMyHourlyActivity, useMyTokenSplit, useMyCredits,
+  useMyUsageSummary,
+  useMyUsageHistory,
+  useMyUsageBreakdown,
+  useMyHourlyActivity,
+  useMyTokenSplit,
+  useMyCredits,
 } from "../hooks/use-usage";
-import { formatTokenCount, formatCost, formatDuration } from "../utils/format-usage";
+import {
+  formatTokenCount,
+  formatCost,
+  formatDuration,
+} from "../utils/format-usage";
 
 import { AreaChart, TokenDonut, HourlyHeatmap } from "./usage-charts";
 
@@ -25,14 +39,23 @@ function Skeleton({ className = "" }: { className?: string }) {
 }
 
 // ── Animated Counter ──────────────────────────────────────────────────
-function AnimatedValue({ value, loading }: { value: string; loading: boolean }) {
+function AnimatedValue({
+  value,
+  loading,
+}: {
+  value: string;
+  loading: boolean;
+}) {
   const [display, setDisplay] = useState(value);
   const [animating, setAnimating] = useState(false);
 
   useEffect(() => {
     if (loading) return;
     setAnimating(true);
-    const t = setTimeout(() => { setDisplay(value); setAnimating(false); }, 60);
+    const t = setTimeout(() => {
+      setDisplay(value);
+      setAnimating(false);
+    }, 60);
     return () => clearTimeout(t);
   }, [value, loading]);
 
@@ -86,7 +109,9 @@ function GlowCard({
         <div className={`p-1.5 rounded-lg bg-muted`}>
           <Icon className={`h-3.5 w-3.5 ${iconColor}`} />
         </div>
-        <span className="text-muted-foreground text-xs uppercase tracking-wider font-medium">{label}</span>
+        <span className="text-muted-foreground text-xs uppercase tracking-wider font-medium">
+          {label}
+        </span>
       </div>
       <AnimatedValue value={value} loading={loading} />
     </div>
@@ -114,9 +139,11 @@ function CreditsGauge({
   const dashOffset = circumference * (1 - pct);
 
   const color =
-    pct > 0.9 ? "text-red-400 stroke-red-400" :
-    pct > 0.7 ? "text-amber-400 stroke-amber-400" :
-    "text-emerald-400 stroke-emerald-400";
+    pct > 0.9
+      ? "text-red-400 stroke-red-400"
+      : pct > 0.7
+        ? "text-amber-400 stroke-amber-400"
+        : "text-emerald-400 stroke-emerald-400";
 
   if (loading) {
     return (
@@ -132,13 +159,18 @@ function CreditsGauge({
       <div className="relative w-24 h-24">
         <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
           <circle
-            cx="50" cy="50" r={radius}
-            fill="none" stroke="currentColor"
+            cx="50"
+            cy="50"
+            r={radius}
+            fill="none"
+            stroke="currentColor"
             strokeWidth={stroke}
             className="text-muted"
           />
           <circle
-            cx="50" cy="50" r={radius}
+            cx="50"
+            cy="50"
+            r={radius}
             fill="none"
             strokeWidth={stroke}
             strokeLinecap="round"
@@ -158,7 +190,8 @@ function CreditsGauge({
       </div>
       <span className="text-xs text-muted-foreground font-medium">{label}</span>
       <span className="text-[10px] text-muted-foreground">
-        {used.toLocaleString(ui.locale)} / {limit > 0 ? limit.toLocaleString(ui.locale) : ui("Unlimited")}
+        {used.toLocaleString(ui.locale)} /{" "}
+        {limit > 0 ? limit.toLocaleString(ui.locale) : ui("Unlimited")}
       </span>
     </div>
   );
@@ -176,14 +209,22 @@ function BreakdownTable({
 }: {
   title: string;
   keyHeader: string;
-  items: { key: string; label?: string; requestCount: number; totalTokens: number; totalCostUsd: number }[];
+  items: {
+    key: string;
+    label?: string;
+    requestCount: number;
+    totalTokens: number;
+    totalCostUsd: number;
+  }[];
   loading: boolean;
   formatKey?: (item: { key: string; label?: string }) => string;
   accent?: string;
 }) {
   const ui = useUiText();
 
-  const displayKey = formatKey ?? ((item: { key: string; label?: string }) => item.label || item.key);
+  const displayKey =
+    formatKey ??
+    ((item: { key: string; label?: string }) => item.label || item.key);
   const maxTokens = Math.max(...items.map((i) => i.totalTokens), 1);
 
   if (loading) {
@@ -224,7 +265,9 @@ function BreakdownTable({
                 <span className="text-sm text-foreground font-medium truncate max-w-[140px]">
                   {displayKey(item)}
                 </span>
-                <span className="text-xs text-muted-foreground tabular-nums">{formatCost(item.totalCostUsd)}</span>
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {formatCost(item.totalCostUsd)}
+                </span>
               </div>
               <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                 <div
@@ -233,8 +276,12 @@ function BreakdownTable({
                 />
               </div>
               <div className="flex justify-between mt-1">
-                <span className="text-[10px] text-muted-foreground">{item.requestCount} {ui("requests")}</span>
-                <span className="text-[10px] text-muted-foreground">{formatTokenCount(item.totalTokens)} {ui("tokens")}</span>
+                <span className="text-[10px] text-muted-foreground">
+                  {item.requestCount} {ui("requests")}
+                </span>
+                <span className="text-[10px] text-muted-foreground">
+                  {formatTokenCount(item.totalTokens)} {ui("tokens")}
+                </span>
               </div>
             </div>
           );
@@ -251,22 +298,37 @@ export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
   const [period, setPeriod] = useState<"7d" | "30d" | "90d">("30d");
 
   const { summary, loading: summaryLoading } = useMyUsageSummary(workspaceId);
-  const { periods, loading: historyLoading } = useMyUsageHistory(workspaceId, period);
-  const { breakdown, loading: breakdownLoading } = useMyUsageBreakdown(workspaceId);
-  const { hours, loading: hourlyLoading } = useMyHourlyActivity(workspaceId, period);
+  const { periods, loading: historyLoading } = useMyUsageHistory(
+    workspaceId,
+    period,
+  );
+  const { breakdown, loading: breakdownLoading } =
+    useMyUsageBreakdown(workspaceId);
+  const { hours, loading: hourlyLoading } = useMyHourlyActivity(
+    workspaceId,
+    period,
+  );
   const { split, loading: splitLoading } = useMyTokenSplit(workspaceId);
   const { credits, loading: creditsLoading } = useMyCredits(workspaceId);
 
   const allEmpty =
-    !summaryLoading && !historyLoading && !breakdownLoading &&
-    !summary && !periods.length && !breakdown;
+    !summaryLoading &&
+    !historyLoading &&
+    !breakdownLoading &&
+    !summary &&
+    !periods.length &&
+    !breakdown;
 
   if (allEmpty) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
         <BarChart3 className="h-10 w-10 text-muted-foreground mb-3" />
-        <p className="text-sm text-muted-foreground">{ui("No usage data yet")}</p>
-        <p className="text-xs text-muted-foreground mt-1">{ui("Start using AI features to see your usage here.")}</p>
+        <p className="text-sm text-muted-foreground">
+          {ui("No usage data yet")}
+        </p>
+        <p className="text-xs text-muted-foreground mt-1">
+          {ui("Start using AI features to see your usage here.")}
+        </p>
       </div>
     );
   }
@@ -294,7 +356,9 @@ export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
         <GlowCard
           icon={Hash}
           label={ui("Monthly Requests")}
-          value={(summary?.thisMonth.requestCount ?? 0).toLocaleString(ui.locale)}
+          value={(summary?.thisMonth.requestCount ?? 0).toLocaleString(
+            ui.locale,
+          )}
           loading={summaryLoading}
           accent="violet"
         />
@@ -308,7 +372,9 @@ export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
         <GlowCard
           icon={CreditCard}
           label={ui("Credits Used")}
-          value={credits ? `${credits.monthCredits.toLocaleString(ui.locale)}` : "0"}
+          value={
+            credits ? `${credits.monthCredits.toLocaleString(ui.locale)}` : "0"
+          }
           loading={creditsLoading}
           accent="rose"
         />
@@ -318,9 +384,12 @@ export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
       {(creditsLoading || credits) && (
         <div className="bg-card backdrop-blur border border-border rounded-2xl p-5">
           <h3 className="text-sm font-medium text-foreground mb-5 flex items-center gap-2">
-            <CreditCard className="h-4 w-4 text-rose-400" /> {ui("Credit Usage")} {credits?.planType && (
+            <CreditCard className="h-4 w-4 text-rose-400" />{" "}
+            {ui("Credit Usage")}{" "}
+            {credits?.planType && (
               <span className="ml-auto text-[10px] font-medium uppercase tracking-wider px-2 py-0.5 rounded-full bg-muted text-muted-foreground">
-                {credits.planType} {ui("plan")} </span>
+                {credits.planType} {ui("plan")}{" "}
+              </span>
             )}
           </h3>
           <div className="flex items-center justify-center gap-12">
@@ -388,7 +457,9 @@ export function MyUsageTab({ workspaceId }: MyUsageTabProps) {
           keyHeader="Mode"
           items={breakdown?.byMode ?? []}
           loading={breakdownLoading}
-          formatKey={(item) => item.key.charAt(0).toUpperCase() + item.key.slice(1)}
+          formatKey={(item) =>
+            item.key.charAt(0).toUpperCase() + item.key.slice(1)
+          }
           accent="#f59e0b"
         />
       </div>

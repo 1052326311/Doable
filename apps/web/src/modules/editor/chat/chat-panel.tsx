@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useEffect, useRef, useCallback, useState } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
@@ -14,8 +13,18 @@ import { SupabaseProvisionDialog } from "@/modules/integrations/supabase-provisi
 import { IntegrationConnectDialog } from "@/modules/integrations/integration-connect-dialog";
 import { ActivityFeedPanel } from "../panels/activity-feed-panel";
 import {
-  MessageSquare, Sparkles, Wrench, X, Loader2, Zap,
-  Brain, FileEdit, Terminal, Package, ListChecks, AlertCircle,
+  MessageSquare,
+  Sparkles,
+  Wrench,
+  X,
+  Loader2,
+  Zap,
+  Brain,
+  FileEdit,
+  Terminal,
+  Package,
+  ListChecks,
+  AlertCircle,
   XCircle,
 } from "lucide-react";
 import type { AgentPhase } from "../hooks/use-agent-progress";
@@ -25,14 +34,22 @@ import { PHASE_LABELS } from "../hooks/use-agent-progress";
 function HeaderPhaseIcon({ phase }: { phase: AgentPhase }) {
   const cls = "h-3 w-3 shrink-0";
   switch (phase) {
-    case "thinking":          return <Brain className={`${cls} animate-pulse`} />;
-    case "planning":          return <ListChecks className={`${cls} animate-pulse`} />;
-    case "writing_files":     return <FileEdit className={`${cls} animate-pulse`} />;
-    case "running_command":   return <Terminal className={`${cls} animate-pulse`} />;
-    case "installing":        return <Package className={`${cls} animate-pulse`} />;
-    case "failed":            return <AlertCircle className={cls} />;
-    case "cancelled":         return <XCircle className={cls} />;
-    default:                  return <Sparkles className={`${cls} animate-pulse`} />;
+    case "thinking":
+      return <Brain className={`${cls} animate-pulse`} />;
+    case "planning":
+      return <ListChecks className={`${cls} animate-pulse`} />;
+    case "writing_files":
+      return <FileEdit className={`${cls} animate-pulse`} />;
+    case "running_command":
+      return <Terminal className={`${cls} animate-pulse`} />;
+    case "installing":
+      return <Package className={`${cls} animate-pulse`} />;
+    case "failed":
+      return <AlertCircle className={cls} />;
+    case "cancelled":
+      return <XCircle className={cls} />;
+    default:
+      return <Sparkles className={`${cls} animate-pulse`} />;
   }
 }
 
@@ -63,19 +80,15 @@ export function ChatPanel() {
     dismissSupabaseProvision,
   } = useChat(projectId);
 
-  const activePlan       = useEditorStore((s) => s.activePlan);
-  const planPhase        = useEditorStore((s) => s.planPhase);
+  const activePlan = useEditorStore((s) => s.activePlan);
+  const planPhase = useEditorStore((s) => s.planPhase);
   const pendingQuestions = useEditorStore((s) => s.pendingQuestions);
   const activeAgentProgress = useEditorStore((s) => s.activeAgentProgress);
-  const agentTimeline    = useEditorStore((s) => s.agentTimeline);
-  const fileTree         = useEditorStore((s) => s.fileTree);
+  const agentTimeline = useEditorStore((s) => s.agentTimeline);
+  const fileTree = useEditorStore((s) => s.fileTree);
 
-  const {
-    updatePlanStep,
-    removePlanStep,
-    reorderPlanSteps,
-    addPlanStep,
-  } = useEditorStore();
+  const { updatePlanStep, removePlanStep, reorderPlanSteps, addPlanStep } =
+    useEditorStore();
 
   // Activity feed toggle
   const [showActivityFeed, setShowActivityFeed] = useState(false);
@@ -109,7 +122,12 @@ export function ChatPanel() {
     const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
     isUserNearBottomRef.current = distFromBottom < 100;
 
-    if (el.scrollTop < 200 && hasMore && !loadingMore && !isLoadingOlderRef.current) {
+    if (
+      el.scrollTop < 200 &&
+      hasMore &&
+      !loadingMore &&
+      !isLoadingOlderRef.current
+    ) {
       isLoadingOlderRef.current = true;
       loadMore().finally(() => {
         isLoadingOlderRef.current = false;
@@ -121,7 +139,10 @@ export function ChatPanel() {
     const count = messages.length;
     if (count > prevMessageCountRef.current && isUserNearBottomRef.current) {
       requestAnimationFrame(() => {
-        virtualizer.scrollToIndex(count - 1, { align: "end", behavior: "smooth" });
+        virtualizer.scrollToIndex(count - 1, {
+          align: "end",
+          behavior: "smooth",
+        });
       });
     }
     prevMessageCountRef.current = count;
@@ -129,7 +150,6 @@ export function ChatPanel() {
 
   useEffect(() => {
     loadHistory();
-     
   }, [projectId]);
 
   useEffect(() => {
@@ -144,15 +164,18 @@ export function ChatPanel() {
 
   // Determine the streaming phase and message for header badge
   const streamingPhase = activeAgentProgress?.phase ?? "thinking";
-  const streamingMsg   = activeAgentProgress?.message ?? "Working…";
-  const isErrorPhase   = streamingPhase === "failed" || streamingPhase === "cancelled";
+  const streamingMsg = activeAgentProgress?.message ?? "Working…";
+  const isErrorPhase =
+    streamingPhase === "failed" || streamingPhase === "cancelled";
 
   return (
     <div className="flex h-full flex-col">
       {/* ── Header ───────────────────────────────────────────── */}
       <div className="flex h-10 items-center gap-2 border-b border-border px-3 shrink-0">
         <MessageSquare className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-        <span className="text-xs font-semibold text-foreground">{ui("Chat")}</span>
+        <span className="text-xs font-semibold text-foreground">
+          {ui("Chat")}
+        </span>
 
         {/* Premium streaming badge */}
         {isStreaming && (
@@ -181,7 +204,10 @@ export function ChatPanel() {
                 onClick={stopStreaming}
                 className="ml-0.5 text-[10px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
                 title={ui("Cancel task")}
-              > {ui("Cancel")} </button>
+              >
+                {" "}
+                {ui("Cancel")}{" "}
+              </button>
             )}
           </div>
         )}
@@ -197,7 +223,9 @@ export function ChatPanel() {
                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
             }`}
           >
-            <Zap className={`h-3.5 w-3.5 ${isStreaming ? "text-brand-500" : ""}`} />
+            <Zap
+              className={`h-3.5 w-3.5 ${isStreaming ? "text-brand-500" : ""}`}
+            />
           </button>
         </div>
       </div>
@@ -235,7 +263,10 @@ export function ChatPanel() {
                       <button
                         onClick={() => loadMore()}
                         className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-                      > {ui("Load older messages")} </button>
+                      >
+                        {" "}
+                        {ui("Load older messages")}{" "}
+                      </button>
                     )}
                   </div>
                 )}
@@ -266,7 +297,9 @@ export function ChatPanel() {
                       >
                         <ChatMessage
                           message={msg}
-                          onClarificationAnswer={(content) => sendMessage(content)}
+                          onClarificationAnswer={(content) =>
+                            sendMessage(content)
+                          }
                         />
                       </div>
                     );
@@ -291,7 +324,11 @@ export function ChatPanel() {
                       plan={activePlan}
                       isEditable
                       onApprove={() => approvePlan(activePlan.id)}
-                      onRefine={() => sendMessage(ui("Please refine the plan based on my feedback."))}
+                      onRefine={() =>
+                        sendMessage(
+                          ui("Please refine the plan based on my feedback."),
+                        )
+                      }
                       onReset={() => abandonPlan(activePlan.id)}
                       onStepEdit={(stepId, field, value) =>
                         updatePlanStep(stepId, { [field]: value })
@@ -325,8 +362,8 @@ export function ChatPanel() {
       {/* Integration connect popup — in-editor modal with credential fields
           (mirrors the Supabase dialog UX). Falls back to the lightweight
           link-out card only when there's no workspace context to connect in. */}
-      {pendingIntegrationRequest && (
-        workspaceId ? (
+      {pendingIntegrationRequest &&
+        (workspaceId ? (
           <IntegrationConnectDialog
             request={pendingIntegrationRequest}
             workspaceId={workspaceId}
@@ -340,8 +377,7 @@ export function ChatPanel() {
             onDismiss={() => dismissIntegrationRequest(false)}
             onConnected={() => dismissIntegrationRequest(true)}
           />
-        )
-      )}
+        ))}
 
       {/* Supabase provision dialog */}
       {supabaseProvisionRequest && projectId && workspaceId && (
@@ -357,7 +393,9 @@ export function ChatPanel() {
 
       {/* Chat input */}
       <ChatInput
-        onSend={(content, attachments, projectFiles) => sendMessage(content, attachments, projectFiles)}
+        onSend={(content, attachments, projectFiles) =>
+          sendMessage(content, attachments, projectFiles)
+        }
         onStop={stopStreaming}
         isStreaming={isStreaming}
         fileTree={fileTree}
@@ -372,7 +410,12 @@ function IntegrationConnectCard({
   onDismiss,
   onConnected,
 }: {
-  request: { integrationId: string; displayName: string; logoUrl?: string; reason: string };
+  request: {
+    integrationId: string;
+    displayName: string;
+    logoUrl?: string;
+    reason: string;
+  };
   onDismiss: () => void;
   onConnected: () => void;
 }) {
@@ -382,7 +425,11 @@ function IntegrationConnectCard({
     <div className="mx-3 mb-2 rounded-lg border border-brand-500/40 bg-brand-500/5 p-3">
       <div className="flex items-start gap-3">
         {request.logoUrl ? (
-          <img src={request.logoUrl} alt="" className="h-8 w-8 flex-shrink-0 rounded-md bg-background" />
+          <img
+            src={request.logoUrl}
+            alt=""
+            className="h-8 w-8 flex-shrink-0 rounded-md bg-background"
+          />
         ) : (
           <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-md bg-background">
             <Wrench className="h-4 w-4 text-brand-500" />
@@ -390,7 +437,9 @@ function IntegrationConnectCard({
         )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
-            <p className="truncate text-sm font-semibold text-foreground"> {ui("Connect")} {request.displayName}
+            <p className="truncate text-sm font-semibold text-foreground">
+              {" "}
+              {ui("Connect")} {request.displayName}
             </p>
             <button
               type="button"
@@ -402,7 +451,9 @@ function IntegrationConnectCard({
             </button>
           </div>
           {request.reason && (
-            <p className="mt-0.5 text-xs text-muted-foreground">{request.reason}</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              {request.reason}
+            </p>
           )}
           <div className="mt-2 flex items-center gap-2">
             <a
@@ -410,12 +461,18 @@ function IntegrationConnectCard({
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center rounded-md bg-brand-500 px-3 py-1 text-xs font-medium text-white hover:bg-brand-600"
-            > {ui("Connect")} </a>
+            >
+              {" "}
+              {ui("Connect")}{" "}
+            </a>
             <button
               type="button"
               onClick={onConnected}
               className="inline-flex items-center rounded-md border border-border bg-background px-3 py-1 text-xs font-medium text-foreground hover:bg-muted"
-            > {ui("I just connected — continue")} </button>
+            >
+              {" "}
+              {ui("I just connected — continue")}{" "}
+            </button>
           </div>
         </div>
       </div>
@@ -433,19 +490,23 @@ const SUGGESTIONS = [
   { label: "Explain this codebase", category: "Explain" },
 ];
 
-function EmptyState({ onSuggestion }: { onSuggestion: (text: string) => void }) {
+function EmptyState({
+  onSuggestion,
+}: {
+  onSuggestion: (text: string) => void;
+}) {
   const ui = useUiText();
   const i18n_SUGGESTIONS = useUiData(SUGGESTIONS);
 
   const handleClick = (suggestion: string) => {
     // Try to put the suggestion in the textarea; fall back to sending directly
     const chatInput = document.querySelector<HTMLTextAreaElement>(
-      'textarea[placeholder*="Describe"]'
+      'textarea[placeholder*="Describe"]',
     );
     if (chatInput) {
       const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
         window.HTMLTextAreaElement.prototype,
-        "value"
+        "value",
       )?.set;
       nativeInputValueSetter?.call(chatInput, suggestion);
       chatInput.dispatchEvent(new Event("input", { bubbles: true }));
@@ -458,8 +519,16 @@ function EmptyState({ onSuggestion }: { onSuggestion: (text: string) => void }) 
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-brand-500/10 to-brand-300/10">
         <Sparkles className="h-6 w-6 text-brand-500" />
       </div>
-      <h3 className="mt-4 text-sm font-semibold text-foreground"> {ui("Start building with AI")} </h3>
-      <p className="mt-1.5 max-w-[240px] text-xs text-muted-foreground leading-relaxed"> {ui("Describe what you want to build and the AI will generate the code, files, and preview for you.")} </p>
+      <h3 className="mt-4 text-sm font-semibold text-foreground">
+        {" "}
+        {ui("Start building with AI")}{" "}
+      </h3>
+      <p className="mt-1.5 max-w-[240px] text-xs text-muted-foreground leading-relaxed">
+        {" "}
+        {ui(
+          "Describe what you want to build and the AI will generate the code, files, and preview for you.",
+        )}{" "}
+      </p>
       <div className="mt-4 w-full space-y-1.5">
         {i18n_SUGGESTIONS.map(({ label, category }) => (
           <button

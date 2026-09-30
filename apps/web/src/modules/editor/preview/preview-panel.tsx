@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useCallback, useState, useEffect, useRef, useMemo } from "react";
 import { useEditorStore } from "../hooks/use-editor-store";
@@ -20,9 +19,18 @@ export function PreviewPanel() {
   const isStreaming = useEditorStore((s) => s.isStreaming);
   // NotebookLM result card overlays the preview pane when present (takes over).
   const notebooklmPreview = useEditorStore((s) => s.notebooklmPreview);
-  const clearNotebooklmPreview = useEditorStore((s) => s.clearNotebooklmPreview);
-  const { iframeRef, previewUrl, previewLoading, refresh, navigate, onLoad, openExternal } =
-    usePreview(projectId);
+  const clearNotebooklmPreview = useEditorStore(
+    (s) => s.clearNotebooklmPreview,
+  );
+  const {
+    iframeRef,
+    previewUrl,
+    previewLoading,
+    refresh,
+    navigate,
+    onLoad,
+    openExternal,
+  } = usePreview(projectId);
 
   const [deviceMode, setDeviceMode] = useState<DeviceMode>("desktop");
   const [isFullscreen, setIsFullscreen] = useState(false);
@@ -39,7 +47,8 @@ export function PreviewPanel() {
     function handleMessage(e: MessageEvent) {
       if (!e.data || typeof e.data !== "object") return;
       // Only accept messages from our preview iframe
-      if (iframeRef.current && e.source !== iframeRef.current.contentWindow) return;
+      if (iframeRef.current && e.source !== iframeRef.current.contentWindow)
+        return;
       if (e.data.type === "doable-hmr-connected") {
         hmrConnectedRef.current = true;
       } else if (e.data.type === "doable-hmr-update") {
@@ -52,7 +61,9 @@ export function PreviewPanel() {
             { type: "doable-theme", theme: "light" },
             "*",
           );
-        } catch { /* ignore */ }
+        } catch {
+          /* ignore */
+        }
       }
     }
     window.addEventListener("message", handleMessage);
@@ -72,7 +83,9 @@ export function PreviewPanel() {
           { type: "doable-theme", theme: "light" },
           "*",
         );
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     }
     pushLight();
   }, [iframeRef, previewUrl]);
@@ -163,9 +176,15 @@ export function PreviewPanel() {
   const handleToggleFullscreen = useCallback(() => {
     if (!containerRef.current) return;
     if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen?.().then(() => setIsFullscreen(true)).catch(() => {});
+      containerRef.current
+        .requestFullscreen?.()
+        .then(() => setIsFullscreen(true))
+        .catch(() => {});
     } else {
-      document.exitFullscreen?.().then(() => setIsFullscreen(false)).catch(() => {});
+      document
+        .exitFullscreen?.()
+        .then(() => setIsFullscreen(false))
+        .catch(() => {});
     }
   }, []);
 
@@ -252,7 +271,10 @@ export function PreviewPanel() {
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-background/80 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-2">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                <span className="text-xs text-muted-foreground"> {ui("Loading preview...")} </span>
+                <span className="text-xs text-muted-foreground">
+                  {" "}
+                  {ui("Loading preview...")}{" "}
+                </span>
               </div>
             </div>
           )}
@@ -261,7 +283,9 @@ export function PreviewPanel() {
           {isStreaming && !previewLoading && (
             <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5 rounded-full bg-primary/90 px-2.5 py-1 shadow-md">
               <div className="h-1.5 w-1.5 rounded-full bg-white animate-pulse" />
-              <span className="text-[10px] font-medium text-white">{ui("AI generating...")}</span>
+              <span className="text-[10px] font-medium text-white">
+                {ui("AI generating...")}
+              </span>
             </div>
           )}
 
@@ -270,12 +294,21 @@ export function PreviewPanel() {
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-background">
               <div className="flex flex-col items-center gap-2 text-center px-4">
                 <AlertTriangle className="h-8 w-8 text-muted-foreground/50" />
-                <p className="text-sm font-medium text-foreground"> {ui("Preview unavailable")} </p>
-                <p className="text-xs text-muted-foreground"> {ui("The preview server may not be running.")} </p>
+                <p className="text-sm font-medium text-foreground">
+                  {" "}
+                  {ui("Preview unavailable")}{" "}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {" "}
+                  {ui("The preview server may not be running.")}{" "}
+                </p>
                 <button
                   onClick={handleRefresh}
                   className="mt-2 rounded-md bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
-                > {ui("Retry")} </button>
+                >
+                  {" "}
+                  {ui("Retry")}{" "}
+                </button>
               </div>
             </div>
           )}
@@ -309,12 +342,20 @@ export function PreviewPanel() {
       {notebooklmPreview && (
         <div className="absolute inset-0 z-30 flex flex-col bg-white">
           <div className="flex items-center justify-between border-b border-border bg-background px-3 py-1.5">
-            <span className="truncate text-xs font-medium text-muted-foreground"> {ui("NotebookLM result")}{notebooklmPreview.toolName ? ` · ${notebooklmPreview.toolName}` : ""}
+            <span className="truncate text-xs font-medium text-muted-foreground">
+              {" "}
+              {ui("NotebookLM result")}
+              {notebooklmPreview.toolName
+                ? ` · ${notebooklmPreview.toolName}`
+                : ""}
             </span>
             <button
               onClick={clearNotebooklmPreview}
               className="shrink-0 rounded-md px-2 py-1 text-xs font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            > {ui("← Back to app")} </button>
+            >
+              {" "}
+              {ui("← Back to app")}{" "}
+            </button>
           </div>
           <iframe
             title={ui("notebooklm-result")}
@@ -336,9 +377,14 @@ function EmptyPreview() {
   return (
     <div className="flex h-full flex-col items-center justify-center text-center px-6">
       <Eye className="h-10 w-10 text-muted-foreground/30" />
-      <h3 className="mt-3 text-sm font-medium text-foreground"> {ui("Live Preview")} </h3>
-      <p className="mt-1 text-xs text-muted-foreground max-w-[200px]"> {ui("Your app preview will appear here as the AI generates code.")} </p>
+      <h3 className="mt-3 text-sm font-medium text-foreground">
+        {" "}
+        {ui("Live Preview")}{" "}
+      </h3>
+      <p className="mt-1 text-xs text-muted-foreground max-w-[200px]">
+        {" "}
+        {ui("Your app preview will appear here as the AI generates code.")}{" "}
+      </p>
     </div>
   );
 }
-

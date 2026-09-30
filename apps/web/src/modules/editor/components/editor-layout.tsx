@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import {
   useCallback,
@@ -50,7 +49,7 @@ export function EditorLayout({
         size: handle === "left" ? sidebarWidth : panelSizes.preview,
       };
     },
-    [sidebarWidth, panelSizes.preview]
+    [sidebarWidth, panelSizes.preview],
   );
 
   useEffect(() => {
@@ -60,7 +59,10 @@ export function EditorLayout({
       const delta = e.clientX - dragStartRef.current.x;
 
       if (dragging === "left") {
-        const newWidth = Math.max(180, Math.min(400, dragStartRef.current.size + delta));
+        const newWidth = Math.max(
+          180,
+          Math.min(400, dragStartRef.current.size + delta),
+        );
         setPanelSizes({ sidebar: newWidth });
       }
     };
@@ -130,9 +132,7 @@ export function EditorLayout({
 
         {/* Center panel (chat + code) */}
         {showCenter && (
-          <div className="flex flex-1 min-w-0 overflow-hidden">
-            {center}
-          </div>
+          <div className="flex flex-1 min-w-0 overflow-hidden">{center}</div>
         )}
 
         {/* Right drag handle */}
@@ -153,9 +153,7 @@ export function EditorLayout({
 
         {/* Preview panel */}
         {showPreview && (
-          <div className="flex flex-1 min-w-0 overflow-hidden">
-            {preview}
-          </div>
+          <div className="flex flex-1 min-w-0 overflow-hidden">{preview}</div>
         )}
       </div>
     </div>

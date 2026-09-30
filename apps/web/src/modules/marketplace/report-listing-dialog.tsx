@@ -1,7 +1,6 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-import {useUiData} from "@/i18n/use-ui-data";
-
+import { useUiText } from "@/i18n/use-ui-text";
+import { useUiData } from "@/i18n/use-ui-data";
 
 import { useState } from "react";
 import { Flag, Loader2, CheckCircle2, X, AlertTriangle } from "lucide-react";
@@ -32,7 +31,7 @@ const REASONS = [
   { id: "other", label: "Other" },
 ] as const;
 
-type Reason = typeof REASONS[number]["id"];
+type Reason = (typeof REASONS)[number]["id"];
 
 export interface ReportListingDialogProps {
   open: boolean;
@@ -78,7 +77,9 @@ export function ReportListingDialog({
         reset();
       }, 800);
     } catch (err) {
-      setError(err instanceof Error ? err.message : ui("Failed to file report"));
+      setError(
+        err instanceof Error ? err.message : ui("Failed to file report"),
+      );
     } finally {
       setBusy(false);
     }
@@ -95,13 +96,22 @@ export function ReportListingDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Flag className="h-5 w-5 text-destructive" /> {ui("Report this listing")} </DialogTitle>
-          <DialogDescription> {ui("Tell us what's wrong with “")}{listingTitle}{ui("”. Reports are reviewed by moderators.")} </DialogDescription>
+            <Flag className="h-5 w-5 text-destructive" />{" "}
+            {ui("Report this listing")}{" "}
+          </DialogTitle>
+          <DialogDescription>
+            {" "}
+            {ui("Tell us what's wrong with “")}
+            {listingTitle}
+            {ui("”. Reports are reviewed by moderators.")}{" "}
+          </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3 py-2">
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1">{ui("Reason")}</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
+              {ui("Reason")}
+            </label>
             <div className="grid grid-cols-1 gap-1">
               {i18n_REASONS.map((r) => {
                 const active = reason === r.id;
@@ -123,7 +133,12 @@ export function ReportListingDialog({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1"> {ui("Details")} <span className="text-muted-foreground/70">{ui("(optional)")}</span>
+            <label className="block text-xs font-medium text-muted-foreground mb-1">
+              {" "}
+              {ui("Details")}{" "}
+              <span className="text-muted-foreground/70">
+                {ui("(optional)")}
+              </span>
             </label>
             <Textarea
               rows={3}
@@ -149,15 +164,31 @@ export function ReportListingDialog({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={busy}>
-            <X className="mr-1 h-3.5 w-3.5" /> {ui("Cancel")} </Button>
-          <Button onClick={submit} disabled={busy || done} variant="destructive">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={busy}
+          >
+            <X className="mr-1 h-3.5 w-3.5" /> {ui("Cancel")}{" "}
+          </Button>
+          <Button
+            onClick={submit}
+            disabled={busy || done}
+            variant="destructive"
+          >
             {busy ? (
-              <><Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" /> {ui("Sending...")}</>
+              <>
+                <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />{" "}
+                {ui("Sending...")}
+              </>
             ) : done ? (
-              <><CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> {ui("Sent")}</>
+              <>
+                <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> {ui("Sent")}
+              </>
             ) : (
-              <><Flag className="mr-1.5 h-3.5 w-3.5" /> {ui("Submit report")}</>
+              <>
+                <Flag className="mr-1.5 h-3.5 w-3.5" /> {ui("Submit report")}
+              </>
             )}
           </Button>
         </DialogFooter>

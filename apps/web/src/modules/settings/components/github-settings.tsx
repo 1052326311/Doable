@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback, useEffect } from "react";
 
@@ -63,19 +62,18 @@ export function GitHubSettings({
         },
       });
       const json = await res.json();
-      if (!res.ok) throw new Error(json.message ?? json.error ?? ui("Request failed"));
+      if (!res.ok)
+        throw new Error(json.message ?? json.error ?? ui("Request failed"));
       return json.data as T;
     },
-    [ui, apiBase, accessToken]
+    [ui, apiBase, accessToken],
   );
 
   // ─── Load status ──────────────────────────────────────────
 
   const loadStatus = useCallback(async () => {
     try {
-      const data = await fetchJson<SyncStatus>(
-        `/${projectId}/github/status`
-      );
+      const data = await fetchJson<SyncStatus>(`/${projectId}/github/status`);
       setStatus(data);
     } catch {
       // Not connected
@@ -106,39 +104,42 @@ export function GitHubSettings({
 
   // ─── Push ─────────────────────────────────────────────────
 
-  const handlePush = useCallback(async (force = false) => {
-    if (!commitMessage.trim()) return;
+  const handlePush = useCallback(
+    async (force = false) => {
+      if (!commitMessage.trim()) return;
 
-    setPushing(true);
-    setError(null);
-    setSuccessMessage(null);
+      setPushing(true);
+      setError(null);
+      setSuccessMessage(null);
 
-    try {
-      const result = await fetchJson<{ filesChanged: number; commitSha: string }>(
-        `/${projectId}/github/push`,
-        {
+      try {
+        const result = await fetchJson<{
+          filesChanged: number;
+          commitSha: string;
+        }>(`/${projectId}/github/push`, {
           method: "POST",
           body: JSON.stringify({
             message: commitMessage,
             projectPath: `/projects/${projectId}/files`,
             force,
           }),
-        }
-      );
+        });
 
-      setCommitMessage("");
-      setSuccessMessage(
-        `Pushed ${result.filesChanged} files (${result.commitSha.slice(0, 7)})`
-      );
-      await loadStatus();
-      await loadCommits();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : "Push failed";
-      setError(message);
-    } finally {
-      setPushing(false);
-    }
-  }, [commitMessage, fetchJson, projectId, loadStatus, loadCommits]);
+        setCommitMessage("");
+        setSuccessMessage(
+          `Pushed ${result.filesChanged} files (${result.commitSha.slice(0, 7)})`,
+        );
+        await loadStatus();
+        await loadCommits();
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Push failed";
+        setError(message);
+      } finally {
+        setPushing(false);
+      }
+    },
+    [commitMessage, fetchJson, projectId, loadStatus, loadCommits],
+  );
 
   // ─── Pull ─────────────────────────────────────────────────
 
@@ -155,7 +156,7 @@ export function GitHubSettings({
           body: JSON.stringify({
             projectPath: `/projects/${projectId}/files`,
           }),
-        }
+        },
       );
 
       setSuccessMessage(`Pulled ${result.filesChanged} files`);
@@ -189,18 +190,26 @@ export function GitHubSettings({
   if (loading) {
     return (
       <div className="rounded-lg border p-6">
-        <p className="text-sm text-muted-foreground">{ui("Loading GitHub settings...")}</p>
+        <p className="text-sm text-muted-foreground">
+          {ui("Loading GitHub settings...")}
+        </p>
       </div>
     );
   }
 
-  const isDiverged = status?.status === "diverged" || status?.status === "conflict";
+  const isDiverged =
+    status?.status === "diverged" || status?.status === "conflict";
 
   return (
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold">{ui("GitHub Integration")}</h3>
-        <p className="mt-1 text-sm text-muted-foreground"> {ui("Connect your project to GitHub for version control and collaboration.")} </p>
+        <p className="mt-1 text-sm text-muted-foreground">
+          {" "}
+          {ui(
+            "Connect your project to GitHub for version control and collaboration.",
+          )}{" "}
+        </p>
       </div>
 
       {/* Status messages */}
@@ -212,7 +221,10 @@ export function GitHubSettings({
               className="mt-2 rounded-md border border-red-300 px-3 py-1 text-xs font-medium text-red-700 hover:bg-red-100"
               onClick={() => void handlePush(true)}
               disabled={pushing || !commitMessage.trim()}
-            > {ui("Force Push (overwrite remote)")} </button>
+            >
+              {" "}
+              {ui("Force Push (overwrite remote)")}{" "}
+            </button>
           )}
         </div>
       )}
@@ -226,9 +238,21 @@ export function GitHubSettings({
       {!status?.connected ? (
         /* Not connected state */
         <div className="rounded-lg border border-dashed p-8 text-center">
-          <h4 className="text-sm font-medium">{ui("Not connected to GitHub")}</h4>
-          <p className="mt-1 text-xs text-muted-foreground"> {ui("Connect to push and pull code, track changes, and collaborate.")} </p>
-          <p className="mt-3 text-xs text-muted-foreground"> {ui("Use the GitHub button in the editor toolbar to connect this project.")} </p>
+          <h4 className="text-sm font-medium">
+            {ui("Not connected to GitHub")}
+          </h4>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {" "}
+            {ui(
+              "Connect to push and pull code, track changes, and collaborate.",
+            )}{" "}
+          </p>
+          <p className="mt-3 text-xs text-muted-foreground">
+            {" "}
+            {ui(
+              "Use the GitHub button in the editor toolbar to connect this project.",
+            )}{" "}
+          </p>
         </div>
       ) : (
         /* Connected state */
@@ -237,7 +261,9 @@ export function GitHubSettings({
           <div className="rounded-lg border p-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium">{ui("Connected Repository")}</p>
+                <p className="text-sm font-medium">
+                  {ui("Connected Repository")}
+                </p>
                 {status.repoUrl && (
                   <a
                     href={status.repoUrl}
@@ -257,7 +283,8 @@ export function GitHubSettings({
                         ? "bg-green-500"
                         : status.status === "behind"
                           ? "bg-amber-500"
-                          : status.status === "diverged" || status.status === "conflict"
+                          : status.status === "diverged" ||
+                              status.status === "conflict"
                             ? "bg-red-500"
                             : "bg-gray-400"
                     }`}
@@ -266,13 +293,18 @@ export function GitHubSettings({
                     {status.status}
                   </span>
                 </div>
-                <p className="mt-1 text-xs text-muted-foreground"> {ui("Branch:")} {status.branch}
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {" "}
+                  {ui("Branch:")} {status.branch}
                 </p>
               </div>
             </div>
 
             {status.lastSyncedAt && (
-              <p className="mt-2 text-xs text-muted-foreground"> {ui("Last synced:")} {new Date(status.lastSyncedAt).toLocaleString(ui.locale)}
+              <p className="mt-2 text-xs text-muted-foreground">
+                {" "}
+                {ui("Last synced:")}{" "}
+                {new Date(status.lastSyncedAt).toLocaleString(ui.locale)}
               </p>
             )}
           </div>
@@ -305,8 +337,15 @@ export function GitHubSettings({
           <div className="rounded-lg border p-4">
             <div className="flex items-center justify-between">
               <div>
-                <h4 className="text-sm font-medium">{ui("Pull from GitHub")}</h4>
-                <p className="mt-1 text-xs text-muted-foreground"> {ui("Download the latest changes from the remote repository.")} </p>
+                <h4 className="text-sm font-medium">
+                  {ui("Pull from GitHub")}
+                </h4>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {" "}
+                  {ui(
+                    "Download the latest changes from the remote repository.",
+                  )}{" "}
+                </p>
               </div>
               <button
                 className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent disabled:opacity-50"
@@ -321,7 +360,9 @@ export function GitHubSettings({
           {/* Commit history */}
           {commits.length > 0 && (
             <div className="rounded-lg border p-4">
-              <h4 className="mb-3 text-sm font-medium">{ui("Recent Sync History")}</h4>
+              <h4 className="mb-3 text-sm font-medium">
+                {ui("Recent Sync History")}
+              </h4>
               <div className="space-y-1">
                 {commits.map((c) => (
                   <div
@@ -353,13 +394,24 @@ export function GitHubSettings({
           {/* Disconnect */}
           <div className="flex items-center justify-between rounded-lg border border-red-200 p-4">
             <div>
-              <h4 className="text-sm font-medium text-red-800"> {ui("Disconnect Repository")} </h4>
-              <p className="mt-1 text-xs text-muted-foreground"> {ui("Removes the connection. Your code will not be deleted.")} </p>
+              <h4 className="text-sm font-medium text-red-800">
+                {" "}
+                {ui("Disconnect Repository")}{" "}
+              </h4>
+              <p className="mt-1 text-xs text-muted-foreground">
+                {" "}
+                {ui(
+                  "Removes the connection. Your code will not be deleted.",
+                )}{" "}
+              </p>
             </div>
             <button
               className="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50"
               onClick={() => void handleDisconnect()}
-            > {ui("Disconnect")} </button>
+            >
+              {" "}
+              {ui("Disconnect")}{" "}
+            </button>
           </div>
         </>
       )}

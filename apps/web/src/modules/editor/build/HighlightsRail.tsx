@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import type { ReactElement } from "react";
 
@@ -13,7 +12,10 @@ export function HighlightsRail(): ReactElement {
 
   if (errors.length === 0) {
     return (
-      <div className="flex-1 overflow-y-auto px-3 py-2 text-xs text-neutral-500"> {ui("No errors yet.")} </div>
+      <div className="flex-1 overflow-y-auto px-3 py-2 text-xs text-neutral-500">
+        {" "}
+        {ui("No errors yet.")}{" "}
+      </div>
     );
   }
 
@@ -35,7 +37,10 @@ export function HighlightsRail(): ReactElement {
             </div>
             <div className="mt-1 text-neutral-200">{err.message}</div>
             {err.resolved ? (
-              <div className="mt-1 text-[10px] uppercase tracking-wide text-emerald-400"> {ui("resolved")} </div>
+              <div className="mt-1 text-[10px] uppercase tracking-wide text-emerald-400">
+                {" "}
+                {ui("resolved")}{" "}
+              </div>
             ) : null}
           </li>
         ))}

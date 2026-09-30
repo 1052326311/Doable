@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 /**
  * Phase 2A — Supabase platform-managed provisioner dialog.
@@ -23,7 +22,11 @@ import type {
   DialogMode,
   SupabaseProvisionDialogProps,
 } from "./supabase-provision-types";
-import { API_BASE, getAccessToken, openSupabaseOAuthPopup } from "./supabase-provision-types";
+import {
+  API_BASE,
+  getAccessToken,
+  openSupabaseOAuthPopup,
+} from "./supabase-provision-types";
 import {
   OAuthRequiredSection,
   ExistingProjectsSection,
@@ -59,9 +62,15 @@ export function SupabaseProvisionDialog({
   const [signInError, setSignInError] = useState<string | null>(null);
 
   const [mode, setMode] = useState<DialogMode>("existing");
-  const [existingProjects, setExistingProjects] = useState<ExistingSupabaseProject[] | null>(null);
-  const [connectingExistingRef, setConnectingExistingRef] = useState<string | null>(null);
-  const [connectExistingError, setConnectExistingError] = useState<string | null>(null);
+  const [existingProjects, setExistingProjects] = useState<
+    ExistingSupabaseProject[] | null
+  >(null);
+  const [connectingExistingRef, setConnectingExistingRef] = useState<
+    string | null
+  >(null);
+  const [connectExistingError, setConnectExistingError] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     if (!open) return;
@@ -89,9 +98,16 @@ export function SupabaseProvisionDialog({
       const accessToken = await getAccessToken();
       const res = await fetch(
         `${API_BASE}/integrations/supabase/orgs?workspaceId=${encodeURIComponent(workspaceId)}`,
-        { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} },
+        {
+          headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {},
+        },
       );
-      if (res.status === 412) { setOauthRequired(true); return false; }
+      if (res.status === 412) {
+        setOauthRequired(true);
+        return false;
+      }
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
         throw new Error(body.error ?? `Failed to load orgs (${res.status})`);
@@ -115,12 +131,18 @@ export function SupabaseProvisionDialog({
       const accessToken = await getAccessToken();
       const res = await fetch(
         `${API_BASE}/integrations/supabase/projects?workspaceId=${encodeURIComponent(workspaceId)}`,
-        { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} },
+        {
+          headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {},
+        },
       );
       if (res.status === 412) return;
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(body.error ?? `Failed to list projects (${res.status})`);
+        throw new Error(
+          body.error ?? `Failed to list projects (${res.status})`,
+        );
       }
       const data = (await res.json()) as { data: ExistingSupabaseProject[] };
       setExistingProjects(data.data);
@@ -137,7 +159,9 @@ export function SupabaseProvisionDialog({
       if (cancelled || !orgsOk) return;
       await fetchExistingProjects();
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [open, fetchOrgs, fetchExistingProjects]);
 
   const handleSignInWithSupabase = useCallback(async () => {
@@ -148,13 +172,21 @@ export function SupabaseProvisionDialog({
       const accessToken = await getAccessToken();
       const res = await fetch(
         `${API_BASE}/integrations/enhanced-auth/supabase/authorize?workspaceId=${encodeURIComponent(workspaceId)}&scope=user`,
-        { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} },
+        {
+          headers: accessToken
+            ? { Authorization: `Bearer ${accessToken}` }
+            : {},
+        },
       );
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
-        throw new Error(body.error ?? `Failed to start Supabase sign-in (${res.status})`);
+        throw new Error(
+          body.error ?? `Failed to start Supabase sign-in (${res.status})`,
+        );
       }
-      const { authorizationUrl } = (await res.json()) as { authorizationUrl: string };
+      const { authorizationUrl } = (await res.json()) as {
+        authorizationUrl: string;
+      };
       await openSupabaseOAuthPopup(authorizationUrl, fetchOrgs);
       await fetchOrgs();
     } catch (err) {
@@ -171,21 +203,30 @@ export function SupabaseProvisionDialog({
       setConnectExistingError(null);
       try {
         const accessToken = await getAccessToken();
-        const res = await fetch(`${API_BASE}/integrations/supabase/use-existing`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        const res = await fetch(
+          `${API_BASE}/integrations/supabase/use-existing`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(accessToken
+                ? { Authorization: `Bearer ${accessToken}` }
+                : {}),
+            },
+            body: JSON.stringify({ projectRef: picked.id, projectId }),
           },
-          body: JSON.stringify({ projectRef: picked.id, projectId }),
-        });
+        );
         if (!res.ok) {
-          const body = (await res.json().catch(() => ({}))) as { error?: string };
+          const body = (await res.json().catch(() => ({}))) as {
+            error?: string;
+          };
           throw new Error(body.error ?? `Failed to connect (${res.status})`);
         }
         onClose(true);
       } catch (err) {
-        setConnectExistingError(err instanceof Error ? err.message : String(err));
+        setConnectExistingError(
+          err instanceof Error ? err.message : String(err),
+        );
       } finally {
         setConnectingExistingRef(null);
       }
@@ -206,7 +247,12 @@ export function SupabaseProvisionDialog({
           "Content-Type": "application/json",
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
         },
-        body: JSON.stringify({ projectId, orgId, region, name: name.trim() || undefined }),
+        body: JSON.stringify({
+          projectId,
+          orgId,
+          region,
+          name: name.trim() || undefined,
+        }),
       });
       if (!res.ok) {
         const body = (await res.json().catch(() => ({}))) as { error?: string };
@@ -227,19 +273,28 @@ export function SupabaseProvisionDialog({
           const trimmed = line.trim();
           if (!trimmed.startsWith("data: ")) continue;
           const data = trimmed.slice(6);
-          if (data === "[DONE]") { finished = true; break; }
+          if (data === "[DONE]") {
+            finished = true;
+            break;
+          }
           try {
-            const parsed = JSON.parse(data) as { type: string; data?: { phase?: string; message?: string } };
+            const parsed = JSON.parse(data) as {
+              type: string;
+              data?: { phase?: string; message?: string };
+            };
             if (parsed.type === "provision_progress" && parsed.data?.phase) {
               const phase = parsed.data.phase;
               const message = parsed.data.message ?? "";
-              if (phase === "error") { setError(message || "Provisioning failed"); }
-              else {
+              if (phase === "error") {
+                setError(message || "Provisioning failed");
+              } else {
                 setProgress((prev) => [...prev, { phase, message }]);
                 if (phase === "done") setTimeout(() => onClose(true), 800);
               }
             }
-          } catch { /* Ignore malformed SSE lines */ }
+          } catch {
+            /* Ignore malformed SSE lines */
+          }
         }
       }
     } catch (err) {
@@ -250,7 +305,8 @@ export function SupabaseProvisionDialog({
   }, [ui, orgId, region, name, projectId, submitting, onClose]);
 
   const disabled = submitting || orgsLoading || !orgId;
-  const showCreateNew = mode === "new" || !existingProjects || existingProjects.length === 0;
+  const showCreateNew =
+    mode === "new" || !existingProjects || existingProjects.length === 0;
 
   return (
     <Dialog
@@ -265,7 +321,9 @@ export function SupabaseProvisionDialog({
           <DialogTitle>{ui("Connect Supabase")}</DialogTitle>
           <DialogDescription>
             {reason ??
-              ui("Pick an existing Supabase project from your organization, or let Doable create a brand-new one. Either way the API keys are wired up automatically.")}
+              ui(
+                "Pick an existing Supabase project from your organization, or let Doable create a brand-new one. Either way the API keys are wired up automatically.",
+              )}
           </DialogDescription>
         </DialogHeader>
 
@@ -277,7 +335,9 @@ export function SupabaseProvisionDialog({
           />
         ) : orgsLoading ? (
           <div className="flex items-center gap-2 py-6 text-sm text-muted-foreground">
-            <Loader2 className="h-4 w-4 animate-spin" /> {ui("Loading your Supabase organizations...")} </div>
+            <Loader2 className="h-4 w-4 animate-spin" />{" "}
+            {ui("Loading your Supabase organizations...")}{" "}
+          </div>
         ) : orgsError ? (
           <div className="flex items-start gap-2 py-4 text-sm text-red-600">
             <span>{orgsError}</span>
@@ -293,7 +353,9 @@ export function SupabaseProvisionDialog({
               />
             ) : null}
 
-            {mode === "existing" && existingProjects && existingProjects.length > 0 ? (
+            {mode === "existing" &&
+            existingProjects &&
+            existingProjects.length > 0 ? (
               <ExistingProjectsSection
                 existingProjects={existingProjects}
                 connectingExistingRef={connectingExistingRef}
@@ -325,12 +387,17 @@ export function SupabaseProvisionDialog({
             variant="outline"
             onClick={() => onClose(false)}
             disabled={submitting || !!connectingExistingRef}
-          > {ui("Cancel")} </Button>
+          >
+            {" "}
+            {ui("Cancel")}{" "}
+          </Button>
           {showCreateNew ? (
             <Button onClick={handleSubmit} disabled={disabled || oauthRequired}>
               {submitting ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" /> {ui("Creating...")} </>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                  {ui("Creating...")}{" "}
+                </>
               ) : (
                 ui("Create project")
               )}

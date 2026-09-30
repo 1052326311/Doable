@@ -1,6 +1,5 @@
 "use client";
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import {
   Loader2,
@@ -38,32 +37,45 @@ export function StepValidate({
       <div className="flex items-center gap-3 rounded-lg border border-border bg-secondary p-3">
         <div
           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-white"
-          style={brandColor ? { backgroundColor: `${brandColor}18` } : { backgroundColor: "rgba(113,113,122,0.15)" }}
+          style={
+            brandColor
+              ? { backgroundColor: `${brandColor}18` }
+              : { backgroundColor: "rgba(113,113,122,0.15)" }
+          }
         >
           <ProviderIcon providerId={preset.id} size={28} />
         </div>
         <div>
           <p className="text-sm font-medium text-foreground">{preset.name}</p>
-          <p className="text-xs text-muted-foreground">{ui("Validate connection")}</p>
+          <p className="text-xs text-muted-foreground">
+            {ui("Validate connection")}
+          </p>
         </div>
       </div>
 
       <div className="flex flex-col items-center py-6">
         {!result && !testing && (
           <>
-            <p className="mb-4 text-sm text-muted-foreground text-center"> {ui("Test the connection to")} {preset.name} {ui("to verify your configuration.")} </p>
+            <p className="mb-4 text-sm text-muted-foreground text-center">
+              {" "}
+              {ui("Test the connection to")} {preset.name}{" "}
+              {ui("to verify your configuration.")}{" "}
+            </p>
             <button
               onClick={onTest}
               className="flex items-center gap-2 rounded-lg bg-brand-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-brand-500 transition-colors"
             >
-              <Zap className="h-4 w-4" /> {ui("Test Connection")} </button>
+              <Zap className="h-4 w-4" /> {ui("Test Connection")}{" "}
+            </button>
           </>
         )}
 
         {testing && (
           <div className="flex flex-col items-center gap-3">
             <Loader2 className="h-8 w-8 animate-spin text-brand-400" />
-            <p className="text-sm text-muted-foreground">{ui("Testing connection...")}</p>
+            <p className="text-sm text-muted-foreground">
+              {ui("Testing connection...")}
+            </p>
           </div>
         )}
 
@@ -73,9 +85,20 @@ export function StepValidate({
               <div className="flex items-center gap-3 rounded-lg border border-green-500/30 bg-green-500/10 p-4">
                 <CheckCircle className="h-6 w-6 shrink-0 text-green-400" />
                 <div>
-                  <p className="text-sm font-medium text-green-300">{ui("Connection successful")}</p>
-                  <p className="mt-0.5 text-xs text-green-400/80"> {ui("Latency:")} {result.latencyMs}{ui("ms")} {result.models && result.models.length > 0 && (
-                      <> — {result.models.length} {ui("model")}{result.models.length !== 1 ? ui("s") : ""} {ui("discovered")}</>
+                  <p className="text-sm font-medium text-green-300">
+                    {ui("Connection successful")}
+                  </p>
+                  <p className="mt-0.5 text-xs text-green-400/80">
+                    {" "}
+                    {ui("Latency:")} {result.latencyMs}
+                    {ui("ms")}{" "}
+                    {result.models && result.models.length > 0 && (
+                      <>
+                        {" "}
+                        — {result.models.length} {ui("model")}
+                        {result.models.length !== 1 ? ui("s") : ""}{" "}
+                        {ui("discovered")}
+                      </>
                     )}
                   </p>
                 </div>
@@ -84,8 +107,12 @@ export function StepValidate({
               <div className="flex items-center gap-3 rounded-lg border border-red-500/30 bg-red-500/10 p-4">
                 <XCircle className="h-6 w-6 shrink-0 text-red-400" />
                 <div>
-                  <p className="text-sm font-medium text-red-300">{ui("Connection failed")}</p>
-                  <p className="mt-0.5 text-xs text-red-400/80">{result.error || ui("Unknown error")}</p>
+                  <p className="text-sm font-medium text-red-300">
+                    {ui("Connection failed")}
+                  </p>
+                  <p className="mt-0.5 text-xs text-red-400/80">
+                    {result.error || ui("Unknown error")}
+                  </p>
                 </div>
               </div>
             )}
@@ -95,7 +122,8 @@ export function StepValidate({
                 onClick={onTest}
                 className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                <Zap className="h-3 w-3" /> {ui("Test Again")} </button>
+                <Zap className="h-3 w-3" /> {ui("Test Again")}{" "}
+              </button>
             </div>
           </div>
         )}
@@ -150,7 +178,12 @@ export function StepModels({
   if (displayModels.length === 0) {
     return (
       <div className="py-12 text-center">
-        <p className="text-sm text-muted-foreground"> {ui("No models available. The provider will be saved without model selections.")} </p>
+        <p className="text-sm text-muted-foreground">
+          {" "}
+          {ui(
+            "No models available. The provider will be saved without model selections.",
+          )}{" "}
+        </p>
       </div>
     );
   }
@@ -159,16 +192,24 @@ export function StepModels({
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          {selectedCount} {ui("of")} {displayModels.length} {ui("models selected")} </p>
+          {selectedCount} {ui("of")} {displayModels.length}{" "}
+          {ui("models selected")}{" "}
+        </p>
         <div className="flex gap-2">
           <button
             onClick={() => onSelectAll(true)}
             className="text-xs text-brand-400 hover:text-brand-300 transition-colors"
-          > {ui("Select All")} </button>
+          >
+            {" "}
+            {ui("Select All")}{" "}
+          </button>
           <button
             onClick={() => onSelectAll(false)}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          > {ui("Deselect All")} </button>
+          >
+            {" "}
+            {ui("Deselect All")}{" "}
+          </button>
         </div>
       </div>
 
@@ -191,7 +232,9 @@ export function StepModels({
 
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-foreground truncate">{model.name}</span>
+                <span className="text-sm text-foreground truncate">
+                  {model.name}
+                </span>
                 {model.contextWindow && (
                   <span className="shrink-0 rounded bg-muted px-1.5 py-0.5 text-[10px] text-muted-foreground tabular-nums">
                     {formatContextWindow(model.contextWindow)}
@@ -232,7 +275,9 @@ export function StepModels({
                   onChange={() => onSetDefault(model.id)}
                   className="h-3.5 w-3.5 border-input bg-background text-brand-500 focus:ring-brand-500 focus:ring-offset-0 accent-brand-500"
                 />
-                <span className="text-[10px] text-muted-foreground">{ui("Default")}</span>
+                <span className="text-[10px] text-muted-foreground">
+                  {ui("Default")}
+                </span>
               </label>
             )}
           </div>

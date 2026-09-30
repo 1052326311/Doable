@@ -1,8 +1,7 @@
 "use client";
-import {translateUiData} from "@/i18n/text";
+import { translateUiData } from "@/i18n/text";
 
-import {useUiText} from "@/i18n/use-ui-text";
-
+import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useCallback, useEffect } from "react";
 import {
@@ -18,9 +17,23 @@ import {
   AlignJustify,
   ArrowRight,
 } from "lucide-react";
-import type { DiffResult, FileChange, FileChangeType } from "./version-diff-engine";
-import { getChangeColors, getFileName, getFileDir } from "./version-diff-engine";
-import { FileHeader, NewFileView, DeletedFileView, SideBySideView, UnifiedView } from "./version-diff-views";
+import type {
+  DiffResult,
+  FileChange,
+  FileChangeType,
+} from "./version-diff-engine";
+import {
+  getChangeColors,
+  getFileName,
+  getFileDir,
+} from "./version-diff-engine";
+import {
+  FileHeader,
+  NewFileView,
+  DeletedFileView,
+  SideBySideView,
+  UnifiedView,
+} from "./version-diff-views";
 
 // ─── Types ──────────────────────────────────────────────────
 
@@ -60,7 +73,7 @@ export function VersionDiffDialog({
 
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<"side-by-side" | "unified">(
-    "unified"
+    "unified",
   );
 
   // Auto-select first file when diff loads
@@ -80,7 +93,8 @@ export function VersionDiffDialog({
   const selectedChange = diff?.changes.find((c) => c.path === selectedFile);
 
   // Compute file index for navigation
-  const fileIndex = diff?.changes.findIndex((c) => c.path === selectedFile) ?? -1;
+  const fileIndex =
+    diff?.changes.findIndex((c) => c.path === selectedFile) ?? -1;
   const canGoPrev = fileIndex > 0;
   const canGoNext = diff ? fileIndex < diff.changes.length - 1 : false;
 
@@ -100,7 +114,7 @@ export function VersionDiffDialog({
     (e: React.MouseEvent) => {
       if (e.target === e.currentTarget) onClose();
     },
-    [onClose]
+    [onClose],
   );
 
   // Keyboard navigation
@@ -127,10 +141,16 @@ export function VersionDiffDialog({
         <div className="flex items-center justify-between border-b px-5 py-3">
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 text-sm">
-              <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 font-mono font-semibold text-xs"> {ui("v")}{fromVersion}
+              <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 font-mono font-semibold text-xs">
+                {" "}
+                {ui("v")}
+                {fromVersion}
               </span>
               <ArrowRight className="h-3.5 w-3.5 text-muted-foreground" />
-              <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 font-mono font-semibold text-xs text-primary"> {ui("v")}{toVersion}
+              <span className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 font-mono font-semibold text-xs text-primary">
+                {" "}
+                {ui("v")}
+                {toVersion}
               </span>
             </div>
             {diff && (
@@ -138,15 +158,18 @@ export function VersionDiffDialog({
                 <span className="text-muted-foreground/30">|</span>
                 {diff.summary.added > 0 && (
                   <span className="text-green-600">
-                    +{diff.summary.added} {ui("added")} </span>
+                    +{diff.summary.added} {ui("added")}{" "}
+                  </span>
                 )}
                 {diff.summary.modified > 0 && (
                   <span className="text-amber-600">
-                    ~{diff.summary.modified} {ui("modified")} </span>
+                    ~{diff.summary.modified} {ui("modified")}{" "}
+                  </span>
                 )}
                 {diff.summary.deleted > 0 && (
                   <span className="text-red-600">
-                    -{diff.summary.deleted} {ui("deleted")} </span>
+                    -{diff.summary.deleted} {ui("deleted")}{" "}
+                  </span>
                 )}
               </div>
             )}
@@ -189,7 +212,8 @@ export function VersionDiffDialog({
                 onClick={() => setViewMode("unified")}
                 title={ui("Unified view")}
               >
-                <AlignJustify className="h-3 w-3" /> {ui("Unified")} </button>
+                <AlignJustify className="h-3 w-3" /> {ui("Unified")}{" "}
+              </button>
               <button
                 className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium transition-colors ${
                   viewMode === "side-by-side"
@@ -199,7 +223,8 @@ export function VersionDiffDialog({
                 onClick={() => setViewMode("side-by-side")}
                 title={ui("Side by side view")}
               >
-                <Columns2 className="h-3 w-3" /> {ui("Split")} </button>
+                <Columns2 className="h-3 w-3" /> {ui("Split")}{" "}
+              </button>
             </div>
 
             {/* Close */}
@@ -228,18 +253,26 @@ export function VersionDiffDialog({
           ) : diff.changes.length === 0 ? (
             <div className="flex flex-1 flex-col items-center justify-center gap-2 text-muted-foreground">
               <FileText className="h-6 w-6 opacity-50" />
-              <p className="text-sm">{ui("No changes between these versions")}</p>
+              <p className="text-sm">
+                {ui("No changes between these versions")}
+              </p>
             </div>
           ) : (
             <>
               {/* File list sidebar */}
               <div className="w-60 shrink-0 overflow-y-auto border-r bg-muted/20">
                 <div className="p-2">
-                  <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground"> {ui("Changed Files (")}{diff.summary.totalChanges})
+                  <p className="mb-1.5 px-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    {" "}
+                    {ui("Changed Files (")}
+                    {diff.summary.totalChanges})
                   </p>
                   <div className="space-y-0.5">
                     {diff.changes.map((change) => {
-                      const colors = translateUiData(getChangeColors(change.type), ui);
+                      const colors = translateUiData(
+                        getChangeColors(change.type),
+                        ui,
+                      );
                       const Icon = getChangeIcon(change.type);
                       const isSelected = selectedFile === change.path;
 
@@ -283,7 +316,9 @@ export function VersionDiffDialog({
                 {!selectedChange ? (
                   <div className="flex h-full flex-col items-center justify-center text-muted-foreground gap-2">
                     <FileText className="h-6 w-6 opacity-50" />
-                    <p className="text-sm">{ui("Select a file to view changes")}</p>
+                    <p className="text-sm">
+                      {ui("Select a file to view changes")}
+                    </p>
                   </div>
                 ) : (
                   <>
@@ -312,4 +347,3 @@ export function VersionDiffDialog({
     </div>
   );
 }
-
