@@ -1,6 +1,6 @@
 import { getLocale } from "next-intl/server";
 import { normalizeLocale } from "@/i18n/config";
-import { LocaleProvider, LanguageSwitcher } from "@/i18n/locale-provider";
+import { LocaleProvider, PublicLanguageSwitcher } from "@/i18n/locale-provider";
 import type { Metadata } from "next";
 import "./globals.css";
 import { TracingInit } from "@/components/tracing-init";
@@ -60,7 +60,7 @@ export default async function RootLayout({
         <LocaleProvider locale={locale}>
           <TracingInit />
           {children}
-          <LanguageSwitcher />
+          <PublicLanguageSwitcher />
         </LocaleProvider>
       </body>
     </html>

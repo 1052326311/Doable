@@ -105,8 +105,8 @@ export function translateThinkingPrefix(
   for (;;) {
     const match = pattern.exec(remaining);
     if (!match) break;
-    prefix += match[1]! + ui(match[2]!);
-    remaining = remaining.slice(match[0].length);
+    prefix += (match[1] ?? "") + ui(match[2] ?? "");
+    remaining = remaining.slice(match[0]!.length);
   }
   return prefix + remaining;
 }

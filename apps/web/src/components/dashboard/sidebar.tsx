@@ -1,4 +1,5 @@
 "use client";
+import { LanguageSwitcher } from "@/i18n/locale-provider";
 import { useUiText } from "@/i18n/use-ui-text";
 
 import { BrandLogo, BrandWordmark } from "@/components/brand-logo";
@@ -842,6 +843,10 @@ export function DashboardSidebar({
               </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="start" className="w-56">
+              <div className="px-2 py-2">
+                <LanguageSwitcher id="account-language" />
+              </div>
+              <DropdownMenuSeparator />
               <DropdownMenuItem
                 className="focus:bg-accent focus:text-accent-foreground"
                 onClick={() => router.push("/settings")}

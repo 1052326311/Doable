@@ -1,6 +1,7 @@
 "use client";
 import { translateUiData } from "@/i18n/text";
 
+import { LanguageSwitcher } from "@/i18n/locale-provider";
 import { useUiText } from "@/i18n/use-ui-text";
 
 import { useState, useMemo, type FormEvent } from "react";
@@ -213,6 +214,18 @@ export default function SettingsPage() {
       </div>
 
       <div className="space-y-6">
+        <SettingsSection
+          icon={Monitor}
+          title={ui("General")}
+          description={ui("Personal interface preferences")}
+        >
+          <LanguageSwitcher id="settings-language" />
+          <p className="mt-2 text-xs text-muted-foreground">
+            {ui(
+              "Interface language does not change AI replies or generated apps.",
+            )}
+          </p>
+        </SettingsSection>
         <ProfileSection
           user={user}
           displayName={displayName}

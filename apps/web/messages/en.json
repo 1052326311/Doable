@@ -3876,6 +3876,21 @@
     "m99fb9cd2934b": "Preview failed to start.",
     "me64576a3b265": "Preview failed to start (exit code {code}).",
     "mc196e9373911": "Connecting to AI model...",
-    "m829805cc6c58": "Completed {count} actions"
+    "m829805cc6c58": "Completed {count} actions",
+    "mcacdca0e9b99": "Plan finished",
+    "m9776f2e45ce3": "Executing plan",
+    "m311d1760445a": "Plan needs attention",
+    "mec71278eb553": "Plan paused",
+    "m5ee0169f4b8f": "Steps show reported results, not elapsed build time.",
+    "m1deff346b554": "No active run. Unreported steps remain unconfirmed.",
+    "m5776262a5788": "Could not approve plan. Please try again.",
+    "m8027f432a7fb": "Interface language",
+    "m0ea4ae59f939": "Choose the language used by platform menus and messages.",
+    "m40cad2173656": "This changes the platform interface only. AI replies and generated apps use their own instructions.",
+    "mc3a720f0c8bd": "Personal interface preferences",
+    "m6998dfbbd128": "Interface language does not change AI replies or generated apps.",
+    "m0beff060665e": "Connecting to AI...",
+    "me50a077692e0": "AI is writing code...",
+    "m619eec4a7c1f": "AI is analyzing the project..."
   }
 }

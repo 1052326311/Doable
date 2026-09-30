@@ -39215,5 +39215,140 @@
         "kind": "icu"
       }
     ]
+  },
+  "mcacdca0e9b99": {
+    "source": "Plan finished",
+    "locations": [
+      {
+        "file": "modules/editor/chat/plan/plan-progress.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "m9776f2e45ce3": {
+    "source": "Executing plan",
+    "locations": [
+      {
+        "file": "modules/editor/chat/plan/plan-progress.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "m311d1760445a": {
+    "source": "Plan needs attention",
+    "locations": [
+      {
+        "file": "modules/editor/chat/plan/plan-progress.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "mec71278eb553": {
+    "source": "Plan paused",
+    "locations": [
+      {
+        "file": "modules/editor/chat/plan/plan-progress.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "m5ee0169f4b8f": {
+    "source": "Steps show reported results, not elapsed build time.",
+    "locations": [
+      {
+        "file": "modules/editor/chat/plan/plan-progress.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "m1deff346b554": {
+    "source": "No active run. Unreported steps remain unconfirmed.",
+    "locations": [
+      {
+        "file": "modules/editor/chat/plan/plan-progress.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "m5776262a5788": {
+    "source": "Could not approve plan. Please try again.",
+    "locations": [
+      {
+        "file": "modules/editor/chat/plan/plan-progress.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "m8027f432a7fb": {
+    "source": "Interface language",
+    "locations": [
+      {
+        "file": "app/(dashboard)/settings/page.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "m0ea4ae59f939": {
+    "source": "Choose the language used by platform menus and messages.",
+    "locations": [
+      {
+        "file": "app/(dashboard)/settings/page.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "m40cad2173656": {
+    "source": "This changes the platform interface only. AI replies and generated apps use their own instructions.",
+    "locations": [
+      {
+        "file": "app/(dashboard)/settings/page.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "mc3a720f0c8bd": {
+    "source": "Personal interface preferences",
+    "locations": [
+      {
+        "file": "app/(dashboard)/settings/page.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "m6998dfbbd128": {
+    "source": "Interface language does not change AI replies or generated apps.",
+    "locations": [
+      {
+        "file": "app/(dashboard)/settings/page.tsx",
+        "kind": "expression"
+      }
+    ]
+  },
+  "m0beff060665e": {
+    "source": "Connecting to AI...",
+    "locations": [
+      {
+        "file": "modules/editor/chat/tool-steps-card.tsx",
+        "kind": "dynamic-status"
+      }
+    ]
+  },
+  "me50a077692e0": {
+    "source": "AI is writing code...",
+    "locations": [
+      {
+        "file": "modules/editor/chat/tool-steps-card.tsx",
+        "kind": "dynamic-status"
+      }
+    ]
+  },
+  "m619eec4a7c1f": {
+    "source": "AI is analyzing the project...",
+    "locations": [
+      {
+        "file": "modules/editor/chat/tool-steps-card.tsx",
+        "kind": "dynamic-status"
+      }
+    ]
   }
 }
