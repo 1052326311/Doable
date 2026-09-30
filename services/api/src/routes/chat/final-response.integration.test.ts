@@ -42,6 +42,7 @@ test("tagged reasoning after a tool is not promoted with the final answer", () =
   const { state, emit } = fixture();
   emit("tool.execution_complete", { toolName: "read_file", success: true });
   emit("assistant.message_delta", { messageId: "m1", deltaContent: "<think>Internal reasoning.</think>Final answer." });
+  emit("assistant.message", { messageId: "m1", content: "<think>Internal reasoning.</think>Final answer." });
   assert.equal(finalizeLeadingResponse(state), "Final answer.");
   assert.equal(state.assistantThinking, "Internal reasoning.");
 });
@@ -54,4 +55,25 @@ test("text followed by another tool call is not a final answer", () => {
   assert.equal(finalizeLeadingResponse(state), "");
   assert.equal(state.assistantContent, "");
   assert.equal(state.assistantThinking, "I need another file.");
+});
+
+
+test("complete-only final SDK message is not hidden by prior reasoning length", () => {
+  const { state, emit } = fixture();
+  emit("assistant.reasoning_delta", { deltaContent: "Long reasoning from an earlier tool round. ".repeat(20) });
+  emit("tool.execution_complete", { toolName: "read_file", success: true });
+  emit("assistant.message", { messageId: "final", content: "Final answer." });
+  assert.equal(finalizeLeadingResponse(state), "Final answer.");
+  assert.equal(state.assistantContent, "Final answer.");
+});
+
+test("thinking markers split across deltas stay out of the answer", () => {
+  const { state, emit } = fixture();
+  for (const deltaContent of ["<thi", "nk>Reasoning", "</thi", "nk>Answer."]) {
+    emit("assistant.message_delta", { messageId: "final", deltaContent });
+  }
+  emit("assistant.message", { messageId: "final", content: "<think>Reasoning</think>Answer." });
+  assert.equal(finalizeLeadingResponse(state), "Answer.");
+  assert.equal(state.assistantContent, "Answer.");
+  assert.equal(state.assistantThinking, "Reasoning");
 });

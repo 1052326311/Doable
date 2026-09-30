@@ -80,8 +80,11 @@ export function createProcessEvent(
         }
         state.lastCapturedMsgId = deltaMessageId;
         state.msgIdDeltaStart = state.assistantContent.length;
+        state.currentMessageTextLength = 0;
         state.lastMsgIdSepEmitted = true;
       }
+      const rawText = String(evtData?.deltaContent ?? evtData?.content ?? evtData?.delta ?? "");
+      state.currentMessageTextLength += sanitizeText(rawText, { preserveThinkingMarkers: true }).length;
     }
 
     // assistant.message catch-up (BUG-119)
@@ -145,55 +148,21 @@ function handleAssistantMessageCatchUp(
     }
     state.lastCapturedMsgId = msgId;
     state.msgIdDeltaStart = state.assistantContent.length;
+    state.currentMessageTextLength = 0;
   }
   // Reset the flag after catch-up so the next transition works fresh
   state.lastMsgIdSepEmitted = false;
   if (!content) return;
   const sanitizedContent = sanitizeText(content, { preserveThinkingMarkers: true });
-  const deltasSoFar = state.assistantContent.slice(state.msgIdDeltaStart);
-  // Account for text we classified as thinking via the leading-text buffer.
-  // The SDK's assistant.message includes ALL text (reasoning + content), but
-  // our delta handler split it into assistantContent and assistantThinking.
-  // Without this, the catch-up would see thinking text as "missing" and
-  // re-emit it as text_delta, leaking reasoning into the chat.
-  const totalProcessed = deltasSoFar.length + state.assistantThinking.length;
-  if (sanitizedContent.length > totalProcessed) {
-    const missing = sanitizedContent.slice(totalProcessed);
-    console.log(`[Chat][${projectId.slice(0, 8)}] catch-up: msg=${sanitizedContent.length} processed=${totalProcessed} (content=${deltasSoFar.length} thinking=${state.assistantThinking.length}) missing=${missing.length}`);
-    let visibleText = "";
-    for (const chunk of channelRouter.process(missing)) {
-      if (!chunk.content) continue;
-      if (chunk.type === "text") {
-        visibleText += chunk.content;
-        stream.writeSSE({ data: JSON.stringify({ type: "text_delta", data: chunk.content }) }).catch(() => {});
-      } else if (chunk.type === "thinking") {
-        state.assistantThinking += chunk.content;
-        stream.writeSSE({ data: JSON.stringify({ type: "thinking", data: stripServerPaths(chunk.content) }) }).catch(() => {});
-      } else if (chunk.type === "tool") {
-        state.sawToolDelta = true;
-        stream.writeSSE({ data: JSON.stringify({ type: "tool_delta", data: chunk.content }) }).catch(() => {});
-      }
-    }
-    if (visibleText) {
-      state.assistantContent = state.assistantContent.slice(0, state.msgIdDeltaStart) + deltasSoFar + visibleText;
-    }
-  } else if (!totalProcessed && !state.assistantContent) {
-    let visibleText = "";
-    for (const chunk of channelRouter.process(sanitizedContent)) {
-      if (!chunk.content) continue;
-      if (chunk.type === "text") {
-        visibleText += chunk.content;
-        stream.writeSSE({ data: JSON.stringify({ type: "text_delta", data: chunk.content }) }).catch(() => {});
-      } else if (chunk.type === "thinking") {
-        state.assistantThinking += chunk.content;
-        stream.writeSSE({ data: JSON.stringify({ type: "thinking", data: stripServerPaths(chunk.content) }) }).catch(() => {});
-      } else if (chunk.type === "tool") {
-        state.sawToolDelta = true;
-        stream.writeSSE({ data: JSON.stringify({ type: "tool_delta", data: chunk.content }) }).catch(() => {});
-      }
-    }
-    state.assistantContent = visibleText;
+  // Count only deltas from THIS message, including markers. Session-wide
+  // thinking length can hide a complete final answer from a non-streaming
+  // provider, while stripped tag lengths can cause duplicated catch-up text.
+  const missing = sanitizedContent.slice(state.currentMessageTextLength);
+  if (missing) {
+    routeSseEvent(stream, state, channelRouter, { type: "text_delta", data: missing }, evtData, projectId, userId, messageId);
+    state.currentMessageTextLength = sanitizedContent.length;
   }
+
 }
 
 function routeSseEvent(
