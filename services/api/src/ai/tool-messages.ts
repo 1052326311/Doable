@@ -293,7 +293,7 @@ export function sanitizeCommand(cmd: string): string {
   return result;
 }
 
-export function sanitizeText(text: string): string {
+export function sanitizeText(text: string, options: { preserveThinkingMarkers?: boolean } = {}): string {
   if (!text) return text;
 
   let result = text;
@@ -303,10 +303,12 @@ export function sanitizeText(text: string): string {
   //    <|channel>thought, <channel>, <|channel|> — Gemma 4
   //    <rationale>, </rationale> — Claude (when prompted)
   //    <answer>, </answer> — DeepSeek (post-thinking answer marker)
-  result = result.replace(/<\/?think>/gi, "");
-  result = result.replace(/<\|?channel\|?>(?:thought)?/gi, "");
-  result = result.replace(/<\/?rationale>/gi, "");
-  result = result.replace(/<\/?answer>/gi, "");
+  if (!options.preserveThinkingMarkers) {
+    result = result.replace(/<\/?think>/gi, "");
+    result = result.replace(/<\|?channel\|?>(?:thought)?/gi, "");
+    result = result.replace(/<\/?rationale>/gi, "");
+    result = result.replace(/<\/?answer>/gi, "");
+  }
 
   // 1. Strip absolute server paths
   result = stripServerPaths(result);

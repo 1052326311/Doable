@@ -173,7 +173,7 @@ export class ChannelTokenRouter {
 }
 
 
-export function mapEventToSSE(event: Record<string, unknown>): SSEEvent | null {
+export function mapEventToSSE(event: Record<string, unknown>, options: { preserveThinkingMarkers?: boolean } = {}): SSEEvent | null {
   const type = event.type as string;
   const data = event.data as Record<string, unknown> | undefined;
 
@@ -182,14 +182,14 @@ export function mapEventToSSE(event: Record<string, unknown>): SSEEvent | null {
     case "assistant.message_delta": {
       const delta = (data?.deltaContent ?? "") as string;
       if (!delta) return null;
-      return { type: "text_delta", data: sanitizeText(delta) };
+      return { type: "text_delta", data: sanitizeText(delta, options) };
     }
 
     // ─── SDK v0.2.0 streaming delta (raw text chunks) ────
     case "assistant.streaming_delta": {
       const streamDelta = (data?.deltaContent ?? data?.content ?? data?.delta ?? "") as string;
       if (!streamDelta) return null;
-      return { type: "text_delta", data: sanitizeText(streamDelta) };
+      return { type: "text_delta", data: sanitizeText(streamDelta, options) };
     }
 
     // ─── Final complete message (sent after streaming ends) ─
@@ -199,7 +199,7 @@ export function mapEventToSSE(event: Record<string, unknown>): SSEEvent | null {
     // ─── Legacy / direct provider text events ─────────────
     case "text_delta": {
       const raw = (data?.content ?? data ?? "") as string;
-      return { type: "text_delta", data: sanitizeText(String(raw)) };
+      return { type: "text_delta", data: sanitizeText(String(raw), options) };
     }
 
     // ─── Streaming reasoning deltas (token-by-token thinking) ──

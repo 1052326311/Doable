@@ -149,7 +149,7 @@ function handleAssistantMessageCatchUp(
   // Reset the flag after catch-up so the next transition works fresh
   state.lastMsgIdSepEmitted = false;
   if (!content) return;
-  const sanitizedContent = sanitizeText(content);
+  const sanitizedContent = sanitizeText(content, { preserveThinkingMarkers: true });
   const deltasSoFar = state.assistantContent.slice(state.msgIdDeltaStart);
   // Account for text we classified as thinking via the leading-text buffer.
   // The SDK's assistant.message includes ALL text (reasoning + content), but
