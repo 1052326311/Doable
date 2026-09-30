@@ -1,5 +1,6 @@
 "use client";
-
+import {usePlanSync} from "@/modules/editor/hooks/use-plan-sync";
+import {acceptPlanSnapshot} from "@/modules/editor/chat/plan/plan-state";
 import { useState, useRef, useCallback, useEffect, memo, Suspense } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -696,9 +697,10 @@ async function streamChat(
 
           if (parsed.type === "plan_step_update" && onPlanStepUpdate) {
             const d = parsed.data as Record<string, unknown> | undefined;
+            if (d?.plan && onPlan) onPlan(d.plan as Plan);
             const stepId = d?.stepId as string | undefined;
             const status = d?.status as string | undefined;
-            if (stepId && status) {
+            if (!d?.plan && stepId && status) {
               onPlanStepUpdate(stepId, status);
             }
           }
@@ -1014,9 +1016,10 @@ function processOneSSEPayload(
 
     if (parsed.type === "plan_step_update" && cb.onPlanStepUpdate) {
       const d = parsed.data as Record<string, unknown> | undefined;
+      if(d?.plan && cb.onPlan) cb.onPlan(d.plan as Plan);
       const stepId = d?.stepId as string | undefined;
       const status = d?.status as string | undefined;
-      if (stepId && status) cb.onPlanStepUpdate(stepId, status);
+      if (!d?.plan && stepId && status) cb.onPlanStepUpdate(stepId, status);
     }
 
     if (parsed.type === "provision_supabase_required" && cb.onProvisionSupabase) {
@@ -1975,6 +1978,15 @@ function EditorPageInner() {
   });
   const [inputValue, setInputValue] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [planError, setPlanError] = useState<string | null>(null);
+  const receivePlanSnapshot = useCallback((plan:Plan|null)=>{
+    setActivePlan(prev=>acceptPlanSnapshot(prev,plan,resolvedProjectId));
+  },[resolvedProjectId]);
+  useEffect(() => {
+    if (activePlan) setPlanPhase(activePlan.status === "draft" && chatMode === "plan" ? "reviewing" : activePlan.status !== "draft" ? "building" : "idle");
+  }, [activePlan, chatMode]);
+  usePlanSync(resolvedProjectId,isStreaming,receivePlanSnapshot);
+
   const [keystrokeSignal, setKeystrokeSignal] = useState(0);
 
   // Skill manifest for / picker button
@@ -3159,31 +3171,6 @@ function EditorPageInner() {
   useEffect(() => {
     loadFromApi();
 
-    // Restore active plan state on mount (e.g., after refresh). Only
-    // restore DRAFT plans when the user's current chat mode is "plan"
-    // — otherwise a stale draft from a previous plan-mode session
-    // hijacks the chat UI into PlanCard review state and blocks the
-    // user who has since switched to build mode. `approved` /
-    // `in_progress` plans (the AI is actively executing them) always
-    // restore regardless of mode so a refresh doesn't drop the build
-    // in flight.
-    (async () => {
-      try {
-        const planRes = await apiFetch<{ data: any }>(`/projects/${resolvedProjectId}/plan`);
-        if (
-          planRes.data &&
-          planRes.data.status === "draft" &&
-          chatMode === "plan"
-        ) {
-          setActivePlan(planRes.data);
-          setPlanPhase("reviewing");
-        } else if (planRes.data && (planRes.data.status === "approved" || planRes.data.status === "in_progress")) {
-          setActivePlan(planRes.data);
-          setPlanPhase("building");
-        }
-      } catch { /* no active plan */ }
-    })();
-
     // Check if AI is still actively working (e.g., user refreshed mid-build).
     // Strategy:
     //   1. Call /chat/status to see if there's an active stream and get its messageId.
@@ -3365,8 +3352,7 @@ function EditorPageInner() {
             setPlanPhase("clarifying");
           },
           onPlan: (plan) => {
-            setActivePlan(plan);
-            setPlanPhase("reviewing");
+            receivePlanSnapshot(plan);
           },
           onPlanStepUpdate: (stepId, status) => {
             setActivePlan((prev) => {
@@ -3636,8 +3622,7 @@ function EditorPageInner() {
               setPlanPhase("clarifying");
             },
             onPlan: (plan) => {
-              setActivePlan(plan);
-              setPlanPhase("reviewing");
+              receivePlanSnapshot(plan);
             },
             onPlanStepUpdate: (stepId, status) => {
               setActivePlan((prev) => {
@@ -4218,8 +4203,7 @@ function EditorPageInner() {
           setPlanPhase("clarifying");
         },
         (plan) => {
-          setActivePlan(plan);
-          setPlanPhase("reviewing");
+          receivePlanSnapshot(plan);
         },
         (stepId, status) => {
           setActivePlan(prev => {
@@ -5621,7 +5605,7 @@ function EditorPageInner() {
               {/* Plan progress tracker during build */}
               {planPhase === "building" && activePlan && (
                 <div className="px-3 py-2">
-                  <PlanProgress plan={activePlan} />
+                  <PlanProgress plan={activePlan} running={isStreaming} />
                 </div>
               )}
 
@@ -6231,42 +6215,23 @@ function EditorPageInner() {
                 </div>
               )}
 
+              {planError && <p role="alert" className="px-3 py-2 text-xs text-red-500">{planError}</p>}
               {/* Plan Mode V2: Plan card for review */}
               {planPhase === "reviewing" && activePlan && (
                 <div className="px-3 py-2">
                   <PlanCard
                     plan={activePlan}
                     isEditable
-                    onApprove={() => {
-                      // Capture plan data before state changes
+                    onApprove={async () => {
+                      setPlanError(null);
                       const plan = activePlan;
-                      const summary = plan.summary;
-                      const stepList = plan.steps.map((s) => `${s.order}. ${s.title}`).join("\n");
-
-                      // Switch mode IMMEDIATELY — don't wait for API
-                      setActivePlan(prev => prev ? { ...prev, status: "approved", approvedAt: new Date().toISOString() } : prev);
-                      setPlanPhase("building");
-                      setChatMode("agent");
-
-                      // Approve in DB (fire and forget — UI already switched)
-                      const token = getStoredTokens().accessToken;
-                      fetch(`${API_URL}/projects/${resolvedProjectId}/plan/approve`, {
-                        method: "POST",
-                        headers: {
-                          "Content-Type": "application/json",
-                          ...(token ? { Authorization: `Bearer ${token}` } : {}),
-                        },
-                        body: JSON.stringify({ planId: plan.id }),
-                      }).catch(() => {});
-
-                      // Trigger the AI to start building — pass "agent" mode explicitly
-                      setTimeout(() => {
-                        sendMessage(
-                          `Start building! Here's the approved plan:\n\n**${summary}**\n\n${stepList}\n\nBuild each step in order. The full plan details are in .doable/plan.md.`,
-                          undefined,
-                          "agent"
-                        );
-                      }, 150);
+                      const stepList = plan.steps.map(s=>`${s.order}. ${s.title} (Step ID: ${s.id})`).join("\n");
+                      try {
+                        await apiFetch(`/projects/${resolvedProjectId}/plan/approve`,{method:"POST",body:JSON.stringify({planId:plan.id})});
+                        setActivePlan(prev=>prev?{...prev,status:"approved",revision:(prev.revision??0)+1}:prev);
+                        setPlanPhase("building");setChatMode("agent");
+                        sendMessage(`Start building! Here's the approved plan:\n\n**${plan.summary}**\n\n${stepList}\n\nBuild each step in order. The full plan details are in .doable/plan.md.`,undefined,"agent");
+                      } catch(err) {setPlanError(err instanceof Error?err.message:"Could not approve plan. Please try again.");}
                     }}
                     onRefine={() => {
                       sendMessage("Please refine the plan based on my feedback.");

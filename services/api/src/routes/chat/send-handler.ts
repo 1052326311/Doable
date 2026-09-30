@@ -3,6 +3,8 @@
  * Coordinates all chat stream phases: setup, session management,
  * message sending, recovery, and post-processing.
  */
+import { getPlan } from "../../ai/plan-store.js";
+import { planToMarkdown } from "../../ai/plan-state.js";
 import { Hono } from "hono";
 import { z } from "zod";
 import { zValidator } from "@hono/zod-validator";
@@ -621,6 +623,12 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
             console.log(`[Chat][${projectId.slice(0, 8)}] Skill invocation: ${invokedSkillNames.join(", ")}`);
             // Strip the /skill prefix from the message sent to AI
             augmentedContent = cleanMessage + (augmentedContent !== content ? augmentedContent.slice(content.length) : "");
+          }
+          // The DB snapshot is current even when an older session cached plan.md.
+          // It supplies stable IDs; finishing this turn is not proof of plan completion.
+          const currentPlan = await getPlan(projectId);
+          if (mode !== "plan" && currentPlan && currentPlan.status !== "draft") {
+            augmentedContent += `\n\n<current_project_plan>\n${planToMarkdown(currentPlan)}\n</current_project_plan>`;
           }
           const [projectContext, allTools] = await Promise.all([
             buildProjectContextForMode(projectId, mode, workspaceId, userId, {

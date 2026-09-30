@@ -19,7 +19,7 @@ import {
   planEvent,
 } from "../streaming.js";
 import { updateContextFile } from "../context/index.js";
-import { sql } from "../../db/index.js";
+
 
 // Tools allowed in plan mode: read-only + plan-specific
 const PLAN_MODE_TOOLS = new Set([
@@ -28,6 +28,7 @@ const PLAN_MODE_TOOLS = new Set([
   "search_files",
   "ask_clarification",
   "create_plan",
+  "get_plan",
 ]);
 
 // ─── Plan Mode Handler ───────────────────────────────────
@@ -184,24 +185,6 @@ export async function* runPlanMode(
       if (result.metadata?.type === "plan") {
         const plan = result.metadata.plan as Plan;
 
-        // Save plan to database
-        try {
-          await savePlanToDb(plan, toolCtx.projectId);
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          yield errorEvent(`Failed to save plan to DB: ${msg}`, "DB_ERROR", true);
-          // Continue anyway — emit the plan event so the frontend gets it
-        }
-
-        // Save plan to .doable/plan.md
-        try {
-          const markdown = planToMarkdown(plan);
-          await updateContextFile(toolCtx.projectId, "plan.md", markdown);
-        } catch (err) {
-          const msg = err instanceof Error ? err.message : String(err);
-          yield errorEvent(`Failed to save plan file: ${msg}`, "SAVE_ERROR", true);
-        }
-
         yield planEvent(plan);
         return;
       }
@@ -209,53 +192,7 @@ export async function* runPlanMode(
   }
 }
 
-// ─── Save Plan to Database ───────────────────────────────
-
-async function savePlanToDb(plan: Plan, projectId: string): Promise<void> {
-  // Insert the plan record
-  await sql`
-    INSERT INTO plans (id, project_id, summary, complexity, status, original_prompt, clarification_answers, created_at)
-    VALUES (
-      ${plan.id},
-      ${projectId},
-      ${plan.summary},
-      ${plan.complexity},
-      ${plan.status},
-      ${plan.originalPrompt ?? null},
-      ${plan.clarificationAnswers ? JSON.stringify(plan.clarificationAnswers) : null},
-      ${plan.createdAt}
-    )
-  `;
-
-  // Insert all plan steps
-  for (const step of plan.steps) {
-    await sql`
-      INSERT INTO plan_steps (id, plan_id, "order", title, description, details, status, file_paths)
-      VALUES (
-        ${step.id},
-        ${plan.id},
-        ${step.order},
-        ${step.title},
-        ${step.description},
-        ${step.details ?? null},
-        ${step.status},
-        ${step.filePaths ?? null}
-      )
-    `;
-  }
-}
-
-// ─── Plan to Markdown ────────────────────────────────────
-
-export function planToMarkdown(plan: Plan): string {
-  let md = `# Plan\n\n${plan.summary}\n\n**Complexity:** ${plan.complexity}\n\n`;
-  for (const step of plan.steps) {
-    md += `## ${step.order}. ${step.title}\n\n${step.description}\n\n`;
-    if (step.details) md += `**Details:** ${step.details}\n\n`;
-    if (step.filePaths?.length) md += `**Files:** ${step.filePaths.join(", ")}\n\n`;
-  }
-  return md;
-}
+export { planToMarkdown } from "../plan-state.js";
 
 // ─── Plan Extraction (Fallback) ──────────────────────────
 

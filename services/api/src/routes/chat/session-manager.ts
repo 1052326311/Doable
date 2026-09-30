@@ -1,3 +1,4 @@
+import {selectModeTools} from "../../ai/plan-tool-policy.js";
 /**
  * Session management: eviction, resume, creation, DB persistence,
  * and session recreation on engine loss during sendMessage.
@@ -87,15 +88,6 @@ export async function checkAndEvictOnProviderChange(
 
 const modeTools = modeToolQueries(sql);
 
-// Hardcoded fallbacks (used when no DB config exists)
-const PLAN_MODE_ALLOWED_DEFAULT = new Set([
-  "read_file", "list_files", "search_files",
-  "ask_clarification", "create_plan", "mark_step_complete",
-]);
-const PLAN_ONLY_TOOLS = new Set([
-  "ask_clarification", "create_plan", "mark_step_complete",
-]);
-
 // In-memory cache for DB tool configs (refreshed every 60s)
 let _toolConfigCache: Map<string, Set<string>> | null = null;
 let _toolConfigCacheAt = 0;
@@ -123,13 +115,7 @@ async function getToolConfigForMode(mode: string): Promise<Set<string> | null> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function filterToolsForMode(allTools: any[], mode: string) {
   const dbAllowed = await getToolConfigForMode(mode);
-  if (dbAllowed) {
-    return allTools.filter((t: { name?: string }) => dbAllowed.has(t.name ?? ""));
-  }
-  // Fallback to hardcoded defaults
-  return mode === "plan"
-    ? allTools.filter((t: { name?: string }) => PLAN_MODE_ALLOWED_DEFAULT.has(t.name ?? ""))
-    : allTools.filter((t: { name?: string }) => !PLAN_ONLY_TOOLS.has(t.name ?? ""));
+  return selectModeTools(allTools,mode,dbAllowed);
 }
 
 /** Check if session mode changed and evict if needed. Returns true if mode changed. */

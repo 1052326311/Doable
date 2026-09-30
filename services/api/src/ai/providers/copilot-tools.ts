@@ -8,6 +8,7 @@
 
 import { defineTool, type Tool } from "@github/copilot-sdk";
 import { existsSync } from "node:fs";
+import { randomUUID } from "node:crypto";
 import path from "node:path";
 import {
   readFile,
@@ -23,6 +24,8 @@ import {
   tanStackHijackViolation,
 } from "../../projects/detect-tanstack-start.js";
 import { sql } from "../../db/index.js";
+import { getPlan, savePlan, setPlanStep, revisePlan } from "../plan-store.js";
+import { isStepStatus } from "../plan-state.js";
 import { createBashTool } from "../tools/bash.js";
 import { validateFileSyntax } from "../tools/validate-syntax.js";
 
@@ -431,20 +434,7 @@ export function createDoableTools(projectId: string, userId?: string, workspaceI
         }));
         const plan = { id: planId, projectId, summary: args.summary, complexity: args.complexity, steps, status: "draft" as const, createdAt: new Date().toISOString() };
 
-        try {
-          const { writeFile: fsWrite, mkdir } = await import("node:fs/promises");
-          const { join } = await import("node:path");
-          const projectPath = getProjectPath(projectId);
-          await mkdir(join(projectPath, ".doable"), { recursive: true });
-          let md = `# Plan\n\nPlan ID: ${planId}\n\n${args.summary}\n\n**Complexity:** ${args.complexity}\n\n`;
-          for (const step of steps) {
-            md += `## ${step.order}. ${step.title}\n\n${step.description}\n\n`;
-            if (step.details) md += `**Details:** ${step.details}\n\n`;
-            if (step.filePaths?.length) md += `**Files:** ${step.filePaths.join(", ")}\n\n`;
-          }
-          md += `\n---\nAfter each step, call mark_step_complete(stepId, planId).\n`;
-          await fsWrite(join(projectPath, ".doable", "plan.md"), md, "utf-8");
-        } catch { /* non-fatal */ }
+        await savePlan(plan as import("@doable/shared/types/ai.js").Plan);
 
         emitToolEvent(projectId, "create_plan", "start", {});
         emitToolEvent(projectId, "create_plan", "end", { output: JSON.stringify(plan) });
@@ -550,19 +540,46 @@ export function createDoableTools(projectId: string, userId?: string, workspaceI
       },
     }),
 
+    defineTool("get_plan", {
+      description: "Read the current project plan, stable step IDs, revision and reported progress. Use before executing or resuming an approved plan.",
+      parameters: { type: "object" as const, properties: {} },
+      handler: async () => ({ success: true, plan: await getPlan(projectId) }),
+    }),
     defineTool("mark_step_complete", {
-      description: "Mark a plan step as completed during build execution.",
+      description: "Report progress on an approved plan step. Set in_progress when starting, completed after checking the result, failed on failure, or skipped when explicitly omitted. Never infer completion from chat ending. IDs come from get_plan.",
       parameters: {
         type: "object" as const,
         properties: {
-          stepId: { type: "string" as const, description: "The step ID to mark complete" },
-          planId: { type: "string" as const, description: "The plan ID" },
+          stepId: { type: "string" as const }, planId: { type: "string" as const },
+          status: { type: "string" as const, enum: ["pending", "in_progress", "completed", "skipped", "failed"] as const },
         },
         required: ["stepId", "planId"] as const,
       },
-      handler: async (args: { stepId: string; planId: string }) => {
-        emitToolEvent(projectId, "mark_step_complete", "end", { stepId: args.stepId, planId: args.planId, status: "completed" });
-        return { success: true, stepId: args.stepId, planId: args.planId, status: "completed" };
+      handler: async (args: { stepId: string; planId: string; status?: string }) => {
+        const status = args.status ?? "completed";
+        if (!isStepStatus(status)) return { success: false, error: "Invalid step status" };
+        try {
+          const plan = await setPlanStep(projectId, args.planId, args.stepId, status);
+          emitToolEvent(projectId, "mark_step_complete", "end", { stepId: args.stepId, planId: args.planId, status, plan });
+          return { success: true, plan, stepId: args.stepId, status };
+        } catch (err) { return { success:false, error: err instanceof Error ? err.message : String(err) }; }
+      },
+    }),
+    defineTool("update_plan", {
+      description: "Revise the current approved plan when the work changes or needs a different order. Keep IDs of existing steps so their progress survives; omit an ID only for a new step. Do not claim completion by rewriting the list.",
+      parameters: {
+        type: "object" as const,
+        properties: {
+          planId: {type:"string" as const},
+          steps: {type:"array" as const, items:{type:"object" as const, properties:{id:{type:"string" as const},title:{type:"string" as const},description:{type:"string" as const}},required:["title","description"] as const}},
+        }, required:["planId","steps"] as const,
+      },
+      handler: async (args: {planId:string;steps:Array<{id?:string;title:string;description:string}>}) => {
+        try {
+          const plan = await revisePlan(projectId,args.planId,args.steps.map((step,i)=>({...step,id:step.id ?? randomUUID(),order:i+1})));
+          emitToolEvent(projectId,"update_plan","end",{plan});
+          return {success:true,plan};
+        } catch(err) { return {success:false,error:err instanceof Error ? err.message : String(err)}; }
       },
     }),
 
