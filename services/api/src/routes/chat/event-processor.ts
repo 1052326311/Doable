@@ -98,7 +98,7 @@ export function createProcessEvent(
     // later only if recovery fails (see send-handler.ts).
     // EXCEPTION: Rate limit errors are sent immediately — they are not
     // transient and the user needs to know why generation stopped.
-    const sseData = mapEventToSSE(event);
+    const sseData = mapEventToSSE(event, { preserveThinkingMarkers: true });
     if (sseData) {
       if (evtType === "session.error" && sseData.type === "error") {
         const errMsg = typeof sseData.data === "string" ? sseData.data : "Unknown error";
