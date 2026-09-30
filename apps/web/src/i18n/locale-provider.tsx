@@ -54,6 +54,7 @@ export function LocaleProvider({
   return (
     <LocaleContext.Provider value={{ locale, setLocale }}>
       <NextIntlClientProvider
+        timeZone="UTC"
         locale={locale}
         messages={(locale === "en" ? en : zh) as AbstractIntlMessages}
       >
