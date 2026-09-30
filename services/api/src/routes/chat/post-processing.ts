@@ -18,6 +18,8 @@ import { mapEventToSSE } from "../../ai/sse-mapper.js";
 import { scheduleThumbnailCapture } from "../../ai/thumbnail.js";
 import { getCopilotManager } from "../../ai/providers/copilot-manager.js";
 import { finalSaveAssistantMessage } from "./message-persistence.js";
+import { getPlan } from "../../ai/plan-store.js";
+import { planToMarkdown } from "../../ai/plan-state.js";
 import { activeRequests } from "./session-state.js";
 
 const ctxManager = contextManager(sql);
@@ -170,7 +172,8 @@ export async function handleFinalCleanup(
   // In plan mode, save assistant response as .doable/plan.md
   if (mode === "plan" && state.assistantContent) {
     try {
-      const planContent = extractPlanFromResponse(state.assistantContent);
+      const structuredPlan = await getPlan(projectId);
+      const planContent = structuredPlan ? planToMarkdown(structuredPlan) : extractPlanFromResponse(state.assistantContent);
       if (planContent) {
         await ctxManager.updateContextFile(projectId, "plan.md", planContent);
       }

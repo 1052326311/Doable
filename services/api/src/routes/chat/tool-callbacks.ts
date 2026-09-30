@@ -524,16 +524,7 @@ export function createToolProgressCallbacks(
               stream.writeSSE({ data: JSON.stringify({
                 type: "plan", data: { plan },
               }) }).catch(() => {});
-              sql`INSERT INTO plans (id, project_id, summary, complexity, status, created_at)
-                  VALUES (${plan.id}, ${plan.projectId ?? ""}, ${plan.summary}, ${plan.complexity}, 'draft', now())
-                  ON CONFLICT (id) DO NOTHING`.catch(() => {});
-              if (Array.isArray(plan.steps)) {
-                for (const step of plan.steps) {
-                  sql`INSERT INTO plan_steps (id, plan_id, "order", title, description, details, status, file_paths)
-                      VALUES (${step.id}, ${plan.id}, ${step.order}, ${step.title}, ${step.description}, ${step.details ?? null}, 'pending', ${step.filePaths ?? null})
-                      ON CONFLICT (id) DO NOTHING`.catch(() => {});
-                }
-              }
+
             }
           }
         } catch { /* non-critical */ }

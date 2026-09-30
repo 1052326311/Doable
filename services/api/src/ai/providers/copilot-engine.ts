@@ -26,7 +26,7 @@ const PLAN_ALLOWED_TOOLS = new Set([
   // Custom read-only tools
   "read_file", "list_files", "search_files",
   // Custom plan-specific tools
-  "ask_clarification", "create_plan", "mark_step_complete",
+  "ask_clarification", "create_plan", "get_plan",
 ]);
 
 // Tools whose first argument is a project file path that may need
