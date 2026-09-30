@@ -12,11 +12,11 @@ export type SortDir = "asc" | "desc";
 export const VIEW_MODE_KEY = "doable_dashboard_view";
 
 export const GREETINGS = [
-  "Bring frontier AI to the enterprise, {name}",
-  "What business challenge will you solve today, {name}?",
-  "Turn an idea into a working app, {name}",
-  "Build for real-world impact, {name}",
-  "Take your next idea from demo to delivery, {name}"
+  "Let's make it Doable, {name}",
+  "What's Doable today, {name}?",
+  "Ready to get it done, {name}?",
+  "Dream it. Do it, {name}",
+  "What will you ship, {name}?"
 ];
 
 export const PROJECT_GRADIENTS = [

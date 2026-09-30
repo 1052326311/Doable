@@ -37191,15 +37191,6 @@
       }
     ]
   },
-  "m773287dbe57b": {
-    "source": "Set up your FDE workspace",
-    "locations": [
-      {
-        "file": "manual review",
-        "kind": "reviewed"
-      }
-    ]
-  },
   "m45855bb05ece": {
     "source": "I want to send my friend a working app.",
     "locations": [
@@ -37525,7 +37516,7 @@
     ]
   },
   "me012cf0c64ea": {
-    "source": "Bring frontier AI to the enterprise, {name}",
+    "source": "Let's make it Doable, {name}",
     "locations": [
       {
         "file": "dashboard",
@@ -37534,7 +37525,7 @@
     ]
   },
   "mb48bddfa2484": {
-    "source": "What business challenge will you solve today, {name}?",
+    "source": "What's Doable today, {name}?",
     "locations": [
       {
         "file": "dashboard",
@@ -37543,7 +37534,7 @@
     ]
   },
   "m69d3f0312d50": {
-    "source": "Turn an idea into a working app, {name}",
+    "source": "Ready to get it done, {name}?",
     "locations": [
       {
         "file": "dashboard",
@@ -37552,7 +37543,7 @@
     ]
   },
   "m8449d78cdc66": {
-    "source": "Build for real-world impact, {name}",
+    "source": "Dream it. Do it, {name}",
     "locations": [
       {
         "file": "dashboard",
@@ -37561,7 +37552,7 @@
     ]
   },
   "m79824f18e830": {
-    "source": "Take your next idea from demo to delivery, {name}",
+    "source": "What will you ship, {name}?",
     "locations": [
       {
         "file": "dashboard",

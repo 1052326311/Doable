@@ -39,9 +39,7 @@ export function Step1Welcome({ workspaceName, onWorkspaceNameChange, onNext }: P
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-3">
-        <h1 className="text-3xl font-semibold text-foreground tracking-tight"> {ui("Set up your FDE workspace")} </h1>
-        <p className="text-lg font-medium text-foreground">{ui("Bring frontier AI into every enterprise. Empower every FDE.")}</p>
-        <p className="text-sm text-muted-foreground">{ui("Understand business needs. Build working applications. Take AI from demo to delivery.")}</p>
+        <h1 className="text-3xl font-semibold text-foreground tracking-tight"> {ui("Welcome to your Doable")} </h1>
         <p className="text-base text-muted-foreground leading-relaxed max-w-prose"> {ui("You are the platform owner on this install. This short setup walks you through connecting an AI provider, sign-in options, and plans & billing — so your team can sign up and start building. Every step is optional and revisitable from")} <span className="text-foreground font-medium">/admin</span>.
         </p>
       </div>
