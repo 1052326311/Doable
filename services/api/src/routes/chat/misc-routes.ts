@@ -306,6 +306,7 @@ export function registerMiscRoutes(app: Hono<AuthEnv>) {
   // ─── POST /projects/:id/chat/abort ──
   app.post("/projects/:id/chat/abort", async (c) => {
     const projectId = c.req.param("id");
+    activeRequests.get(projectId)?.cancel?.();
     const sessionId = projectSessions.get(projectId) ?? projectSessions.get(`${projectId}:visual-edit`);
     if (sessionId) {
       const engine = getCopilotManager().tryGetEngine(projectId);

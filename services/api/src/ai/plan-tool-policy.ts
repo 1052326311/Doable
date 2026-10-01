@@ -16,6 +16,7 @@ export function selectModeTools<T extends { name?: string }>(
   const progressWrites = new Set(["mark_step_complete", "update_plan"]);
   return tools.filter((tool) => {
     const name = tool.name ?? "";
+    if(name === "report_task_status") return mode !== "plan";
     if (mode === "plan" && progressWrites.has(name)) return false;
     if (allowed) return allowed.has(name);
     return mode === "plan" ? planning.has(name) : !planningOnly.has(name);

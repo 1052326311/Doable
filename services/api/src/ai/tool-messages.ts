@@ -40,6 +40,7 @@ export function friendlyToolMessage(
 
   // Internal SDK tools — give them human-friendly names
   if (toolName === "report_intent") return "Planning";
+  if (toolName === "report_task_status") return "Checking task progress";
   if (toolName === "create_plan") return "Creating plan";
   if (toolName === "mark_step_complete") return "Tracking progress";
 
@@ -293,7 +294,7 @@ export function sanitizeCommand(cmd: string): string {
   return result;
 }
 
-export function sanitizeText(text: string): string {
+export function sanitizeText(text: string, options: { preserveThinkingMarkers?: boolean } = {}): string {
   if (!text) return text;
 
   let result = text;
@@ -303,10 +304,12 @@ export function sanitizeText(text: string): string {
   //    <|channel>thought, <channel>, <|channel|> — Gemma 4
   //    <rationale>, </rationale> — Claude (when prompted)
   //    <answer>, </answer> — DeepSeek (post-thinking answer marker)
-  result = result.replace(/<\/?think>/gi, "");
-  result = result.replace(/<\|?channel\|?>(?:thought)?/gi, "");
-  result = result.replace(/<\/?rationale>/gi, "");
-  result = result.replace(/<\/?answer>/gi, "");
+  if (!options.preserveThinkingMarkers) {
+    result = result.replace(/<\/?think>/gi, "");
+    result = result.replace(/<\|?channel\|?>(?:thought)?/gi, "");
+    result = result.replace(/<\/?rationale>/gi, "");
+    result = result.replace(/<\/?answer>/gi, "");
+  }
 
   // 1. Strip absolute server paths
   result = stripServerPaths(result);
@@ -325,7 +328,7 @@ export function sanitizeText(text: string): string {
  * history on reload.
  */
 export function buildToolActionsFromCalls(
-  toolCalls: Array<{ name?: string; arguments?: Record<string, unknown> | undefined }>,
+  toolCalls: Array<{ name?: string; arguments?: Record<string, unknown> | undefined; status?: string }>,
   assistantMessageId: string,
 ): Array<Record<string, unknown>> {
   return toolCalls.map((tc, i) => {
@@ -339,7 +342,9 @@ export function buildToolActionsFromCalls(
     const lower = toolName.toLowerCase();
 
     let description = toolName;
-    if (
+    if (["create_plan","get_plan","update_plan","mark_step_complete","report_task_status"].includes(toolName)) {
+      description = friendlyToolMessage(toolName,args);
+    } else if (
       lower.includes("bash") || lower.includes("shell") || lower.includes("powershell") ||
       lower.includes("cmd") || lower.includes("exec") || lower.includes("run_command") ||
       lower.includes("terminal")
@@ -385,7 +390,7 @@ export function buildToolActionsFromCalls(
       isExpanded: false,
       isBookmarked: false,
       filePath,
-      status: "completed" as const,
+      status: tc.status === "completed" || tc.status === "failed" ? tc.status : "unknown",
     };
   });
 }

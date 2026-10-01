@@ -1,3 +1,4 @@
+import {extractPlanFromResponse as extractPlan} from "../plan-parser.js";
 import { randomUUID } from "node:crypto";
 import type {
   ConversationMessage,
@@ -195,33 +196,6 @@ export async function* runPlanMode(
 export { planToMarkdown } from "../plan-state.js";
 
 // ─── Plan Extraction (Fallback) ──────────────────────────
-
-function extractPlan(text: string): string | null {
-  // Look for a markdown plan structure in the response
-  const planHeaderPattern = /^#\s+Plan/m;
-
-  if (planHeaderPattern.test(text)) {
-    const match = text.match(planHeaderPattern);
-    if (match?.index !== undefined) {
-      return text.slice(match.index).trim();
-    }
-  }
-
-  // If the whole response looks like a plan, use it all
-  if (
-    text.includes("##") &&
-    (text.includes("Step") || text.includes("Task") || text.includes("Phase"))
-  ) {
-    return `# Plan\n\n${text.trim()}`;
-  }
-
-  // Fallback: wrap the entire response as a plan if long enough
-  if (text.trim().length > 100) {
-    return `# Plan\n\n${text.trim()}`;
-  }
-
-  return null;
-}
 
 // ─── Plan Prompt ──────────────────────────────────────────
 

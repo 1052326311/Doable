@@ -29,7 +29,7 @@ export const projectSessionProviders = new Map<string, string>();
 
 // Track active streaming requests per project so /ai-status can report
 // whether the AI is still working (survives page refresh).
-export const activeRequests = new Map<string, { mode: string; startedAt: number }>();
+export const activeRequests = new Map<string, { mode: string; startedAt: number; cancel?: () => void }>();
 
 /**
  * Evict all cached chat sessions for a project so the next chat message

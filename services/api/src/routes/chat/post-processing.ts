@@ -1,3 +1,4 @@
+import {runOutcome, mayAutoRepair} from "./execution-state.js";
 /**
  * Post-processing after AI streaming completes: auto-fix preview errors,
  * version control, memory update, thumbnail capture, final DB save,
@@ -14,7 +15,7 @@ import { contextManager } from "../../context/manager.js";
 import { broadcastToRoom } from "../../ai/yjs-bridge.js";
 import { detectPreviewError, buildAutoFixPrompt } from "../../ai/preview-errors.js";
 import { extractPlanFromResponse } from "../../ai/plan-parser.js";
-import { mapEventToSSE } from "../../ai/sse-mapper.js";
+import type {RecoveryPipeline} from "./stream-recovery.js";
 import { scheduleThumbnailCapture } from "../../ai/thumbnail.js";
 import { getCopilotManager } from "../../ai/providers/copilot-manager.js";
 import { finalSaveAssistantMessage } from "./message-persistence.js";
@@ -31,20 +32,24 @@ export async function handleAutoFixPreview(
   projectId: string,
   resolvedGithubToken: string | undefined,
   sessionId: string,
+  pipeline?: RecoveryPipeline,
 ): Promise<void> {
-  if (!state.hadToolCalls || !isProjectScaffolded(projectId)) return;
+  if (!pipeline || !mayAutoRepair(state) || !isProjectScaffolded(projectId)) return;
 
   try {
     const MAX_FIX_ATTEMPTS = 3;
     let fixedSuccessfully = false;
 
     for (let attempt = 0; attempt < MAX_FIX_ATTEMPTS; attempt++) {
+      if (!mayAutoRepair(state)) return;
       await stream.writeSSE({
         data: JSON.stringify({ type: "status", data: { phase: "checking", message: "Checking preview for errors..." } }),
       });
 
       await new Promise((r) => setTimeout(r, 1500));
+      if (!mayAutoRepair(state)) return;
       const previewError = await detectPreviewError(projectId);
+      if (!mayAutoRepair(state)) return;
       if (!previewError) {
         if (attempt > 0) {
           await stream.writeSSE({ data: JSON.stringify({ type: "status", data: { phase: "fixed", message: "Error fixed successfully" } }) });
@@ -64,16 +69,24 @@ export async function handleAutoFixPreview(
 
       try {
         const fixEngine = await getCopilotManager().getEngine(projectId, resolvedGithubToken);
+        if (!mayAutoRepair(state)) return;
+        state.recoveryCycle=(state.recoveryCycle ?? 0)+1;
         await fixEngine.sendMessage(
           sessionId,
           buildAutoFixPrompt(previewError.message),
           undefined,
-          (event: import("@github/copilot-sdk").SessionEvent) => {
-            const sseData = mapEventToSSE(event);
-            if (sseData) stream.writeSSE({ data: JSON.stringify(sseData) }).catch(() => {});
-          },
+          pipeline.process,
         );
+        await pipeline.flush();
+        if (state.deferredError) {
+          state.runOutcome ??= "error";
+          await stream.writeSSE({data:JSON.stringify({type:"error",data:state.deferredError})});
+          return;
+        }
+        if (!mayAutoRepair(state)) return;
       } catch (fixErr) {
+        state.runOutcome ??= "error";
+        await stream.writeSSE({data:JSON.stringify({type:"error",data:fixErr instanceof Error ? fixErr.message : String(fixErr)})});
         console.warn(`[Chat] Auto-fix attempt ${attempt + 1} failed:`, fixErr);
         break;
       }
@@ -82,17 +95,21 @@ export async function handleAutoFixPreview(
       });
     }
 
-    if (!fixedSuccessfully) {
+    if (!fixedSuccessfully && mayAutoRepair(state)) {
       await new Promise((r) => setTimeout(r, 1500));
+      if (!mayAutoRepair(state)) return;
       const finalError = await detectPreviewError(projectId);
+      if (!mayAutoRepair(state)) return;
       if (!finalError) {
         await stream.writeSSE({ data: JSON.stringify({ type: "status", data: { phase: "fixed", message: "Error fixed successfully" } }) });
         await stream.writeSSE({ data: JSON.stringify({ type: "auto_fix_complete", data: { success: true } }) });
       } else {
+        state.runOutcome ??= "error";
         await stream.writeSSE({ data: JSON.stringify({ type: "auto_fix_complete", data: { success: false, error: finalError.message } }) });
       }
     }
   } catch (autoFixErr) {
+    state.runOutcome ??= "error";
     console.warn("[Chat] Auto-fix system failed:", autoFixErr);
   }
 }
@@ -108,7 +125,7 @@ export async function handleVersionAndMemory(
 ): Promise<void> {
   state.traceCollector?.onSseEmit("post_processing_start", { phase: "version_control", hadToolCalls: state.hadToolCalls });
 
-  if (state.hadToolCalls && isProjectScaffolded(projectId)) {
+  if (state.taskReport?.intent === "change" && isProjectScaffolded(projectId)) {
     try {
       const projectPath = getProjectPath(projectId);
       if (isGitRepo(projectPath)) {
@@ -196,7 +213,7 @@ export async function handleFinalCleanup(
       // correlation. The SDK session lifecycle is managed by
       // projectSessions / ai_sessions, not by the trace context.
       if (state.assistantMessageId) state.traceCollector.setMessageId(state.assistantMessageId);
-      state.traceCollector.complete("completed", {
+      state.traceCollector.complete(runOutcome(state), {
         promptTokens: usage.promptTokens,
         completionTokens: usage.completionTokens,
         thinkingTokens: usage.thinkingTokens,
@@ -208,12 +225,12 @@ export async function handleFinalCleanup(
   } else if (state.traceCollector) {
     // Same rationale as above — do not wipe session_id on the trace row.
     if (state.assistantMessageId) state.traceCollector.setMessageId(state.assistantMessageId);
-    state.traceCollector.complete("completed").catch(() => {});
+    state.traceCollector.complete(runOutcome(state)).catch(() => {});
   }
 
   // Done signal
   try {
-    await stream.writeSSE({ data: JSON.stringify({ type: "status", data: { phase: "complete", message: "Done" } }) });
+    await stream.writeSSE({ data: JSON.stringify({ type: "status", data: { phase: runOutcome(state) === "completed" ? "complete" : runOutcome(state), message: runOutcome(state) === "completed" ? "Done" : runOutcome(state) === "waiting" ? "Waiting for your input" : "Task stopped before completion" } }) });
   } catch { /* stream already closed */ }
   console.log(`[Chat] Sending [DONE] for ${projectId}`);
   state.traceCollector?.onStreamEnd("done", state.sseFrameCount);
