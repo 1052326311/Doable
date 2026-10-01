@@ -38,11 +38,12 @@ function recoveryPipeline(
     process(event) {
       state.usageCollector?.onUsageEvent(event);
       state.traceCollector?.onSdkEvent(event as Record<string, unknown>);
-      recordToolEventForTrace(
+      const toolEvent = recordToolEventForTrace(
         state,
         event as Record<string, unknown>,
         () => {},
       );
+      if (toolEvent.suppressDisplay) return;
       const e = event as unknown as {
         type: string;
         data?: Record<string, unknown>;

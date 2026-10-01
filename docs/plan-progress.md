@@ -37,3 +37,10 @@ Recovery removes sentence/word-count intent heuristics. Unknown clients get one 
 No framework, dependency, database schema, or deployment topology change is needed. Existing JSON tool-call history accepts additional result fields. Rollback uses the previous API/Web images; old history remains readable. The tool is read-only metadata and remains available in execution tool manifests, including legacy allow lists. Model conformance and real-tool E2E must be checked before promotion; a passing deterministic replay alone does not qualify a release.
 
 Validation: `pnpm tsx --test services/api/src/routes/chat/execution-state.test.ts services/api/src/routes/chat/stream-recovery.supabase-gate.test.ts`; UI regressions: `pnpm tsx --tsconfig apps/web/tsconfig.tests.json --test apps/web/src/modules/editor/localization-regressions.test.tsx`. Tests cover distinct/repeated/changed reads, failed writes, database tasks, both languages, negations, filenames, missing reports, provider errors and waiting states.
+
+
+### SDK and stream ownership
+
+SDK start/end events are the sole source of tool invocation records and cards, including external tool requests. Hook callbacks only handle supplementary plan, clarification, integration and artifact events. Hooks may omit arguments/IDs, so they must never create synthetic invocation rows. Cached sessions rebind their callbacks to the current HTTP stream before each turn, and post-tool callbacks are awaited before the SDK result consumes their artifact metadata.
+
+`report_task_status` is hidden from operation cards while retaining its structured trace. History cards are projected from saved tool observations; old display-only success labels cannot turn missing evidence into success. The regression suite includes a real hook-plus-SDK replay with empty hook parameters and a cached-callback rebinding check.

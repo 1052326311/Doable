@@ -180,3 +180,28 @@ test("SDK and empty hook mirrors produce one completed invocation and no metadat
   assert.equal(frames.filter(frame => frame.type === "tool_call").length, 1);
   assert.equal(frames.filter(frame => frame.type === "tool_result").length, 1);
 });
+
+test("real external dispatch ACKs preserve final answer before hidden task report",()=>{
+ const {state,frames,emit}=fixture();let count=0;
+ state.traceCollector={onSdkEvent(){},onToolStart(){count++;},onToolEnd(){},onSseEmit(){},onThinkingDelta(){},onTextDelta(){}} as any;
+ function call(id:string,name:string,args:Record<string,unknown>){
+   emit("tool.execution_start",{toolCallId:id,toolName:name,arguments:args});
+   emit("external_tool.requested",{requestId:`request-${id}`,sessionId:"session",toolCallId:id,toolName:name,arguments:args});
+   emit("external_tool.completed",{requestId:`request-${id}`});
+   emit("tool.execution_complete",{toolCallId:id,success:true,result:{content:JSON.stringify({success:true,...args}),detailedContent:JSON.stringify({success:true,...args})}});
+ }
+ call("report1","report_task_status",{intent:"read_only",status:"in_progress"});
+ call("read1","read_file",{path:"package.json"});
+ call("read2","read_file",{path:"src/App.tsx"});
+ const answer="当前应用使用 React、TypeScript 和 Vite。入口为 src/App.tsx，验收标记 ACK-ANSWER-OK。";
+ emit("assistant.message",{messageId:"answer359",content:answer,toolRequests:[{toolCallId:"report2",name:"report_task_status"}]});
+ call("report2","report_task_status",{intent:"read_only",status:"completed"});
+ emit("assistant.message",{messageId:"answer382",content:"只读检查已完成。"});
+ emit("session.idle",{});finalizeLeadingResponse(state);
+ assert.ok(state.assistantContent.includes(answer));assert.ok(state.assistantContent.includes("ACK-ANSWER-OK"));
+ assert.equal(count,4);assert.equal(state.assistantToolCalls.length,4);
+ assert.equal(frames.filter(f=>f.type==="tool_call").length,2);
+ assert.equal(frames.filter(f=>f.type==="tool_result").length,2);
+ assert.equal(state.pendingToolNames.length,0);
+ assert.ok(frames.filter(f=>f.type==="tool_result").every(f=>(f.data as any).toolCallId));
+});

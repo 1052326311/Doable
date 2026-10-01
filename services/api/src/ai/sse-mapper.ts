@@ -188,6 +188,11 @@ export function extractToolArguments(data: Record<string, unknown>): Record<stri
   return undefined;
 }
 
+/** requestId-only external completions acknowledge dispatch, not tool execution. */
+export function isExternalToolAcknowledgement(data: Record<string, unknown> | undefined): boolean {
+  return !data?.toolCallId || (data.result === undefined && data.output === undefined && typeof data.success !== "boolean");
+}
+
 export function mapEventToSSE(event: Record<string, unknown>, options: { preserveThinkingMarkers?: boolean } = {}): SSEEvent | null {
   const type = event.type as string;
   const data = event.data as Record<string, unknown> | undefined;
@@ -256,6 +261,7 @@ export function mapEventToSSE(event: Record<string, unknown>, options: { preserv
     case "tool.completed":
     case "tool.execution_complete":
     case "external_tool.completed": {
+      if (type === "external_tool.completed" && isExternalToolAcknowledgement(data)) return null;
       const resultToolName = (data?.toolName ?? data?.name) as string;
       const toolResult = data?.result as Record<string, unknown> | undefined;
       if (resultToolName === "report_task_status") return null;
