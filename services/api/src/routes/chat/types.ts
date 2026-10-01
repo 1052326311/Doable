@@ -18,6 +18,8 @@ export interface ChatStreamState {
   lastCapturedMsgId: string | undefined;
   lastMsgIdSepEmitted: boolean;
   msgIdDeltaStart: number;
+  /** Raw ordinary-text delta length for the current SDK message, before routing. */
+  currentMessageTextLength: number;
   assistantMessageId: string | undefined;
   lastFlushLen: number;
   /** Track last thinking_content flush length — mirrors lastFlushLen so a
@@ -109,6 +111,7 @@ export function createInitialState(): ChatStreamState {
     lastCapturedMsgId: undefined,
     lastMsgIdSepEmitted: false,
     msgIdDeltaStart: 0,
+    currentMessageTextLength: 0,
     assistantMessageId: undefined,
     lastFlushLen: 0,
     lastThinkingFlushLen: 0,
