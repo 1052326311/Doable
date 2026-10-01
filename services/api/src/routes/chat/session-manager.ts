@@ -159,7 +159,12 @@ export async function resolveSession(
   skillDirectories: string[] | undefined,
 ): Promise<string> {
   let sessionId = projectSessions.get(sessionKey);
-  if (sessionId) return sessionId;
+  if (sessionId) {
+    const engine = await getCopilotManager().getEngine(projectId, resolvedGithubToken);
+    if (engine.bindToolProgress(sessionId, toolProgress)) return sessionId;
+    projectSessions.delete(sessionKey);
+    sessionId = undefined;
+  }
 
   await stream.writeSSE({
     data: JSON.stringify({ type: "status", data: { phase: "connecting", message: "Connecting to AI..." } }),

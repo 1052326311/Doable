@@ -1,5 +1,6 @@
+import {extractToolArguments} from "../../ai/sse-mapper.js";
 import {classifyProviderError} from "../../ai/provider-error.js";
-import {startTool, finishTool, toolSucceeded} from "./execution-state.js";
+import {startTool} from "./execution-state.js";
 /**
  * Tool callback factories: deduplicating recorder and
  * shared tool-progress hooks created per-request.
@@ -273,10 +274,6 @@ function dlog(msg: string) {
   if (!process.env.MCP_DEBUG) return;
   console.error(`[${new Date().toISOString()}] [tool-callbacks] ${msg}`);
 }
-import {
-  friendlyToolMessage,
-  friendlyToolResult,
-} from "../../ai/tool-messages.js";
 import { extractSseHintPayload } from "../../ai/plan-parser.js";
 
 /** Record invocations, preserving repetitions across cycles. */
@@ -297,36 +294,9 @@ export function createToolProgressCallbacks(
       // Some SDK channels wrap the real tool args under .arguments
       // ({ toolName, arguments: {...real args...}, toolCallId }); unwrap so
       // path/command extraction below finds the user-facing fields.
-      const argsObj = (rawArgs && typeof rawArgs === "object" ? rawArgs : {}) as Record<string, unknown>;
-      const args = (argsObj as { arguments?: Record<string, unknown> }).arguments ?? argsObj;
-      const observation = startTool(state, toolName, args, argsObj.toolCallId as string | undefined);
-      traceCollector?.onToolStart(toolName, args);
-      const friendly = friendlyToolMessage(toolName, args);
-      const a = args;
-      const path =
-        (a.path as string | undefined) ??
-        (a.filePath as string | undefined) ??
-        (a.file as string | undefined) ??
-        (a.target as string | undefined);
-      const rawCmd = a.command ?? a.cmd ?? a.input;
-      const command = typeof rawCmd === "string" ? rawCmd : undefined;
-      const packages = Array.isArray(a.packages)
-        ? (a.packages as unknown[]).filter((p) => typeof p === "string").join(" ")
-        : typeof a.packages === "string" ? (a.packages as string)
-        : typeof a.name === "string" && (toolName.toLowerCase().includes("install") || toolName.toLowerCase().includes("package"))
-          ? (a.name as string) : undefined;
-      stream.writeSSE({ data: JSON.stringify({
-        type: "tool_call",
-        data: {
-          name: toolName,
-          toolCallId: observation.callId,
-          friendlyMessage: friendly,
-          arguments: args,
-          ...(path ? { path } : {}),
-          ...(command ? { command } : {}),
-          ...(packages ? { packages } : {}),
-        },
-      }) }).catch(() => {});
+      const args = extractToolArguments({arguments: rawArgs}) ?? {};
+      // SDK execution events exclusively own the invocation ledger and cards.
+      // Hooks carry supplemental UI/resources, including pre-execution dialogs.
       if (toolName === "request_integration") {
         const a = (args as Record<string, unknown>) ?? {};
         const integrationId = typeof a.integrationId === "string" ? a.integrationId : "";
@@ -369,21 +339,8 @@ export function createToolProgressCallbacks(
         }) }).catch(() => {});
       }
     },
-    onToolEnd: async (toolName: string, rawEndArgs: unknown, result: unknown) => {
+    onToolEnd: async (toolName: string, _rawEndArgs: unknown, result: unknown) => {
       dlog(`onToolEnd ${toolName} pendingUiResources=${pendingUiResources.length}`);
-      const _argsObj = (rawEndArgs && typeof rawEndArgs === "object" ? rawEndArgs : {}) as Record<string, unknown>;
-      const _args = (_argsObj as { arguments?: Record<string, unknown> }).arguments ?? _argsObj;
-      state.hadToolCalls = true;
-      traceCollector?.onToolEnd(toolName, _args, result);
-      const success = toolSucceeded(result);
-      const observation = finishTool(state,toolName,_args,result,success,_argsObj.toolCallId as string | undefined);
-      const friendly = friendlyToolResult(toolName, result, success);
-      const ea = _args;
-      const endPath =
-        (ea.path as string | undefined) ??
-        (ea.filePath as string | undefined) ??
-        (ea.file as string | undefined) ??
-        (ea.target as string | undefined);
       // Pre-rewrite any pendingUiResources NOW so we can attach the
       // resulting artifact refs to the (always-delivered) tool_result
       // event below. We mutate items in place; the drain loop later just
@@ -414,22 +371,6 @@ export function createToolProgressCallbacks(
           (item as unknown as Record<string, unknown>)._persisted = true;
         }
       }
-      // If any artifact was persisted to a project file, surface that path
-      // on the tool_result so the editor's standard "file changed" refresh
-      // path picks it up — same UX as create_file.
-      const persistedPath = collectedArtifacts.find((a) => a.projectPath)?.projectPath;
-      stream.writeSSE({ data: JSON.stringify({
-        type: "tool_result",
-        data: {
-          name: toolName,
-          toolCallId: observation.callId,
-          args: observation.arguments,
-          success: observation.status === "completed",
-          friendlyMessage: friendly,
-          ...(persistedPath ? { path: persistedPath } : endPath ? { path: endPath } : {}),
-          ...(collectedArtifacts.length > 0 ? { artifacts: collectedArtifacts } : {}),
-        },
-      }) }).catch(() => {});
       if (collectedArtifacts.length > 0) {
         // Stash for event-processor to merge into the canonical tool_result
         // emit. Use a process-global stash because the Copilot SDK caches

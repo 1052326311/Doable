@@ -194,6 +194,8 @@ export class CopilotEngine {
   private abortedSessions = new Set<string>();
   private sessionWakeups = new Map<string, () => void>();
   private sessionModes = new Map<string, string>();
+  // Hooks outlive an HTTP stream. Rebind their callback target on every turn.
+  private sessionConfigs = new Map<string, Partial<CopilotSessionConfig>>();
 
   constructor(config: CopilotEngineConfig = {}) {
     this.config = config;
@@ -228,6 +230,7 @@ export class CopilotEngine {
     }
     this.engines.clear();
     this.sessionModes.clear();
+    this.sessionConfigs.clear();
     await this.pool.stop();
     this.pool = null;
     console.log("[CopilotEngine] Pool stopped");
@@ -316,7 +319,7 @@ export class CopilotEngine {
             if (rewritten) return { modifiedArgs: rewritten };
           },
           onPostToolUse: async (input: { toolName: string; toolArgs: unknown; toolResult: unknown }) => {
-            config.toolProgress?.onToolEnd?.(input.toolName, input.toolArgs, input.toolResult);
+            await config.toolProgress?.onToolEnd?.(input.toolName, input.toolArgs, input.toolResult);
           },
           onSessionEnd: async (input: { reason: string; error?: string }) => {
             config.toolProgress?.onSessionEnd?.(input.reason, input.error);
@@ -335,6 +338,7 @@ export class CopilotEngine {
     const sessionId = engine.sessionId!;
     currentSessionId = sessionId;
     this.engines.set(sessionId, engine);
+    this.sessionConfigs.set(sessionId, config);
     return sessionId;
   }
 
@@ -398,7 +402,7 @@ export class CopilotEngine {
               }
               if (rewritten) return { modifiedArgs: rewritten };
             },
-            onPostToolUse: async (input: { toolName: string; toolArgs: unknown; toolResult: unknown }) => { config.toolProgress?.onToolEnd?.(input.toolName, input.toolArgs, input.toolResult); },
+            onPostToolUse: async (input: { toolName: string; toolArgs: unknown; toolResult: unknown }) => { await config.toolProgress?.onToolEnd?.(input.toolName, input.toolArgs, input.toolResult); },
             onSessionEnd: async (input: { reason: string; error?: string }) => { config.toolProgress?.onSessionEnd?.(input.reason, input.error); },
             onErrorOccurred: async (input: { error: string; errorContext: string }) => { config.toolProgress?.onError?.(input.error, input.errorContext); },
           },
@@ -424,7 +428,16 @@ export class CopilotEngine {
     const newSessionId = engine.sessionId!;
     currentSessionId = newSessionId;
     this.engines.set(newSessionId, engine);
+    if (config) this.sessionConfigs.set(newSessionId, config);
     return newSessionId;
+  }
+
+  /** Return false when the cached session was lost and must be resumed. */
+  bindToolProgress(sessionId: string, toolProgress: CopilotSessionConfig["toolProgress"]): boolean {
+    const config = this.sessionConfigs.get(sessionId);
+    if (!config || !this.engines.has(sessionId)) return false;
+    config.toolProgress = toolProgress;
+    return true;
   }
 
   async setSessionMode(sessionId: string, mode: "interactive" | "plan" | "autopilot"): Promise<void> {
@@ -612,11 +625,12 @@ export class CopilotEngine {
     await engine.disconnectSession();
     this.engines.delete(sessionId);
     this.sessionModes.delete(sessionId);
+    this.sessionConfigs.delete(sessionId);
   }
 
   async deleteSession(sessionId: string): Promise<void> {
     const engine = this.engines.get(sessionId);
-    if (engine) { await engine.deleteSession(sessionId); await engine.disconnectSession(); this.engines.delete(sessionId); this.sessionModes.delete(sessionId); }
+    if (engine) { await engine.deleteSession(sessionId); await engine.disconnectSession(); this.engines.delete(sessionId); this.sessionModes.delete(sessionId); this.sessionConfigs.delete(sessionId); }
   }
 
   async getSessionMessages(sessionId: string): Promise<SessionEvent[]> {

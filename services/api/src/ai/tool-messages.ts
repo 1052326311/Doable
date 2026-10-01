@@ -331,7 +331,7 @@ export function buildToolActionsFromCalls(
   toolCalls: Array<{ name?: string; arguments?: Record<string, unknown> | undefined; status?: string }>,
   assistantMessageId: string,
 ): Array<Record<string, unknown>> {
-  return toolCalls.map((tc, i) => {
+  return toolCalls.filter(tc => tc.name !== "report_task_status").map((tc, i) => {
     const toolName = tc.name ?? "unknown";
     const args = tc.arguments ?? {};
     const filePath =
@@ -393,4 +393,11 @@ export function buildToolActionsFromCalls(
       status: tc.status === "completed" || tc.status === "failed" ? tc.status : "unknown",
     };
   });
+}
+
+/** Rebuild cached display cards from observations without rewriting legacy rows. */
+export function projectHistoryToolActions<T extends {id?: unknown; tool_calls?: unknown; tool_actions?: unknown}>(message:T): T {
+  if (!Array.isArray(message.tool_calls) || message.tool_calls.length === 0) return message;
+  const calls=message.tool_calls.filter((call): call is {name?: string; arguments?: Record<string,unknown>;status?:string} => !!call && typeof call === "object");
+  return {...message,tool_actions:buildToolActionsFromCalls(calls,String(message.id ?? "history"))};
 }

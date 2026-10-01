@@ -1,3 +1,4 @@
+import {extractToolArguments} from "../../ai/sse-mapper.js";
 import {startTool, finishTool} from "./execution-state.js";
 /**
  * Shared SDK tool-event → traceCollector / state bookkeeping.
@@ -22,6 +23,7 @@ import type { ChatStreamState } from "./types.js";
 const TOOL_START_EVENT_TYPES = new Set([
   "tool.execution_start",
   "tool.running",
+  "external_tool.requested",
 ]);
 
 /** SDK event types that signal a tool invocation has finished. */
@@ -58,7 +60,7 @@ export function recordToolEventForTrace(
     // Some SDK channels wrap the real tool args under .arguments
     // ({ toolName, arguments: {...real args...}, toolCallId }); unwrap so
     // downstream code finds path/command directly.
-    const toolArgs = ((evtData as { arguments?: Record<string, unknown> }).arguments ?? evtData) as Record<string, unknown>;
+    const toolArgs = extractToolArguments(evtData);
 
     const tcId = evtData.toolCallId as string | undefined;
     if (tcId && tcName) state.toolCallIdMap.set(tcId, tcName);
@@ -72,7 +74,9 @@ export function recordToolEventForTrace(
   if (TOOL_END_EVENT_TYPES.has(evtType)) {
     const tcName = (evtData.toolName ?? evtData.name ?? state.toolCallIdMap.get(String(evtData.toolCallId))) as string | undefined;
     if (!tcName) return { handled: true, phase: "end" };
-    finishTool(state,tcName,evtData.arguments,evtData.result ?? evtData.output,evtData.success as boolean | undefined,evtData.toolCallId as string | undefined);
+    // The mapper also needs the resolved name for ID-only end events.
+    evtData.toolName ??= tcName;
+    finishTool(state,tcName,extractToolArguments(evtData),evtData.result ?? evtData.output,evtData.success as boolean | undefined,evtData.toolCallId as string | undefined);
 
     state.traceCollector?.onToolEnd(tcName, evtData, evtData.result ?? evtData.output ?? null);
     return { handled: true, phase: "end", toolName: tcName };
