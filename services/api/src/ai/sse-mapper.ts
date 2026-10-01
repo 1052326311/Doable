@@ -175,6 +175,19 @@ export class ChannelTokenRouter {
 }
 
 
+/** Decode SDK envelopes once so lifecycle bookkeeping and rendering agree. */
+export function extractToolArguments(data: Record<string, unknown>): Record<string, unknown> | undefined {
+  let value: unknown = data.arguments ?? data.args ?? data.input;
+  for (let depth = 0; depth < 4; depth++) {
+    if (typeof value === "string") { try { value = JSON.parse(value); } catch { return undefined; } }
+    if (!value || typeof value !== "object" || Array.isArray(value)) return undefined;
+    const record = value as Record<string, unknown>;
+    if (record.arguments !== undefined) { value = record.arguments; continue; }
+    return record;
+  }
+  return undefined;
+}
+
 export function mapEventToSSE(event: Record<string, unknown>, options: { preserveThinkingMarkers?: boolean } = {}): SSEEvent | null {
   const type = event.type as string;
   const data = event.data as Record<string, unknown> | undefined;
@@ -225,13 +238,8 @@ export function mapEventToSSE(event: Record<string, unknown>, options: { preserv
     case "external_tool.requested": {
       const startToolName = (data?.toolName ?? data?.name) as string | undefined;
       if (!startToolName) return null;
-      // Unwrap SDK envelope { toolName, arguments: {...real args...}, toolCallId }
-      const rawStartArgs = (data?.arguments ?? data?.args ?? data?.input) as
-        | Record<string, unknown>
-        | undefined;
-      const startArgs = (rawStartArgs && typeof (rawStartArgs as { arguments?: unknown }).arguments === "object")
-        ? (rawStartArgs as { arguments: Record<string, unknown> }).arguments
-        : rawStartArgs;
+      if (startToolName === "report_task_status") return null;
+      const startArgs = extractToolArguments(data ?? {});
       const startPath = (startArgs?.path ?? startArgs?.filePath ?? startArgs?.file ?? startArgs?.target) as string | undefined;
       return {
         type: "tool_call",
@@ -246,26 +254,20 @@ export function mapEventToSSE(event: Record<string, unknown>, options: { preserv
 
     // ─── Tool results (completed) ─────────────────────────
     case "tool.completed":
-    case "tool.execution_complete": {
+    case "tool.execution_complete":
+    case "external_tool.completed": {
       const resultToolName = (data?.toolName ?? data?.name) as string;
       const toolResult = data?.result as Record<string, unknown> | undefined;
-      // Some SDK channels wrap the request args under .arguments
-      // ({ toolName, arguments: {...real args...}, toolCallId }); unwrap so
-      // the client sees the user-facing path/command fields.
-      const rawReqArgs = (data?.arguments ?? data?.args ?? data?.input) as
-        | Record<string, unknown>
-        | undefined;
-      const reqArgs = (rawReqArgs && typeof (rawReqArgs as { arguments?: unknown }).arguments === "object")
-        ? (rawReqArgs as { arguments: Record<string, unknown> }).arguments
-        : rawReqArgs;
+      if (resultToolName === "report_task_status") return null;
+      const reqArgs = extractToolArguments(data ?? {});
       const reqPath = (reqArgs?.path ?? reqArgs?.filePath ?? reqArgs?.file ?? reqArgs?.target) as string | undefined;
       return {
         type: "tool_result",
         data: {
           name: resultToolName,
-          success: toolSucceeded(data?.result,data?.success),
+          success: toolSucceeded(data?.result ?? data?.output,data?.success),
           toolCallId: data?.toolCallId,
-          friendlyMessage: friendlyToolResult(resultToolName, data?.result, toolSucceeded(data?.result,data?.success)),
+          friendlyMessage: friendlyToolResult(resultToolName, data?.result ?? data?.output, toolSucceeded(data?.result ?? data?.output,data?.success)),
           // Pass through request args so the client can label cards with the
           // correct file name (BUG: "Reading file" instead of "Reading App.tsx").
           ...(reqArgs ? { args: reqArgs } : {}),
@@ -276,8 +278,6 @@ export function mapEventToSSE(event: Record<string, unknown>, options: { preserv
         },
       };
     }
-    case "external_tool.completed":
-      return null;
 
     // ─── Errors ───────────────────────────────────────────
     case "session.error": {

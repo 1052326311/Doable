@@ -157,3 +157,26 @@ test("named SDK results clear pending completion and preserve stable invocation 
  const result=frames.find(f=>f.type==="tool_result")?.data as Record<string,unknown>;
  assert.equal(result.toolCallId,"invocation");assert.equal(result.success,true);
 });
+
+test("SDK and empty hook mirrors produce one completed invocation and no metadata card", async () => {
+  const { createToolProgressCallbacks } = await import("./tool-callbacks.js");
+  const { runOutcome } = await import("./execution-state.js");
+  const { state, frames, emit } = fixture();
+  const stream = { writeSSE: async ({data}: {data: string}) => { frames.push(JSON.parse(data)); } } as unknown as import("hono/streaming").SSEStreamingApi;
+  const hooks = createToolProgressCallbacks(stream, state, null, () => {});
+  for (const [name, args, id] of [
+    ["read_file", {path: "package.json"}, "read"],
+    ["report_task_status", {intent: "read_only", status: "completed"}, "report"],
+  ] as const) {
+    emit("tool.execution_start", {toolName: name, arguments: args, toolCallId: id});
+    hooks.onToolStart(name, {});
+    await hooks.onToolEnd(name, {}, {success: true});
+    emit("tool.execution_complete", {toolCallId: id, success: true, result: {success: true}});
+  }
+  assert.equal(state.assistantToolCalls.length, 2);
+  assert.ok(state.assistantToolCalls.every(call => call.status === "completed"));
+  assert.equal(state.pendingToolNames.length, 0);
+  assert.equal(runOutcome(state), "completed");
+  assert.equal(frames.filter(frame => frame.type === "tool_call").length, 1);
+  assert.equal(frames.filter(frame => frame.type === "tool_result").length, 1);
+});

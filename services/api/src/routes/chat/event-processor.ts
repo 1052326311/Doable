@@ -63,7 +63,7 @@ export function createProcessEvent(
     // identical so auto-continue tool events still increment the trace
     // counter.)
     const toolEvt = recordToolEventForTrace(state, event as Record<string, unknown>, recordAssistantToolCall);
-    if (toolEvt.handled && toolEvt.phase === "start" && toolEvt.toolName) {
+    if (toolEvt.handled && toolEvt.phase === "start" && toolEvt.toolName && toolEvt.toolName !== "report_task_status") {
       state.pendingToolNames.push(toolEvt.toolName);
       state.lastToolName = toolEvt.toolName;
       state.friendlyLastTool = friendlyToolMessage(toolEvt.toolName, toolEvt.toolArgs ?? {}) ?? toolEvt.toolName;

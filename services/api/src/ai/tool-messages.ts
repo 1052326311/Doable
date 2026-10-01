@@ -331,7 +331,7 @@ export function buildToolActionsFromCalls(
   toolCalls: Array<{ name?: string; arguments?: Record<string, unknown> | undefined; status?: string }>,
   assistantMessageId: string,
 ): Array<Record<string, unknown>> {
-  return toolCalls.map((tc, i) => {
+  return toolCalls.filter(tc => tc.name !== "report_task_status").map((tc, i) => {
     const toolName = tc.name ?? "unknown";
     const args = tc.arguments ?? {};
     const filePath =
