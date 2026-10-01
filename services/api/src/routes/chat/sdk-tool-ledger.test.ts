@@ -53,3 +53,30 @@ test("supplemental hooks cannot create phantom invocations or duplicate cards",(
  for(const event of ["clarification","plan","integration_required","provision_supabase_required","mcp_ui_resource","artifact_ready"]) assert.ok(hooks.includes(`"${event}"`),event);
  assert.ok(hooks.includes("persistViewerToProject("));assert.ok(hooks.includes("pushArtifacts("));
 });
+
+test("dispatch mirrors count once; request-only acknowledgement is never a result",()=>{
+ const s=createInitialState();let starts=0,ends=0;
+ s.traceCollector={onToolStart(){starts++;},onToolEnd(){ends++;}} as any;
+ const dispatch={type:"external_tool.requested",data:{requestId:"dispatch",sessionId:"session",toolCallId:"one",toolName:"read_file",arguments:{path:"src/App.tsx"}}};
+ assert.equal(recordToolEventForTrace(s,dispatch,()=>{}).phase,"start");
+ assert.equal(recordToolEventForTrace(s,{...dispatch,type:"tool.execution_start"},()=>{}).suppressDisplay,true);
+ const ack={type:"external_tool.completed",data:{requestId:"dispatch"}};
+ assert.equal(recordToolEventForTrace(s,ack,()=>{}).suppressDisplay,true);
+ assert.equal(mapEventToSSE(ack),null);assert.equal(s.assistantToolCalls[0].status,"running");
+ const end={type:"tool.execution_complete",data:{toolCallId:"one",success:true,result:{content:'{"success":true}'}}};
+ assert.equal(recordToolEventForTrace(s,end,()=>{}).phase,"end");
+ assert.equal(recordToolEventForTrace(s,end,()=>{}).suppressDisplay,true);
+ assert.equal(starts,1);assert.equal(ends,1);assert.equal(s.assistantToolCalls.length,1);
+});
+
+test("late duplicate read start cannot reopen an already completed task",()=>{
+ const s=createInitialState();
+ const read={type:"tool.execution_start",data:{toolCallId:"read-late",toolName:"read_file",arguments:{path:"package.json"}}};
+ recordToolEventForTrace(s,read,()=>{});
+ recordToolEventForTrace(s,{type:"tool.execution_complete",data:{toolCallId:"read-late",success:true,result:{content:"ok"}}},()=>{});
+ recordToolEventForTrace(s,{type:"tool.execution_start",data:{toolCallId:"report-last",toolName:"report_task_status",arguments:{intent:"read_only",status:"completed"}}},()=>{});
+ recordToolEventForTrace(s,{type:"tool.execution_complete",data:{toolCallId:"report-last",success:true,result:{success:true}}},()=>{});
+ assert.equal(s.taskReport?.status,"completed");
+ assert.equal(recordToolEventForTrace(s,{...read,type:"external_tool.requested"},()=>{}).suppressDisplay,true);
+ assert.equal(s.taskReport?.status,"completed");assert.equal(s.assistantToolCalls.length,2);
+});
