@@ -394,3 +394,10 @@ export function buildToolActionsFromCalls(
     };
   });
 }
+
+/** Rebuild cached display cards from observations without rewriting legacy rows. */
+export function projectHistoryToolActions<T extends {id?: unknown; tool_calls?: unknown; tool_actions?: unknown}>(message:T): T {
+  if (!Array.isArray(message.tool_calls) || message.tool_calls.length === 0) return message;
+  const calls=message.tool_calls.filter((call): call is {name?: string; arguments?: Record<string,unknown>;status?:string} => !!call && typeof call === "object");
+  return {...message,tool_actions:buildToolActionsFromCalls(calls,String(message.id ?? "history"))};
+}

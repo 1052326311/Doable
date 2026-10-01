@@ -39350,5 +39350,86 @@
         "kind": "dynamic-status"
       }
     ]
+  },
+  "mdb3aec359d8f": {
+    "source": "Checking task progress",
+    "locations": [
+      {
+        "file": "services/api/src/routes/chat/stream-recovery.ts",
+        "kind": "literal"
+      }
+    ]
+  },
+  "m35ea86212979": {
+    "source": "Checking task progress...",
+    "locations": [
+      {
+        "file": "services/api/src/routes/chat/stream-recovery.ts",
+        "kind": "literal"
+      }
+    ]
+  },
+  "ma5d341a5b0db": {
+    "source": "Result not confirmed",
+    "locations": [
+      {
+        "file": "services/api/src/routes/chat/stream-recovery.ts",
+        "kind": "literal"
+      }
+    ]
+  },
+  "me125680b1485": {
+    "source": "Task stopped before completion",
+    "locations": [
+      {
+        "file": "services/api/src/routes/chat/stream-recovery.ts",
+        "kind": "literal"
+      }
+    ]
+  },
+  "mefaddeef953d": {
+    "source": "Task status could not be confirmed. Please resume the task or choose a model with tool calling support.",
+    "locations": [
+      {
+        "file": "services/api/src/routes/chat/stream-recovery.ts",
+        "kind": "literal"
+      }
+    ]
+  },
+  "m87722fea3039": {
+    "source": "The task made no new progress across repeated attempts. You can resume it without losing completed steps.",
+    "locations": [
+      {
+        "file": "services/api/src/routes/chat/stream-recovery.ts",
+        "kind": "literal"
+      }
+    ]
+  },
+  "m30e9da875aed": {
+    "source": "The task reached the continuation limit. Completed work is preserved; resume to continue.",
+    "locations": [
+      {
+        "file": "services/api/src/routes/chat/stream-recovery.ts",
+        "kind": "literal"
+      }
+    ]
+  },
+  "me017a9daa432": {
+    "source": "No completion result received",
+    "locations": [
+      {
+        "file": "services/api/src/routes/chat/stream-recovery.ts",
+        "kind": "literal"
+      }
+    ]
+  },
+  "m5b9442561788": {
+    "source": "Recorded {count} actions",
+    "locations": [
+      {
+        "file": "apps/web/src/app/editor/[projectId]/page.tsx",
+        "kind": "icu"
+      }
+    ]
   }
 }

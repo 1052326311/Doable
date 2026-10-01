@@ -71,18 +71,20 @@ export function SkeletonBars() {
 // ─── Overview Card ──────────────────────────────────────────
 
 export function OverviewCard({
+  lowerIsBetter = false,
   label,
   value,
   change,
   icon: Icon,
 }: {
+  lowerIsBetter?: boolean;
   label: string;
   value: string;
   change: number;
   icon: typeof Users;
 }) {
   const isPositive = change > 0;
-  const isGood = label === "Bounce Rate" ? !isPositive : isPositive;
+  const isGood = lowerIsBetter ? !isPositive : isPositive;
 
   return (
     <div className="rounded-lg border border-border bg-card p-4">

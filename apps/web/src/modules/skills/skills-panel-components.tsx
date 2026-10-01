@@ -30,11 +30,13 @@ const SCOPE_VARIANTS: Record<ScopeType, "default" | "secondary" | "outline"> = {
 // ─── Inline Create Form ─────────────────────────────────────
 
 export function InlineCreateForm({
+  kind,
   label,
   placeholder,
   onSubmit,
   onCancel,
 }: {
+  kind: "skill" | "rule";
   label: string;
   placeholder: string;
   onSubmit: (
@@ -54,7 +56,7 @@ export function InlineCreateForm({
   const [scope, setScope] = useState<ScopeType>("workspace");
   const [autoInvoke, setAutoInvoke] = useState(true);
   const [saving, setSaving] = useState(false);
-  const isSkill = label === "Skill";
+  const isSkill = kind === "skill";
 
   const handleSubmit = useCallback(async () => {
     if (!name.trim()) return;

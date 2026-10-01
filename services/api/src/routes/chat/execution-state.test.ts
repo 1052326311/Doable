@@ -380,3 +380,9 @@ test("automatic preview repair requires change intent and stops for waiting or c
   s.runOutcome = "aborted";
   assert.equal(mayAutoRepair(s), false);
 });
+
+test("history projections replace old fabricated card status without modifying stored rows",async()=>{
+ const {projectHistoryToolActions}=await import("../../ai/tool-messages.js");
+ const row={id:"legacy",tool_calls:[{name:"create_plan"}],tool_actions:[{status:"completed",description:"Creating file"}]};
+ const view=projectHistoryToolActions(row);assert.equal(view.tool_actions[0]!.status,"unknown");assert.equal(view.tool_actions[0]!.description,"Creating plan");assert.equal(row.tool_actions[0]!.status,"completed");
+});

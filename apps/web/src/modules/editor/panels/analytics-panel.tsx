@@ -400,6 +400,7 @@ export function AnalyticsPanel({ projectId, onClose }: AnalyticsPanelProps) {
                       icon={Clock}
                     />
                     <OverviewCard
+                      lowerIsBetter
                       label={ui("Bounce Rate")}
                       value={`${overview.bounceRate.toFixed(1)}%`}
                       change={overview.changes.bounceRate}

@@ -1,3 +1,5 @@
+import { useLocale } from "next-intl";
+
 import { useUiText } from "@/i18n/use-ui-text";
 import { useState, useCallback, useRef, useEffect } from "react";
 
@@ -59,6 +61,7 @@ function messageForError(error: string): string | null {
 }
 
 export function useSpeechRecognition(onResult: (transcript: string) => void) {
+  const locale = useLocale();
   const ui = useUiText();
 
   const [isListening, setIsListening] = useState(false);
@@ -120,7 +123,7 @@ export function useSpeechRecognition(onResult: (transcript: string) => void) {
     const recognition = new Ctor();
     recognition.continuous = true;
     recognition.interimResults = false;
-    recognition.lang = "en-US";
+    recognition.lang = locale === "zh-CN" ? "zh-CN" : "en-US";
 
     recognition.onresult = (event: SpeechRecognitionEvent) => {
       let transcript = "";
@@ -159,7 +162,7 @@ export function useSpeechRecognition(onResult: (transcript: string) => void) {
           : "Voice input couldn't start. Please try again.",
       );
     }
-  }, [ui, isListening, isSupported]);
+  }, [ui, locale, isListening, isSupported]);
 
   return { isListening, isSupported, error, clearError, toggle };
 }

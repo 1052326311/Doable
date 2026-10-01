@@ -1,3 +1,4 @@
+import {projectHistoryToolActions} from "../../ai/tool-messages.js";
 /**
  * Miscellaneous small chat routes: ai-status, traces/live, chat/status,
  * chat/history, clear chat, abort, models, auth-status.
@@ -221,7 +222,7 @@ export function registerMiscRoutes(app: Hono<AuthEnv>) {
           FROM ai_messages WHERE session_id = ${dbSession.id}
           ORDER BY created_at ASC
         `;
-        return c.json({ data: messages, hasMore: false });
+        return c.json({ data: messages.map(projectHistoryToolActions), hasMore: false });
       }
 
       // Cursor-based: get newest N messages (or N before cursor)
@@ -268,7 +269,7 @@ export function registerMiscRoutes(app: Hono<AuthEnv>) {
         hasMore = !!older;
       }
 
-      return c.json({ data: messages, hasMore });
+      return c.json({ data: messages.map(projectHistoryToolActions), hasMore });
     } catch (err) {
       console.warn("[Chat] Failed to load history from DB:", err);
       const sessionId = projectSessions.get(projectId);
@@ -276,7 +277,7 @@ export function registerMiscRoutes(app: Hono<AuthEnv>) {
       try {
         const engine = await getCopilotEngine();
         const messages = await engine.getSessionMessages(sessionId);
-        return c.json({ data: messages, hasMore: false });
+        return c.json({ data: messages.map(projectHistoryToolActions), hasMore: false });
       } catch {
         return c.json({ data: [], hasMore: false });
       }

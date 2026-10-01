@@ -3891,6 +3891,15 @@
     "m6998dfbbd128": "Interface language does not change AI replies or generated apps.",
     "m0beff060665e": "Connecting to AI...",
     "me50a077692e0": "AI is writing code...",
-    "m619eec4a7c1f": "AI is analyzing the project..."
+    "m619eec4a7c1f": "AI is analyzing the project...",
+    "mdb3aec359d8f": "Checking task progress",
+    "m35ea86212979": "Checking task progress...",
+    "ma5d341a5b0db": "Result not confirmed",
+    "me125680b1485": "Task stopped before completion",
+    "mefaddeef953d": "Task status could not be confirmed. Please resume the task or choose a model with tool calling support.",
+    "m87722fea3039": "The task made no new progress across repeated attempts. You can resume it without losing completed steps.",
+    "m30e9da875aed": "The task reached the continuation limit. Completed work is preserved; resume to continue.",
+    "me017a9daa432": "No completion result received",
+    "m5b9442561788": "Recorded {count} actions"
   }
 }

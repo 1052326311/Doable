@@ -187,6 +187,7 @@ export const SkillsPanel = ({ workspaceId, projectId }: SkillsPanelProps) => {
               {/* Skill create form */}
               {showSkillForm && (
                 <InlineCreateForm
+                  kind="skill"
                   label={ui("Skill")}
                   placeholder={ui(
                     "--- name: my-skill trigger: auto --- Skill content here...",
@@ -255,6 +256,7 @@ export const SkillsPanel = ({ workspaceId, projectId }: SkillsPanelProps) => {
               {/* Rule create form */}
               {showRuleForm && (
                 <InlineCreateForm
+                  kind="rule"
                   label={ui("Rule")}
                   placeholder={ui(
                     "Always respond in a friendly tone.\\nNever include raw SQL in responses.",
