@@ -1,3 +1,4 @@
+import {classifyProviderError} from "../../ai/provider-error.js";
 /**
  * processEvent callback factory and helpers for routing SDK events to SSE.
  */
@@ -102,8 +103,10 @@ export function createProcessEvent(
     if (sseData) {
       if (evtType === "session.error" && sseData.type === "error") {
         const errMsg = typeof sseData.data === "string" ? sseData.data : "Unknown error";
-        const isRateLimit = errMsg.toLowerCase().includes("rate limit") || errMsg.includes("429") || errMsg.toLowerCase().includes("quota");
+        state.deferredErrorCode=classifyProviderError(evtData ?? errMsg);
+        const isRateLimit = ["RATE_LIMIT","QUOTA","AUTH"].includes(state.deferredErrorCode);
         if (isRateLimit) {
+          if(state.runOutcome!=="aborted") state.runOutcome="error";
           // Rate limit errors are non-recoverable — surface immediately
           routeSseEvent(stream, state, channelRouter, sseData, evtData, projectId, userId, messageId);
         } else {
@@ -195,17 +198,17 @@ function routeSseEvent(
       sql`UPDATE ai_messages SET had_tool_calls = true WHERE id = ${state.assistantMessageId} AND had_tool_calls = false`.catch(() => {});
     }
     const resultData = sseData.data as Record<string, unknown>;
-    if (!resultData?.name) {
-      const tcId = evtData?.toolCallId as string | undefined;
-      const mappedName = tcId ? state.toolCallIdMap.get(tcId) : undefined;
-      if (mappedName) {
-        resultData.name = mappedName;
-        state.toolCallIdMap.delete(tcId!);
-        const idx = state.pendingToolNames.indexOf(mappedName);
-        if (idx !== -1) state.pendingToolNames.splice(idx, 1);
-      } else if (state.pendingToolNames.length > 0) {
-        resultData.name = state.pendingToolNames.shift();
-      }
+    const tcId = evtData?.toolCallId as string | undefined;
+    resultData.name ??= tcId ? state.toolCallIdMap.get(tcId) : undefined;
+    if (!resultData.name) resultData.name = state.pendingToolNames[0];
+    const pendingIndex = state.pendingToolNames.indexOf(String(resultData.name));
+    if (pendingIndex !== -1) state.pendingToolNames.splice(pendingIndex, 1);
+    // Keep the ID/name mapping for duplicate terminal mirrors and history.
+    const observation = state.assistantToolCalls.find((r) => tcId && r.callId === tcId);
+    if (observation) {
+      resultData.toolCallId = observation.callId;
+      resultData.args ??= observation.arguments;
+      resultData.success = observation.status === "completed";
     }
     // Merge any artifacts stashed by tool-callbacks.onToolEnd. CF Tunnel can
     // drop the dedicated `artifact` / `mcp_ui_resource` SSE events, so the

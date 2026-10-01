@@ -1,3 +1,5 @@
+import {toolSucceeded} from "./tool-outcome.js";
+import {classifyProviderError} from "./provider-error.js";
 /**
  * SSE event mapper — maps SDK session events to SSE events for the client.
  * Also exports ChannelTokenRouter for model thinking/reasoning tag parsing.
@@ -235,6 +237,7 @@ export function mapEventToSSE(event: Record<string, unknown>, options: { preserv
         type: "tool_call",
         data: {
           name: startToolName,
+          toolCallId: data?.toolCallId,
           ...(startArgs ? { arguments: startArgs } : {}),
           ...(startPath ? { path: startPath } : {}),
         },
@@ -260,8 +263,9 @@ export function mapEventToSSE(event: Record<string, unknown>, options: { preserv
         type: "tool_result",
         data: {
           name: resultToolName,
-          success: data?.success,
-          friendlyMessage: friendlyToolResult(resultToolName, data?.result, data?.success),
+          success: toolSucceeded(data?.result,data?.success),
+          toolCallId: data?.toolCallId,
+          friendlyMessage: friendlyToolResult(resultToolName, data?.result, toolSucceeded(data?.result,data?.success)),
           // Pass through request args so the client can label cards with the
           // correct file name (BUG: "Reading file" instead of "Reading App.tsx").
           ...(reqArgs ? { args: reqArgs } : {}),
@@ -278,13 +282,13 @@ export function mapEventToSSE(event: Record<string, unknown>, options: { preserv
     // ─── Errors ───────────────────────────────────────────
     case "session.error": {
       const rawMsg = String(data?.message ?? data?.errorType ?? "Unknown error");
-      const statusCode = data?.statusCode as number | undefined;
+      const category=classifyProviderError(data ?? rawMsg);
       let userMsg: string;
-      if (statusCode === 404 || rawMsg.includes("404")) {
+      if (category === "NOT_FOUND") {
         userMsg = "The AI model is unavailable (404). Check your model ID and provider settings.";
-      } else if (statusCode === 401 || rawMsg.includes("unauthorized") || rawMsg.includes("not authorized")) {
+      } else if (category === "AUTH") {
         userMsg = "Authentication failed with the AI provider. Check your API key.";
-      } else if (statusCode === 429 || statusCode === 503 || rawMsg.includes("rate limit") || rawMsg.includes("rate_limit") || rawMsg.includes("quota")) {
+      } else if (category === "RATE_LIMIT" || category === "QUOTA") {
         userMsg = `⚠️ Rate limit exceeded — the AI provider is rejecting requests due to too many calls. Please wait a minute before trying again, or switch to a different model in AI Settings. (Provider error: ${rawMsg.slice(0, 200)})`;
       } else {
         userMsg = sanitizeText(rawMsg);

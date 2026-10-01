@@ -1,3 +1,5 @@
+import {classifyProviderError} from "../../ai/provider-error.js";
+import {startTool, finishTool, toolSucceeded} from "./execution-state.js";
 /**
  * Tool callback factories: deduplicating recorder and
  * shared tool-progress hooks created per-request.
@@ -277,29 +279,9 @@ import {
 } from "../../ai/tool-messages.js";
 import { extractSseHintPayload } from "../../ai/plan-parser.js";
 
-/** Deduplicating recorder for assistant tool calls. */
+/** Record invocations, preserving repetitions across cycles. */
 export function createRecordAssistantToolCall(state: ChatStreamState) {
-  return (name?: string, args?: unknown) => {
-    if (!name) return;
-    const normalizedArgs = args && typeof args === "object"
-      ? (args as Record<string, unknown>)
-      : undefined;
-    const argsKey = JSON.stringify(normalizedArgs ?? null);
-
-    for (let i = 0; i < state.assistantToolCalls.length; i++) {
-      const e = state.assistantToolCalls[i] as { name?: string; arguments?: unknown };
-      if (e.name !== name) continue;
-      const existingKey = JSON.stringify(e.arguments ?? null);
-      if (existingKey === argsKey) return;
-      if (normalizedArgs && !e.arguments) {
-        state.assistantToolCalls[i] = { name, arguments: normalizedArgs };
-        return;
-      }
-      if (!normalizedArgs && e.arguments) return;
-    }
-    state.assistantToolCalls.push({ name, arguments: normalizedArgs });
-    state.hadToolCalls = true;
-  };
+  return (name?: string, args?: unknown) => { if(name) startTool(state,name,args); };
 }
 
 /** Create shared tool-progress callbacks for session create/resume. */
@@ -317,7 +299,7 @@ export function createToolProgressCallbacks(
       // path/command extraction below finds the user-facing fields.
       const argsObj = (rawArgs && typeof rawArgs === "object" ? rawArgs : {}) as Record<string, unknown>;
       const args = (argsObj as { arguments?: Record<string, unknown> }).arguments ?? argsObj;
-      recordAssistantToolCall(toolName, args);
+      const observation = startTool(state, toolName, args, argsObj.toolCallId as string | undefined);
       traceCollector?.onToolStart(toolName, args);
       const friendly = friendlyToolMessage(toolName, args);
       const a = args;
@@ -337,6 +319,7 @@ export function createToolProgressCallbacks(
         type: "tool_call",
         data: {
           name: toolName,
+          toolCallId: observation.callId,
           friendlyMessage: friendly,
           arguments: args,
           ...(path ? { path } : {}),
@@ -392,7 +375,9 @@ export function createToolProgressCallbacks(
       const _args = (_argsObj as { arguments?: Record<string, unknown> }).arguments ?? _argsObj;
       state.hadToolCalls = true;
       traceCollector?.onToolEnd(toolName, _args, result);
-      const friendly = friendlyToolResult(toolName, result, true);
+      const success = toolSucceeded(result);
+      const observation = finishTool(state,toolName,_args,result,success,_argsObj.toolCallId as string | undefined);
+      const friendly = friendlyToolResult(toolName, result, success);
       const ea = _args;
       const endPath =
         (ea.path as string | undefined) ??
@@ -437,7 +422,9 @@ export function createToolProgressCallbacks(
         type: "tool_result",
         data: {
           name: toolName,
-          success: true,
+          toolCallId: observation.callId,
+          args: observation.arguments,
+          success: observation.status === "completed",
           friendlyMessage: friendly,
           ...(persistedPath ? { path: persistedPath } : endPath ? { path: endPath } : {}),
           ...(collectedArtifacts.length > 0 ? { artifacts: collectedArtifacts } : {}),
@@ -615,14 +602,15 @@ export function createToolProgressCallbacks(
       const errorStr = typeof error === 'object' && error !== null ? JSON.stringify(error) : String(error);
       console.error(`[Chat] Hook error (${context}):`, errorStr);
       if (!errorStr || errorStr === '{}' || errorStr === 'undefined') return;
+      const category=classifyProviderError(error);
       let userMessage: string;
-      if (errorStr.includes("404") || errorStr.includes("not found")) {
+      if (category === "NOT_FOUND") {
         userMessage = "The AI model returned an error (404). The model may be unavailable or the model ID is incorrect. Check your AI settings.";
-      } else if (errorStr.includes("401") || errorStr.includes("unauthorized") || errorStr.includes("not authorized")) {
+      } else if (category === "AUTH") {
         userMessage = "Authentication failed with the AI provider. Please check your API key in AI settings.";
-      } else if (errorStr.includes("429") || errorStr.includes("rate limit")) {
+      } else if (category === "RATE_LIMIT" || category === "QUOTA") {
         userMessage = "Rate limit reached. Please wait a moment and try again.";
-      } else if (errorStr.includes("500") || errorStr.includes("internal server")) {
+      } else if (category === "SERVER") {
         userMessage = "The AI provider returned a server error. Please try again.";
       } else {
         userMessage = "An error occurred while communicating with the AI model. Please try again.";

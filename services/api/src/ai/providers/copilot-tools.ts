@@ -1,3 +1,4 @@
+import {parseTaskReport} from "../../routes/chat/execution-state.js";
 /**
  * Doable-specific tools for Copilot agent sessions.
  *
@@ -147,6 +148,14 @@ export interface DoableToolOptions {
 export function createDoableTools(projectId: string, userId?: string, workspaceId?: string, options?: DoableToolOptions): Tool[] {
   const hasSupabase = options?.hasSupabase ?? false;
   return ([
+    defineTool("report_task_status", {
+      description: "Report the ORIGINAL request intent and lifecycle before acting and before ending. read_only means questions/reviews; change means explicitly requested changes. in_progress means requested work remains; completed means the request is addressed; waiting_for_input means a user decision is needed. Does not mark plan steps complete or authorize actions.",
+      parameters: {type:"object" as const, properties:{intent:{type:"string" as const,enum:["read_only","change"]},status:{type:"string" as const,enum:["in_progress","completed","waiting_for_input"]}},required:["intent","status"]},
+      handler: async (args: Record<string, unknown>) => {
+        const report=parseTaskReport(args);
+        return report ? {success:true,...report} : {success:false,error:"Invalid task report"};
+      },
+    }),
     defineTool("create_file", {
       description: "Create or overwrite a file in the project. Required fields are `path` (RELATIVE, e.g. 'index.html', 'src/App.tsx') and `content` (the full file body as a string). Do NOT use `file_text` — this tool uses `content`. Do NOT pass `command`. Do NOT use absolute paths or `/app/...` prefixes.",
       overridesBuiltInTool: true,

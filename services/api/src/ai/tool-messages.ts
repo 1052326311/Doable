@@ -40,6 +40,7 @@ export function friendlyToolMessage(
 
   // Internal SDK tools — give them human-friendly names
   if (toolName === "report_intent") return "Planning";
+  if (toolName === "report_task_status") return "Checking task progress";
   if (toolName === "create_plan") return "Creating plan";
   if (toolName === "mark_step_complete") return "Tracking progress";
 
@@ -327,7 +328,7 @@ export function sanitizeText(text: string, options: { preserveThinkingMarkers?: 
  * history on reload.
  */
 export function buildToolActionsFromCalls(
-  toolCalls: Array<{ name?: string; arguments?: Record<string, unknown> | undefined }>,
+  toolCalls: Array<{ name?: string; arguments?: Record<string, unknown> | undefined; status?: string }>,
   assistantMessageId: string,
 ): Array<Record<string, unknown>> {
   return toolCalls.map((tc, i) => {
@@ -341,7 +342,9 @@ export function buildToolActionsFromCalls(
     const lower = toolName.toLowerCase();
 
     let description = toolName;
-    if (
+    if (["create_plan","get_plan","update_plan","mark_step_complete","report_task_status"].includes(toolName)) {
+      description = friendlyToolMessage(toolName,args);
+    } else if (
       lower.includes("bash") || lower.includes("shell") || lower.includes("powershell") ||
       lower.includes("cmd") || lower.includes("exec") || lower.includes("run_command") ||
       lower.includes("terminal")
@@ -387,7 +390,7 @@ export function buildToolActionsFromCalls(
       isExpanded: false,
       isBookmarked: false,
       filePath,
-      status: "completed" as const,
+      status: tc.status === "completed" || tc.status === "failed" ? tc.status : "unknown",
     };
   });
 }

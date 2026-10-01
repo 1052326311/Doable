@@ -1,3 +1,4 @@
+import {startTool, finishTool} from "./execution-state.js";
 /**
  * Shared SDK tool-event → traceCollector / state bookkeeping.
  *
@@ -62,15 +63,16 @@ export function recordToolEventForTrace(
     const tcId = evtData.toolCallId as string | undefined;
     if (tcId && tcName) state.toolCallIdMap.set(tcId, tcName);
 
-    recordAssistantToolCall(tcName, toolArgs);
+    startTool(state, tcName, toolArgs, tcId);
     state.traceCollector?.onToolStart(tcName, toolArgs);
     state.hadToolCalls = true;
     return { handled: true, phase: "start", toolName: tcName, toolArgs };
   }
 
   if (TOOL_END_EVENT_TYPES.has(evtType)) {
-    const tcName = (evtData.toolName ?? evtData.name) as string | undefined;
+    const tcName = (evtData.toolName ?? evtData.name ?? state.toolCallIdMap.get(String(evtData.toolCallId))) as string | undefined;
     if (!tcName) return { handled: true, phase: "end" };
+    finishTool(state,tcName,evtData.arguments,evtData.result ?? evtData.output,evtData.success as boolean | undefined,evtData.toolCallId as string | undefined);
 
     state.traceCollector?.onToolEnd(tcName, evtData, evtData.result ?? evtData.output ?? null);
     return { handled: true, phase: "end", toolName: tcName };

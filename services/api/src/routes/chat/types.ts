@@ -8,6 +8,10 @@ import type { SSEStreamingApi } from "hono/streaming";
 
 /** Mutable state bag shared across all stream phases. */
 export interface ChatStreamState {
+  recoveryCycle?: number;
+  taskReport?: import("./execution-state.js").TaskReport;
+  runOutcome?: import("./execution-state.js").RunOutcome;
+  deferredErrorCode?: string;
   assistantContent: string;
   assistantThinking: string;
   hadToolCalls: boolean;

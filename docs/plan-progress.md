@@ -25,3 +25,15 @@ Run the pure tests in `services/api/src/ai/plan-state.test.ts` and `apps/web/src
 - [OpenClaw agent loop](https://docs.openclaw.ai/concepts/agent-loop): stable run IDs and explicit lifecycle/settled state; a wait timeout does not imply cancellation.
 
 These references support separating result state from execution state, with recovery from durable data. They do not guarantee that every provider or transport failure can never delay progress.
+
+## Recovery contract (2026-10-01)
+
+The current request lifecycle is separate from persisted plan steps. `report_task_status` reports structured `intent` (read_only/change) and `status` (in_progress/completed/waiting_for_input) in execution modes. These fields are protocol enums, never translated. They do not grant permissions or complete plan steps. Task reports are model assertions; plan acceptance still requires per-step evidence.
+
+The API owns per-turn tool observations (call ID, cycle, arguments, result digest, status). SDK IDs deduplicate mirrored events; completed invocations must survive repeated calls with identical arguments. Recovery compares complete observations from each cycle, including changed read results. Tool names and successful file writes are not proof the whole request is complete. Legacy history with no result is unknown, not successful.
+
+Recovery removes sentence/word-count intent heuristics. Unknown clients get one bounded status reconciliation; missing reports become a visible stalled outcome. Two unchanged cycles stop recovery, with an absolute six-cycle ceiling. A stalled/error/aborted/waiting outcome is preserved through final cleanup. Cancellation prevents another recovery round; disconnecting the browser still permits the existing background run.
+
+No framework, dependency, database schema, or deployment topology change is needed. Existing JSON tool-call history accepts additional result fields. Rollback uses the previous API/Web images; old history remains readable. The tool is read-only metadata and remains available in execution tool manifests, including legacy allow lists. Model conformance and real-tool E2E must be checked before promotion; a passing deterministic replay alone does not qualify a release.
+
+Validation: `pnpm tsx --test services/api/src/routes/chat/execution-state.test.ts services/api/src/routes/chat/stream-recovery.supabase-gate.test.ts`; UI regressions: `pnpm tsx --tsconfig apps/web/tsconfig.tests.json --test apps/web/src/modules/editor/localization-regressions.test.tsx`. Tests cover distinct/repeated/changed reads, failed writes, database tasks, both languages, negations, filenames, missing reports, provider errors and waiting states.

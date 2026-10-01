@@ -148,3 +148,12 @@ test("catch-up sanitizes only a genuinely missing raw suffix", () => {
     "Read project configuration. Final answer.",
   );
 });
+
+test("named SDK results clear pending completion and preserve stable invocation IDs", () => {
+ const {state,frames,emit}=fixture();
+ emit("tool.execution_start",{toolName:"read_file",toolCallId:"invocation",arguments:{path:"a"}});
+ emit("tool.execution_complete",{toolName:"read_file",toolCallId:"invocation",success:true,result:{content:"ok"}});
+ assert.deepEqual(state.pendingToolNames,[]);
+ const result=frames.find(f=>f.type==="tool_result")?.data as Record<string,unknown>;
+ assert.equal(result.toolCallId,"invocation");assert.equal(result.success,true);
+});

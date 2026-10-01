@@ -41,7 +41,7 @@ import { popArtifacts } from "./artifact-stash.js";
 import { scaffoldAndStartDev, emitConfigTraces, logToolManifest, handleToolEndEvent } from "./send-helpers.js";
 import { checkAndEvictOnModeChange, checkAndEvictOnProviderChange, resolveSession, persistSessionToDb, filterToolsForMode, recreateSession } from "./session-manager.js";
 import { resolveUserDisplay, saveUserMessage, preInsertAssistantMessage } from "./message-persistence.js";
-import { handleAutoContinue, handleEmptyResponseRetry } from "./stream-recovery.js";
+import { handleAutoContinue, handleEmptyResponseRetry, type RecoveryPipeline } from "./stream-recovery.js";
 import { handleAutoFixPreview, handleVersionAndMemory, handleFinalCleanup, handleStreamError } from "./post-processing.js";
 import { writeStreamBuffer, shouldBufferType, type BufferedEvent, type StreamBuffer } from "./stream-buffer.js";
 import { getRateLimitState } from "../../ai/rate-limit-state.js";
@@ -429,6 +429,8 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
         };
 
         const state = createInitialState();
+        const active = activeRequests.get(projectId);
+        if(active) active.cancel = () => { state.runOutcome="aborted"; };
 
         // Register this stream as the channel for blocking "ask the user"
         // prompts (tools that pause mid-turn for a human decision, e.g. the
@@ -480,6 +482,7 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
             return;
           }
           thinkingLoopAborted = true;
+          state.runOutcome="stalled";
           console.warn(`[Chat][${projectId.slice(0, 8)}] thinking_loop watchdog firing — realSilence=${realSilence}ms, no tools, no content`);
           state.traceCollector?.onError("thinking_loop", "STREAM", "thinking_loop_timeout");
           try {
@@ -697,6 +700,7 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
             handleToolEndEvent(stream, toolName, args, projectId);
           });
           const releaseTracker = getCopilotManager().trackRequest(projectId);
+          let recoveryPipeline: RecoveryPipeline | undefined;
 
           try {
             const manager = getCopilotManager();
@@ -767,16 +771,27 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
               had_tool_calls: state.hadToolCalls,
             });
 
-            // Save pre-recovery content length to detect if auto-continue added anything
-            const contentBeforeRecovery = state.assistantContent.length;
-            await tracePhase(state, "auto_continue", () =>
-              handleAutoContinue(stream, state, currentEngine, sessionId!, projectId, mode, recordAssistantToolCall, content),
-            );
+            recoveryPipeline = {
+              process: processEvent,
+              flush: async () => {
+                for (const chunk of channelRouter.flush()) {
+                  if(chunk.type === "text") state.assistantContent += chunk.content;
+                  else if(chunk.type === "thinking") state.assistantThinking += chunk.content;
+                  await stream.writeSSE({data:JSON.stringify({type:chunk.type === "text" ? "text_delta" : chunk.type,data:chunk.content})});
+                }
+                const response=finalizeLeadingResponse(state);
+                if(response) await stream.writeSSE({data:JSON.stringify({type:"thinking_to_text",data:response})});
+              },
+            };
             await tracePhase(state, "empty_response_retry", () =>
-              handleEmptyResponseRetry(stream, state, currentEngine, sessionId!, projectId, augmentedContent, fileAttachments),
+              handleEmptyResponseRetry(stream, state, currentEngine, sessionId!, projectId, augmentedContent, fileAttachments,recoveryPipeline),
+            );
+            await tracePhase(state, "auto_continue", () =>
+              handleAutoContinue(stream, state, currentEngine, sessionId!, projectId, mode, recordAssistantToolCall, content,recoveryPipeline),
             );
 
             if (!state.hadToolCalls && state.sawToolDelta) {
+              state.runOutcome ??= "error";
               await stream.writeSSE({
                 data: JSON.stringify({
                   type: "error",
@@ -785,19 +800,19 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
               });
             }
 
-            // Emit deferred session.error only if auto-continue didn't produce new content
-            if (state.deferredError && state.assistantContent.length <= contentBeforeRecovery) {
-              console.log(`[Chat][${projectId.slice(0, 8)}] emitting deferred error (no recovery): ${state.deferredError.slice(0, 80)}`);
+            // Partial text is not evidence that a provider error was recovered.
+            if (state.deferredError) {
+              state.runOutcome ??= "error";
               await stream.writeSSE({ data: JSON.stringify({ type: "error", data: state.deferredError }) });
-            } else if (state.deferredError) {
-              console.log(`[Chat][${projectId.slice(0, 8)}] swallowed deferred error — auto-continue recovered (${state.assistantContent.length - contentBeforeRecovery} chars added)`);
             }
             state.deferredError = undefined;
 
             // Flush pending tool names
-            for (const pendingName of state.pendingToolNames) {
+            for (const pending of state.assistantToolCalls.filter(r => r.status === "running")) {
+              state.runOutcome ??= "stalled";
+              const pendingName = pending.name;
               const arts = state.pendingArtifacts.get(pendingName) ?? popArtifacts(pendingName);
-              const data: Record<string, unknown> = { name: pendingName, success: true, friendlyMessage: "Done" };
+              const data: Record<string, unknown> = { name: pendingName, toolCallId: pending.callId, friendlyMessage: "No completion result received" };
               if (arts && arts.length > 0) {
                 data.artifacts = arts;
                 state.pendingArtifacts.delete(pendingName);
@@ -817,6 +832,7 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
             }
             state.pendingArtifacts.clear();
           } catch (err) {
+            state.runOutcome ??= "error";
             const msg = err instanceof Error ? err.message : String(err);
             if (msg.includes("not authorized") || msg.includes("policy") || msg.includes("unauthorized")) {
               const manager = getCopilotManager();
@@ -844,9 +860,9 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
           // Skip post-processing entirely if the watchdog already aborted —
           // the stream is in an error state and there's no real assistant
           // content to fix/version/save.
-          if (!thinkingLoopAborted) {
+          if (!thinkingLoopAborted && !state.runOutcome) {
             await tracePhase(state, "auto_fix_preview", () =>
-              handleAutoFixPreview(stream, state, projectId, resolvedGithubToken, sessionId!),
+              handleAutoFixPreview(stream, state, projectId, resolvedGithubToken, sessionId!, recoveryPipeline),
             );
             await tracePhase(state, "version_and_memory", () =>
               handleVersionAndMemory(stream, state, projectId, userId, content, messageId),

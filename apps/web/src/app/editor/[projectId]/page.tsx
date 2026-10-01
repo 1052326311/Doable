@@ -186,12 +186,13 @@ type DeviceMode = "desktop" | "tablet" | "mobile";
 
 interface ToolAction {
   id: string;
+  callId?: string;
   toolName: string;
   description: string;
   isExpanded: boolean;
   isBookmarked?: boolean;
   filePath?: string;
-  status?: "running" | "completed" | "failed";
+  status?: "running" | "completed" | "failed" | "unknown";
 }
 
 interface ChatMsg {
@@ -431,8 +432,8 @@ async function streamChat(
   onChunk: (text: string) => void,
   onDone: () => void,
   onError: (error: string) => void,
-  onToolCompleted?: (toolName: string, args: Record<string, unknown>) => void,
-  onToolStarted?: (toolName: string, args: Record<string, unknown>) => void,
+  onToolCompleted?: (toolName: string, args: Record<string, unknown>, success?: boolean, callId?: string) => void,
+  onToolStarted?: (toolName: string, args: Record<string, unknown>, callId?: string) => void,
   signal?: AbortSignal,
   onThinking?: (text: string) => void,
   onStatusChange?: (status: string, phase?: string) => void,
@@ -577,7 +578,7 @@ async function streamChat(
           // Handle tool_call events — show "in progress" card immediately
           if (parsed.type === "tool_call" && onToolStarted) {
             const d = parsed.data as Record<string, unknown> | undefined;
-            const toolName = (d?.name as string) ?? (d?.toolName as string) ?? "";
+            const toolName = (d?.name as string) ?? (d?.toolName as string) ?? parsed.name ?? "";
             let toolArgs: Record<string, unknown> = {};
             const rawArgs = d?.arguments ?? d?.args;
             if (typeof rawArgs === "string" && rawArgs.trim()) {
@@ -591,14 +592,14 @@ async function streamChat(
             }
             if (toolName) {
               pendingToolNames.push(toolName);
-              onToolStarted(toolName, toolArgs);
+              onToolStarted(toolName, toolArgs, d?.toolCallId as string | undefined);
             }
           }
           
           // Handle tool_executing events — tool arguments are fully available before completing
           if (parsed.type === "tool_executing" && onToolStarted) {
             const d = parsed.data as Record<string, unknown> | undefined;
-            const toolName = (d?.name as string) ?? (d?.toolName as string) ?? "";
+            const toolName = (d?.name as string) ?? (d?.toolName as string) ?? parsed.name ?? "";
             let toolArgs: Record<string, unknown> = {};
             const rawArgs = d?.arguments ?? d?.args;
             if (typeof rawArgs === "string" && rawArgs.trim()) {
@@ -607,25 +608,21 @@ async function streamChat(
               toolArgs = rawArgs as Record<string, unknown>;
             }
             if (toolName) {
-              onToolStarted(toolName, toolArgs);
+              onToolStarted(toolName, toolArgs, d?.toolCallId as string | undefined);
             }
           }
 
           // Handle tool completion events — triggers file tree / content refresh
-          if (parsed.type === "tool.completed" && onToolCompleted) {
-            const toolName = parsed.name ?? (typeof parsed.data === "object" && parsed.data !== null ? (parsed.data as Record<string, unknown>).name as string : "");
-            const toolArgs = parsed.args ?? (typeof parsed.data === "object" && parsed.data !== null ? (parsed.data as Record<string, unknown>).args as Record<string, unknown> : {});
-            onToolCompleted(toolName ?? "", toolArgs ?? {});
-          }
+
 
           // Handle tool_result events — tool finished executing, update card to completed
           if ((parsed.type === "tool_result" || parsed.type === "tool.completed") && onToolCompleted) {
             const d = parsed.data as Record<string, unknown> | undefined;
-            let toolName = (d?.name as string) ?? (d?.toolName as string) ?? "";
+            let toolName = (d?.name as string) ?? (d?.toolName as string) ?? parsed.name ?? "";
             let toolArgs: Record<string, unknown> = {};
             // Prefer the request args (so file-name extraction works) and fall
             // back to the result payload only if args are missing.
-            const rawArgs = d?.arguments ?? d?.args ?? d?.result;
+            const rawArgs = d?.arguments ?? d?.args ?? parsed.args ?? d?.result;
             if (typeof rawArgs === "string" && rawArgs.trim()) {
               try {
                 toolArgs = JSON.parse(rawArgs);
@@ -648,7 +645,7 @@ async function streamChat(
               pendingToolNames.shift();
             }
             if (toolName) {
-              onToolCompleted(toolName, toolArgs);
+              onToolCompleted(toolName, toolArgs, typeof d?.success === "boolean" ? d.success : undefined, d?.toolCallId as string | undefined);
             }
             // Inline artifacts attached to tool_result (resilient
             // alternative to standalone artifact_ready / mcp_ui_resource
@@ -674,7 +671,7 @@ async function streamChat(
             const filePath = (d?.filePath as string) ?? "";
             const action = (d?.action as string) ?? "edit";
             if (filePath) {
-              onToolCompleted(`${action}_file`, { path: filePath });
+              onToolCompleted(`${action}_file`, { path: filePath }, true);
             }
           }
 
@@ -902,8 +899,8 @@ interface BridgeCallbacks {
   onDone: () => void;
   onError: (error: string) => void;
   onUserInputRequest?: (req: UserInputRequestPayload) => void;
-  onToolCompleted?: (toolName: string, args: Record<string, unknown>) => void;
-  onToolStarted?: (toolName: string, args: Record<string, unknown>) => void;
+  onToolCompleted?: (toolName: string, args: Record<string, unknown>, success?: boolean, callId?: string) => void;
+  onToolStarted?: (toolName: string, args: Record<string, unknown>, callId?: string) => void;
   onThinking?: (text: string) => void;
   onStatusChange?: (status: string, phase?: string) => void;
   onClarification?: (questions: ClarificationQuestion[]) => void;
@@ -937,23 +934,19 @@ function processOneSSEPayload(
 
     if (parsed.type === "tool_call" && cb.onToolStarted) {
       const d = parsed.data as Record<string, unknown> | undefined;
-      const toolName = (d?.name as string) ?? (d?.toolName as string) ?? "";
+      const toolName = (d?.name as string) ?? (d?.toolName as string) ?? parsed.name ?? "";
       const toolArgs = (d?.arguments as Record<string, unknown>) ?? {};
       if (toolName) {
         pendingToolNames.push(toolName);
-        cb.onToolStarted(toolName, toolArgs);
+        cb.onToolStarted(toolName, toolArgs, d?.toolCallId as string | undefined);
       }
     }
 
-    if (parsed.type === "tool.completed" && cb.onToolCompleted) {
-      const toolName = parsed.name ?? (typeof parsed.data === "object" && parsed.data !== null ? (parsed.data as Record<string, unknown>).name as string : "");
-      const toolArgs = parsed.args ?? (typeof parsed.data === "object" && parsed.data !== null ? (parsed.data as Record<string, unknown>).args as Record<string, unknown> : {});
-      cb.onToolCompleted(toolName ?? "", toolArgs ?? {});
-    }
+
 
     if ((parsed.type === "tool_result" || parsed.type === "tool.completed") && cb.onToolCompleted) {
       const d = parsed.data as Record<string, unknown> | undefined;
-      let toolName = (d?.name as string) ?? (d?.toolName as string) ?? "";
+      let toolName = (d?.name as string) ?? (d?.toolName as string) ?? parsed.name ?? "";
       // Prefer request args so the file name is visible on the card.
       let toolArgs = ((d?.arguments as Record<string, unknown>) ?? (d?.args as Record<string, unknown>) ?? (d?.result as Record<string, unknown>)) ?? {};
       if (typeof d?.path === "string" && !(toolArgs as Record<string, unknown>).path) {
@@ -964,7 +957,7 @@ function processOneSSEPayload(
       } else if (toolName && pendingToolNames.length > 0 && pendingToolNames[0] === toolName) {
         pendingToolNames.shift();
       }
-      if (toolName) cb.onToolCompleted(toolName, toolArgs);
+      if (toolName) cb.onToolCompleted(toolName, toolArgs, typeof d?.success === "boolean" ? d.success : undefined, d?.toolCallId as string | undefined);
       if (Array.isArray(d?.artifacts) && cb.onArtifactReady) {
         for (const a of d!.artifacts as Array<Record<string, unknown>>) {
           if (typeof a?.url === "string" && typeof a?.fileName === "string" && typeof a?.mimeType === "string") {
@@ -984,7 +977,7 @@ function processOneSSEPayload(
       const d = parsed.data as Record<string, unknown> | undefined;
       const filePath = (d?.filePath as string) ?? "";
       const action = (d?.action as string) ?? "edit";
-      if (filePath) cb.onToolCompleted(`${action}_file`, { path: filePath });
+      if (filePath) cb.onToolCompleted(`${action}_file`, { path: filePath }, true);
     }
 
     if (parsed.type === "clarification" && cb.onClarification) {
@@ -3045,7 +3038,7 @@ function EditorPageInner() {
                 ...(persistedAttachments ? { attachments: persistedAttachments } : {}),
                 thinkingContent,
                 toolActions: m.tool_actions || (Array.isArray(m.tool_calls) && m.tool_calls.length > 0
-                  ? m.tool_calls.map((tc: { name?: string; arguments?: Record<string, unknown> }, i: number) => {
+                  ? m.tool_calls.map((tc: { name?: string; arguments?: Record<string, unknown>; status?: string }, i: number) => {
                       // Some legacy rows store args double-wrapped under .arguments.arguments.
                       const rawArgs = tc.arguments ?? {};
                       const args = (rawArgs.arguments && typeof rawArgs.arguments === "object"
@@ -3058,7 +3051,7 @@ function EditorPageInner() {
                         isExpanded: false,
                         isBookmarked: false,
                         filePath: (args.path ?? args.filePath ?? args.file) as string | undefined,
-                        status: "completed" as const,
+                        status: tc.status === "completed" ? "completed" as const : tc.status === "failed" ? "failed" as const : "unknown" as const,
                       };
                     })
                   : undefined),
@@ -3770,7 +3763,7 @@ function EditorPageInner() {
 
   // ─── Handle tool started — add "running" card + update live status ──
   const handleToolStarted = useCallback(
-    (toolName: string, _args: Record<string, unknown>) => {
+    (toolName: string, _args: Record<string, unknown>, callId?: string) => {
       // Update live status with human-friendly description
       const description = describeToolAction(toolName, _args);
       setLiveStatus(description);
@@ -3787,13 +3780,13 @@ function EditorPageInner() {
         const existing = lastAssistant.toolActions ?? [];
         
         // Find existing running action for this tool
-        const runningIdx = existing.findIndex((a) => a.status === "running" && a.toolName === toolName && (!a.filePath || a.filePath === filePath));
+        const runningIdx = existing.findIndex((a) => callId && a.callId === callId || a.status === "running" && (!callId || !a.callId || a.callId.startsWith("hook-")) && a.toolName === toolName && (!a.filePath || a.filePath === filePath));
         
         if (runningIdx !== -1) {
           // If we got a new filePath or better description, update it!
-          if ((filePath && !existing[runningIdx]!.filePath) || description !== existing[runningIdx]!.description) {
+          if ((callId && existing[runningIdx]!.callId !== callId) || (filePath && !existing[runningIdx]!.filePath) || description !== existing[runningIdx]!.description) {
             const updated = [...existing];
-            updated[runningIdx] = { ...updated[runningIdx]!, filePath: filePath ?? updated[runningIdx]!.filePath, description };
+            updated[runningIdx] = { ...updated[runningIdx]!, callId: callId ?? updated[runningIdx]!.callId, filePath: filePath ?? updated[runningIdx]!.filePath, description };
             return prev.map((m) => m.id === lastAssistant.id ? { ...m, toolActions: updated } : m);
           }
           return prev;
@@ -3801,6 +3794,7 @@ function EditorPageInner() {
         
         const action: ToolAction = {
           id: `tool-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          callId,
           toolName,
           description,
           isExpanded: false,
@@ -3820,7 +3814,8 @@ function EditorPageInner() {
 
   // ─── Handle tool completion — refresh files + update card ─
   const handleToolCompleted = useCallback(
-    (toolName: string, _args: Record<string, unknown>) => {
+    (toolName: string, _args: Record<string, unknown>, success?: boolean, callId?: string) => {
+      const status = success === true ? "completed" as const : success === false ? "failed" as const : "unknown" as const;
       // Update the running tool action card to "completed", or add a new completed card
       setMessages((prev) => {
         const lastAssistant = [...prev].reverse().find((m) => m.role === "assistant");
@@ -3828,7 +3823,7 @@ function EditorPageInner() {
 
         // Try to find a running action with this tool name to mark as completed
         const runningAction = lastAssistant.toolActions?.find(
-          (a) => a.toolName === toolName && a.status === "running"
+          (a) => callId ? a.callId === callId : a.toolName === toolName && a.status === "running"
         );
 
         const filePath = typeof (_args?.path ?? _args?.filePath ?? _args?.file) === "string"
@@ -3848,7 +3843,7 @@ function EditorPageInner() {
                   ...m,
                   toolActions: m.toolActions?.map((a) =>
                     a.id === runningAction.id
-                      ? { ...a, status: "completed" as const, description: keepExistingDesc ? a.description : finalDescription, filePath: filePath ?? a.filePath }
+                      ? { ...a, status: a.status === "failed" ? "failed" : status === "unknown" && a.status === "completed" ? "completed" : status, description: keepExistingDesc ? a.description : finalDescription, filePath: filePath ?? a.filePath }
                       : a
                   ),
                 }
@@ -3859,12 +3854,13 @@ function EditorPageInner() {
         // No running card found — add a new completed card (fallback)
         const action: ToolAction = {
           id: `tool-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          callId,
           toolName,
           description: finalDescription,
           isExpanded: false,
           isBookmarked: false,
           filePath,
-          status: "completed",
+          status,
         };
         return prev.map((m) =>
           m.id === lastAssistant.id
@@ -4039,7 +4035,7 @@ function EditorPageInner() {
                     isStreaming: false,
                     // Mark any remaining "running" tool actions as completed
                     toolActions: m.toolActions?.map((a) =>
-                      a.status === "running" ? { ...a, status: "completed" as const } : a
+                      a.status === "running" ? { ...a, status: "unknown" as const } : a
                     ),
                   }
                 : m
@@ -5882,14 +5878,14 @@ function EditorPageInner() {
                                         <Sparkles className="h-7 w-7 text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.8)] animate-pulse" />
                                         <div className="absolute inset-0 rounded-full border border-dashed border-border animate-[spin_10s_linear_infinite]" />
                                       </>
-                                    ) : (
+                                    ) : allActions.every(a => a.status === "completed") ? (
                                       <Check className="h-7 w-7 text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.8)]" />
-                                    )}
+                                    ) : <Clock className="h-7 w-7 text-muted-foreground" />}
                                   </div>
                                   <h3 className="mt-4 mb-3 text-sm font-semibold text-foreground tracking-wide">
                                     {msg.isStreaming
                                       ? (liveStatus || "Building...")
-                                      : `${allActions.length} ${(allActions.length === 1) ? "change" : "changes"} applied`}
+                                      : `${allActions.every(a => a.status === "completed") ? "Completed" : "Recorded"} ${allActions.length} actions`}
                                   </h3>
                                   
                                   {allActions.length > 0 && (() => {
@@ -5934,9 +5930,9 @@ function EditorPageInner() {
                                                <Loader2 className="h-3 w-3 text-brand-400 animate-spin" />
                                              ) : action.status === "failed" ? (
                                                <XCircle className="h-3 w-3 text-red-400" />
-                                             ) : (
+                                             ) : action.status === "completed" ? (
                                                <Check className="h-3 w-3 text-brand-400" />
-                                             )}
+                                             ) : <span title="Result not confirmed" className="text-muted-foreground">?</span>}
                                           </div>
                                           <span className="text-[11px] font-medium truncate text-foreground flex-1">
                                             {formatDescription(action)}
