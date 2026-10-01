@@ -80,3 +80,13 @@ test("late duplicate read start cannot reopen an already completed task",()=>{
  assert.equal(recordToolEventForTrace(s,{...read,type:"external_tool.requested"},()=>{}).suppressDisplay,true);
  assert.equal(s.taskReport?.status,"completed");assert.equal(s.assistantToolCalls.length,2);
 });
+
+
+test("SDK JSON-string results preserve failures without interpreting file content as status", async () => {
+  const {toolSucceeded} = await import("../../ai/tool-outcome.js");
+  const failure = JSON.stringify({success:false,error:"Denied"});
+  assert.equal(toolSucceeded({content:failure,detailedContent:failure},true),false);
+  assert.equal(toolSucceeded({detailedContent:failure},true),false);
+  const file = JSON.stringify({path:"fixture.json",content:failure});
+  assert.equal(toolSucceeded({content:file,detailedContent:file},true),true);
+});

@@ -1,5 +1,9 @@
 /** Normalize SDK and MCP result envelopes before any display or persistence. */
 export function toolSucceeded(result: unknown, explicit?: unknown): boolean {
+  return evaluateResult(result, explicit, true);
+}
+
+function evaluateResult(result: unknown, explicit: unknown, sdkEnvelope: boolean): boolean {
   if (explicit === false) return false;
   if (result && typeof result === "object") {
     const r = result as Record<string, unknown>;
@@ -7,6 +11,7 @@ export function toolSucceeded(result: unknown, explicit?: unknown): boolean {
     for (const payload of [
       r.output,
       r.textResultForLlm,
+      ...(sdkEnvelope ? [r.content, r.detailedContent] : []),
       ...(Array.isArray(r.content)
         ? r.content.map((item: any) => item?.text)
         : []),
@@ -14,7 +19,7 @@ export function toolSucceeded(result: unknown, explicit?: unknown): boolean {
       if (typeof payload === "string") {
         try {
           const parsed = JSON.parse(payload);
-          if (parsed && typeof parsed === "object" && !toolSucceeded(parsed))
+          if (parsed && typeof parsed === "object" && !evaluateResult(parsed, undefined, false))
             return false;
         } catch {
           /* Plain output is not a machine status. */
