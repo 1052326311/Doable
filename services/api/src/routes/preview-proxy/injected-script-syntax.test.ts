@@ -11,6 +11,6 @@ test("every classic preview bridge parses as the JavaScript delivered to a brows
  for(const html of snippets){
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/gi)];
   assert.ok(scripts.length>0);
-  for(const [index,match] of scripts.entries())assert.doesNotThrow(()=>new Script(match[1],{filename:`injected-${index}.js`}));
+  for(const [index,match] of scripts.entries())assert.doesNotThrow(()=>new Script(match[1]!, {filename:`injected-${index}.js`}));
  }
 });
