@@ -1,3 +1,4 @@
+import {isRejectedFileWrite} from "../../ai/file-tool-validation.js";
 import { toolSucceeded } from "../../ai/tool-outcome.js";
 export { toolSucceeded } from "../../ai/tool-outcome.js";
 import { createHash, randomUUID } from "node:crypto";
@@ -20,6 +21,7 @@ export interface ToolObservation {
   cycle: number;
   status: "running" | "completed" | "failed" | "unknown";
   resultHash?: string;
+  rejectedWithoutEffects?: boolean;
 }
 function canonical(value: unknown): string {
   if (Array.isArray(value)) return `[${value.map(canonical).join(",")}]`;
@@ -111,6 +113,8 @@ export function finishTool(
     record.status === "failed" || !toolSucceeded(result, success)
       ? "failed"
       : "completed";
+  if (record.status === "failed" && isRejectedFileWrite(name, result))
+    record.rejectedWithoutEffects = true;
   record.resultHash = createHash("sha256")
     .update(canonical(result))
     .digest("hex");

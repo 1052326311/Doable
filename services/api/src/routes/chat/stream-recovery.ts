@@ -98,7 +98,8 @@ export async function handleTimeoutRecovery(
   if (state.runOutcome || state.awaitingMcpWidget || state.awaitingSupabaseProvision ||
       state.awaitingIntegrationConnect || state.taskReport?.status === "waiting_for_input" ||
       state.taskReport?.status === "completed" ||
-      state.assistantToolCalls.some(tool => tool.status !== "completed")) return;
+      state.assistantToolCalls.some(tool => tool.status !== "completed" &&
+        !(tool.status === "failed" && tool.rejectedWithoutEffects === true))) return;
   state.deferredError = undefined;
   state.deferredErrorCode = undefined;
   state.taskReport = undefined;
