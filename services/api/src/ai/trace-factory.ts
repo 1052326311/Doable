@@ -360,7 +360,7 @@ export function createTraceCollector(ctx: TraceCollectorContext) {
   function setModel(model: string): void { ctx.model = model; }
 
   async function complete(
-    status: "completed" | "error" | "aborted" | "stalled",
+    status: "completed" | "error" | "aborted" | "stalled" | "waiting",
     usage?: TraceUsageSummary,
   ): Promise<string | null> {
     const turnEndedAt = Date.now();
