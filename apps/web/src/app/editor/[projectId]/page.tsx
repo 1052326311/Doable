@@ -202,6 +202,8 @@ interface ChatMsg {
   timestamp: string;
   isStreaming?: boolean;
   isError?: boolean;
+  runFailed?: boolean;
+  runError?: string;
   toolActions?: ToolAction[];
   feedbackGiven?: "up" | "down" | null;
   suggestions?: string[];  // AI-generated next-step suggestions
@@ -3029,6 +3031,8 @@ function EditorPageInner() {
                 id: m.id,
                 role: m.role as "user" | "assistant",
                 content: displayContent,
+                runFailed: m.run_status === "error" || m.run_status === "stalled",
+                runError: typeof m.run_error === "string" ? m.run_error : undefined,
                 timestamp: new Date(m.created_at).toLocaleTimeString([], {
                   hour: "numeric",
                   minute: "2-digit",
@@ -5782,6 +5786,12 @@ function EditorPageInner() {
                           </details>
                         )}
 
+                        {msg.runFailed && (
+                          <div role="alert" data-testid="chat-run-failure" className="mb-3 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-sm text-red-400">
+                            Task stopped before completion
+                            {msg.runError && <details className="mt-2 text-xs"><summary>Show raw SDK error (for debugging)</summary><p className="mt-1 whitespace-pre-wrap">{msg.runError}</p></details>}
+                          </div>
+                        )}
                         <div
                           className={`text-[14px] leading-relaxed ${
                             msg.isError

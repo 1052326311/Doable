@@ -213,7 +213,7 @@ export async function handleFinalCleanup(
       // correlation. The SDK session lifecycle is managed by
       // projectSessions / ai_sessions, not by the trace context.
       if (state.assistantMessageId) state.traceCollector.setMessageId(state.assistantMessageId);
-      state.traceCollector.complete(runOutcome(state), {
+      await state.traceCollector.complete(runOutcome(state), {
         promptTokens: usage.promptTokens,
         completionTokens: usage.completionTokens,
         thinkingTokens: usage.thinkingTokens,
@@ -225,7 +225,7 @@ export async function handleFinalCleanup(
   } else if (state.traceCollector) {
     // Same rationale as above — do not wipe session_id on the trace row.
     if (state.assistantMessageId) state.traceCollector.setMessageId(state.assistantMessageId);
-    state.traceCollector.complete(runOutcome(state)).catch(() => {});
+    await state.traceCollector.complete(runOutcome(state)).catch(() => {});
   }
 
   // Done signal

@@ -41,7 +41,7 @@ import { popArtifacts } from "./artifact-stash.js";
 import { scaffoldAndStartDev, emitConfigTraces, logToolManifest, handleToolEndEvent } from "./send-helpers.js";
 import { checkAndEvictOnModeChange, checkAndEvictOnProviderChange, resolveSession, persistSessionToDb, filterToolsForMode, recreateSession } from "./session-manager.js";
 import { resolveUserDisplay, saveUserMessage, preInsertAssistantMessage } from "./message-persistence.js";
-import { handleAutoContinue, handleEmptyResponseRetry, type RecoveryPipeline } from "./stream-recovery.js";
+import { handleTimeoutRecovery, handleAutoContinue, handleEmptyResponseRetry, type RecoveryPipeline } from "./stream-recovery.js";
 import { handleAutoFixPreview, handleVersionAndMemory, handleFinalCleanup, handleStreamError } from "./post-processing.js";
 import { writeStreamBuffer, shouldBufferType, type BufferedEvent, type StreamBuffer } from "./stream-buffer.js";
 import { getRateLimitState } from "../../ai/rate-limit-state.js";
@@ -722,6 +722,7 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
               await currentEngine.sendMessage(sessionId!, augmentedContent, fileAttachments.length > 0 ? fileAttachments : undefined, processEvent);
             } catch (err) {
               const msg = err instanceof Error ? err.message : String(err);
+            state.traceCollector?.onError(msg, "stream_failure");
               if (msg.includes("not found") || msg.includes("not started") || msg.includes("stopped")) {
                 console.log(`[Chat] Session/engine lost for ${projectId}: ${msg.slice(0, 80)}`);
                 state.traceCollector?.onSessionEvict(sessionId!, `session_lost:${msg.slice(0, 80)}`);
@@ -783,6 +784,9 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
                 if(response) await stream.writeSSE({data:JSON.stringify({type:"thinking_to_text",data:response})});
               },
             };
+            await tracePhase(state, "timeout_recovery", () =>
+              handleTimeoutRecovery(stream, state, currentEngine, sessionId!, recoveryPipeline),
+            );
             await tracePhase(state, "empty_response_retry", () =>
               handleEmptyResponseRetry(stream, state, currentEngine, sessionId!, projectId, augmentedContent, fileAttachments,recoveryPipeline),
             );
@@ -803,6 +807,7 @@ export function registerSendHandler(app: Hono<AuthEnv>) {
             // Partial text is not evidence that a provider error was recovered.
             if (state.deferredError) {
               state.runOutcome ??= "error";
+              state.traceCollector?.onError(state.deferredError, "unrecovered_provider", state.deferredErrorCode);
               await stream.writeSSE({ data: JSON.stringify({ type: "error", data: state.deferredError }) });
             }
             state.deferredError = undefined;
