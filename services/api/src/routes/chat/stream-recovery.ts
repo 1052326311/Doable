@@ -75,6 +75,55 @@ function recoveryPipeline(
   };
 }
 
+/** A stalled provider may leave a live SDK request behind. Cancel it first,
+ * then resume once from the existing ledger; never replay the original request.
+ * Unknown tool outcomes are deliberately ineligible for automatic resubmission. */
+export async function handleTimeoutRecovery(
+  stream: SSEStreamingApi,
+  state: ChatStreamState,
+  engine: CopilotEngine,
+  sessionId: string,
+  providedPipeline?: RecoveryPipeline,
+): Promise<void> {
+  if (!state.deferredError || state.timeoutRecoveryAttempted ||
+      (state.deferredErrorCode ?? classifyProviderError(state.deferredError)) !== "TIMEOUT") return;
+  state.timeoutRecoveryAttempted = true;
+  try {
+    await engine.quiesceSession(sessionId);
+  } catch (error) {
+    state.runOutcome ??= "error";
+    state.traceCollector?.onError(String(error), "timeout_cancellation");
+    return;
+  }
+  if (state.runOutcome || state.awaitingMcpWidget || state.awaitingSupabaseProvision ||
+      state.awaitingIntegrationConnect || state.taskReport?.status === "waiting_for_input" ||
+      state.taskReport?.status === "completed" ||
+      state.assistantToolCalls.some(tool => tool.status !== "completed")) return;
+  state.deferredError = undefined;
+  state.deferredErrorCode = undefined;
+  state.taskReport = undefined;
+  state.recoveryCycle = (state.recoveryCycle ?? 0) + 1;
+  state.traceCollector?.onAutoContinue(1, "timeout_resume_after_cancellation");
+  await stream.writeSSE({ data: JSON.stringify({ type: "status", data: {
+    phase: "continuing", message: "Checking task progress...",
+  } }) });
+  const pipeline = recoveryPipeline(stream, state, providedPipeline);
+  try {
+    await engine.sendMessage(sessionId,
+      "The previous provider request timed out and has been cancelled. Resume the ORIGINAL user request from the existing conversation and completed tool results. Do not repeat completed changes or external actions. Check existing artifacts before changing them. Work in small verifiable increments. Preserve read-only intent: only modify what the user authorized. Call report_task_status; if input is needed, report waiting_for_input and ask; if fulfilled, report completed and explain the result.",
+      undefined, pipeline.process);
+    await pipeline.flush();
+    // A second timeout must not leave a request running or enter another retry.
+    if (state.deferredError) {
+      await engine.quiesceSession(sessionId);
+      state.runOutcome ??= "error";
+    }
+  } catch (error) {
+    state.runOutcome ??= "error";
+    state.deferredError = error instanceof Error ? error.message : String(error);
+  }
+}
+
 /** Recovery never infers authorization from translated prose. The model reports
  * intent through a validated tool; unknown clients get one reconciliation round. */
 export async function handleAutoContinue(
@@ -199,6 +248,7 @@ export async function handleEmptyResponseRetry(
 ): Promise<void> {
   if (
     state.runOutcome ||
+    state.timeoutRecoveryAttempted ||
     state.assistantContent ||
     state.assistantThinking ||
     state.hadToolCalls

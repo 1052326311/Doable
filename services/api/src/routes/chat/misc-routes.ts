@@ -213,6 +213,20 @@ export function registerMiscRoutes(app: Hono<AuthEnv>) {
       const [dbSession] = await sql`SELECT id FROM ai_sessions WHERE project_id = ${projectId} ORDER BY created_at DESC LIMIT 1`;
       if (!dbSession) return c.json({ data: [], hasMore: false });
 
+      const projectHistory = async (messages: Record<string, any>[]) => {
+        const ids = messages.filter(m => m.role === "assistant").map(m => m.id);
+        const traces = ids.length ? await sql`
+          SELECT DISTINCT ON (message_id) message_id, status, error_message
+          FROM chat_traces WHERE project_id = ${projectId} AND message_id IN ${sql(ids)}
+          ORDER BY message_id, created_at DESC
+        ` : [];
+        const byMessage = new Map(traces.map(t => [t.message_id, t]));
+        return messages.map(message => ({
+          ...projectHistoryToolActions(message),
+          ...(byMessage.has(message.id) ? { run_status: byMessage.get(message.id)!.status,
+            run_error: byMessage.get(message.id)!.error_message } : {}),
+        }));
+      };
       if (returnAll) {
         const messages = await sql`
           SELECT id, role, ${selectMessageContent(sql)} AS content,
@@ -222,7 +236,7 @@ export function registerMiscRoutes(app: Hono<AuthEnv>) {
           FROM ai_messages WHERE session_id = ${dbSession.id}
           ORDER BY created_at ASC
         `;
-        return c.json({ data: messages.map(projectHistoryToolActions), hasMore: false });
+        return c.json({ data: await projectHistory(messages), hasMore: false });
       }
 
       // Cursor-based: get newest N messages (or N before cursor)
@@ -269,7 +283,7 @@ export function registerMiscRoutes(app: Hono<AuthEnv>) {
         hasMore = !!older;
       }
 
-      return c.json({ data: messages.map(projectHistoryToolActions), hasMore });
+      return c.json({ data: await projectHistory(messages), hasMore });
     } catch (err) {
       console.warn("[Chat] Failed to load history from DB:", err);
       const sessionId = projectSessions.get(projectId);

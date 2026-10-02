@@ -614,6 +614,24 @@ export class CopilotEngine {
     return engine.sendAndWait(prompt, timeoutMs) as Promise<AssistantMessageEvent | undefined>;
   }
 
+  /** Recovery must observe cancellation acknowledgement before another send.
+   * Unlike user-stop cleanup, cancellation failure must not be swallowed. */
+  async quiesceSession(sessionId: string): Promise<void> {
+    const engine = this.engines.get(sessionId);
+    if (!engine) throw new Error(`Session ${sessionId} not found`);
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    try {
+      await Promise.race([
+        engine.abort(),
+        new Promise<never>((_, reject) => {
+          timer = setTimeout(() => reject(new Error("Previous AI request did not acknowledge cancellation")), 10_000);
+        }),
+      ]);
+    } finally {
+      if (timer) clearTimeout(timer);
+    }
+  }
+
   async abortSession(sessionId: string): Promise<void> {
     this.abortedSessions.add(sessionId);
     const cb = this.sessionWakeups.get(sessionId);

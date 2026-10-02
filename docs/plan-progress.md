@@ -50,3 +50,13 @@ SDK start/end events are the sole source of tool invocation records and cards, i
 A cached session now fingerprints the effective system prompt (including current project context). An unchanged prompt only rebinds the current turn callbacks. A changed or previously unknown prompt resumes the same SDK session ID with the current system message, preserving history. Persisted sessions also receive the current system message through both engine and SDK resume configuration. If refreshing a cached session fails, the request fails rather than silently using stale instructions. Mode/provider/context eviction clears the fingerprint alongside the session mapping.
 
 The targeted session, execution, ledger, final-response and parser regression run passes 39 tests. Session tests cover unchanged prompts, changed project files, language and protocol preservation, legacy cached sessions, resume failure, lost engine bindings, and project-scoped eviction. These unit tests do not assert that every provider honors resumed system messages; a real provider check remains a separate integration requirement.
+
+### Provider timeout after progress
+
+A provider timeout after successful tools used to fall between both recovery paths: empty-response retry excludes tool activity, while structured continuation excludes deferred errors. The terminal error was then omitted from the saved trace, so history could show only successful tool cards and no explanation of the unfinished task.
+
+Timeout recovery now acknowledges SDK cancellation before a single resume, reuses the existing conversation and tool ledger, and excludes pending/unknown/failed tool results, user stops, input/integration gates, completed task reports and non-timeout provider errors. A repeated timeout is stopped, not replayed. The recovery prompt preserves original authorization and read-only intent. Failed cancellation never permits another send.
+
+Final failure reasons are persisted with the trace. History projects the latest trace outcome for each assistant message in one project-scoped batch query; it does not rewrite assistant content or infer that successful tools mean task completion. Trace persistence precedes the stream's done signal. The editor renders an explicit failure notice alongside any partial response, including old failed traces with no recorded error text.
+
+Regression coverage includes timeout-after-reads, bounded repeat failures, cancellation acknowledgement/rejection, stop-during-cancel, uncertain outcomes and input gates. A production-event-pipeline test feeds read results, a timeout, a resumed write, structured completion and a final answer through the same processor, verifying that the read is not replayed and the answer survives.
