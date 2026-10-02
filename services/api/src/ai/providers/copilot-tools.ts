@@ -1,3 +1,4 @@
+import {validateWriteArguments} from "../file-tool-validation.js";
 import {parseTaskReport} from "../../routes/chat/execution-state.js";
 /**
  * Doable-specific tools for Copilot agent sessions.
@@ -168,6 +169,8 @@ export function createDoableTools(projectId: string, userId?: string, workspaceI
         required: ["path", "content"] as const,
       },
       handler: async (args: { path: string; content: string }) => {
+        const invalid = validateWriteArguments(args);
+        if (invalid) return invalid;
         const frameworkId = await getProjectFramework(projectId);
         const filePath = normalizePath(projectId, args.path, frameworkId);
         const { content } = args;
@@ -222,6 +225,8 @@ export function createDoableTools(projectId: string, userId?: string, workspaceI
         required: ["path", "content"] as const,
       },
       handler: async (args: { path: string; content: string }) => {
+        const invalid = validateWriteArguments(args);
+        if (invalid) return invalid;
         const frameworkId = await getProjectFramework(projectId);
         const filePath = normalizePath(projectId, args.path, frameworkId);
         const { content } = args;

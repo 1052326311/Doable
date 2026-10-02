@@ -57,3 +57,8 @@ test("user abort during cancellation cannot revive the task",async()=>{
   const f=fixture();f.engine.quiesceSession=async()=>{f.state.runOutcome="aborted";};
   await handleTimeoutRecovery(f.stream,f.state,f.engine,"s",f.pipeline);assert.deepEqual(f.calls,[]);assert.equal(f.state.runOutcome,"aborted");
 });
+test("confirmed no-effect argument rejection can resume, without relabeling it successful",async()=>{
+  const f=fixture();f.state.assistantToolCalls.push({name:"create_file",arguments:{},status:"failed",cycle:0,rejectedWithoutEffects:true});
+  await handleTimeoutRecovery(f.stream,f.state,f.engine,"s",f.pipeline);
+  assert.ok(f.calls.includes("resume"));assert.equal(f.state.assistantToolCalls[1].status,"failed");
+});
