@@ -82,7 +82,9 @@ export function registerMiscRoutes(app: Hono<AuthEnv>) {
       const [row] = await sql`SELECT message_id, started_at FROM ai_active_streams WHERE project_id = ${projectId}`;
       if (row) {
         const age = Date.now() - new Date(row.started_at).getTime();
-        if (age > 5 * 60 * 1000) {
+        // A long generation is still active. Age only expires orphaned markers
+        // (for example after an API restart), never the running task itself.
+        if (age > 5 * 60 * 1000 && !activeRequests.has(projectId)) {
           sql`DELETE FROM ai_active_streams WHERE project_id = ${projectId}`.catch(() => {});
           return c.json({ streaming: false });
         }
