@@ -1,3 +1,4 @@
+import {withDependencyLock} from "../../projects/dependency-lock.js";
 import {validateWriteArguments} from "../file-tool-validation.js";
 import {parseTaskReport} from "../../routes/chat/execution-state.js";
 /**
@@ -325,30 +326,36 @@ export function createDoableTools(projectId: string, userId?: string, workspaceI
         // force --include=dev AND NODE_ENV=development on the install spawn.
         const npmArgs = ["install", "--ignore-scripts", "--include=dev", ...(dev ? ["--save-dev"] : []), ...pkgList, "--legacy-peer-deps"];
 
-        return new Promise((resolve) => {
-          const child = spawnCmd("npm", npmArgs, { cwd: projectPath, shell: true, stdio: "pipe", env: { ...process.env, FORCE_COLOR: "0", NODE_ENV: "development" } });
+        const result = await withDependencyLock(projectId, () => new Promise<{success:boolean;message:string;output?:string;error?:string}>((resolve) => {
+          const child = spawnCmd("npm", npmArgs, { cwd: projectPath, shell: process.platform === "win32", stdio: "pipe", env: { ...process.env, FORCE_COLOR: "0", NODE_ENV: "development" } });
           let output = "";
-          child.stdout?.on("data", (d: Buffer) => { output += d.toString(); });
-          child.stderr?.on("data", (d: Buffer) => { output += d.toString(); });
-
-          child.on("close", async (code) => {
-            emitToolEvent(projectId, "install_package", "end", { packages });
-            let restarted = false;
-            if (code === 0 && isRunning(projectId)) {
-              try { await restartDevServer(projectId, userId ? { userId } : undefined); restarted = true; } catch {}
-            }
-            resolve({
-              success: code === 0, packages: pkgList, dev: dev ?? false,
-              message: code === 0 ? `Installed ${pkgList.join(", ")}${restarted ? " (dev server restarted)" : ""}` : `Install failed with code ${code}`,
-              output: output.slice(-500),
-            });
+          let timedOut = false;
+          let killTimer: ReturnType<typeof setTimeout> | undefined;
+          const timer = setTimeout(() => {
+            timedOut = true;
+            child.kill("SIGTERM");
+            killTimer = setTimeout(() => child.kill("SIGKILL"), 5_000);
+          }, 120_000);
+          const cleanup = () => { clearTimeout(timer); if (killTimer) clearTimeout(killTimer); };
+          child.stdout?.on("data", (d: Buffer) => { output = (output + d.toString()).slice(-8_000); });
+          child.stderr?.on("data", (d: Buffer) => { output = (output + d.toString()).slice(-8_000); });
+          // Do not release the dependency lock at timeout: wait for process exit.
+          child.on("close", (code) => {
+            cleanup();
+            const success = code === 0 && !timedOut;
+            resolve({success, message: timedOut ? "npm install timed out" : success ? `Installed ${pkgList.join(", ")}` : `Install failed with code ${code}`, output: output.slice(-500)});
           });
           child.on("error", (err) => {
-            emitToolEvent(projectId, "install_package", "end", { packages });
-            resolve({ success: false, error: err.message, message: `Failed to run npm install: ${err.message}` });
+            cleanup();
+            resolve({success:false,error:err.message,message:`Failed to run npm install: ${err.message}`});
           });
-          setTimeout(() => { child.kill("SIGTERM"); resolve({ success: false, message: "npm install timed out" }); }, 120_000);
-        });
+        }));
+        emitToolEvent(projectId, "install_package", "end", { packages });
+        // Restart may itself ensure dependencies. It must run outside the lock.
+        if (result.success && isRunning(projectId)) {
+          try { await restartDevServer(projectId, userId ? { userId } : undefined); result.message += " (dev server restarted)"; } catch {}
+        }
+        return {...result, packages:pkgList, dev:dev ?? false};
       },
     }),
 
