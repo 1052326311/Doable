@@ -26,7 +26,7 @@ for(const [name,age,active,streaming,deletes] of [
  if(active)activeRequests.set('project',{mode:'agent',startedAt:Date.now()-age});
  try{
   const res=await app.request('/projects/project/chat/status');assert.equal(res.status,200);
-  const body=await res.json();assert.equal(body.streaming,streaming);
+  const body=await res.json() as {streaming:boolean;messageId?:string};assert.equal(body.streaming,streaming);
   if(streaming)assert.equal(body.messageId,'message');
   assert.equal(queries.filter(q=>q.text.includes('DELETE')).length,deletes);
  }finally{activeRequests.delete('project');}
@@ -38,10 +38,12 @@ test('history retains empty/partial failed turns without changing stored content
  {id:'empty',role:'assistant',content:''}];
  const original=JSON.stringify(rows);
  const res=await app.request('/projects/project/chat/history?all=true');assert.equal(res.status,200);
- const {data}=await res.json();
+ const {data}=await res.json() as {data:Array<Record<string,any>>};
+ assert.equal(data.length,3);assert.ok(data[0] && data[1] && data[2]);
  assert.equal(data[1].content,'Partial answer');assert.equal(data[1].run_status,'error');assert.equal(data[1].run_error,'AI timed out');
  assert.equal(data[1].tool_actions[0].status,'completed');assert.equal(data[2].content,'');assert.equal(data[2].run_status,'error');
  assert.equal(data[0].run_status,undefined);assert.equal(JSON.stringify(rows),original);
  const batches=queries.filter(q=>q.text.includes('FROM chat_traces'));assert.equal(batches.length,1);
- assert.equal(batches[0].values[0],'project');assert.deepEqual(batches[0].values[1],['partial','empty']);
+ const batch=batches[0];assert.ok(batch);
+ assert.equal(batch.values[0],'project');assert.deepEqual(batch.values[1],['partial','empty']);
 });
